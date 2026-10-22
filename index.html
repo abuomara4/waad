@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>وعد — الموارد البشرية والمالية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f8fafc;--surface:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--line2:#cbd5e1;--line3:#f1f5f9;--accent:#2563eb;--accent-ink:#fff;--soft:#eff4ff;--soft2:#f1f5f9;--ok:#0d9488;--okbg:rgba(13,148,136,.10);--bad:#b91c1c;--badbg:rgba(239,68,68,.10);--wait:#b45309;--waitbg:rgba(245,158,11,.12);--prim:#131b2e;--prim-h:#1e293b;--prim-ink:#fff;--sh1:0 1px 3px 0 rgba(15,23,42,.04),0 1px 2px -1px rgba(15,23,42,.04);--sh2:0 10px 15px -3px rgba(15,23,42,.06),0 4px 6px -4px rgba(15,23,42,.04);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1220;--surface:#111a2e;--ink:#e2e8f0;--muted:#94a3b8;--line:#1f2a44;--line2:#334155;--line3:#1a2438;--accent:#60a5fa;--accent-ink:#0b1220;--soft:rgba(96,165,250,.14);--soft2:#0f172a;--ok:#5eead4;--okbg:rgba(13,148,136,.22);--bad:#f87171;--badbg:rgba(239,68,68,.16);--wait:#fbbf24;--waitbg:rgba(245,158,11,.16);--prim:#2563eb;--prim-h:#3b82f6;--prim-ink:#fff;--sh1:0 1px 3px 0 rgba(0,0,0,.35);--sh2:0 10px 15px -3px rgba(0,0,0,.45);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1220;--surface:#111a2e;--ink:#e2e8f0;--muted:#94a3b8;--line:#1f2a44;--line2:#334155;--line3:#1a2438;--accent:#60a5fa;--accent-ink:#0b1220;--soft:rgba(96,165,250,.14);--soft2:#0f172a;--ok:#5eead4;--okbg:rgba(13,148,136,.22);--bad:#f87171;--badbg:rgba(239,68,68,.16);--wait:#fbbf24;--waitbg:rgba(245,158,11,.16);--prim:#2563eb;--prim-h:#3b82f6;--prim-ink:#fff;--sh1:0 1px 3px 0 rgba(0,0,0,.35);--sh2:0 10px 15px -3px rgba(0,0,0,.45);color-scheme:dark}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Arabic",Tahoma,Arial,sans-serif;line-height:1.7;font-size:15px}
+[hidden]{display:none!important}
+a{color:var(--accent);text-decoration:none}
+h1{font-size:22px;margin:0 0 4px;font-weight:700}
+h2{font-size:17px;margin:0 0 12px;font-weight:600}
+.muted{color:var(--muted)}.small{font-size:13px}.num{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+/* auth */
+.auth{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.abox{width:100%;max-width:420px}
+.brand{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:18px}
+.mark{width:40px;height:40px;border-radius:10px;background:var(--prim);color:var(--prim-ink);display:grid;place-items:center;font-weight:700;font-size:22px}
+.brand b{font-size:22px}
+.tabs{display:flex;gap:4px;background:var(--soft2);padding:4px;border-radius:10px;margin-bottom:16px}
+.tabs button{flex:1;border:0;background:none;padding:8px;border-radius:8px;font:inherit;color:var(--muted);cursor:pointer}
+.tabs button.on{background:var(--surface);color:var(--ink);box-shadow:var(--sh1);font-weight:600}
+/* shell */
+.shell{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.side{background:var(--surface);border-inline-end:1px solid var(--line);padding:16px 12px;position:sticky;top:0;height:100vh;overflow:auto}
+.side .brand{justify-content:flex-start;margin:0 6px 16px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav .grp{font-size:12px;color:var(--muted);margin:14px 10px 4px;font-weight:600}
+.nav a{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:8px;color:var(--ink)}
+.nav a:hover{background:var(--soft2)}
+.nav a.on{background:var(--soft);color:var(--accent);font-weight:600}
+.pill{background:var(--bad);color:#fff;border-radius:99px;font-size:11px;padding:0 7px;line-height:18px}
+.main{min-width:0}
+.top{display:flex;align-items:center;gap:10px;padding:12px 24px;border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0;z-index:5}
+.top .sp{flex:1}
+.btn.menu{display:none}
+.page{padding:24px;max-width:1200px}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
+/* cards & tables */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--sh1);margin-bottom:16px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.card.kpi{color:var(--ink);display:block}.card.kpi:hover{border-color:var(--line2)}
+.kpi .v{font-size:24px;font-weight:700}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:9px 12px;text-align:start;border-bottom:1px solid var(--line3);white-space:nowrap}
+th{background:var(--soft2);color:var(--muted);font-weight:600;font-size:13px}
+tr:last-child td{border-bottom:0}
+tbody tr.click{cursor:pointer}tbody tr.click:hover{background:var(--soft2)}
+td.r,th.r{text-align:end}
+tfoot td{font-weight:700;background:var(--soft2)}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+.badge{display:inline-block;border-radius:99px;padding:0 10px;font-size:12px;line-height:22px;background:var(--soft2);color:var(--muted)}
+.badge.ok{background:var(--okbg);color:var(--ok)}.badge.bad{background:var(--badbg);color:var(--bad)}.badge.wait{background:var(--waitbg);color:var(--wait)}.badge.info{background:var(--soft);color:var(--accent)}
+/* forms */
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;min-height:40px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+input[type=checkbox]{width:auto;min-height:0}
+.fg{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.fg .wide{grid-column:1/-1}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;border:1px solid var(--line2);background:var(--surface);color:var(--ink);border-radius:8px;padding:7px 14px;cursor:pointer;min-height:38px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--soft2)}
+.btn.pri{background:var(--prim);border-color:var(--prim);color:var(--prim-ink)}.btn.pri:hover{background:var(--prim-h)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.sm{min-height:30px;padding:3px 10px;font-size:13px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.full{width:100%;justify-content:center}
+.err{background:var(--badbg);color:var(--bad);border-radius:8px;padding:8px 12px;margin:10px 0;font-size:14px}
+.note{background:var(--soft);border-radius:8px;padding:10px 12px;font-size:14px;margin:10px 0}
+.code{font-family:ui-monospace,Menlo,monospace;font-size:18px;letter-spacing:3px;background:var(--soft2);border-radius:6px;padding:2px 8px;direction:ltr;display:inline-block}
+dialog{border:0;border-radius:14px;padding:0;width:min(620px,calc(100vw - 32px));background:var(--surface);color:var(--ink);box-shadow:var(--sh2)}
+dialog::backdrop{background:rgba(15,23,42,.45)}
+.dh{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.db{padding:18px;max-height:70vh;overflow:auto}
+.df{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line)}
+.x{border:0;background:none;font-size:22px;cursor:pointer;color:var(--muted)}
+#toast{position:fixed;bottom:20px;inset-inline-start:50%;transform:translateX(50%);background:var(--prim);color:var(--prim-ink);padding:10px 18px;border-radius:10px;box-shadow:var(--sh2);z-index:50;font-size:14px}
+[dir=ltr] #toast{transform:translateX(-50%)}
+.lines td{padding:4px}.lines input,.lines select{min-height:34px;padding:4px 8px}
+.seg{display:inline-flex;gap:2px;background:var(--soft2);padding:3px;border-radius:9px;flex-wrap:wrap}
+.seg a{padding:5px 12px;border-radius:7px;color:var(--muted);font-size:14px}
+.seg a.on{background:var(--surface);color:var(--ink);box-shadow:var(--sh1);font-weight:600}
+.timeline{list-style:none;padding:0;margin:0}.timeline li{padding:6px 0;border-bottom:1px dashed var(--line);font-size:14px}
+@media(max-width:860px){
+ .shell{grid-template-columns:1fr}
+ .side{position:fixed;inset-block:0;inset-inline-start:0;width:270px;z-index:20;transform:translateX(110%);transition:transform .2s;box-shadow:var(--sh2)}
+ [dir=ltr] .side{transform:translateX(-110%)}
+ .side.open{transform:none}
+ .btn.menu{display:inline-flex}
+ .page{padding:16px}
+ .top{padding:10px 16px}
+ .fg{grid-template-columns:1fr}
+}
+@media print{.side,.top,.btn{display:none!important}.shell{display:block}.card{box-shadow:none}}
+
+</style>
+</head>
+<body>
+<div id="app"><div class="auth"><div class="muted">جارٍ التحميل…</div></div></div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+<dialog id="dlg"></dialog>
+<script>
+'use strict';
+/* ===== config: the publishable key is meant to live in the browser; RLS protects the data ===== */
+const CFG = Object.assign({ url: 'https://egfygyfmwqxshvwbevdd.supabase.co', key: 'sb_publishable_D7qaBJ4XKd2omtoK_-SZ6A_-wa0wn-r' }, window.WAAD_CONFIG || {});
+const LS = { get(k) { try { return JSON.parse(localStorage.getItem(k)) } catch (e) { return null } },
+             set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)) } catch (e) {} } };
+
+/* ===== minimal Supabase client (Auth + PostgREST) — no external dependency ===== */
+const S = { session: LS.get('waad.session'), cid: LS.get('waad.cid'), companies: [], role: null, emp: null, perms: new Set(), company: null, myEmp: null };
+let refreshing = null;
+function setSession(s) { S.session = s ? { access_token: s.access_token, refresh_token: s.refresh_token, expires_at: Date.now() + (s.expires_in || 3600) * 1000, user: s.user } : null; LS.set('waad.session', S.session); }
+async function refreshSession() {
+  if (!S.session) throw new Error('no session');
+  if (!refreshing) refreshing = (async () => {
+    const r = await fetch(CFG.url + '/auth/v1/token?grant_type=refresh_token', { method: 'POST', headers: { apikey: CFG.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ refresh_token: S.session.refresh_token }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { setSession(null); throw new ApiError(authMsg(j), 401); }
+    setSession(j);
+  })().finally(() => { refreshing = null; });
+  return refreshing;
+}
+class ApiError extends Error { constructor(m, status, code) { super(m); this.status = status; this.code = code; } }
+const EN_AR = [
+  [/permission denied|row-level security|42501/i, 'ليست لديك صلاحية لهذا الإجراء'],
+  [/duplicate key.*(emp_no)/i, 'الرقم الوظيفي مستخدم مسبقاً'],
+  [/duplicate key.*(code)/i, 'الرمز مستخدم مسبقاً'],
+  [/duplicate key|23505/i, 'السجل موجود مسبقاً'],
+  [/national_id_check|national_id/i, 'رقم الهوية/الإقامة 10 أرقام يبدأ بـ 1 أو 2'],
+  [/iban_check/i, 'الآيبان يبدأ بـ SA ويليه 22 رقماً'],
+  [/vat_no_check/i, 'الرقم الضريبي 15 رقماً يبدأ وينتهي بـ 3'],
+  [/cr_no_check/i, 'السجل التجاري 10 أرقام'],
+  [/phone_check/i, 'رقم الجوال بصيغة 05XXXXXXXX'],
+  [/full_name_check|name_check/i, 'الاسم 3 أحرف على الأقل'],
+  [/violates check constraint/i, 'قيمة غير صالحة في أحد الحقول'],
+  [/violates foreign key/i, 'لا يمكن الحذف لارتباطه بسجلات أخرى'],
+  [/invalid input syntax for type (numeric|integer)/i, 'أدخل رقماً صحيحاً'],
+  [/invalid input syntax for type date/i, 'أدخل تاريخاً صحيحاً'],
+  [/Invalid login credentials/i, 'البريد أو كلمة المرور غير صحيحة'],
+  [/Email not confirmed/i, 'لم يُؤكَّد البريد بعد — افتح رابط التأكيد في بريدك'],
+  [/User already registered/i, 'هذا البريد مسجّل مسبقاً — سجّل الدخول'],
+  [/Password should be at least/i, 'كلمة المرور 8 أحرف على الأقل'],
+  [/rate limit|too many/i, 'محاولات كثيرة — انتظر قليلاً ثم أعد المحاولة'],
+  [/Failed to fetch|NetworkError|Load failed/i, 'تعذّر الاتصال بالخادم — تحقق من الإنترنت'],
+];
+function arMsg(m) { m = String(m || ''); if (/[؀-ۿ]/.test(m)) return m; for (const [re, ar] of EN_AR) if (re.test(m)) return ar; return m || 'حدث خطأ غير متوقع'; }
+function authMsg(j) { return arMsg(j.msg || j.error_description || j.message || j.error || ''); }
+async function api(path, { method = 'GET', body, headers = {}, retry = true } = {}) {
+  if (S.session && Date.now() > S.session.expires_at - 60000) { try { await refreshSession(); } catch (e) {} }
+  const h = Object.assign({ apikey: CFG.key, 'Content-Type': 'application/json' }, headers);
+  if (S.session) h.Authorization = 'Bearer ' + S.session.access_token;
+  let r;
+  try { r = await fetch(CFG.url + path, { method, headers: h, body: body === undefined ? undefined : JSON.stringify(body) }); }
+  catch (e) { throw new ApiError(arMsg(e.message), 0); }
+  if (r.status === 401 && retry && S.session) {
+    const t = await r.clone().text();
+    if (/jwt|expired|token/i.test(t)) { await refreshSession(); return api(path, { method, body, headers, retry: false }); }
+  }
+  const txt = await r.text(); let j = null; try { j = txt ? JSON.parse(txt) : null; } catch (e) { j = txt; }
+  if (!r.ok) throw new ApiError(arMsg((j && (j.message || j.msg || j.error_description)) || r.statusText), r.status, j && j.code);
+  return j;
+}
+const qs = o => Object.entries(o).filter(([, v]) => v !== undefined && v !== null).map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v)).join('&');
+const db = {
+  get: (t, q = {}) => api('/rest/v1/' + t + '?' + qs(Object.assign({ select: '*' }, q))),
+  ins: (t, rows) => api('/rest/v1/' + t, { method: 'POST', body: rows, headers: { Prefer: 'return=representation' } }),
+  upd: (t, q, patch) => api('/rest/v1/' + t + '?' + qs(q), { method: 'PATCH', body: patch, headers: { Prefer: 'return=representation' } }),
+  del: (t, q) => api('/rest/v1/' + t + '?' + qs(q), { method: 'DELETE', headers: { Prefer: 'return=representation' } }),
+  rpc: (fn, args = {}) => api('/rest/v1/rpc/' + fn, { method: 'POST', body: args }),
+};
+const authApi = {
+  async signIn(email, password) { const r = await fetch(CFG.url + '/auth/v1/token?grant_type=password', { method: 'POST', headers: { apikey: CFG.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) }).catch(e => { throw new ApiError(arMsg(e.message), 0); }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new ApiError(authMsg(j), r.status); setSession(j); },
+  async signUp(email, password) { const r = await fetch(CFG.url + '/auth/v1/signup', { method: 'POST', headers: { apikey: CFG.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) }).catch(e => { throw new ApiError(arMsg(e.message), 0); }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new ApiError(authMsg(j), r.status); if (j.access_token) { setSession(j); return true; } return false; },
+  async recover(email) { const r = await fetch(CFG.url + '/auth/v1/recover', { method: 'POST', headers: { apikey: CFG.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) }); if (!r.ok) { const j = await r.json().catch(() => ({})); throw new ApiError(authMsg(j), r.status); } },
+  async signOut() { try { await api('/auth/v1/logout', { method: 'POST', retry: false }); } catch (e) {} setSession(null); LS.set('waad.cid', null); S.cid = null; },
+};
+
+/* ===== helpers ===== */
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const money = v => (v == null || v === '' ? '—' : Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+const n0 = v => Number(v || 0);
+const r2 = v => Math.round((n0(v) + Number.EPSILON) * 100) / 100;
+const today = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+const firstOfMonth = () => today().slice(0, 8) + '01';
+const fdate = d => d ? String(d).slice(0, 10) : '—';
+const ROLES = { owner: 'المالك / المدير العام', admin: 'مدير النظام', hr: 'الموارد البشرية', finance: 'المدير المالي', accountant: 'محاسب', storekeeper: 'أمين مستودع', manager: 'مدير قسم', employee: 'موظف' };
+const STEP = { m: 'المدير المباشر', p: 'الموارد البشرية', f: 'المالية', g: 'المدير العام' };
+const KIND = { leave: 'إجازة', permit: 'استئذان', cert: 'تعريف بالراتب', advance: 'سلفة', resign: 'استقالة', settle: 'مخالصة', expense: 'مطالبة مصروفات', update: 'تحديث بيانات' };
+const STATUS = { pending: ['بانتظار', 'wait'], approved: ['معتمد', 'ok'], rejected: ['مرفوض', 'bad'], cancelled: ['ملغى', ''], draft: ['مسودة', 'wait'], paid: ['مصروف', 'ok'], posted: ['مرحّلة', 'ok'], void: ['ملغاة', 'bad'] };
+const badge = s => { const [t, c] = STATUS[s] || [s, '']; return `<span class="badge ${c}">${esc(t)}</span>`; };
+const has = (...roles) => roles.includes(S.role);
+const FIN_ALL = ['owner', 'admin', 'finance'];
+const can = p => FIN_ALL.includes(S.role) || (['accountant', 'storekeeper'].includes(S.role) && S.perms.has(p));
+const isFin = () => FIN_ALL.concat(['accountant', 'storekeeper']).includes(S.role);
+const isHR = () => has('owner', 'admin', 'hr');
+
+function toast(m) { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 3200); }
+function showErr(where, e) { const box = typeof where === 'string' ? $(where) : where; const m = e && e.message ? e.message : String(e); if (box) { box.innerHTML = `<div class="err" role="alert">${esc(m)}</div>`; } else toast(m); }
+function formData(f) { const o = {}; for (const el of f.elements) { if (!el.name) continue; if (el.type === 'checkbox') o[el.name] = el.checked; else o[el.name] = el.value.trim(); } return o; }
+const blank = v => v === '' || v == null ? null : v;
+async function busy(btn, fn) { if (btn) { btn.disabled = true; } try { return await fn(); } finally { if (btn) btn.disabled = false; } }
+function tbl(cols, rows, { empty = 'لا توجد بيانات', onRow, foot } = {}) {
+  if (!rows || !rows.length) return `<div class="tw"><div class="empty">${esc(empty)}</div></div>`;
+  return `<div class="tw"><table><thead><tr>${cols.map(c => `<th class="${c.r ? 'r' : ''}">${esc(c.t)}</th>`).join('')}</tr></thead><tbody>${rows.map((r, i) => `<tr${onRow ? ` class="click" data-row="${i}"` : ''}>${cols.map(c => `<td class="${c.r ? 'r num' : ''}">${c.h ? c.h(r) : esc(r[c.k])}</td>`).join('')}</tr>`).join('')}</tbody>${foot ? `<tfoot><tr>${foot}</tr></tfoot>` : ''}</table></div>`;
+}
+function bindRows(root, rows, fn) { $$('tr[data-row]', root).forEach(tr => tr.onclick = () => fn(rows[+tr.dataset.row])); }
+const opt = (v, t, sel) => `<option value="${esc(v)}"${String(sel) === String(v) ? ' selected' : ''}>${esc(t)}</option>`;
+const field = (label, input, cls = '') => `<div class="${cls}"><label>${esc(label)}</label>${input}</div>`;
+const inp = (name, v = '', extra = '') => `<input name="${name}" value="${esc(v == null ? '' : v)}" ${extra}>`;
+
+/* modal */
+function modal(title, body, { ok = 'حفظ', onOk, wide } = {}) {
+  const d = $('#dlg');
+  d.style.width = wide ? 'min(960px,calc(100vw - 32px))' : '';
+  d.innerHTML = `<form method="dialog" id="mform" novalidate><div class="dh"><b>${esc(title)}</b><button type="button" class="x" aria-label="إغلاق" id="mx">×</button></div><div class="db">${body}<div id="merr"></div></div>${onOk ? `<div class="df"><button type="button" class="btn" id="mc">إلغاء</button><button class="btn pri" id="mok">${esc(ok)}</button></div>` : ''}</form>`;
+  const close = () => d.close();
+  $('#mx', d).onclick = close; if ($('#mc', d)) $('#mc', d).onclick = close;
+  $('#mform', d).onsubmit = async ev => { ev.preventDefault(); if (!onOk) return close(); const b = $('#mok', d); try { await busy(b, () => onOk(formData($('#mform', d)), d)); close(); } catch (e) { showErr($('#merr', d), e); } };
+  d.showModal(); const first = $('input,select,textarea', d); if (first) first.focus();
+  return d;
+}
+const confirmBox = (title, msg, okText = 'تأكيد') => new Promise(res => { modal(title, `<p>${esc(msg)}</p>`, { ok: okText, onOk: async () => res(true) }); $('#dlg').addEventListener('close', () => res(false), { once: true }); });
+
+/* ===== theme ===== */
+function applyTheme(t) { if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; }
+applyTheme(LS.get('waad.theme'));
+function toggleTheme() { const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; const t = dark ? 'light' : 'dark'; LS.set('waad.theme', t); applyTheme(t); }
+
+/* ===== auth screens ===== */
+const BRAND = `<div class="brand"><div class="mark">و</div><div><b>وعد</b><div class="muted small">الموارد البشرية والمالية</div></div></div>`;
+function authView(tab = 'in', msg = '') {
+  const app = $('#app');
+  app.innerHTML = `<div class="auth"><div class="abox">${BRAND}<div class="card">
+    <div class="tabs" role="tablist"><button data-t="in" class="${tab === 'in' ? 'on' : ''}">تسجيل الدخول</button><button data-t="up" class="${tab === 'up' ? 'on' : ''}">حساب جديد</button></div>
+    ${msg ? `<div class="note">${esc(msg)}</div>` : ''}
+    <form id="af" novalidate>
+      ${field('البريد الإلكتروني', `<input name="email" type="email" autocomplete="email" required dir="ltr">`)}<div style="height:10px"></div>
+      ${field('كلمة المرور', `<input name="password" type="password" autocomplete="${tab === 'in' ? 'current-password' : 'new-password'}" required dir="ltr">`)}
+      ${tab === 'up' ? `<div style="height:10px"></div>${field('تأكيد كلمة المرور', `<input name="password2" type="password" autocomplete="new-password" dir="ltr">`)}` : ''}
+      <div id="aerr"></div><div style="height:12px"></div>
+      <button class="btn pri full" id="ab">${tab === 'in' ? 'دخول' : 'إنشاء الحساب'}</button>
+      ${tab === 'in' ? `<div style="margin-top:10px;text-align:center"><a href="#" id="forgot" class="small">نسيت كلمة المرور؟</a></div>` : `<p class="muted small" style="margin:10px 0 0">صاحب المنشأة ينشئ حساباً ثم منشأته. الموظف ينشئ حساباً ببريده ثم يُدخل رمز الدعوة من الموارد البشرية.</p>`}
+    </form></div><p class="muted small" style="text-align:center"><a href="#" id="theme">الوضع الليلي/النهاري</a></p></div></div>`;
+  $$('.tabs button', app).forEach(b => b.onclick = () => authView(b.dataset.t));
+  $('#theme').onclick = e => { e.preventDefault(); toggleTheme(); };
+  if ($('#forgot')) $('#forgot').onclick = async e => { e.preventDefault(); const em = $('#af').email.value.trim(); if (!em) return showErr('#aerr', 'اكتب بريدك أولاً'); try { await authApi.recover(em); authView('in', 'أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك (إن كان مسجلاً).'); } catch (er) { showErr('#aerr', er); } };
+  $('#af').onsubmit = async e => {
+    e.preventDefault(); const f = formData(e.target);
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)) return showErr('#aerr', 'البريد الإلكتروني غير صحيح');
+    if (tab === 'up' && f.password.length < 8) return showErr('#aerr', 'كلمة المرور 8 أحرف على الأقل');
+    if (tab === 'up' && f.password !== f.password2) return showErr('#aerr', 'كلمتا المرور غير متطابقتين');
+    try {
+      await busy($('#ab'), async () => {
+        if (tab === 'in') { await authApi.signIn(f.email, f.password); return boot(); }
+        const signedIn = await authApi.signUp(f.email, f.password);
+        if (signedIn) return boot();
+        authView('in', 'أنشأنا حسابك. افتح رسالة التأكيد في بريدك ثم سجّل الدخول.');
+      });
+    } catch (er) { showErr('#aerr', er); }
+  };
+}
+
+/* ===== onboarding: create a company or join with an invite code ===== */
+function onboardView() {
+  $('#app').innerHTML = `<div class="auth"><div class="abox" style="max-width:520px">${BRAND}
+    <div class="card"><h2>انضم إلى منشأتك</h2><p class="muted small">إذا أرسلت لك الموارد البشرية رمز دعوة، أدخله هنا.</p>
+      <form id="jf" class="row" novalidate><input name="code" placeholder="رمز الدعوة" dir="ltr" style="flex:1;letter-spacing:2px;text-transform:uppercase"><button class="btn pri" id="jb">انضمام</button></form><div id="jerr"></div></div>
+    <div class="card"><h2>أو أنشئ منشأة جديدة</h2>
+      <form id="cf" class="fg" novalidate>
+        ${field('اسم المنشأة', inp('name', '', 'required'), 'wide')}
+        ${field('الرقم الضريبي (اختياري)', inp('vat', '', 'dir="ltr" inputmode="numeric" placeholder="3XXXXXXXXXXXXX3"'))}
+        ${field('السجل التجاري (اختياري)', inp('cr', '', 'dir="ltr" inputmode="numeric"'))}
+        <div class="wide"><div id="cerr"></div><button class="btn pri" id="cb">إنشاء المنشأة</button></div>
+      </form><p class="muted small">ستكون مالك المنشأة، ويُنشأ دليل الحسابات تلقائياً.</p></div>
+    <p class="muted small" style="text-align:center">${esc(S.session.user.email)} · <a href="#" id="lo">تسجيل الخروج</a></p></div></div>`;
+  $('#lo').onclick = async e => { e.preventDefault(); await authApi.signOut(); authView(); };
+  $('#jf').onsubmit = async e => { e.preventDefault(); const code = e.target.code.value.trim(); if (!code) return showErr('#jerr', 'أدخل الرمز');
+    try { await busy($('#jb'), async () => { const cid = await db.rpc('accept_invite', { p_code: code }); S.cid = cid; LS.set('waad.cid', cid); await boot(); toast('تم الانضمام'); }); } catch (er) { showErr('#jerr', er); } };
+  $('#cf').onsubmit = async e => { e.preventDefault(); const f = formData(e.target);
+    if (f.name.length < 3) return showErr('#cerr', 'اسم المنشأة 3 أحرف على الأقل');
+    if (f.vat && !/^3\d{13}3$/.test(f.vat)) return showErr('#cerr', 'الرقم الضريبي 15 رقماً يبدأ وينتهي بـ 3');
+    if (f.cr && !/^\d{10}$/.test(f.cr)) return showErr('#cerr', 'السجل التجاري 10 أرقام');
+    try { await busy($('#cb'), async () => { const cid = await db.rpc('create_company', { p_name: f.name, p_vat: blank(f.vat), p_cr: blank(f.cr) }); S.cid = cid; LS.set('waad.cid', cid); await boot(); location.hash = '#/welcome'; }); } catch (er) { showErr('#cerr', er); } };
+}
+
+/* ===== boot & context ===== */
+async function loadContext() {
+  S.companies = await db.rpc('my_companies');
+  if (!S.companies.length) return false;
+  let c = S.companies.find(x => x.company_id === S.cid) || S.companies[0];
+  S.cid = c.company_id; LS.set('waad.cid', S.cid); S.role = c.role; S.emp = c.employee_id;
+  const [co] = await db.get('companies', { id: 'eq.' + S.cid });
+  S.company = co;
+  S.perms = new Set();
+  if (['accountant', 'storekeeper'].includes(S.role)) (await db.get('finance_permissions', { company_id: 'eq.' + S.cid, role: 'eq.' + S.role, select: 'perm' })).forEach(p => S.perms.add(p.perm));
+  S.myEmp = S.emp ? (await db.get('employees', { id: 'eq.' + S.emp }))[0] || null : null;
+  return true;
+}
+async function boot() {
+  if (!S.session) return authView();
+  try {
+    if (!(await loadContext())) return onboardView();
+  } catch (e) {
+    if (e.status === 401) { setSession(null); return authView('in', 'انتهت الجلسة — سجّل الدخول مجدداً'); }
+    $('#app').innerHTML = `<div class="auth"><div class="abox">${BRAND}<div class="card"><div class="err">${esc(e.message)}</div><button class="btn" onclick="boot()">إعادة المحاولة</button></div></div></div>`; return;
+  }
+  shell(); route();
+}
+
+/* ===== shell & navigation ===== */
+const VIEWS = {};       // '#/path' -> async (root, arg) => void
+let NAVC = { approvals: 0 };
+function navItems() {
+  const it = []; const g = t => it.push({ g: t });
+  it.push({ h: '#/home', t: 'الرئيسية' });
+  if (S.emp) { g('خدماتي'); it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/payslips', t: 'قسائم الراتب' }, { h: '#/profile', t: 'ملفي' }); }
+  if (!['accountant', 'storekeeper'].includes(S.role) || S.emp) it.push({ h: '#/approvals', t: 'الاعتمادات', pill: NAVC.approvals });
+  if (isHR() || has('finance')) {
+    g('الموارد البشرية');
+    if (isHR()) it.push({ h: '#/employees', t: 'الموظفون' });
+    it.push({ h: '#/payroll', t: 'مسير الرواتب' });
+    if (isHR()) it.push({ h: '#/eos', t: 'مكافأة نهاية الخدمة' });
+  }
+  if (isFin()) {
+    g('المالية');
+    if (can('sales')) it.push({ h: '#/sales', t: 'المبيعات' }, { h: '#/parties/customer', t: 'العملاء' });
+    if (can('purch')) it.push({ h: '#/purchases', t: 'المشتريات' }, { h: '#/parties/supplier', t: 'الموردون' });
+    if (can('sales') || can('purch')) it.push({ h: '#/payments', t: 'سندات القبض والصرف' });
+    if (can('stock') || can('items')) it.push({ h: '#/items', t: 'الأصناف والمخزون' });
+    if (can('je')) it.push({ h: '#/journal', t: 'القيود اليومية' });
+    if (can('reports') || can('vat') || can('ledger') || can('sales') || can('purch')) it.push({ h: '#/reports', t: 'التقارير' });
+    if (can('coa') || can('ledger')) it.push({ h: '#/coa', t: 'دليل الحسابات' });
+  }
+  if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); }
+  return it;
+}
+function shell() {
+  const multi = S.companies.length > 1;
+  $('#app').innerHTML = `<div class="shell"><aside class="side" id="side">${BRAND}<nav class="nav" id="nav"></nav></aside>
+    <div class="main"><header class="top"><button class="btn sm menu" id="mb" aria-label="القائمة">☰</button>
+      <div><b>${esc(S.company ? S.company.name : '')}</b> <span class="badge info">${esc(ROLES[S.role] || S.role)}</span></div><div class="sp"></div>
+      ${multi ? `<select id="cs" style="width:auto;min-height:32px">${S.companies.map(c => opt(c.company_id, c.name, S.cid)).join('')}</select>` : ''}
+      <button class="btn sm" id="th" title="الوضع الليلي/النهاري">◐</button>
+      <button class="btn sm" id="lo">خروج</button></header>
+      <main class="page" id="page"></main></div></div>`;
+  drawNav();
+  $('#mb').onclick = () => $('#side').classList.toggle('open');
+  $('#th').onclick = toggleTheme;
+  $('#lo').onclick = async () => { await authApi.signOut(); authView(); };
+  if (multi) $('#cs').onchange = async e => { S.cid = e.target.value; LS.set('waad.cid', S.cid); await loadContext(); shell(); location.hash = '#/home'; route(); };
+  refreshCounts();
+}
+function drawNav() {
+  const cur = location.hash.split('?')[0] || '#/home';
+  $('#nav').innerHTML = navItems().map(i => i.g ? `<div class="grp">${esc(i.g)}</div>` : `<a href="${i.h}" class="${cur === i.h || (cur.startsWith(i.h + '/') && i.h !== '#/home') ? 'on' : ''}">${esc(i.t)}${i.pill ? `<span class="pill">${i.pill}</span>` : ''}</a>`).join('');
+}
+async function refreshCounts() { try { NAVC.approvals = (await pendingForMe()).length; drawNav(); } catch (e) {} }
+async function route() {
+  if (!S.session || !S.cid || !$('#page')) return;
+  const [path, q] = (location.hash || '#/home').split('?');
+  const parts = path.split('/'); // ['#', 'sales', 'id']
+  let key = parts.slice(0, 2).join('/'), arg = parts.slice(2).join('/');
+  if (!VIEWS[key]) { key = '#/home'; arg = ''; }
+  $('#side') && $('#side').classList.remove('open');
+  drawNav();
+  // each navigation renders into its own container, so a slow earlier page can never overwrite a newer one
+  const page = document.createElement('div'); page.innerHTML = '<div class="muted">جارٍ التحميل…</div>';
+  $('#page').replaceChildren(page);
+  try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); }
+  catch (e) { if (e.status === 401 && !S.session) return authView('in', 'انتهت الجلسة — سجّل الدخول مجدداً'); if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+}
+window.addEventListener('hashchange', route);
+
+/* ===== shared look-ups ===== */
+const cache = {};
+async function employeesMap(force) { if (force || !cache.emps) { cache.emps = await db.get('employees', { company_id: 'eq.' + S.cid, order: 'emp_no' }); } const m = {}; cache.emps.forEach(e => m[e.id] = e); return m; }
+async function pendingForMe() {
+  const reqs = await db.get('requests', { company_id: 'eq.' + S.cid, status: 'eq.pending', order: 'created_at' });
+  if (!reqs.length) return [];
+  const ids = [...new Set(reqs.map(r => r.employee_id))];
+  const emps = await db.get('employees', { id: 'in.(' + ids.join(',') + ')', select: 'id,manager_id,full_name,emp_no' });
+  const em = {}; emps.forEach(e => em[e.id] = e);
+  return reqs.filter(r => canAct(r, em[r.employee_id])).map(r => Object.assign(r, { _emp: em[r.employee_id] }));
+}
+function canAct(r, e) {
+  const st = r.route[r.step]; if (!st) return false;
+  if (S.emp && r.employee_id === S.emp) return false;
+  if (st === 'm') return !!(e && S.emp && e.manager_id === S.emp);
+  if (st === 'p') return has('hr', 'admin');
+  if (st === 'f') return has('finance');
+  if (st === 'g') return has('owner');
+  return false;
+}
+
+'use strict';
+/* ===== home ===== */
+VIEWS['#/home'] = async page => {
+  const cards = [];
+  const pend = await pendingForMe().catch(() => []);
+  NAVC.approvals = pend.length; drawNav();
+  if (!['accountant', 'storekeeper'].includes(S.role) || S.emp) cards.push(`<a class="card kpi" href="#/approvals"><div class="muted small">بانتظار اعتمادك</div><div class="v num">${pend.length}</div></a>`);
+  if (S.emp) {
+    const mine = await db.get('requests', { employee_id: 'eq.' + S.emp, status: 'eq.pending', select: 'id' });
+    cards.push(`<a class="card kpi" href="#/requests"><div class="muted small">طلباتي قيد المعالجة</div><div class="v num">${mine.length}</div></a>`);
+    const bal = await leaveBalance();
+    cards.push(`<a class="card kpi" href="#/requests"><div class="muted small">رصيد الإجازة السنوية</div><div class="v num">${bal.left} <span class="small muted">من ${bal.ent} يوماً</span></div></a>`);
+  }
+  if (isHR()) { const emps = await db.get('employees', { company_id: 'eq.' + S.cid, end_date: 'is.null', select: 'id' }); cards.push(`<a class="card kpi" href="#/employees"><div class="muted small">الموظفون على رأس العمل</div><div class="v num">${emps.length}</div></a>`); }
+  if (can('sales')) { const inv = await db.get('sales_invoices', { company_id: 'eq.' + S.cid, status: 'eq.posted', select: 'total' }); cards.push(`<a class="card kpi" href="#/sales"><div class="muted small">إجمالي المبيعات المرحّلة</div><div class="v num">${money(inv.reduce((a, x) => a + n0(x.total), 0))}</div></a>`); }
+  if (can('purch')) { const b = await db.get('purchase_bills', { company_id: 'eq.' + S.cid, status: 'eq.posted', select: 'total' }); cards.push(`<a class="card kpi" href="#/purchases"><div class="muted small">إجمالي المشتريات المرحّلة</div><div class="v num">${money(b.reduce((a, x) => a + n0(x.total), 0))}</div></a>`); }
+  const nudge = !S.emp && !['accountant', 'storekeeper'].includes(S.role) ? `<div class="note">حسابك غير مربوط بسجل موظف، لذلك لا تظهر لك خدمات الإجازات والطلبات. ${isHR() ? '<a href="#/welcome">اربطه الآن</a>' : 'اطلب من الموارد البشرية ربطه.'}</div>` : '';
+  page.innerHTML = `<div class="head"><div><h1>أهلاً${S.myEmp ? '، ' + esc(S.myEmp.full_name.split(' ')[0]) : ''}</h1><div class="muted">${esc(S.company.name)}</div></div></div>${nudge}<div class="grid">${cards.join('')}</div>`;
+};
+async function leaveBalance() {
+  const e = S.myEmp; if (!e) return { ent: 0, used: 0, left: 0 };
+  const ent = ((new Date(today()) - new Date(e.hire_date)) / 864e5 / 365) >= 5 ? 30 : 21;
+  const rs = await db.get('requests', { employee_id: 'eq.' + S.emp, kind: 'eq.leave', sub: 'eq.annual', status: 'in.(pending,approved)', select: 'days' });
+  const used = rs.reduce((a, r) => a + n0(r.days), 0);
+  return { ent, used, left: ent - used };
+}
+
+/* ===== first-run checklist for a new owner ===== */
+VIEWS['#/welcome'] = async page => {
+  page.innerHTML = `<div class="head"><div><h1>جهّز منشأتك</h1><div class="muted">ثلاث خطوات وتبدأ</div></div></div>
+   <div class="card"><h2>1. أضف نفسك كموظف</h2><p class="muted">ليظهر لك نظام الطلبات وقسائم الراتب، ويُعرف أنك المدير العام في مسارات الاعتماد.</p>
+   ${S.emp ? '<div class="badge ok">تم</div>' : `<button class="btn pri" id="me">إضافة بياناتي</button>`}</div>
+   <div class="card"><h2>2. أضف الموظفين</h2><p class="muted">أضف سجلات الموظفين ورواتبهم ومديريهم المباشرين.</p><a class="btn" href="#/employees">الموظفون</a></div>
+   <div class="card"><h2>3. ادعُ فريقك</h2><p class="muted">كل شخص يأخذ رمز دعوة، ينشئ حساباً ببريده ثم يُدخل الرمز. الصلاحيات تحددها أنت.</p><a class="btn" href="#/users">المستخدمون والدعوات</a></div>`;
+  if ($('#me', page)) $('#me', page).onclick = () => employeeForm(null, { linkMe: true });
+};
+
+/* ===== my requests ===== */
+const LEAVE_TYPES = async () => cache.lt || (cache.lt = await db.get('leave_types', { order: 'code' }));
+VIEWS['#/requests'] = async page => {
+  if (!S.emp) { page.innerHTML = '<div class="note">حسابك غير مربوط بسجل موظف.</div>'; return; }
+  const [rs, bal] = await Promise.all([db.get('requests', { employee_id: 'eq.' + S.emp, order: 'created_at.desc' }), leaveBalance()]);
+  const lt = await LEAVE_TYPES(); const ltn = {}; lt.forEach(l => ltn[l.code] = l.name_ar);
+  page.innerHTML = `<div class="head"><div><h1>طلباتي</h1><div class="muted">رصيد السنوية: <b class="num">${bal.left}</b> يوماً من ${bal.ent}</div></div><button class="btn pri" id="nr">طلب جديد</button></div>
+    ${tbl([{ t: 'النوع', h: r => esc(KIND[r.kind] + (r.sub ? ' — ' + (ltn[r.sub] || r.sub) : '')) }, { t: 'من', h: r => fdate(r.from_date) }, { t: 'إلى', h: r => fdate(r.to_date) },
+      { t: 'أيام/مبلغ', r: 1, h: r => r.amount != null ? money(r.amount) : (r.days || (r.payload && r.payload.hours ? r.payload.hours + ' س' : '—')) },
+      { t: 'الحالة', h: r => badge(r.status) + (r.status === 'pending' ? ` <span class="muted small">عند ${esc(STEP[r.route[r.step]] || '')}</span>` : '') },
+      { t: '', h: r => r.status === 'pending' ? `<button class="btn sm" data-cancel="${r.id}">إلغاء</button>` : '' }], rs, { empty: 'لا توجد طلبات بعد', onRow: true })}`;
+  bindRows(page, rs, r => requestDetail(r));
+  $$('[data-cancel]', page).forEach(b => b.onclick = async ev => { ev.stopPropagation(); if (!await confirmBox('إلغاء الطلب', 'هل تريد إلغاء هذا الطلب؟', 'إلغاء الطلب')) return; try { await db.rpc('cancel_request', { p_id: b.dataset.cancel }); toast('أُلغي الطلب'); route(); } catch (e) { toast(e.message); } });
+  $('#nr', page).onclick = () => newRequest(lt);
+};
+function newRequest(lt) {
+  const g = S.myEmp && S.myEmp.gender;
+  const leaveOpts = lt.filter(l => !l.gender || l.gender === g).map(l => opt(l.code, l.name_ar + (l.article ? ' (' + l.article + ')' : ''))).join('');
+  modal('طلب جديد', `<div class="fg">${field('نوع الطلب', `<select name="kind" id="rk">${Object.entries({ leave: 'إجازة', permit: 'استئذان', advance: 'سلفة', expense: 'مطالبة مصروفات', cert: 'تعريف بالراتب', resign: 'استقالة' }).map(([k, t]) => opt(k, t)).join('')}</select>`)}
+    <div data-k="leave">${field('نوع الإجازة', `<select name="sub">${leaveOpts}</select>`)}</div>
+    <div data-k="leave permit">${field('من / التاريخ', `<input type="date" name="from" value="${today()}">`)}</div>
+    <div data-k="leave">${field('إلى', `<input type="date" name="to" value="${today()}">`)}</div>
+    <div data-k="permit">${field('عدد الساعات (حتى 4)', `<input name="hours" type="number" step="0.5" min="0.5" max="4" value="1">`)}</div>
+    <div data-k="advance expense">${field('المبلغ', `<input name="amount" type="number" step="0.01" min="0">`)}</div>
+    <div data-k="advance">${field('عدد الأقساط', `<input name="inst" type="number" min="1" max="12" value="1">`)}</div>
+    <div data-k="resign">${field('آخر يوم عمل', `<input type="date" name="last" value="${today()}">`)}</div>
+    ${field('ملاحظات', `<textarea name="note" rows="2"></textarea>`, 'wide')}</div>`, {
+    ok: 'إرسال', onOk: async f => {
+      const k = f.kind, a = { p_company: S.cid, p_kind: k, p_note: blank(f.note), p_payload: {} };
+      if (k === 'leave') Object.assign(a, { p_sub: f.sub, p_from: f.from, p_to: f.to });
+      if (k === 'permit') Object.assign(a, { p_from: f.from, p_to: f.from, p_payload: { hours: +f.hours } });
+      if (k === 'advance' || k === 'expense') { if (!(+f.amount > 0)) throw new Error('أدخل المبلغ'); a.p_amount = +f.amount; if (k === 'advance') a.p_payload = { inst: +f.inst || 1 }; }
+      if (k === 'resign') a.p_to = f.last;
+      await db.rpc('submit_request', a); toast('أُرسل الطلب'); route();
+    }
+  });
+  const sync = () => { const k = $('#rk').value; $$('[data-k]', $('#dlg')).forEach(d => d.hidden = !d.dataset.k.split(' ').includes(k)); };
+  $('#rk').onchange = sync; sync();
+}
+async function requestDetail(r, { decide } = {}) {
+  const acts = await db.get('request_actions', { request_id: 'eq.' + r.id, order: 'at' });
+  const label = { submitted: 'أُرسل', approved: 'اعتُمد', rejected: 'رُفض', cancelled: 'أُلغي' };
+  const lt = await LEAVE_TYPES(); const ln = (lt.find(l => l.code === r.sub) || {}).name_ar;
+  const body = `<p><b>${esc(KIND[r.kind])}${ln ? ' — ' + esc(ln) : ''}</b> ${badge(r.status)}</p>
+    ${r._emp ? `<p>الموظف: ${esc(r._emp.full_name)} <span class="muted">(${esc(r._emp.emp_no)})</span></p>` : ''}
+    <p class="muted">${r.from_date ? 'من ' + fdate(r.from_date) + ' إلى ' + fdate(r.to_date) + (r.days ? ' — ' + r.days + ' يوماً' : '') : ''}${r.amount != null ? ' المبلغ: ' + money(r.amount) : ''}${r.payload && r.payload.hours ? ' — ' + r.payload.hours + ' ساعة' : ''}${r.payload && r.payload.inst ? ' — ' + r.payload.inst + ' أقساط' : ''}</p>
+    ${r.note ? `<p>${esc(r.note)}</p>` : ''}
+    <p class="small muted">مسار الاعتماد: ${r.route.map((s, i) => (i < r.step ? '✓ ' : i === r.step && r.status === 'pending' ? '◀ ' : '') + STEP[s]).join(' ← ') || 'اعتماد تلقائي'}</p>
+    <ul class="timeline">${acts.map(a => `<li>${esc(label[a.action])}${a.actor_step ? ' — ' + esc(STEP[a.actor_step]) : ''} <span class="muted small num">${esc(String(a.at).slice(0, 16).replace('T', ' '))}</span>${a.note ? '<br><span class="small">' + esc(a.note) + '</span>' : ''}</li>`).join('')}</ul>
+    ${decide ? field('ملاحظة (إلزامية عند الرفض)', '<textarea name="note" rows="2"></textarea>') : ''}`;
+  const d = modal('تفاصيل الطلب', body, decide ? { ok: 'اعتماد', onOk: async f => { await db.rpc('decide_request', { p_id: r.id, p_approve: true, p_note: blank(f.note) }); toast('تم الاعتماد'); route(); refreshCounts(); } } : {});
+  if (decide) {
+    const rej = document.createElement('button'); rej.type = 'button'; rej.className = 'btn danger'; rej.textContent = 'رفض';
+    $('.df', d).insertBefore(rej, $('#mok', d));
+    rej.onclick = async () => { try { await busy(rej, () => db.rpc('decide_request', { p_id: r.id, p_approve: false, p_note: $('#mform', d).note.value })); d.close(); toast('تم الرفض'); route(); refreshCounts(); } catch (e) { showErr($('#merr', d), e); } };
+  }
+}
+
+/* ===== approvals ===== */
+VIEWS['#/approvals'] = async page => {
+  const mine = await pendingForMe(); NAVC.approvals = mine.length; drawNav();
+  const lt = await LEAVE_TYPES(); const ltn = {}; lt.forEach(l => ltn[l.code] = l.name_ar);
+  page.innerHTML = `<div class="head"><div><h1>الاعتمادات</h1><div class="muted">الطلبات التي تنتظر قرارك</div></div></div>
+   ${tbl([{ t: 'الموظف', h: r => esc(r._emp ? r._emp.full_name : '') }, { t: 'النوع', h: r => esc(KIND[r.kind] + (r.sub ? ' — ' + (ltn[r.sub] || r.sub) : '')) },
+     { t: 'الفترة/المبلغ', h: r => r.amount != null ? `<span class="num">${money(r.amount)}</span>` : r.from_date ? fdate(r.from_date) + ' → ' + fdate(r.to_date) : '—' },
+     { t: 'مرحلتك', h: r => esc(STEP[r.route[r.step]]) }, { t: 'تاريخ الطلب', h: r => fdate(r.created_at) }], mine, { empty: 'لا شيء بانتظارك', onRow: true })}`;
+  bindRows(page, mine, r => requestDetail(r, { decide: true }));
+};
+
+/* ===== payslips ===== */
+VIEWS['#/payslips'] = async page => {
+  if (!S.emp) { page.innerHTML = '<div class="note">حسابك غير مربوط بسجل موظف.</div>'; return; }
+  const lines = await db.get('payroll_lines', { employee_id: 'eq.' + S.emp });
+  const runs = lines.length ? await db.get('payroll_runs', { id: 'in.(' + lines.map(l => l.run_id).join(',') + ')' }) : [];
+  const rm = {}; runs.forEach(r => rm[r.id] = r);
+  const rows = lines.map(l => Object.assign({}, l, { _r: rm[l.run_id] })).filter(l => l._r).sort((a, b) => (b._r.year * 12 + b._r.month) - (a._r.year * 12 + a._r.month));
+  page.innerHTML = `<div class="head"><div><h1>قسائم الراتب</h1></div></div>${tbl([{ t: 'الشهر', h: l => `${l._r.month}/${l._r.year}` }, { t: 'الإجمالي', r: 1, h: l => money(l.gross) }, { t: 'الاستقطاعات', r: 1, h: l => money(n0(l.gosi) + n0(l.absence) + n0(l.deductions) + n0(l.advance)) }, { t: 'الصافي', r: 1, h: l => '<b>' + money(l.net) + '</b>' }, { t: 'الحالة', h: l => badge(l._r.status) }], rows, { empty: 'لا توجد قسائم معتمدة بعد', onRow: true })}`;
+  bindRows(page, rows, l => payslip(l, S.myEmp));
+};
+function payslip(l, e) {
+  const row = (t, v, neg) => `<tr><td>${esc(t)}</td><td class="r num">${neg && n0(v) ? '−' : ''}${money(v)}</td></tr>`;
+  modal(`قسيمة راتب ${l._r ? l._r.month + '/' + l._r.year : ''}`, `<p><b>${esc(e ? e.full_name : '')}</b> <span class="muted">${esc(e ? e.emp_no : '')}</span></p><div class="tw"><table><tbody>
+    ${row('الراتب الأساسي', l.basic)}${row('بدل السكن', l.housing)}${row('بدل النقل', l.transport)}${n0(l.overtime) ? row('عمل إضافي (' + l.overtime_hours + ' ساعة)', l.overtime) : ''}${n0(l.bonus) ? row('مكافأة', l.bonus) : ''}
+    ${row('التأمينات الاجتماعية', l.gosi, 1)}${n0(l.absence) ? row('غياب/إجازة بدون راتب (' + l.absence_days + ' يوم)', l.absence, 1) : ''}${n0(l.deductions) ? row('استقطاعات', l.deductions, 1) : ''}${n0(l.advance) ? row('قسط سلفة', l.advance, 1) : ''}
+    </tbody><tfoot><tr><td>الصافي</td><td class="r num">${money(l.net)}</td></tr></tfoot></table></div>
+    <div style="margin-top:10px"><button type="button" class="btn sm" onclick="window.print()">طباعة</button></div>`);
+}
+
+/* ===== profile ===== */
+VIEWS['#/profile'] = async page => {
+  const e = S.myEmp; if (!e) { page.innerHTML = '<div class="note">حسابك غير مربوط بسجل موظف.</div>'; return; }
+  const em = await employeesMap().catch(() => ({}));
+  const mgr = e.manager_id && em[e.manager_id] ? em[e.manager_id].full_name : '—';
+  const r = (t, v) => `<tr><td class="muted">${esc(t)}</td><td>${v}</td></tr>`;
+  page.innerHTML = `<div class="head"><div><h1>${esc(e.full_name)}</h1><div class="muted">${esc(e.job_title || '')}</div></div></div><div class="card"><div class="tw"><table><tbody>
+    ${r('الرقم الوظيفي', esc(e.emp_no))}${r('البريد', esc(S.session.user.email))}${r('تاريخ المباشرة', fdate(e.hire_date))}${r('المدير المباشر', esc(mgr))}
+    ${r('الراتب الأساسي', `<span class="num">${money(e.basic)}</span>`)}${r('بدل السكن', `<span class="num">${money(e.housing)}</span>`)}${r('بدل النقل', `<span class="num">${money(e.transport)}</span>`)}
+    ${r('الآيبان', `<span class="num">${esc(e.iban || '—')}</span>`)}</tbody></table></div><p class="muted small">لتحديث بياناتك تواصل مع الموارد البشرية.</p></div>`;
+};
+
+/* ===== employees (HR) ===== */
+VIEWS['#/employees'] = async (page, arg, q) => {
+  const [em, deps] = await Promise.all([employeesMap(true), db.get('departments', { company_id: 'eq.' + S.cid, order: 'name' })]);
+  cache.deps = deps; const dm = {}; deps.forEach(d => dm[d.id] = d.name);
+  const showEnded = q.get('all') === '1';
+  const rows = cache.emps.filter(e => showEnded || !e.end_date || e.end_date >= today());
+  page.innerHTML = `<div class="head"><div><h1>الموظفون</h1><div class="muted">${rows.length} موظف</div></div><div class="row">
+     <a class="btn" href="#/employees${showEnded ? '' : '?all=1'}">${showEnded ? 'على رأس العمل فقط' : 'إظهار المنتهية خدماتهم'}</a><button class="btn" id="dep">الأقسام</button><button class="btn pri" id="ne">إضافة موظف</button></div></div>
+   ${tbl([{ t: 'الرقم', k: 'emp_no' }, { t: 'الاسم', k: 'full_name' }, { t: 'المسمى', k: 'job_title' }, { t: 'القسم', h: e => esc(dm[e.department_id] || '—') }, { t: 'المدير', h: e => esc(e.manager_id && em[e.manager_id] ? em[e.manager_id].full_name : '—') },
+      { t: 'الإجمالي', r: 1, h: e => money(n0(e.basic) + n0(e.housing) + n0(e.transport)) }, { t: 'الحالة', h: e => e.end_date && e.end_date < today() ? '<span class="badge bad">منتهية</span>' : e.end_date ? '<span class="badge wait">آخر يوم ' + fdate(e.end_date) + '</span>' : '<span class="badge ok">على رأس العمل</span>' }],
+     rows, { empty: 'لم تُضف موظفين بعد', onRow: true })}`;
+  bindRows(page, rows, e => employeeForm(e));
+  $('#ne', page).onclick = () => employeeForm(null);
+  $('#dep', page).onclick = () => departmentsDlg();
+};
+function departmentsDlg() {
+  const list = () => (cache.deps || []).map(d => `<li class="row" style="justify-content:space-between"><span>${esc(d.name)}</span><button type="button" class="btn sm danger" data-del="${d.id}">حذف</button></li>`).join('') || '<li class="muted">لا توجد أقسام</li>';
+  const d = modal('الأقسام', `<ul class="timeline" id="dl">${list()}</ul><div class="row" style="margin-top:10px"><input name="name" placeholder="اسم القسم" style="flex:1"><button type="button" class="btn pri" id="da">إضافة</button></div>`);
+  const redraw = () => { $('#dl', d).innerHTML = list(); $$('[data-del]', d).forEach(b => b.onclick = async () => { try { await db.del('departments', { id: 'eq.' + b.dataset.del }); cache.deps = cache.deps.filter(x => x.id !== b.dataset.del); redraw(); } catch (e) { showErr($('#merr', d), e); } }); };
+  redraw();
+  $('#da', d).onclick = async () => { const n = $('#mform', d).name.value.trim(); if (n.length < 2) return; try { const [x] = await db.ins('departments', { company_id: S.cid, name: n }); cache.deps.push(x); $('#mform', d).name.value = ''; redraw(); } catch (e) { showErr($('#merr', d), e); } };
+  d.addEventListener('close', () => route(), { once: true });
+}
+async function employeeForm(e, { linkMe } = {}) {
+  const em = await employeesMap(); const deps = cache.deps || (cache.deps = await db.get('departments', { company_id: 'eq.' + S.cid, order: 'name' }));
+  const v = e || { is_saudi: true, gender: 'm', hire_date: today(), basic: '', housing: '', transport: '', emp_no: String(1000 + Object.keys(em).length) };
+  const others = Object.values(em).filter(x => !e || x.id !== e.id);
+  const body = `<div class="fg">
+    ${field('الرقم الوظيفي', inp('emp_no', v.emp_no, 'required dir="ltr"'))}${field('الاسم الكامل', inp('full_name', v.full_name, 'required'))}
+    ${field('رقم الهوية/الإقامة', inp('national_id', v.national_id, 'dir="ltr" inputmode="numeric" maxlength="10"'))}
+    ${field('الجنسية', `<select name="is_saudi">${opt('true', 'سعودي', String(v.is_saudi))}${opt('false', 'غير سعودي', String(v.is_saudi))}</select>`)}
+    ${field('الجنس', `<select name="gender">${opt('m', 'ذكر', v.gender)}${opt('f', 'أنثى', v.gender)}</select>`)}
+    ${field('المسمى الوظيفي', inp('job_title', v.job_title))}
+    ${field('القسم', `<select name="department_id"><option value="">—</option>${deps.map(d => opt(d.id, d.name, v.department_id)).join('')}</select>`)}
+    ${field('المدير المباشر', `<select name="manager_id"><option value="">—</option>${others.map(x => opt(x.id, x.full_name + ' (' + x.emp_no + ')', v.manager_id)).join('')}</select>`)}
+    ${field('تاريخ المباشرة', `<input type="date" name="hire_date" value="${esc(v.hire_date)}">`)}
+    ${field('نظام التأمينات', `<select name="gosi_new">${opt('', 'حسب تاريخ أول تسجيل (تلقائي)', v.gosi_new == null ? '' : '')}${opt('false', 'النظام السابق (قبل 3 يوليو 2024)', v.gosi_new === false ? 'false' : '-')}${opt('true', 'النظام الجديد', v.gosi_new === true ? 'true' : '-')}</select>`)}
+    ${field('الراتب الأساسي', inp('basic', v.basic, 'type="number" step="0.01" min="0" required'))}${field('بدل السكن', inp('housing', v.housing, 'type="number" step="0.01" min="0"'))}${field('بدل النقل', inp('transport', v.transport, 'type="number" step="0.01" min="0"'))}
+    ${field('الآيبان', inp('iban', v.iban, 'dir="ltr" placeholder="SA…" maxlength="24"'))}${field('الجوال', inp('phone', v.phone, 'dir="ltr"'))}${field('البريد', inp('email', v.email, 'dir="ltr" type="email"'))}
+    ${e ? field('تاريخ انتهاء الخدمة', `<input type="date" name="end_date" value="${esc(v.end_date || '')}">`) + field('سبب الانتهاء', inp('end_reason', v.end_reason)) : ''}
+    ${linkMe ? `<div class="wide note">سيُربط هذا السجل بحسابك.</div>` : ''}</div>`;
+  modal(e ? 'تعديل بيانات موظف' : 'إضافة موظف', body, {
+    wide: true, onOk: async f => {
+      if (!f.emp_no) throw new Error('أدخل الرقم الوظيفي'); if (f.full_name.length < 3) throw new Error('أدخل الاسم الكامل');
+      if (f.national_id && !/^[12]\d{9}$/.test(f.national_id)) throw new Error('رقم الهوية/الإقامة 10 أرقام يبدأ بـ 1 أو 2');
+      if (f.iban && !/^SA\d{22}$/.test(f.iban.replace(/\s/g, '').toUpperCase())) throw new Error('الآيبان يبدأ بـ SA ويليه 22 رقماً');
+      if (!(+f.basic >= 0) || f.basic === '') throw new Error('أدخل الراتب الأساسي');
+      const row = { emp_no: f.emp_no, full_name: f.full_name, national_id: blank(f.national_id), is_saudi: f.is_saudi === 'true', gender: f.gender, job_title: blank(f.job_title),
+        department_id: blank(f.department_id), manager_id: blank(f.manager_id), hire_date: f.hire_date, gosi_new: f.gosi_new === '' ? null : f.gosi_new === 'true',
+        basic: +f.basic, housing: +f.housing || 0, transport: +f.transport || 0, iban: f.iban ? f.iban.replace(/\s/g, '').toUpperCase() : null, phone: blank(f.phone), email: blank(f.email) };
+      if (e) { Object.assign(row, { end_date: blank(f.end_date), end_reason: blank(f.end_reason) }); await db.upd('employees', { id: 'eq.' + e.id }, row); }
+      else {
+        const [x] = await db.ins('employees', Object.assign(row, { company_id: S.cid }));
+        if (linkMe) { await db.upd('members', { company_id: 'eq.' + S.cid, user_id: 'eq.' + S.session.user.id }, { employee_id: x.id }); await loadContext(); shell(); }
+      }
+      cache.emps = null; toast('تم الحفظ'); route();
+    }
+  });
+}
+
+/* ===== payroll ===== */
+VIEWS['#/payroll'] = async (page, arg) => {
+  if (arg) return payrollRun(page, arg);
+  const runs = await db.get('payroll_runs', { company_id: 'eq.' + S.cid, order: 'year.desc,month.desc' });
+  const d = new Date();
+  page.innerHTML = `<div class="head"><div><h1>مسير الرواتب</h1></div>${isHR() ? '<button class="btn pri" id="np">إعداد مسير شهر</button>' : ''}</div>
+    ${tbl([{ t: 'الشهر', h: r => `${r.month}/${r.year}` }, { t: 'تاريخ الصرف', h: r => fdate(r.pay_date) }, { t: 'الحالة', h: r => badge(r.status) }], runs, { empty: 'لا توجد مسيرات', onRow: true })}`;
+  bindRows(page, runs, r => location.hash = '#/payroll/' + r.id);
+  if ($('#np', page)) $('#np', page).onclick = () => modal('إعداد مسير', `<div class="fg">${field('السنة', inp('y', d.getFullYear(), 'type="number"'))}${field('الشهر', `<select name="m">${[...Array(12)].map((_, i) => opt(i + 1, i + 1, d.getMonth() + 1)).join('')}</select>`)}${field('تاريخ الصرف', `<input type="date" name="pd" value="${today()}">`)}</div><p class="muted small">يحتسب النظام التأمينات والغياب وأقساط السلف تلقائياً. يمكنك إعادة الإعداد ما دام المسير مسودة.</p>`, {
+    ok: 'إعداد', onOk: async f => { const id = await db.rpc('payroll_prepare', { p_company: S.cid, p_year: +f.y, p_month: +f.m, p_pay_date: blank(f.pd) }); location.hash = '#/payroll/' + id; }
+  });
+};
+async function payrollRun(page, id) {
+  const [[run], lines, em] = await Promise.all([db.get('payroll_runs', { id: 'eq.' + id }), db.get('payroll_lines', { run_id: 'eq.' + id }), employeesMap(true)]);
+  if (!run) throw new Error('المسير غير موجود');
+  lines.sort((a, b) => String((em[a.employee_id] || {}).emp_no).localeCompare(String((em[b.employee_id] || {}).emp_no)));
+  const sum = k => lines.reduce((a, l) => a + n0(l[k]), 0);
+  const draft = run.status === 'draft';
+  page.innerHTML = `<div class="head"><div><a href="#/payroll" class="small">← المسيرات</a><h1>مسير ${run.month}/${run.year} ${badge(run.status)}</h1><div class="muted">${lines.length} موظف · الصافي <b class="num">${money(sum('net'))}</b></div></div>
+    <div class="row">${draft && isHR() ? '<button class="btn" id="re">إعادة الاحتساب</button>' : ''}${draft && has('owner', 'finance') ? '<button class="btn pri" id="ap">اعتماد وترحيل القيد</button>' : ''}${run.status === 'approved' && has('owner', 'finance') ? '<button class="btn pri" id="pd">تسجيل الصرف</button>' : ''}${run.status !== 'draft' ? '<button class="btn" id="wps">ملف حماية الأجور</button>' : ''}</div></div>
+    ${draft && !has('owner', 'finance') ? '<div class="note">بعد المراجعة يعتمده المدير العام أو المدير المالي.</div>' : ''}
+    ${tbl([{ t: 'الموظف', h: l => esc((em[l.employee_id] || {}).full_name || '') }, { t: 'الإجمالي', r: 1, h: l => money(l.gross) }, { t: 'إضافي', r: 1, h: l => money(l.overtime) }, { t: 'مكافأة', r: 1, h: l => money(l.bonus) },
+      { t: 'التأمينات', r: 1, h: l => money(l.gosi) }, { t: 'غياب', r: 1, h: l => money(l.absence) }, { t: 'استقطاع', r: 1, h: l => money(l.deductions) }, { t: 'سلفة', r: 1, h: l => money(l.advance) }, { t: 'الصافي', r: 1, h: l => '<b>' + money(l.net) + '</b>' }],
+      lines, { onRow: true, foot: `<td>الإجمالي</td>${['gross', 'overtime', 'bonus', 'gosi', 'absence', 'deductions', 'advance', 'net'].map(k => `<td class="r num">${money(sum(k))}</td>`).join('')}` })}
+    <p class="muted small">حصة المنشأة في التأمينات: <span class="num">${money(sum('employer_gosi'))}</span></p>`;
+  bindRows(page, lines, l => {
+    if (!(draft && isHR())) return payslip(Object.assign({ _r: run }, l), em[l.employee_id]);
+    modal('تعديل بند — ' + (em[l.employee_id] || {}).full_name, `<div class="fg">${field('ساعات العمل الإضافي', inp('ot', l.overtime_hours, 'type="number" step="0.5" min="0"'))}${field('مكافأة', inp('b', l.bonus, 'type="number" step="0.01" min="0"'))}${field('استقطاعات', inp('d', l.deductions, 'type="number" step="0.01" min="0"'))}</div><p class="muted small">أجر الساعة الإضافية = الأجر الفعلي ÷ 240 + نصف الأساسي ÷ 240 (م107).</p>`,
+      { onOk: async f => { await db.rpc('payroll_adjust', { p_run: id, p_emp: l.employee_id, p_ot_hours: +f.ot || 0, p_bonus: +f.b || 0, p_deductions: +f.d || 0 }); route(); } });
+  });
+  if ($('#re', page)) $('#re', page).onclick = () => busy($('#re', page), async () => { await db.rpc('payroll_prepare', { p_company: S.cid, p_year: run.year, p_month: run.month, p_pay_date: run.pay_date }); route(); });
+  if ($('#ap', page)) $('#ap', page).onclick = async () => { if (!await confirmBox('اعتماد المسير', 'بعد الاعتماد يُرحّل قيد الاستحقاق ولا يمكن تعديل المسير.', 'اعتماد')) return; try { await db.rpc('payroll_approve', { p_run: id }); toast('اعتُمد المسير'); route(); } catch (e) { toast(e.message); } };
+  if ($('#pd', page)) $('#pd', page).onclick = () => modal('تسجيل صرف الرواتب', field('من حساب', `<select name="acc">${opt('1120', 'البنك')}${opt('1110', 'الصندوق')}</select>`), { ok: 'تسجيل', onOk: async f => { await db.rpc('payroll_mark_paid', { p_run: id, p_account: f.acc }); toast('سُجل الصرف'); route(); } });
+  if ($('#wps', page)) $('#wps', page).onclick = () => wpsFile(run, lines, em);
+}
+function wpsFile(run, lines, em) {
+  const miss = lines.filter(l => !(em[l.employee_id] || {}).iban || !(em[l.employee_id] || {}).national_id);
+  const rows = lines.map(l => { const e = em[l.employee_id] || {}; return [e.national_id || '', e.full_name || '', e.iban || '', r2(l.basic).toFixed(2), r2(l.housing).toFixed(2), r2(n0(l.transport) + n0(l.overtime) + n0(l.bonus)).toFixed(2), r2(n0(l.gosi) + n0(l.absence) + n0(l.deductions) + n0(l.advance)).toFixed(2), r2(l.net).toFixed(2)].join(','); });
+  const csv = '﻿' + ['national_id,name,iban,basic,housing,other_earnings,deductions,net', ...rows].join('\r\n');
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  modal('ملف حماية الأجور', `${miss.length ? `<div class="err">${miss.length} موظف بلا آيبان أو رقم هوية — أكملها قبل الرفع.</div>` : ''}<p>ملف CSV بالحقول المطلوبة لرفع الرواتب في «مدد» أو البنك. راجع قالب بنكك قبل الرفع، فبعض البنوك تطلب ترتيب أعمدة مختلفاً.</p><a class="btn pri" download="wps-${run.year}-${String(run.month).padStart(2, '0')}.csv" href="${url}">تنزيل الملف</a>`);
+}
+
+/* ===== end of service ===== */
+const EOS_REASONS = { resign: 'استقالة العامل (م85)', agree: 'اتفاق الطرفين (م74/1)', expiry: 'انتهاء العقد محدد المدة (م74/2)', employer: 'إنهاء من صاحب العمل لسبب مشروع (م75)', noreason: 'إنهاء دون سبب مشروع (م77)', art81: 'ترك العمل مع بقاء الحقوق (م81)', resignw: 'استقالة العاملة للزواج أو الولادة (م87)', resignfm: 'ترك العمل لقوة قاهرة (م87)', force: 'القوة القاهرة (م74)', ret: 'بلوغ سن التقاعد (م74)', disab: 'العجز الكلي (م74)', death: 'الوفاة (م74)', art80: 'فسخ بدون مكافأة (م80)' };
+VIEWS['#/eos'] = async page => {
+  const em = await employeesMap();
+  page.innerHTML = `<div class="head"><div><h1>مكافأة نهاية الخدمة</h1><div class="muted">حسب المواد 84 و85 و87 من نظام العمل</div></div></div><div class="card"><form id="ef" class="fg" novalidate>
+    ${field('الموظف', `<select name="e"><option value="">— إدخال يدوي —</option>${Object.values(em).map(e => opt(e.id, e.full_name)).join('')}</select>`)}
+    ${field('الأجر الفعلي الشهري', inp('w', '', 'type="number" step="0.01" min="0"'))}${field('تاريخ المباشرة', '<input type="date" name="s">')}${field('آخر يوم عمل', `<input type="date" name="t" value="${today()}">`)}
+    ${field('سبب انتهاء العلاقة', `<select name="r">${Object.entries(EOS_REASONS).map(([k, t]) => opt(k, t)).join('')}</select>`)}${field('أيام إجازة غير مستخدمة', inp('l', '0', 'type="number" min="0" step="0.5"'))}
+    <div class="wide"><button class="btn pri" id="eb">احسب</button></div></form><div id="er"></div></div>`;
+  const f = $('#ef', page); f.e.onchange = () => { const e = em[f.e.value]; if (e) { f.w.value = n0(e.basic) + n0(e.housing) + n0(e.transport); f.s.value = e.hire_date; if (e.end_date) f.t.value = e.end_date; } };
+  f.onsubmit = async ev => { ev.preventDefault(); const v = formData(f); if (!(+v.w > 0) || !v.s || !v.t) return showErr($('#er', page), 'أكمل الأجر والتواريخ');
+    try { const [x] = await db.rpc('eos_calc', { p_wage: +v.w, p_start: v.s, p_end: v.t, p_reason: v.r, p_unused_leave: +v.l || 0 });
+      $('#er', page).innerHTML = `<div class="tw" style="margin-top:14px"><table><tbody><tr><td>مدة الخدمة</td><td class="r num">${(+x.years).toFixed(2)} سنة</td></tr><tr><td>المكافأة الكاملة</td><td class="r num">${money(x.full_award)}</td></tr><tr><td>النسبة المستحقة</td><td class="r num">${Math.round(x.fraction * 100)}%</td></tr><tr><td>المكافأة المستحقة</td><td class="r num">${money(x.award)}</td></tr><tr><td>بدل الإجازات</td><td class="r num">${money(x.leave_pay)}</td></tr></tbody><tfoot><tr><td>الإجمالي</td><td class="r num">${money(x.total)}</td></tr></tfoot></table></div><p class="muted small">تقدير استرشادي؛ راجع الحالات الخاصة مع مختص قبل الصرف.</p>`; } catch (e) { showErr($('#er', page), e); } };
+};
+
+/* ===== users & invitations ===== */
+const INVITABLE = () => has('owner', 'admin') ? ['employee', 'manager', 'hr', 'finance', 'accountant', 'storekeeper', 'admin'] : has('hr') ? ['employee', 'manager'] : has('finance') ? ['accountant', 'storekeeper'] : [];
+VIEWS['#/users'] = async page => {
+  const [mem, inv, em] = await Promise.all([db.get('members', { company_id: 'eq.' + S.cid, order: 'created_at' }), db.get('invites', { company_id: 'eq.' + S.cid, order: 'created_at.desc' }), employeesMap()]);
+  const mail = {}; inv.forEach(i => { if (i.accepted_by) mail[i.accepted_by] = i.email; }); mail[S.session.user.id] = S.session.user.email;
+  const pending = inv.filter(i => !i.accepted_at);
+  const admin = has('owner', 'admin');
+  page.innerHTML = `<div class="head"><div><h1>المستخدمون والدعوات</h1></div><button class="btn pri" id="ni">دعوة مستخدم</button></div>
+    <h2>الدعوات المعلّقة</h2>${tbl([{ t: 'البريد', h: i => `<span class="num">${esc(i.email)}</span>` }, { t: 'الدور', h: i => esc(ROLES[i.role]) }, { t: 'سجل الموظف', h: i => esc(i.employee_id && em[i.employee_id] ? em[i.employee_id].full_name : '—') }, { t: 'رمز الدعوة', h: i => `<span class="code">${esc(i.code)}</span>` }, { t: '', h: i => `<button class="btn sm danger" data-rv="${i.id}">سحب</button>` }], pending, { empty: 'لا توجد دعوات معلّقة' })}
+    <div style="height:18px"></div><h2>المستخدمون</h2>${tbl([{ t: 'البريد', h: m => `<span class="num">${esc(mail[m.user_id] || '—')}</span>` }, { t: 'الدور', h: m => esc(ROLES[m.role]) }, { t: 'سجل الموظف', h: m => esc(m.employee_id && em[m.employee_id] ? em[m.employee_id].full_name : '—') }, { t: '', h: m => admin && (m.role !== 'owner' || has('owner')) ? `<button class="btn sm" data-ed="${m.user_id}">تعديل</button>` : '' }], mem)}`;
+  $('#ni', page).onclick = () => {
+    const linked = new Set(mem.map(m => m.employee_id).filter(Boolean));
+    modal('دعوة مستخدم', `<div class="fg">${field('البريد الإلكتروني', inp('email', '', 'type="email" dir="ltr" required'))}${field('الدور', `<select name="role">${INVITABLE().map(r => opt(r, ROLES[r])).join('')}</select>`)}
+      ${field('ربطه بسجل موظف', `<select name="emp"><option value="">—</option>${Object.values(em).filter(e => !linked.has(e.id)).map(e => opt(e.id, e.full_name + ' (' + e.emp_no + ')')).join('')}</select>`, 'wide')}</div>
+      <p class="muted small">بعد الحفظ يظهر رمز دعوة. أرسله للشخص مع رابط النظام؛ ينشئ حساباً بنفس البريد ثم يُدخل الرمز.</p>`, {
+      ok: 'إنشاء الدعوة', onOk: async f => { await db.rpc('invite_member', { p_company: S.cid, p_email: f.email, p_role: f.role, p_employee: blank(f.emp) }); toast('أُنشئت الدعوة — انسخ الرمز من الجدول'); route(); }
+    });
+  };
+  $$('[data-rv]', page).forEach(b => b.onclick = async () => { try { await db.rpc('revoke_invite', { p_id: b.dataset.rv }); route(); } catch (e) { toast(e.message); } });
+  $$('[data-ed]', page).forEach(b => b.onclick = () => {
+    const m = mem.find(x => x.user_id === b.dataset.ed); const linked = new Set(mem.filter(x => x !== m).map(x => x.employee_id).filter(Boolean));
+    const roles = Object.keys(ROLES).filter(r => r !== 'owner' || has('owner'));
+    const d = modal('تعديل مستخدم', `<p class="num">${esc(mail[m.user_id] || '')}</p><div class="fg">${field('الدور', `<select name="role">${roles.map(r => opt(r, ROLES[r], m.role)).join('')}</select>`)}${field('سجل الموظف', `<select name="emp"><option value="">—</option>${Object.values(em).filter(e => !linked.has(e.id)).map(e => opt(e.id, e.full_name, m.employee_id)).join('')}</select>`)}</div>
+      ${m.user_id !== S.session.user.id ? '<button type="button" class="btn danger sm" id="rm" style="margin-top:12px">إزالة من المنشأة</button>' : ''}`, {
+      onOk: async f => { await db.upd('members', { company_id: 'eq.' + S.cid, user_id: 'eq.' + m.user_id }, { role: f.role, employee_id: blank(f.emp) }); if (m.user_id === S.session.user.id) { await loadContext(); shell(); } cache.emps = null; toast('تم الحفظ'); route(); }
+    });
+    if ($('#rm', d)) $('#rm', d).onclick = async () => { try { await db.del('members', { company_id: 'eq.' + S.cid, user_id: 'eq.' + m.user_id }); d.close(); toast('أُزيل المستخدم'); route(); } catch (e) { showErr($('#merr', d), e); } };
+  });
+};
+
+/* ===== company settings & finance permissions ===== */
+const FPERMS = { dash: 'لوحة المالية', sales: 'المبيعات والعملاء', purch: 'المشتريات والموردون', stock: 'عرض المخزون', stockadj: 'تسوية المخزون', items: 'إدارة الأصناف', void: 'الإلغاء والإشعارات الدائنة', je: 'عرض القيود', jepost: 'ترحيل القيود اليدوية', ledger: 'دفتر الأستاذ', reports: 'القوائم المالية', vat: 'إقرار الضريبة', coa: 'دليل الحسابات', payroll: 'قيود الرواتب', settings: 'إعدادات المالية' };
+VIEWS['#/settings'] = async page => {
+  const co = S.company; const admin = has('owner', 'admin');
+  const fp = can('settings') ? await db.get('finance_permissions', { company_id: 'eq.' + S.cid }) : [];
+  const on = (r, p) => fp.some(x => x.role === r && x.perm === p);
+  page.innerHTML = `<div class="head"><div><h1>إعدادات المنشأة</h1></div></div>
+   ${admin ? `<div class="card"><h2>بيانات المنشأة</h2><form id="cf" class="fg" novalidate>${field('الاسم', inp('name', co.name))}${field('الرقم الضريبي', inp('vat_no', co.vat_no, 'dir="ltr"'))}${field('السجل التجاري', inp('cr_no', co.cr_no, 'dir="ltr"'))}${field('العنوان', inp('address', co.address), 'wide')}<div class="wide"><div id="cerr"></div><button class="btn pri" id="cb">حفظ</button></div></form></div>` : ''}
+   ${can('settings') ? `<div class="card"><h2>صلاحيات المحاسب وأمين المستودع</h2><p class="muted small">المدير المالي والمالك يرون كل شيء. حدّد هنا ما يراه غيرهم.</p>
+     <div class="tw"><table><thead><tr><th>الصلاحية</th><th>محاسب</th><th>أمين مستودع</th></tr></thead><tbody>${Object.entries(FPERMS).map(([p, t]) => `<tr><td>${esc(t)}</td>${['accountant', 'storekeeper'].map(r => `<td><input type="checkbox" data-r="${r}" data-p="${p}" ${on(r, p) ? 'checked' : ''} aria-label="${esc(t + ' — ' + ROLES[r])}"></td>`).join('')}</tr>`).join('')}</tbody></table></div></div>` : ''}`;
+  if ($('#cf', page)) $('#cf', page).onsubmit = async e => { e.preventDefault(); const f = formData(e.target);
+    try { await busy($('#cb', page), async () => { await db.upd('companies', { id: 'eq.' + S.cid }, { name: f.name, vat_no: blank(f.vat_no), cr_no: blank(f.cr_no), address: blank(f.address) }); await loadContext(); shell(); toast('تم الحفظ'); route(); }); } catch (er) { showErr($('#cerr', page), er); } };
+  $$('input[data-p]', page).forEach(c => c.onchange = async () => { try { await db.rpc('set_finance_permission', { p_company: S.cid, p_role: c.dataset.r, p_perm: c.dataset.p, p_allowed: c.checked }); toast('تم'); } catch (e) { c.checked = !c.checked; toast(e.message); } });
+};
+
+'use strict';
+const C = () => ({ company_id: 'eq.' + S.cid });
+async function accounts() { return cache.acc || (cache.acc = await db.get('accounts', Object.assign(C(), { order: 'code' }))); }
+const cashAccounts = async () => (await accounts()).filter(a => a.parent_code === '1100' && !a.is_header);
+
+/* ===== customers & suppliers ===== */
+VIEWS['#/parties'] = async (page, kind) => {
+  kind = kind === 'supplier' ? 'supplier' : 'customer';
+  const rows = await db.get('parties', Object.assign(C(), { kind: 'eq.' + kind, order: 'name' }));
+  const T = kind === 'customer' ? ['العملاء', 'عميل'] : ['الموردون', 'مورد'];
+  page.innerHTML = `<div class="head"><div><h1>${T[0]}</h1></div><button class="btn pri" id="np">إضافة ${T[1]}</button></div>
+    ${tbl([{ t: 'الاسم', k: 'name' }, { t: 'الرقم الضريبي', h: p => `<span class="num">${esc(p.vat_no || '—')}</span>` }, { t: 'الجوال', h: p => `<span class="num">${esc(p.phone || '—')}</span>` }, { t: 'المدينة', k: 'city' }], rows, { empty: 'لا يوجد ' + T[0], onRow: true })}`;
+  const form = p => modal(p ? 'تعديل ' + T[1] : 'إضافة ' + T[1], `<div class="fg">${field('الاسم', inp('name', p && p.name, 'required'), 'wide')}${field('الرقم الضريبي', inp('vat_no', p && p.vat_no, 'dir="ltr" inputmode="numeric"'))}${field('السجل التجاري', inp('cr_no', p && p.cr_no, 'dir="ltr"'))}${field('الجوال', inp('phone', p && p.phone, 'dir="ltr" placeholder="05XXXXXXXX"'))}${field('المدينة', inp('city', p && p.city))}</div>`, {
+    onOk: async f => {
+      if (f.vat_no && !/^3\d{13}3$/.test(f.vat_no)) throw new Error('الرقم الضريبي 15 رقماً يبدأ وينتهي بـ 3');
+      const row = { name: f.name, vat_no: blank(f.vat_no), cr_no: blank(f.cr_no), phone: blank(f.phone), city: blank(f.city) };
+      if (p) await db.upd('parties', { id: 'eq.' + p.id }, row); else await db.ins('parties', Object.assign(row, { company_id: S.cid, kind }));
+      toast('تم الحفظ'); route();
+    }
+  });
+  $('#np', page).onclick = () => form(null); bindRows(page, rows, form);
+};
+
+/* ===== items & stock ===== */
+async function stockMap() {
+  if (!can('stock')) return {};
+  const mv = await db.get('stock_moves', Object.assign(C(), { select: 'item_id,qty,value' }));
+  const m = {}; mv.forEach(x => { const s = m[x.item_id] || (m[x.item_id] = { qty: 0, value: 0 }); s.qty += n0(x.qty); s.value += n0(x.value); });
+  Object.values(m).forEach(s => s.avg = s.qty > 0 ? s.value / s.qty : 0); return m;
+}
+VIEWS['#/items'] = async page => {
+  const [items, st] = await Promise.all([db.get('items', Object.assign(C(), { order: 'code' })), stockMap()]);
+  page.innerHTML = `<div class="head"><div><h1>الأصناف والمخزون</h1></div><div class="row">${can('stockadj') ? '<button class="btn" id="adj">تسوية مخزون</button>' : ''}${can('items') ? '<button class="btn pri" id="ni">صنف جديد</button>' : ''}</div></div>
+    ${tbl([{ t: 'الرمز', k: 'code' }, { t: 'الصنف', k: 'name' }, { t: 'النوع', h: i => i.type === 'stock' ? 'مخزني' : 'خدمة' }, { t: 'سعر البيع', r: 1, h: i => money(i.sale_price) },
+      ...(can('stock') ? [{ t: 'الكمية', r: 1, h: i => i.type === 'stock' ? (st[i.id] ? +st[i.id].qty.toFixed(3) : 0) + (st[i.id] && st[i.id].qty <= n0(i.reorder_level) && n0(i.reorder_level) > 0 ? ' <span class="badge wait">إعادة طلب</span>' : '') : '—' }, { t: 'التكلفة', r: 1, h: i => i.type === 'stock' && st[i.id] ? money(st[i.id].value) : '—' }] : [])],
+      items, { empty: 'لا توجد أصناف', onRow: can('items') })}`;
+  const form = it => modal(it ? 'تعديل صنف' : 'صنف جديد', `<div class="fg">${field('الرمز', inp('code', it ? it.code : 'IT-' + String(items.length + 1).padStart(3, '0'), 'dir="ltr"'))}${field('الاسم', inp('name', it && it.name))}
+      ${field('النوع', `<select name="type" ${it ? 'disabled' : ''}>${opt('stock', 'مخزني', it && it.type)}${opt('service', 'خدمة', it && it.type)}</select>`)}${field('الوحدة', inp('unit', it && it.unit))}${field('سعر البيع', inp('sale_price', it ? it.sale_price : '', 'type="number" step="0.01" min="0"'))}${field('حد إعادة الطلب', inp('reorder_level', it ? it.reorder_level : 0, 'type="number" min="0"'))}</div>`, {
+    onOk: async f => { if (!f.code || f.name.length < 2) throw new Error('أدخل الرمز والاسم'); const row = { code: f.code, name: f.name, unit: blank(f.unit), sale_price: +f.sale_price || 0, reorder_level: +f.reorder_level || 0 };
+      if (it) await db.upd('items', { id: 'eq.' + it.id }, row); else await db.ins('items', Object.assign(row, { company_id: S.cid, type: f.type })); toast('تم الحفظ'); route(); }
+  });
+  if ($('#ni', page)) $('#ni', page).onclick = () => form(null);
+  if (can('items')) bindRows(page, items, form);
+  if ($('#adj', page)) $('#adj', page).onclick = () => modal('تسوية مخزون', `<div class="fg">${field('الصنف', `<select name="item">${items.filter(i => i.type === 'stock').map(i => opt(i.id, i.code + ' — ' + i.name)).join('')}</select>`, 'wide')}${field('الكمية (+ زيادة / − عجز)', inp('qty', '', 'type="number" step="0.001"'))}${field('تكلفة الوحدة (للزيادة)', inp('cost', '', 'type="number" step="0.01" min="0"'))}${field('التاريخ', `<input type="date" name="d" value="${today()}">`)}${field('السبب', inp('reason'), 'wide')}</div>`, {
+    onOk: async f => { await db.rpc('stock_adjust', { p_company: S.cid, p_item: f.item, p_date: f.d, p_qty: +f.qty, p_unit_cost: f.cost === '' ? null : +f.cost, p_reason: f.reason }); toast('سُجلت التسوية'); route(); }
+  });
+};
+
+/* ===== sales invoices & purchase bills (shared) ===== */
+const DOCS = {
+  sales: { t: 'المبيعات', one: 'فاتورة مبيعات', table: 'sales_invoices', lines: 'sales_invoice_lines', fk: 'invoice_id', party: 'customer', perm: 'sales', rpc: 'post_sales_invoice', void: 'void_sales_invoice', payDir: 'in', payKey: 'invoice', cnKind: 'sales', cnT: 'إشعار دائن (مرتجع مبيعات)' },
+  purchases: { t: 'المشتريات', one: 'فاتورة مشتريات', table: 'purchase_bills', lines: 'purchase_bill_lines', fk: 'bill_id', party: 'supplier', perm: 'purch', rpc: 'post_purchase_bill', void: 'void_purchase_bill', payDir: 'out', payKey: 'bill', cnKind: 'purchase', cnT: 'إشعار مدين (مرتجع مشتريات)' },
+};
+async function paidMap(D, ids) {
+  if (!ids.length) return {};
+  const [pays, cns] = await Promise.all([db.get('payments', { [D.payKey + '_id']: 'in.(' + ids.join(',') + ')', select: D.payKey + '_id,amount' }), db.get('credit_notes', { doc_id: 'in.(' + ids.join(',') + ')', select: 'doc_id,total' })]);
+  const m = {}; pays.forEach(p => m[p[D.payKey + '_id']] = (m[p[D.payKey + '_id']] || 0) + n0(p.amount)); cns.forEach(c => m[c.doc_id] = (m[c.doc_id] || 0) + n0(c.total)); return m;
+}
+function docList(key) {
+  return async (page, arg) => {
+    const D = DOCS[key];
+    if (arg === 'new') return docForm(page, key);
+    if (arg) return docView(page, key, arg);
+    const [docs, parties] = await Promise.all([db.get(D.table, Object.assign(C(), { order: 'date.desc,no.desc', limit: 300 })), db.get('parties', Object.assign(C(), { kind: 'eq.' + D.party, select: 'id,name' }))]);
+    const pm = {}; parties.forEach(p => pm[p.id] = p.name);
+    const paid = await paidMap(D, docs.filter(d => d.status === 'posted').map(d => d.id));
+    page.innerHTML = `<div class="head"><div><h1>${D.t}</h1></div><a class="btn pri" href="#/${key}/new">${D.one} جديدة</a></div>
+      ${tbl([{ t: 'الرقم', h: d => `<span class="num">${esc(d.no)}</span>` }, ...(key === 'purchases' ? [{ t: 'رقم المورد', h: d => `<span class="num">${esc(d.supplier_ref || '—')}</span>` }] : []), { t: 'التاريخ', h: d => fdate(d.date) }, { t: key === 'sales' ? 'العميل' : 'المورد', h: d => esc(pm[d.party_id] || '') },
+        { t: 'الإجمالي', r: 1, h: d => money(d.total) }, { t: 'المتبقي', r: 1, h: d => { if (d.status !== 'posted') return '—'; const x = r2(n0(d.total) - n0(paid[d.id])); return x < -0.001 ? `<span class="ok">رصيد دائن ${money(-x)}</span>` : money(x); } },
+        { t: 'الحالة', h: d => d.status === 'void' ? badge('void') : n0(d.total) - n0(paid[d.id]) <= 0.001 ? '<span class="badge ok">مسددة</span>' : d.due_date < today() ? '<span class="badge bad">متأخرة</span>' : '<span class="badge wait">مستحقة</span>' }],
+        docs, { empty: 'لا توجد فواتير', onRow: true })}`;
+    bindRows(page, docs, d => location.hash = `#/${key}/${d.id}`);
+  };
+}
+VIEWS['#/sales'] = docList('sales'); VIEWS['#/purchases'] = docList('purchases');
+
+async function docForm(page, key) {
+  const D = DOCS[key];
+  const [parties, items, acc] = await Promise.all([db.get('parties', Object.assign(C(), { kind: 'eq.' + D.party, order: 'name' })), db.get('items', Object.assign(C(), { order: 'code' })), accounts()]);
+  const expAcc = acc.filter(a => !a.is_header && (a.type === 'exp' || a.type === 'asset') && !['1110', '1120', '1200', '1300', '1400'].includes(a.code) && a.parent_code !== '1100');
+  if (!parties.length) { page.innerHTML = `<div class="note">أضف ${key === 'sales' ? 'عميلاً' : 'مورداً'} أولاً. <a href="#/parties/${D.party}">${key === 'sales' ? 'العملاء' : 'الموردون'}</a></div>`; return; }
+  const lines = [{}];
+  page.innerHTML = `<div class="head"><div><a href="#/${key}" class="small">← ${D.t}</a><h1>${D.one} جديدة</h1></div></div><form id="df" class="card" novalidate>
+    <div class="fg">${field(key === 'sales' ? 'العميل' : 'المورد', `<select name="party">${parties.map(p => opt(p.id, p.name)).join('')}</select>`)}${field('التاريخ', `<input type="date" name="date" value="${today()}" max="${today()}">`)}${field('تاريخ الاستحقاق', `<input type="date" name="due" value="${today()}">`)}
+      ${key === 'purchases' ? field('رقم فاتورة المورد', inp('ref', '', 'dir="ltr"')) : ''}${field('ملاحظات', inp('note'), 'wide')}</div>
+    <div style="height:14px"></div><div class="tw"><table class="lines"><thead><tr><th>${key === 'purchases' ? 'صنف أو حساب مصروف' : 'الصنف'}</th><th>الكمية</th><th>السعر</th><th>الضريبة</th><th class="r">المبلغ</th><th></th></tr></thead><tbody id="lb"></tbody>
+    <tfoot><tr><td colspan="4">الإجمالي قبل الضريبة</td><td class="r num" id="ts">0.00</td><td></td></tr><tr><td colspan="4">ضريبة القيمة المضافة</td><td class="r num" id="tv">0.00</td><td></td></tr><tr><td colspan="4">الإجمالي</td><td class="r num" id="tt">0.00</td><td></td></tr></tfoot></table></div>
+    <div class="row" style="margin-top:10px"><button type="button" class="btn sm" id="al">+ بند</button></div><div id="derr"></div>
+    <div class="row" style="margin-top:14px"><button class="btn pri" id="ds">ترحيل الفاتورة</button><a class="btn" href="#/${key}">إلغاء</a></div></form>`;
+  const itemOpts = items.map(i => opt('i:' + i.id, i.code + ' — ' + i.name)).join('');
+  const accOpts = key === 'purchases' ? `<optgroup label="حسابات المصروفات">${expAcc.map(a => opt('a:' + a.code, a.code + ' — ' + a.name)).join('')}</optgroup>` : '';
+  const draw = () => {
+    $('#lb', page).innerHTML = lines.map((l, i) => `<tr data-i="${i}"><td style="min-width:220px"><select data-f="what"><option value="">—</option>${itemOpts}${accOpts}</select></td><td><input data-f="qty" type="number" step="0.001" min="0" value="${esc(l.qty || 1)}" style="width:90px"></td><td><input data-f="price" type="number" step="0.01" min="0" value="${esc(l.price || '')}" style="width:120px"></td><td><select data-f="vat" style="width:90px">${opt(15, '15%', l.vat == null ? 15 : l.vat)}${opt(0, '0%', l.vat)}</select></td><td class="r num" data-amt></td><td><button type="button" class="btn sm" data-rm aria-label="حذف البند">×</button></td></tr>`).join('');
+    $$('tr', $('#lb', page)).forEach(tr => { const l = lines[+tr.dataset.i]; $('[data-f=what]', tr).value = l.what || ''; });
+    calc();
+  };
+  const calc = () => { let s = 0, v = 0; $$('tr', $('#lb', page)).forEach(tr => { const l = lines[+tr.dataset.i]; const a = r2(n0(l.qty == null ? 1 : l.qty) * n0(l.price)); const t = r2(a * n0(l.vat == null ? 15 : l.vat) / 100); s += a; v += t; $('[data-amt]', tr).textContent = money(a); }); $('#ts', page).textContent = money(s); $('#tv', page).textContent = money(v); $('#tt', page).textContent = money(s + v); };
+  $('#lb', page).addEventListener('input', e => { const tr = e.target.closest('tr'); if (!tr) return; const l = lines[+tr.dataset.i]; const f = e.target.dataset.f; l[f] = e.target.value;
+    if (f === 'what' && l.what.startsWith('i:') && key === 'sales') { const it = items.find(x => x.id === l.what.slice(2)); if (it && !l.price) { l.price = it.sale_price; $('[data-f=price]', tr).value = it.sale_price; } } calc(); });
+  $('#lb', page).addEventListener('click', e => { if (e.target.matches('[data-rm]')) { lines.splice(+e.target.closest('tr').dataset.i, 1); if (!lines.length) lines.push({}); draw(); } });
+  $('#al', page).onclick = () => { lines.push({}); draw(); };
+  draw();
+  $('#df', page).onsubmit = async e => {
+    e.preventDefault(); const f = formData(e.target);
+    const ls = lines.filter(l => l.what).map(l => { const o = { qty: +(l.qty == null ? 1 : l.qty), price: +l.price, vat: +(l.vat == null ? 15 : l.vat) }; if (l.what.startsWith('i:')) o.item = l.what.slice(2); else o.account = l.what.slice(2); return o; });
+    if (!ls.length) return showErr($('#derr', page), 'أضف بنداً واحداً على الأقل');
+    if (ls.some(l => !(l.qty > 0) || !(l.price >= 0))) return showErr($('#derr', page), 'تحقق من الكميات والأسعار');
+    const doc = { party: f.party, date: f.date, due: f.due || f.date, note: blank(f.note), lines: ls }; if (key === 'purchases') doc.ref = blank(f.ref);
+    try { await busy($('#ds', page), async () => { const id = await db.rpc(D.rpc, { p_company: S.cid, p_doc: doc }); toast('رُحّلت الفاتورة'); location.hash = `#/${key}/${id}`; }); } catch (er) { showErr($('#derr', page), er); }
+  };
+}
+
+async function docView(page, key, id) {
+  const D = DOCS[key];
+  const [[doc], lines, items, acc] = await Promise.all([db.get(D.table, { id: 'eq.' + id }), db.get(D.lines, { [D.fk]: 'eq.' + id, order: 'id' }), db.get('items', Object.assign(C(), { select: 'id,code,name' })), accounts()]);
+  if (!doc) throw new Error('الفاتورة غير موجودة');
+  const [[party], pays, cns] = await Promise.all([db.get('parties', { id: 'eq.' + doc.party_id }), db.get('payments', { [D.payKey + '_id']: 'eq.' + id, order: 'date' }), db.get('credit_notes', { doc_id: 'eq.' + id, order: 'date' })]);
+  const im = {}; items.forEach(i => im[i.id] = i); const am = {}; acc.forEach(a => am[a.code] = a.name);
+  const paid = pays.reduce((a, p) => a + n0(p.amount), 0) + cns.reduce((a, c) => a + n0(c.total), 0), rem = r2(n0(doc.total) - paid);
+  const co = S.company;
+  page.innerHTML = `<div class="head"><div><a href="#/${key}" class="small">← ${D.t}</a><h1>${D.one} <span class="num">${esc(doc.no)}</span> ${badge(doc.status)}</h1><div class="muted">${esc(party ? party.name : '')} · ${fdate(doc.date)}${doc.supplier_ref ? ' · رقم المورد ' + esc(doc.supplier_ref) : ''}</div></div>
+    <div class="row">${doc.status === 'posted' && rem > 0.001 ? `<button class="btn pri" id="pay">${key === 'sales' ? 'تسجيل قبض' : 'تسجيل صرف'}</button>` : ''}${doc.status === 'posted' && can('void') ? `<button class="btn" id="cn">${key === 'sales' ? 'إشعار دائن' : 'مرتجع'}</button>` : ''}${doc.status === 'posted' && can('void') && paid === 0 ? '<button class="btn danger" id="vd">إلغاء الفاتورة</button>' : ''}<button class="btn" onclick="window.print()">طباعة</button></div></div>
+    <div class="card">${key === 'sales' ? `<div class="row" style="justify-content:space-between;align-items:flex-start"><div><b>${esc(co.name)}</b><div class="small muted">${co.vat_no ? 'الرقم الضريبي ' + esc(co.vat_no) : 'لا يوجد رقم ضريبي مسجّل'}</div></div><div style="text-align:end"><b>فاتورة ضريبية${party && party.vat_no ? '' : ' مبسطة'}</b><div class="small muted">${esc(party ? party.name : '')}${party && party.vat_no ? ' · ' + esc(party.vat_no) : ''}</div></div></div><div style="height:12px"></div>` : ''}
+    ${tbl([{ t: 'البند', h: l => esc(l.item_id ? (im[l.item_id] || {}).name : l.account_code + ' — ' + (am[l.account_code] || '')) }, { t: 'الكمية', r: 1, h: l => +l.qty }, { t: 'السعر', r: 1, h: l => money(l.unit_price) }, { t: 'الضريبة', r: 1, h: l => l.vat_rate + '%' }, { t: 'المبلغ', r: 1, h: l => money(l.amount) }], lines,
+      { foot: `<td colspan="4">الإجمالي قبل الضريبة / الضريبة / الإجمالي</td><td class="r num">${money(doc.subtotal)} / ${money(doc.vat)} / <b>${money(doc.total)}</b></td>` })}
+    <p>المسدد والمرتجع: <b class="num">${money(paid)}</b> · ${rem < -0.001 ? 'رصيد دائن للطرف: <b class="num ok">' + money(-rem) + '</b>' : 'المتبقي: <b class="num">' + money(rem) + '</b>'} · الاستحقاق ${fdate(doc.due_date)}</p>${doc.note ? `<p class="muted">${esc(doc.note)}</p>` : ''}</div>
+    ${pays.length ? '<h2>السندات</h2>' + tbl([{ t: 'الرقم', h: p => `<span class="num">${esc(p.no)}</span>` }, { t: 'التاريخ', h: p => fdate(p.date) }, { t: 'المبلغ', r: 1, h: p => money(p.amount) }], pays) : ''}
+    ${cns.length ? '<div style="height:12px"></div><h2>الإشعارات</h2>' + tbl([{ t: 'الرقم', h: c => `<span class="num">${esc(c.no)}</span>` }, { t: 'التاريخ', h: c => fdate(c.date) }, { t: 'السبب', k: 'reason' }, { t: 'المبلغ', r: 1, h: c => money(c.total) }], cns) : ''}`;
+  if ($('#pay', page)) $('#pay', page).onclick = () => paymentForm({ dir: D.payDir, party: doc.party_id, doc: id, amount: rem });
+  if ($('#vd', page)) $('#vd', page).onclick = () => modal('إلغاء الفاتورة', field('سبب الإلغاء', '<textarea name="r" rows="2" required></textarea>') + '<p class="muted small">يُعكس القيد وحركة المخزون، وتبقى الفاتورة ظاهرة بحالة ملغاة.</p>', { ok: 'إلغاء الفاتورة', onOk: async f => { await db.rpc(D.void, { p_id: id, p_reason: f.r }); toast('أُلغيت الفاتورة'); route(); } });
+  if ($('#cn', page)) $('#cn', page).onclick = async () => {
+    const used = {}; if (cns.length) (await db.get('credit_note_lines', { note_id: 'in.(' + cns.map(c => c.id).join(',') + ')', select: 'src_line,qty' })).forEach(x => used[x.src_line] = (used[x.src_line] || 0) + n0(x.qty));
+    modal(D.cnT, `<div class="tw"><table class="lines"><thead><tr><th>البند</th><th>المتاح</th><th>كمية المرتجع</th></tr></thead><tbody>${lines.map(l => `<tr><td>${esc(l.item_id ? (im[l.item_id] || {}).name : am[l.account_code] || l.account_code)}</td><td class="num">${+(n0(l.qty) - n0(used[l.id])).toFixed(3)}</td><td><input name="q_${l.id}" type="number" min="0" step="0.001" max="${n0(l.qty) - n0(used[l.id])}" value="0" style="width:110px"></td></tr>`).join('')}</tbody></table></div><div style="height:10px"></div>${field('السبب', '<input name="reason" required>')}${field('التاريخ', `<input type="date" name="d" value="${today()}">`)}`, {
+      wide: true, ok: 'ترحيل الإشعار', onOk: async f => { const ls = lines.map(l => ({ line: l.id, qty: +f['q_' + l.id] })).filter(x => x.qty > 0); if (!ls.length) throw new Error('أدخل كمية مرتجع لبند واحد على الأقل');
+        await db.rpc('post_credit_note', { p_company: S.cid, p_doc: { kind: D.cnKind, doc: id, date: f.d, reason: f.reason, lines: ls } }); toast('رُحّل الإشعار'); route(); }
+    });
+  };
+}
+
+/* ===== payments ===== */
+VIEWS['#/payments'] = async page => {
+  const [pays, parties] = await Promise.all([db.get('payments', Object.assign(C(), { order: 'date.desc,no.desc', limit: 300 })), db.get('parties', Object.assign(C(), { select: 'id,name' }))]);
+  const pm = {}; parties.forEach(p => pm[p.id] = p.name);
+  page.innerHTML = `<div class="head"><div><h1>سندات القبض والصرف</h1></div><div class="row">${can('sales') ? '<button class="btn" id="pin">سند قبض</button>' : ''}${can('purch') ? '<button class="btn" id="pout">سند صرف</button>' : ''}</div></div>
+    ${tbl([{ t: 'الرقم', h: p => `<span class="num">${esc(p.no)}</span>` }, { t: 'النوع', h: p => p.direction === 'in' ? '<span class="badge ok">قبض</span>' : '<span class="badge info">صرف</span>' }, { t: 'التاريخ', h: p => fdate(p.date) }, { t: 'الطرف', h: p => esc(pm[p.party_id] || '') }, { t: 'الحساب', h: p => p.account_code === '1110' ? 'الصندوق' : p.account_code === '1120' ? 'البنك' : esc(p.account_code) }, { t: 'المبلغ', r: 1, h: p => money(p.amount) }, { t: 'مقابل', h: p => p.invoice_id || p.bill_id ? 'فاتورة' : '<span class="muted">دفعة على الحساب</span>' }], pays, { empty: 'لا توجد سندات' })}`;
+  if ($('#pin', page)) $('#pin', page).onclick = () => paymentForm({ dir: 'in' });
+  if ($('#pout', page)) $('#pout', page).onclick = () => paymentForm({ dir: 'out' });
+};
+async function paymentForm({ dir, party, doc, amount }) {
+  const D = dir === 'in' ? DOCS.sales : DOCS.purchases;
+  const [parties, cash, open] = await Promise.all([db.get('parties', Object.assign(C(), { kind: 'eq.' + D.party, order: 'name' })), cashAccounts(), db.get(D.table, Object.assign(C(), { status: 'eq.posted', order: 'date', select: 'id,no,party_id,total,date' }))]);
+  const paid = await paidMap(D, open.map(o => o.id));
+  const openDocs = open.filter(o => n0(o.total) - n0(paid[o.id]) > 0.001);
+  if (!parties.length) return toast(dir === 'in' ? 'أضف عميلاً أولاً' : 'أضف مورداً أولاً');
+  const d = modal(dir === 'in' ? 'سند قبض' : 'سند صرف', `<div class="fg">${field(dir === 'in' ? 'العميل' : 'المورد', `<select name="party" id="pp">${parties.map(p => opt(p.id, p.name, party)).join('')}</select>`)}
+     ${field('مقابل فاتورة', `<select name="doc" id="pdoc"></select>`)}${field('المبلغ', inp('amount', amount || '', 'type="number" step="0.01" min="0.01" id="pam"'))}${field(dir === 'in' ? 'إلى حساب' : 'من حساب', `<select name="acc">${cash.map(a => opt(a.code, a.name, '1120')).join('')}</select>`)}
+     ${field('التاريخ', `<input type="date" name="date" value="${today()}" max="${today()}">`)}${field('ملاحظات', inp('note'))}</div>`, {
+    ok: 'حفظ السند', onOk: async f => { if (!(+f.amount > 0)) throw new Error('أدخل مبلغاً أكبر من صفر');
+      await db.rpc('record_payment', { p_company: S.cid, p_doc: { direction: dir, party: f.party, amount: +f.amount, account: f.acc, date: f.date, note: blank(f.note), [D.payKey]: f.doc || '' } }); toast('حُفظ السند'); route(); }
+  });
+  const fill = () => { const p = $('#pp', d).value; $('#pdoc', d).innerHTML = '<option value="">— دفعة على الحساب —</option>' + openDocs.filter(o => o.party_id === p).map(o => opt(o.id, o.no + ' — متبقي ' + money(n0(o.total) - n0(paid[o.id])), doc)).join(''); };
+  $('#pp', d).onchange = () => { doc = null; fill(); }; fill();
+  $('#pdoc', d).onchange = e => { const o = openDocs.find(x => x.id === e.target.value); if (o) $('#pam', d).value = r2(n0(o.total) - n0(paid[o.id])); };
+}
+
+/* ===== journal ===== */
+const SRC = { manual: 'يدوي', reversal: 'عكس', sales: 'مبيعات', purchase: 'مشتريات', receipt: 'قبض', payment: 'صرف', stock: 'مخزون', payroll: 'رواتب', payroll_pay: 'صرف رواتب', advance: 'سلفة', expense: 'مصروفات', opening: 'افتتاحي', sales_return: 'مرتجع مبيعات', purchase_return: 'مرتجع مشتريات' };
+VIEWS['#/journal'] = async page => {
+  const [jes, acc] = await Promise.all([db.get('journal_entries', Object.assign(C(), { order: 'date.desc,created_at.desc', limit: 200 })), accounts()]);
+  const am = {}; acc.forEach(a => am[a.code] = a.name);
+  const reversed = new Set(jes.filter(j => j.reverses).map(j => j.reverses));
+  page.innerHTML = `<div class="head"><div><h1>القيود اليومية</h1><div class="muted">آخر 200 قيد — القيود لا تُعدّل، تُعكس فقط</div></div>${can('jepost') ? '<button class="btn pri" id="nj">قيد يدوي</button>' : ''}</div>
+    ${tbl([{ t: 'الرقم', h: j => `<span class="num">${esc(j.no)}</span>` }, { t: 'التاريخ', h: j => fdate(j.date) }, { t: 'البيان', k: 'memo' }, { t: 'المصدر', h: j => `<span class="badge">${esc(SRC[j.source] || j.source)}</span>` + (reversed.has(j.id) ? ' <span class="badge bad">معكوس</span>' : '') }], jes, { empty: 'لا توجد قيود', onRow: true })}`;
+  bindRows(page, jes, async j => {
+    const ls = await db.get('journal_lines', { entry_id: 'eq.' + j.id, order: 'id' });
+    const d = modal('قيد ' + j.no, `<p>${esc(j.memo)} · ${fdate(j.date)}</p>${tbl([{ t: 'الحساب', h: l => esc(l.account_code + ' — ' + (am[l.account_code] || '')) }, { t: 'مدين', r: 1, h: l => n0(l.debit) ? money(l.debit) : '' }, { t: 'دائن', r: 1, h: l => n0(l.credit) ? money(l.credit) : '' }], ls)}
+      ${j.source === 'manual' && !reversed.has(j.id) && can('jepost') ? '<button type="button" class="btn danger sm" id="rv" style="margin-top:12px">عكس القيد</button>' : ''}`);
+    if ($('#rv', d)) $('#rv', d).onclick = async () => { try { await db.rpc('reverse_journal', { p_entry: j.id, p_date: today() }); d.close(); toast('عُكس القيد'); route(); } catch (e) { showErr($('#merr', d), e); } };
+  });
+  if ($('#nj', page)) $('#nj', page).onclick = () => {
+    const post = acc.filter(a => !a.is_header); const ao = '<option value="">—</option>' + post.map(a => opt(a.code, a.code + ' — ' + a.name)).join('');
+    const row = () => `<tr><td><select data-a>${ao}</select></td><td><input data-d type="number" step="0.01" min="0" style="width:120px"></td><td><input data-c type="number" step="0.01" min="0" style="width:120px"></td></tr>`;
+    const d = modal('قيد يدوي', `<div class="fg">${field('التاريخ', `<input type="date" name="date" value="${today()}">`)}${field('البيان', inp('memo'))}</div><div style="height:10px"></div><div class="tw"><table class="lines"><thead><tr><th>الحساب</th><th>مدين</th><th>دائن</th></tr></thead><tbody id="jl">${row()}${row()}</tbody><tfoot><tr><td>الفرق</td><td colspan="2" class="num" id="jd">0.00</td></tr></tfoot></table></div><button type="button" class="btn sm" id="ja" style="margin-top:8px">+ سطر</button>`, {
+      wide: true, ok: 'ترحيل', onOk: async f => {
+        const lines = $$('#jl tr', d).map(tr => ({ a: $('[data-a]', tr).value, d: +$('[data-d]', tr).value || 0, c: +$('[data-c]', tr).value || 0 })).filter(l => l.a && (l.d || l.c));
+        if (lines.some(l => l.d && l.c)) throw new Error('السطر الواحد إما مدين أو دائن');
+        const dd = r2(lines.reduce((a, l) => a + l.d, 0)), cc = r2(lines.reduce((a, l) => a + l.c, 0));
+        if (lines.length < 2 || dd !== cc) throw new Error('القيد غير متوازن');
+        await db.rpc('post_manual_journal', { p_company: S.cid, p_date: f.date, p_memo: f.memo, p_lines: lines }); toast('رُحّل القيد'); route();
+      }
+    });
+    $('#ja', d).onclick = () => $('#jl', d).insertAdjacentHTML('beforeend', row());
+    $('#jl', d).addEventListener('input', () => { let s = 0; $$('#jl tr', d).forEach(tr => s += (+$('[data-d]', tr).value || 0) - (+$('[data-c]', tr).value || 0)); $('#jd', d).textContent = money(Math.abs(s)); });
+  };
+};
+
+/* ===== chart of accounts ===== */
+VIEWS['#/coa'] = async page => {
+  cache.acc = null; const acc = await accounts();
+  page.innerHTML = `<div class="head"><div><h1>دليل الحسابات</h1></div>${can('coa') ? '<button class="btn pri" id="na">حساب فرعي</button>' : ''}</div>
+    ${tbl([{ t: 'الرمز', h: a => `<span class="num">${esc(a.code)}</span>` }, { t: 'الحساب', h: a => a.is_header ? '<b>' + esc(a.name) + '</b>' : '&nbsp;&nbsp;&nbsp;' + esc(a.name) }, { t: 'النوع', h: a => ({ asset: 'أصول', liab: 'خصوم', equity: 'حقوق ملكية', rev: 'إيرادات', exp: 'مصروفات' })[a.type] }], acc, { onRow: can('ledger') })}`;
+  if (can('ledger')) bindRows(page, acc, a => { if (!a.is_header) location.hash = '#/reports?r=ledger&code=' + a.code; });
+  if ($('#na', page)) $('#na', page).onclick = () => modal('حساب فرعي جديد', `<div class="fg">${field('الحساب الرئيسي', `<select name="p">${acc.filter(a => a.is_header).map(a => opt(a.code, a.code + ' — ' + a.name)).join('')}</select>`)}${field('الرمز (4 أرقام)', inp('code', '', 'dir="ltr" maxlength="4" inputmode="numeric"'))}${field('الاسم', inp('name'), 'wide')}</div>`, {
+    onOk: async f => { await db.rpc('add_account', { p_company: S.cid, p_code: f.code, p_name: f.name, p_parent: f.p }); toast('أُضيف الحساب'); route(); }
+  });
+};
+
+/* ===== reports ===== */
+VIEWS['#/reports'] = async (page, arg, q) => {
+  const tabs = [['tb', 'ميزان المراجعة', 'reports'], ['is', 'قائمة الدخل', 'reports'], ['bs', 'المركز المالي', 'reports'], ['vat', 'إقرار الضريبة', 'vat'], ['ar', 'أعمار الذمم المدينة', 'sales'], ['ap', 'أعمار الذمم الدائنة', 'purch'], ['ledger', 'دفتر الأستاذ', 'ledger']].filter(t => can(t[2]));
+  if (!tabs.length) { page.innerHTML = '<div class="note">لا تملك صلاحية التقارير.</div>'; return; }
+  const r = tabs.some(t => t[0] === q.get('r')) ? q.get('r') : tabs[0][0];
+  const from = q.get('from') || today().slice(0, 4) + '-01-01', to = q.get('to') || today();
+  const acc = await accounts();
+  const ranged = ['is', 'vat', 'ledger'].includes(r);
+  page.innerHTML = `<div class="head"><div><h1>التقارير</h1></div></div><div class="seg" style="margin-bottom:14px">${tabs.map(t => `<a href="#/reports?r=${t[0]}" class="${t[0] === r ? 'on' : ''}">${t[1]}</a>`).join('')}</div>
+    <form id="rf" class="row card" style="padding:12px">${r === 'ledger' ? `<select name="code" style="width:auto">${acc.filter(a => !a.is_header).map(a => opt(a.code, a.code + ' — ' + a.name, q.get('code') || '1120')).join('')}</select>` : ''}
+      ${ranged ? `<label style="margin:0">من</label><input type="date" name="from" value="${from}" style="width:auto">` : ''}<label style="margin:0">${ranged ? 'إلى' : 'حتى تاريخ'}</label><input type="date" name="to" value="${to}" style="width:auto"><button class="btn">عرض</button><button type="button" class="btn" onclick="window.print()">طباعة</button></form><div id="rb">جارٍ التحميل…</div>`;
+  $('#rf', page).onsubmit = e => { e.preventDefault(); const f = formData(e.target); location.hash = '#/reports?' + qs(Object.assign({ r }, f)); };
+  const rb = $('#rb', page);
+  if (r === 'tb') { const rows = await db.rpc('trial_balance', { p_company: S.cid, p_as_of: to }); const sd = rows.reduce((a, x) => a + n0(x.debit), 0), sc = rows.reduce((a, x) => a + n0(x.credit), 0);
+    rb.innerHTML = tbl([{ t: 'الرمز', h: x => `<span class="num">${esc(x.code)}</span>` }, { t: 'الحساب', k: 'name' }, { t: 'مدين', r: 1, h: x => n0(x.debit) ? money(x.debit) : '' }, { t: 'دائن', r: 1, h: x => n0(x.credit) ? money(x.credit) : '' }], rows, { empty: 'لا توجد حركات', foot: `<td colspan="2">الإجمالي ${Math.abs(sd - sc) < 0.01 ? '<span class="badge ok">متوازن</span>' : '<span class="badge bad">غير متوازن</span>'}</td><td class="r num">${money(sd)}</td><td class="r num">${money(sc)}</td>` }); }
+  if (r === 'is') { const rows = await db.rpc('income_statement', { p_company: S.cid, p_from: from, p_to: to }); const sec = { revenue: 'الإيرادات', cogs: 'تكلفة المبيعات', expense: 'المصروفات', net_profit: '' };
+    rb.innerHTML = tbl([{ t: 'القسم', h: x => esc(sec[x.section]) }, { t: 'الحساب', h: x => x.section === 'net_profit' ? '<b>' + esc(x.name) + '</b>' : esc(x.name) }, { t: 'المبلغ', r: 1, h: x => x.section === 'net_profit' ? `<b class="${n0(x.amount) < 0 ? 'bad' : 'ok'}">${money(x.amount)}</b>` : money(x.amount) }], rows, { empty: 'لا توجد حركات' }); }
+  if (r === 'bs') { const rows = await db.rpc('balance_sheet', { p_company: S.cid, p_as_of: to }); const sec = { asset: 'الأصول', liab: 'الخصوم', equity: 'حقوق الملكية' }; const tot = k => rows.filter(x => x.section === k).reduce((a, x) => a + n0(x.amount), 0);
+    rb.innerHTML = tbl([{ t: 'القسم', h: x => esc(sec[x.section]) }, { t: 'الحساب', h: x => esc((x.code ? x.code + ' — ' : '') + x.name) }, { t: 'المبلغ', r: 1, h: x => money(x.amount) }], rows, { empty: 'لا توجد أرصدة' }) + `<p>الأصول <b class="num">${money(tot('asset'))}</b> · الخصوم وحقوق الملكية <b class="num">${money(tot('liab') + tot('equity'))}</b> ${Math.abs(tot('asset') - tot('liab') - tot('equity')) < 0.01 ? '<span class="badge ok">متوازن</span>' : '<span class="badge bad">غير متوازن</span>'}</p>`; }
+  if (r === 'vat') { const [v] = await db.rpc('vat_summary', { p_company: S.cid, p_from: from, p_to: to }); const row = (t, a) => `<tr><td>${t}</td><td class="r num">${money(a)}</td></tr>`;
+    rb.innerHTML = `<div class="tw"><table><tbody>${row('المبيعات الخاضعة للنسبة الأساسية (صافي المرتجعات)', v.sales_taxable)}${row('المبيعات الصفرية', v.sales_zero)}${row('ضريبة المخرجات', v.output_vat)}${row('المشتريات الخاضعة للنسبة الأساسية', v.purchases_taxable)}${row('المشتريات الصفرية', v.purchases_zero)}${row('ضريبة المدخلات', v.input_vat)}</tbody><tfoot><tr><td>صافي الضريبة ${n0(v.net_vat) >= 0 ? 'المستحقة' : 'القابلة للاسترداد'}</td><td class="r num">${money(Math.abs(v.net_vat))}</td></tr></tfoot></table></div><p class="muted small">ملخص استرشادي لتعبئة الإقرار في بوابة هيئة الزكاة والضريبة والجمارك.</p>`; }
+  if (r === 'ar' || r === 'ap') { const rows = await db.rpc('aging', { p_company: S.cid, p_kind: r === 'ar' ? 'sales' : 'purchase', p_as_of: to });
+    rb.innerHTML = tbl([{ t: r === 'ar' ? 'العميل' : 'المورد', k: 'party' }, { t: 'غير مستحق', r: 1, h: x => money(x.not_due) }, { t: '1–30', r: 1, h: x => money(x.d1_30) }, { t: '31–60', r: 1, h: x => money(x.d31_60) }, { t: '61–90', r: 1, h: x => money(x.d61_90) }, { t: '+90', r: 1, h: x => money(x.d90_plus) }, { t: 'دفعات غير مخصصة', r: 1, h: x => money(x.unallocated) }, { t: 'الصافي', r: 1, h: x => '<b>' + money(x.net) + '</b>' }], rows, { empty: 'لا توجد أرصدة مفتوحة' }); }
+  if (r === 'ledger') { const code = q.get('code') || '1120'; const rows = await db.rpc('account_ledger', { p_company: S.cid, p_code: code, p_from: from, p_to: to });
+    rb.innerHTML = tbl([{ t: 'التاريخ', h: x => fdate(x.date) }, { t: 'القيد', h: x => `<span class="num">${esc(x.no || '')}</span>` }, { t: 'البيان', k: 'memo' }, { t: 'مدين', r: 1, h: x => n0(x.debit) ? money(x.debit) : '' }, { t: 'دائن', r: 1, h: x => n0(x.credit) ? money(x.credit) : '' }, { t: 'الرصيد', r: 1, h: x => money(x.balance) }], rows); }
+};
+
+boot();
+</script>
+</body>
+</html>
