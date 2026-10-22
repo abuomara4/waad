@@ -244,69 +244,58 @@ function toggleTheme() { const dark = document.documentElement.dataset.theme ? d
 
 /* ===== auth screens ===== */
 const BRAND = `<div class="brand"><div class="mark">و</div><div><b>وعد</b><div class="muted small">الموارد البشرية والمالية</div></div></div>`;
-// company login code can arrive in the link HR shares: …/waad/?c=ABC123
-let FIRST_VISIT = false;
-(() => { try { const q = new URLSearchParams(location.search), c = q.get('c'); if (c && /^[A-Za-z0-9]{4,10}$/.test(c)) LS.set('waad.ccode', c.toUpperCase()); FIRST_VISIT = q.get('first') === '1' && !LS.get('waad.activated'); } catch (e) {} })();
-const normCode = v => String(v || '').replace(/[\s-]/g, '').toUpperCase();
+// company code can arrive in the link HR shares: …/waad/?c=1FB695
+(() => { try { const c = new URLSearchParams(location.search).get('c'); if (c && /^[A-Za-z0-9]{4,10}$/.test(c) && c.toUpperCase() !== LS.get('waad.ccode')) { LS.set('waad.ccode', c.toUpperCase()); LS.set('waad.cname', null); } } catch (e) {} })();
 const staffEmail = (code, empNo) => String(empNo).trim().toLowerCase() + '.' + String(code).trim().toLowerCase() + '@staff.waad.app';
-function authView(tab = FIRST_VISIT ? 'act' : 'staff', msg = '') {
-  const app = $('#app'); const ccode = LS.get('waad.ccode') || '';
-  const tabs = [['staff', 'دخول الموظفين'], ['in', 'دخول بالبريد'], ['up', 'منشأة جديدة']];
-  let body = '';
-  if (tab === 'act') body = `<h2 style="margin-bottom:4px">تفعيل حسابك لأول مرة</h2><p class="muted small" style="margin-top:0">أدخل رمز الدعوة الذي وصلك من الموارد البشرية، واختر كلمة مرورك. بعدها تدخل دائماً من صفحة الدخول.</p>
-      ${field('رمز المنشأة', `<input name="code" value="${esc(ccode)}" required dir="ltr" style="text-transform:uppercase;letter-spacing:2px">`)}<div style="height:10px"></div>
-      ${field('الرقم الوظيفي', `<input name="emp" required dir="ltr" inputmode="numeric" autocomplete="username">`)}<div style="height:10px"></div>
-      ${field('رمز الدعوة', `<input name="invite" required dir="ltr" autocomplete="one-time-code" style="text-transform:uppercase;letter-spacing:2px" placeholder="XXXX-XXXX">`)}<div style="height:10px"></div>
-      ${field('كلمة المرور الجديدة (8 أحرف أو أكثر)', `<input name="p1" type="password" autocomplete="new-password" dir="ltr">`)}<div style="height:10px"></div>
-      ${field('تأكيد كلمة المرور', `<input name="p2" type="password" autocomplete="new-password" dir="ltr">`)}`;
-  else if (tab === 'staff') body = `
-      ${field('رمز المنشأة', `<input name="code" value="${esc(ccode)}" required dir="ltr" autocapitalize="characters" style="text-transform:uppercase;letter-spacing:2px" placeholder="مثال: K7P2XQ">`)}<div style="height:10px"></div>
+function authView(tab = 'staff', msg = '') {
+  const app = $('#app'); const ccode = LS.get('waad.ccode') || '', cname = LS.get('waad.cname') || '';
+  if (tab === 'staff' && ccode && !cname) {   // code from a link: resolve the company name first
+    db.rpc('company_by_code', { p_code: ccode }).then(n => { if (n) { LS.set('waad.cname', n); } else { LS.set('waad.ccode', null); } authView('staff', msg); }).catch(() => { LS.set('waad.ccode', null); authView('staff', msg); });
+    app.innerHTML = '<div class="auth"><div class="muted">جارٍ التحميل…</div></div>'; return;
+  }
+  const step = tab === 'staff' ? (ccode ? 'login' : 'code') : tab;
+  let body = '', btn = 'دخول', foot = '';
+  if (step === 'code') {
+    body = `<h2 style="margin-bottom:4px">رمز المنشأة</h2><p class="muted small" style="margin-top:0">أدخل رمز منشأتك مرة واحدة — تعطيك إياه الموارد البشرية — وسيتذكره النظام.</p>
+      ${field('رمز المنشأة', `<input name="code" required dir="ltr" autocapitalize="characters" autocomplete="organization" style="text-transform:uppercase;letter-spacing:3px;font-size:18px;text-align:center" placeholder="1FB695">`)}`;
+    btn = 'متابعة';
+  } else if (step === 'login') {
+    body = `<div class="note" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>المنشأة: <b>${esc(cname)}</b></span><a href="#" id="chg" class="small">تغيير</a></div>
       ${field('الرقم الوظيفي', `<input name="emp" required dir="ltr" inputmode="numeric" autocomplete="username">`)}<div style="height:10px"></div>
       ${field('كلمة المرور', `<input name="password" type="password" autocomplete="current-password" required dir="ltr">`)}`;
-  else body = `
-      ${field('البريد الإلكتروني', `<input name="email" type="email" autocomplete="email" required dir="ltr">`)}<div style="height:10px"></div>
+    foot = `<p class="muted small" style="margin:10px 0 0;text-align:center">أول دخول؟ استخدم كلمة المرور التي أعطتك إياها الموارد البشرية، وسيُطلب منك تغييرها. نسيتها؟ اطلب من الموارد البشرية إعادة تعيينها.</p>`;
+  } else {
+    body = `${field('البريد الإلكتروني', `<input name="email" type="email" autocomplete="email" required dir="ltr">`)}<div style="height:10px"></div>
       ${field('كلمة المرور', `<input name="password" type="password" autocomplete="${tab === 'in' ? 'current-password' : 'new-password'}" required dir="ltr">`)}
       ${tab === 'up' ? `<div style="height:10px"></div>${field('تأكيد كلمة المرور', `<input name="password2" type="password" autocomplete="new-password" dir="ltr">`)}` : ''}`;
-  const foot = tab === 'act' ? `<p class="small" style="margin:10px 0 0;text-align:center"><a href="#" id="toLogin">لديك حساب؟ تسجيل الدخول</a></p>`
-    : tab === 'staff' ? `<p class="small" style="margin:10px 0 0;text-align:center"><a href="#" id="toAct">أول مرة؟ فعّل حسابك برمز الدعوة</a></p><p class="muted small" style="margin:6px 0 0;text-align:center">نسيت كلمة المرور؟ اطلب من الموارد البشرية رمز دعوة جديداً.</p>`
-    : tab === 'in' ? `<div style="margin-top:10px;text-align:center"><a href="#" id="forgot" class="small">نسيت كلمة المرور؟</a></div><p class="muted small" style="margin:6px 0 0;text-align:center">لأصحاب المنشآت والإدارة المسجلين ببريدهم.</p>`
-    : `<p class="muted small" style="margin:10px 0 0">لصاحب المنشأة فقط: أنشئ حساباً ببريدك ثم أنشئ منشأتك. الموظفون لا يسجلون هنا — تنشئ لهم الموارد البشرية دخولاً بالرقم الوظيفي.</p>`;
+    btn = tab === 'up' ? 'إنشاء الحساب' : 'دخول';
+    foot = tab === 'in' ? `<div style="margin-top:10px;text-align:center"><a href="#" id="forgot" class="small">نسيت كلمة المرور؟</a></div>`
+      : `<p class="muted small" style="margin:10px 0 0">لصاحب منشأة جديدة، أو لمن وصلته دعوة بالبريد من الإدارة. الموظفون لا يسجلون هنا — يدخلون برمز المنشأة ورقمهم الوظيفي.</p>`;
+  }
+  const links = tab === 'staff' ? `<a href="#" data-go="in">دخول الإدارة بالبريد</a> · <a href="#" data-go="up">حساب جديد بالبريد</a>` : `<a href="#" data-go="staff">دخول الموظفين</a> · ${tab === 'in' ? '<a href="#" data-go="up">حساب جديد بالبريد</a>' : '<a href="#" data-go="in">لديك حساب؟ دخول بالبريد</a>'}`;
   app.innerHTML = `<div class="auth"><div class="abox">${BRAND}<div class="card">
-    ${tab === 'act' ? '' : `<div class="tabs" role="tablist">${tabs.map(([k, t]) => `<button data-t="${k}" class="${tab === k ? 'on' : ''}">${t}</button>`).join('')}</div>`}
+    ${tab !== 'staff' ? `<h2>${tab === 'in' ? 'دخول الإدارة بالبريد' : 'حساب جديد بالبريد'}</h2>` : ''}
     ${msg ? `<div class="note">${esc(msg)}</div>` : ''}
-    <form id="af" novalidate>${body}
-      <div id="aerr"></div><div style="height:12px"></div>
-      <button class="btn pri full" id="ab">${tab === 'up' ? 'إنشاء الحساب' : tab === 'act' ? 'تفعيل الحساب والدخول' : 'دخول'}</button>${foot}
-    </form></div><p class="muted small" style="text-align:center"><a href="#" id="theme">الوضع الليلي/النهاري</a></p></div></div>`;
-  $$('.tabs button', app).forEach(b => b.onclick = () => authView(b.dataset.t));
+    <form id="af" novalidate>${body}<div id="aerr"></div><div style="height:12px"></div><button class="btn pri full" id="ab">${btn}</button>${foot}</form></div>
+    <p class="muted small" style="text-align:center">${links}</p>
+    <p class="muted small" style="text-align:center"><a href="#" id="theme">الوضع الليلي/النهاري</a></p></div></div>`;
+  $$('[data-go]', app).forEach(a => a.onclick = e => { e.preventDefault(); authView(a.dataset.go); });
   $('#theme').onclick = e => { e.preventDefault(); toggleTheme(); };
-  if ($('#toAct')) $('#toAct').onclick = e => { e.preventDefault(); authView('act'); };
-  if ($('#toLogin')) $('#toLogin').onclick = e => { e.preventDefault(); FIRST_VISIT = false; authView('staff'); };
+  if ($('#chg')) $('#chg').onclick = e => { e.preventDefault(); LS.set('waad.ccode', null); LS.set('waad.cname', null); authView('staff'); };
   if ($('#forgot')) $('#forgot').onclick = async e => { e.preventDefault(); const em = $('#af').email.value.trim(); if (!em) return showErr('#aerr', 'اكتب بريدك أولاً'); try { await authApi.recover(em); authView('in', 'أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك (إن كان مسجلاً).'); } catch (er) { showErr('#aerr', er); } };
   $('#af').onsubmit = async e => {
     e.preventDefault(); const f = formData(e.target);
-    if (tab === 'act') {
-      if (!/^[A-Za-z0-9]{4,10}$/.test(f.code)) return showErr('#aerr', 'أدخل رمز المنشأة كما وصلك');
-      if (!/^[A-Za-z0-9_-]{1,20}$/.test(f.emp)) return showErr('#aerr', 'أدخل الرقم الوظيفي (أرقام إنجليزية)');
-      if (normCode(f.invite).length < 6) return showErr('#aerr', 'أدخل رمز الدعوة');
-      if (f.p1.length < 8) return showErr('#aerr', 'كلمة المرور 8 أحرف على الأقل');
-      if (f.p1 !== f.p2) return showErr('#aerr', 'كلمتا المرور غير متطابقتين');
-      try { await busy($('#ab'), async () => {
-        try { await authApi.signIn(staffEmail(f.code, f.emp), normCode(f.invite)); }
-        catch (er) { throw new Error(/غير صحيحة/.test(er.message) ? 'رمز الدعوة غير صحيح أو سبق استخدامه — اطلب رمزاً جديداً من الموارد البشرية' : er.message); }
-        await authApi.setPassword(f.p1); await db.rpc('password_changed');
-        LS.set('waad.ccode', f.code.toUpperCase()); LS.set('waad.activated', true); FIRST_VISIT = false;
-        try { history.replaceState(null, '', location.pathname + '?c=' + f.code.toUpperCase()); } catch (e) {}
-        toast('تم تفعيل حسابك'); return boot();
-      }); } catch (er) { showErr('#aerr', er); }
+    if (step === 'code') {
+      const c = f.code.replace(/\s/g, '').toUpperCase();
+      if (!/^[A-Z0-9]{4,10}$/.test(c)) return showErr('#aerr', 'أدخل رمز المنشأة كما وصلك');
+      try { await busy($('#ab'), async () => { const n = await db.rpc('company_by_code', { p_code: c }); if (!n) throw new Error('رمز المنشأة غير صحيح — تأكد منه مع الموارد البشرية'); LS.set('waad.ccode', c); LS.set('waad.cname', n); authView('staff'); }); } catch (er) { showErr('#aerr', er); }
       return;
     }
-    if (tab === 'staff') {
-      if (!/^[A-Za-z0-9]{4,10}$/.test(f.code)) return showErr('#aerr', 'أدخل رمز المنشأة كما وصلك');
+    if (step === 'login') {
       if (!/^[A-Za-z0-9_-]{1,20}$/.test(f.emp)) return showErr('#aerr', 'أدخل الرقم الوظيفي (أرقام إنجليزية)');
       if (!f.password) return showErr('#aerr', 'أدخل كلمة المرور');
-      try { await busy($('#ab'), async () => { await authApi.signIn(staffEmail(f.code, f.emp), f.password); LS.set('waad.ccode', f.code.toUpperCase()); LS.set('waad.activated', true); return boot(); }); }
-      catch (er) { showErr('#aerr', /غير صحيحة/.test(er.message) ? 'رمز المنشأة أو الرقم الوظيفي أو كلمة المرور غير صحيحة' : er); }
+      try { await busy($('#ab'), async () => { await authApi.signIn(staffEmail(ccode, f.emp), f.password); return boot(); }); }
+      catch (er) { showErr('#aerr', /غير صحيحة/.test(er.message) ? 'الرقم الوظيفي أو كلمة المرور غير صحيحة' : er); }
       return;
     }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)) return showErr('#aerr', 'البريد الإلكتروني غير صحيح');
@@ -367,7 +356,7 @@ async function loadContext() {
   S.companies = await db.rpc('my_companies');
   if (!S.companies.length) return false;
   let c = S.companies.find(x => x.company_id === S.cid) || S.companies[0];
-  S.cid = c.company_id; LS.set('waad.cid', S.cid); S.role = c.role; S.emp = c.employee_id; S.mustChange = !!c.must_change_password; if (c.code) LS.set('waad.ccode', c.code);
+  S.cid = c.company_id; LS.set('waad.cid', S.cid); S.role = c.role; S.emp = c.employee_id; S.mustChange = !!c.must_change_password; if (c.code) { LS.set('waad.ccode', c.code); LS.set('waad.cname', c.name); }
   const [co] = await db.get('companies', { id: 'eq.' + S.cid });
   S.company = co;
   S.perms = new Set();
@@ -506,7 +495,7 @@ VIEWS['#/welcome'] = async page => {
    <div class="card"><h2>1. أضف نفسك كموظف</h2><p class="muted">ليظهر لك نظام الطلبات وقسائم الراتب، ويُعرف أنك المدير العام في مسارات الاعتماد.</p>
    ${S.emp ? '<div class="badge ok">تم</div>' : `<button class="btn pri" id="me">إضافة بياناتي</button>`}</div>
    <div class="card"><h2>2. أضف الموظفين</h2><p class="muted">أضف سجلات الموظفين ورواتبهم ومديريهم المباشرين.</p><a class="btn" href="#/employees">الموظفون</a></div>
-   <div class="card"><h2>3. أعطِ فريقك الدخول</h2><p class="muted">الموظف: افتح سجله من «الموظفون» واضغط «إنشاء رمز دعوة للموظف» — يفعّل حسابه مرة واحدة ثم يدخل دائماً برمز المنشأة <b class="num">${esc(S.company.code)}</b> ورقمه الوظيفي. الإدارة بالبريد: من «المستخدمون والدعوات».</p><a class="btn" href="#/employees">الموظفون</a> <a class="btn" href="#/users">المستخدمون والدعوات</a></div>`;
+   <div class="card"><h2>3. أعطِ فريقك الدخول</h2><p class="muted">الموظف: افتح سجله من «الموظفون» واضغط «إنشاء دخول للموظف» — يدخل برمز المنشأة <b class="num">${esc(S.company.code)}</b> ثم رقمه الوظيفي وكلمة مرور مؤقتة. الإدارة بالبريد: من «المستخدمون والدعوات».</p><a class="btn" href="#/employees">الموظفون</a> <a class="btn" href="#/users">المستخدمون والدعوات</a></div>`;
   if ($('#me', page)) $('#me', page).onclick = () => employeeForm(null, { linkMe: true });
 };
 
@@ -556,6 +545,7 @@ async function requestDetail(r, { decide } = {}) {
   const body = `<p><b>${esc(KIND[r.kind])}${ln ? ' — ' + esc(ln) : ''}</b> ${badge(r.status)}</p>
     ${r._emp ? `<p>الموظف: ${esc(r._emp.full_name)} <span class="muted">(${esc(r._emp.emp_no)})</span></p>` : ''}
     <p class="muted">${r.from_date ? 'من ' + fdate(r.from_date) + ' إلى ' + fdate(r.to_date) + (r.days ? ' — ' + r.days + ' يوماً' : '') : ''}${r.amount != null ? ' المبلغ: ' + money(r.amount) : ''}${r.payload && r.payload.hours ? ' — ' + r.payload.hours + ' ساعة' : ''}${r.payload && r.payload.inst ? ' — ' + r.payload.inst + ' أقساط' : ''}</p>
+    ${r.kind === 'update' ? `<div class="tw"><table><tbody>${Object.entries(r.payload || {}).map(([k, v]) => `<tr><td class="muted">${esc({ phone: 'الجوال', email: 'البريد الشخصي', iban: 'الآيبان' }[k] || k)}</td><td class="num">${esc(v)}</td></tr>`).join('')}</tbody></table></div>` : ''}
     ${r.note ? `<p>${esc(r.note)}</p>` : ''}
     <p class="small muted">مسار الاعتماد: ${r.route.map((s, i) => (i < r.step ? '✓ ' : i === r.step && r.status === 'pending' ? '◀ ' : '') + STEP[s]).join(' ← ') || 'اعتماد تلقائي'}</p>
     <ul class="timeline">${acts.map(a => `<li>${esc(label[a.action])}${a.actor_step ? ' — ' + esc(STEP[a.actor_step]) : ''} <span class="muted small num">${esc(String(a.at).slice(0, 16).replace('T', ' '))}</span>${a.note ? '<br><span class="small">' + esc(a.note) + '</span>' : ''}</li>`).join('')}</ul>
@@ -607,7 +597,15 @@ VIEWS['#/profile'] = async page => {
   page.innerHTML = `<div class="head"><div><h1>${esc(e.full_name)}</h1><div class="muted">${esc(e.job_title || '')}</div></div></div><div class="card"><div class="tw"><table><tbody>
     ${r('الرقم الوظيفي', esc(e.emp_no))}${r('البريد', esc(S.session.user.email))}${r('تاريخ المباشرة', fdate(e.hire_date))}${r('المدير المباشر', esc(mgr))}
     ${r('الراتب الأساسي', `<span class="num">${money(e.basic)}</span>`)}${r('بدل السكن', `<span class="num">${money(e.housing)}</span>`)}${r('بدل النقل', `<span class="num">${money(e.transport)}</span>`)}
-    ${r('الآيبان', `<span class="num">${esc(e.iban || '—')}</span>`)}</tbody></table></div><p class="muted small">لتحديث بياناتك تواصل مع الموارد البشرية.</p></div>`;
+    ${r('الجوال', `<span class="num">${esc(e.phone || '—')}</span>`)}${r('البريد الشخصي', `<span class="num">${esc(e.email || '—')}</span>`)}${r('الآيبان', `<span class="num">${esc(e.iban || '—')}</span>`)}</tbody></table></div>
+    <div class="row" style="margin-top:12px"><button class="btn pri" id="upd">طلب تعديل بياناتي</button><span class="muted small">التعديل يمر على الموارد البشرية، ويُطبَّق تلقائياً بعد اعتماده.</span></div></div>`;
+  $('#upd', page).onclick = () => modal('طلب تعديل بيانات', `<p class="muted small">غيّر ما تريد تعديله فقط.</p><div class="fg">${field('الجوال', inp('phone', e.phone, 'dir="ltr" placeholder="05XXXXXXXX"'))}${field('البريد الشخصي', inp('email', e.email, 'dir="ltr" type="email"'))}${field('الآيبان', inp('iban', e.iban, 'dir="ltr" placeholder="SA…" maxlength="24"'), 'wide')}${field('ملاحظة للموارد البشرية', '<textarea name="note" rows="2"></textarea>', 'wide')}</div>`, {
+    ok: 'إرسال الطلب', onOk: async f => {
+      const p = {}; ['phone', 'email', 'iban'].forEach(k => { let v = f[k].trim(); if (k === 'iban') v = v.replace(/\s/g, '').toUpperCase(); if (v && v !== (e[k] || '')) p[k] = v; });
+      if (!Object.keys(p).length) throw new Error('لم تغيّر أي بيانات');
+      await db.rpc('submit_request', { p_company: S.cid, p_kind: 'update', p_payload: p, p_note: blank(f.note) }); toast('أُرسل طلب التعديل للموارد البشرية'); location.hash = '#/requests';
+    }
+  });
 };
 
 /* ===== employees (HR) ===== */
@@ -621,7 +619,7 @@ VIEWS['#/employees'] = async (page, arg, q) => {
      <a class="btn" href="#/employees${showEnded ? '' : '?all=1'}">${showEnded ? 'على رأس العمل فقط' : 'إظهار المنتهية خدماتهم'}</a><button class="btn" id="dep">الأقسام</button><button class="btn pri" id="ne">إضافة موظف</button></div></div>
    ${tbl([{ t: 'الرقم', k: 'emp_no' }, { t: 'الاسم', k: 'full_name' }, { t: 'المسمى', k: 'job_title' }, { t: 'القسم', h: e => esc(dm[e.department_id] || '—') }, { t: 'المدير', h: e => esc(e.manager_id && em[e.manager_id] ? em[e.manager_id].full_name : '—') },
       { t: 'الإجمالي', r: 1, h: e => money(n0(e.basic) + n0(e.housing) + n0(e.transport)) },
-      { t: 'الدخول', h: e => { const l = cache.logins[e.id]; return !l ? '<span class="badge">بدون حساب</span>' : l.by_number ? '<span class="badge info">بالرقم الوظيفي</span>' + (l.must_change_password ? ' <span class="badge wait">لم يفعّل بعد</span>' : '') : '<span class="badge info">بالبريد</span>'; } }, { t: 'الحالة', h: e => e.end_date && e.end_date < today() ? '<span class="badge bad">منتهية</span>' : e.end_date ? '<span class="badge wait">آخر يوم ' + fdate(e.end_date) + '</span>' : '<span class="badge ok">على رأس العمل</span>' }],
+      { t: 'الدخول', h: e => { const l = cache.logins[e.id]; return !l ? '<span class="badge">بدون حساب</span>' : l.by_number ? '<span class="badge info">بالرقم الوظيفي</span>' + (l.must_change_password ? ' <span class="badge wait">لم يغيّر كلمة المرور بعد</span>' : '') : '<span class="badge info">بالبريد</span>'; } }, { t: 'الحالة', h: e => e.end_date && e.end_date < today() ? '<span class="badge bad">منتهية</span>' : e.end_date ? '<span class="badge wait">آخر يوم ' + fdate(e.end_date) + '</span>' : '<span class="badge ok">على رأس العمل</span>' }],
      rows, { empty: 'لم تُضف موظفين بعد', onRow: true })}`;
   bindRows(page, rows, e => employeeForm(e));
   $('#ne', page).onclick = () => employeeForm(null);
@@ -654,7 +652,7 @@ async function employeeForm(e, { linkMe } = {}) {
     ${e ? field('تاريخ انتهاء الخدمة', `<input type="date" name="end_date" value="${esc(v.end_date || '')}">`) + field('سبب الانتهاء', inp('end_reason', v.end_reason)) : ''}
     ${linkMe ? `<div class="wide note">سيُربط هذا السجل بحسابك.</div>` : ''}
     ${e && !linkMe ? (() => { const l = (cache.logins || {})[e.id]; return `<div class="wide card" style="margin:0;padding:12px"><b>حساب الدخول</b> <span class="muted small">${!l ? 'لا يملك حساباً بعد' : l.by_number ? 'يدخل بالرقم الوظيفي ' + esc(e.emp_no) : 'يدخل ببريده الإلكتروني'}</span>
-      <div class="row" style="margin-top:8px">${!l ? '<button type="button" class="btn pri sm" id="mklogin">إنشاء رمز دعوة للموظف</button>' : l.by_number ? '<button type="button" class="btn sm" id="rspw">رمز دعوة جديد (نسي كلمة المرور)</button>' : ''}</div></div>`; })() : ''}</div>`;
+      <div class="row" style="margin-top:8px">${!l ? '<button type="button" class="btn pri sm" id="mklogin">إنشاء دخول للموظف</button>' : l.by_number ? '<button type="button" class="btn sm" id="rspw">إعادة تعيين كلمة المرور</button>' : ''}</div></div>`; })() : ''}</div>`;
   const dlg = modal(e ? 'تعديل بيانات موظف' : 'إضافة موظف', body, {
     wide: true, onOk: async f => {
       if (!f.emp_no) throw new Error('أدخل الرقم الوظيفي'); if (f.full_name.length < 3) throw new Error('أدخل الاسم الكامل');
@@ -677,18 +675,17 @@ async function employeeForm(e, { linkMe } = {}) {
 }
 
 /* ===== staff logins by employee number ===== */
-// one-time invitation code (also the account's initial password until the employee picks their own)
+// temporary password HR hands over; the employee must replace it at first sign-in
 function tempPassword() {
   const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r = crypto.getRandomValues(new Uint32Array(8));
   let p = ''; for (const x of r) p += A[x % A.length]; return p;
 }
-const fmtCode = c => c.slice(0, 4) + '-' + c.slice(4);
 function createStaffLogin(e) {
   if (!/^[A-Za-z0-9_-]{1,20}$/.test(e.emp_no)) return toast('الرقم الوظيفي يجب أن يكون أرقاماً أو حروفاً إنجليزية ليُستخدم في الدخول');
   const roles = INVITABLE().filter(r => !['finance', 'accountant', 'storekeeper', 'admin', 'hr'].includes(r) || has('owner', 'admin'));
-  modal('رمز دعوة — ' + e.full_name, `<p>يظهر لك رمز دعوة ترسله للموظف. أول مرة يفعّل حسابه بالرمز ويختار كلمة مروره، وبعدها يدخل دائماً بـ <b>رمز المنشأة</b> و<b>رقمه الوظيفي ${esc(e.emp_no)}</b> وكلمة مروره.</p>
+  modal('إنشاء دخول — ' + e.full_name, `<p>سيدخل الموظف برمز المنشأة <b class="num">${esc(S.company.code)}</b> ثم <b>رقمه الوظيفي ${esc(e.emp_no)}</b> وكلمة مرور مؤقتة تظهر لك الآن، ويُطلب منه تغييرها عند أول دخول.</p>
     ${field('الصلاحية', `<select name="role">${roles.map(r => opt(r, ROLES[r], 'employee')).join('')}</select>`)}`, {
-    ok: 'إنشاء رمز الدعوة', onOk: async f => {
+    ok: 'إنشاء الدخول', onOk: async f => {
       const pw = tempPassword();
       const res = await authApi.createStaff(staffEmail(S.company.code, e.emp_no), pw);
       await db.rpc('link_staff_login', { p_company: S.cid, p_employee: e.id, p_role: f.role });
@@ -698,17 +695,17 @@ function createStaffLogin(e) {
   });
 }
 function resetStaffPassword(e) {
-  modal('رمز دعوة جديد — ' + e.full_name, '<p>تتوقف كلمة مرور الموظف الحالية، ويفعّل حسابه من جديد بالرمز الجديد ويختار كلمة مرور جديدة.</p>', {
-    ok: 'إنشاء رمز جديد', onOk: async () => { const pw = tempPassword(); await db.rpc('reset_staff_password', { p_company: S.cid, p_employee: e.id, p_password: pw }); route(); setTimeout(() => credentialsBox(e, pw), 60); }
+  modal('إعادة تعيين كلمة المرور — ' + e.full_name, '<p>تتوقف كلمة المرور الحالية وتظهر لك كلمة مؤقتة جديدة، ويُطلب من الموظف تغييرها عند الدخول.</p>', {
+    ok: 'إعادة التعيين', onOk: async () => { const pw = tempPassword(); await db.rpc('reset_staff_password', { p_company: S.cid, p_employee: e.id, p_password: pw }); route(); setTimeout(() => credentialsBox(e, pw), 60); }
   });
 }
 function credentialsBox(e, pw, warnConfirm) {
-  const link = location.origin + location.pathname + '?c=' + S.company.code + '&first=1';
-  const msg = 'دعوة لنظام وعد (' + S.company.name + '):\n1) افتح الرابط: ' + link + '\n2) أدخل رقمك الوظيفي: ' + e.emp_no + '\n3) رمز الدعوة: ' + fmtCode(pw) + '\n4) اختر كلمة مرورك.\nبعدها تدخل دائماً برمز المنشأة ' + S.company.code + ' ورقمك الوظيفي وكلمة مرورك.';
+  const link = location.origin + location.pathname + '?c=' + S.company.code;
+  const msg = 'بيانات دخولك لنظام وعد (' + S.company.name + '):\nالرابط: ' + link + '\nرمز المنشأة: ' + S.company.code + '\nالرقم الوظيفي: ' + e.emp_no + '\nكلمة المرور المؤقتة: ' + pw + '\nسيُطلب منك تغييرها عند أول دخول.';
   const row = (t, v) => `<tr><td class="muted">${t}</td><td class="num" style="font-weight:700;font-size:17px">${esc(v)}</td></tr>`;
-  const d = modal('رمز دعوة ' + e.full_name, `${warnConfirm ? '<div class="err">خيار «Confirm email» مفعّل في Supabase، فلن يستطيع الموظف التفعيل حتى يُطفأ.</div>' : ''}
-    <div class="tw"><table><tbody>${row('رمز المنشأة', S.company.code)}${row('الرقم الوظيفي', e.emp_no)}${row('رمز الدعوة', fmtCode(pw))}</tbody></table></div>
-    <p class="muted small">الرمز يُستخدم مرة واحدة ولن يظهر مجدداً. أرسل الرسالة للموظف الآن، والرابط يفتح له صفحة التفعيل مباشرة.</p>
+  const d = modal('بيانات دخول ' + e.full_name, `${warnConfirm ? '<div class="err">خيار «Confirm email» مفعّل في Supabase، فلن يستطيع الموظف الدخول حتى يُطفأ.</div>' : ''}
+    <div class="tw"><table><tbody>${row('رمز المنشأة', S.company.code)}${row('الرقم الوظيفي', e.emp_no)}${row('كلمة المرور المؤقتة', pw)}</tbody></table></div>
+    <p class="muted small">لن تظهر كلمة المرور مجدداً. أعطها للموظف الآن، ويمكنك إعادة تعيينها لاحقاً.</p>
     <div class="row" style="justify-content:center"><button type="button" class="btn pri" id="cpm">نسخ الرسالة</button>${navigator.share ? '<button type="button" class="btn" id="shm">مشاركة</button>' : ''}</div>`);
   $('#cpm', d).onclick = async ev => { try { await navigator.clipboard.writeText(msg); ev.target.textContent = 'نُسخت ✓'; } catch (er) { toast('تعذر النسخ — انسخ البيانات من الجدول'); } };
   if ($('#shm', d)) $('#shm', d).onclick = () => navigator.share({ text: msg }).catch(() => {});
@@ -808,7 +805,7 @@ VIEWS['#/users'] = async page => {
 function inviteBox(i) {
   if (!i) return;
   const link = location.origin + location.pathname;
-  const msg = 'دعوة للانضمام إلى ' + S.company.name + ' في نظام وعد:\n1) افتح ' + link + '\n2) اختر «حساب جديد» وسجّل بالبريد ' + i.email + '\n3) أدخل رمز الدعوة: ' + i.code;
+  const msg = 'دعوة للانضمام إلى ' + S.company.name + ' في نظام وعد:\n1) افتح ' + link + '\n2) اختر «حساب جديد بالبريد» وسجّل بالبريد ' + i.email + '\n3) أدخل رمز الدعوة: ' + i.code;
   const d = modal('رمز الدعوة', `<p class="muted small">أرسل الرمز والرابط إلى <b class="num">${esc(i.email)}</b> (${esc(ROLES[i.role])}). يسجّل بنفس البريد ثم يُدخل الرمز.</p>
     <div style="text-align:center;margin:14px 0"><span class="code" id="ic" style="font-size:28px;padding:6px 16px">${esc(i.code)}</span></div>
     <div class="row" style="justify-content:center"><button type="button" class="btn pri" id="cpc">نسخ الرمز</button><button type="button" class="btn" id="cpm">نسخ رسالة جاهزة</button>${navigator.share ? '<button type="button" class="btn" id="shm">مشاركة</button>' : ''}</div>`);
