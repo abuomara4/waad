@@ -472,6 +472,7 @@ function canAct(r, e) {
 /* ===== home ===== */
 VIEWS['#/home'] = async page => {
   const cards = [];
+  if (isHR()) { try { const n = await db.rpc('apply_deemed_resignations', { p_company: S.cid }); if (n) toast(n + ' استقالة اعتُبرت مقبولة لمضي 30 يوماً دون رد (م79 مكرر)'); } catch (e) {} }
   const pend = await pendingForMe().catch(() => []);
   NAVC.approvals = pend.length; drawNav();
   if (!['accountant', 'storekeeper'].includes(S.role) || S.emp) cards.push(`<a class="card kpi" href="#/approvals"><div class="muted small">بانتظار اعتمادك</div><div class="v num">${pend.length}</div></a>`);
@@ -479,7 +480,7 @@ VIEWS['#/home'] = async page => {
     const mine = await db.get('requests', { employee_id: 'eq.' + S.emp, status: 'eq.pending', select: 'id' });
     cards.push(`<a class="card kpi" href="#/requests"><div class="muted small">طلباتي قيد المعالجة</div><div class="v num">${mine.length}</div></a>`);
     const bal = await leaveBalance();
-    cards.push(`<a class="card kpi" href="#/requests"><div class="muted small">رصيد الإجازة السنوية</div><div class="v num">${bal.left} <span class="small muted">من ${bal.ent} يوماً</span></div></a>`);
+    cards.push(`<a class="card kpi" href="#/requests"><div class="muted small">رصيد الإجازة السنوية</div><div class="v num">${bal.left} <span class="small muted">يوماً متراكماً (${bal.ent} يوماً/سنة)</span></div></a>`);
   }
   if (isHR()) { const emps = await db.get('employees', { company_id: 'eq.' + S.cid, end_date: 'is.null', select: 'id' }); cards.push(`<a class="card kpi" href="#/employees"><div class="muted small">الموظفون على رأس العمل</div><div class="v num">${emps.length}</div></a>`); }
   if (can('sales')) { const inv = await db.get('sales_invoices', { company_id: 'eq.' + S.cid, status: 'eq.posted', select: 'total' }); cards.push(`<a class="card kpi" href="#/sales"><div class="muted small">إجمالي المبيعات المرحّلة</div><div class="v num">${money(inv.reduce((a, x) => a + n0(x.total), 0))}</div></a>`); }
@@ -487,12 +488,12 @@ VIEWS['#/home'] = async page => {
   const nudge = !S.emp && !['accountant', 'storekeeper'].includes(S.role) ? `<div class="note">حسابك غير مربوط بسجل موظف، لذلك لا تظهر لك خدمات الإجازات والطلبات. ${isHR() ? '<a href="#/welcome">اربطه الآن</a>' : 'اطلب من الموارد البشرية ربطه.'}</div>` : '';
   page.innerHTML = `<div class="head"><div><h1>أهلاً${S.myEmp ? '، ' + esc(S.myEmp.full_name.split(' ')[0]) : ''}</h1><div class="muted">${esc(S.company.name)}</div></div></div>${nudge}<div class="grid">${cards.join('')}</div>`;
 };
+// Art. 109: annual leave accrues daily — 21 days a year, 30 after five continuous years
 async function leaveBalance() {
-  const e = S.myEmp; if (!e) return { ent: 0, used: 0, left: 0 };
-  const ent = ((new Date(today()) - new Date(e.hire_date)) / 864e5 / 365) >= 5 ? 30 : 21;
-  const rs = await db.get('requests', { employee_id: 'eq.' + S.emp, kind: 'eq.leave', sub: 'eq.annual', status: 'in.(pending,approved)', select: 'days' });
-  const used = rs.reduce((a, r) => a + n0(r.days), 0);
-  return { ent, used, left: ent - used };
+  if (!S.myEmp) return { ent: 0, used: 0, left: 0 };
+  const [b] = await db.rpc('annual_leave_balance', { p_emp: S.emp });
+  const yrs = (new Date(today()) - new Date(S.myEmp.hire_date)) / 864e5 / 365;
+  return { ent: yrs >= 5 ? 30 : 21, used: n0(b && b.taken), left: Math.floor(n0(b && b.balance)) };
 }
 
 /* ===== first-run checklist for a new owner ===== */
@@ -511,15 +512,16 @@ VIEWS['#/requests'] = async page => {
   if (!S.emp) { page.innerHTML = '<div class="note">حسابك غير مربوط بسجل موظف.</div>'; return; }
   const [rs, bal] = await Promise.all([db.get('requests', { employee_id: 'eq.' + S.emp, order: 'created_at.desc' }), leaveBalance()]);
   const lt = await LEAVE_TYPES(); const ltn = {}; lt.forEach(l => ltn[l.code] = l.name_ar);
-  page.innerHTML = `<div class="head"><div><h1>طلباتي</h1><div class="muted">رصيد السنوية: <b class="num">${bal.left}</b> يوماً من ${bal.ent}</div></div><button class="btn pri" id="nr">طلب جديد</button></div>
+  page.innerHTML = `<div class="head"><div><h1>طلباتي</h1><div class="muted">رصيد الإجازة السنوية المتراكم: <b class="num">${bal.left}</b> يوماً · الاستحقاق ${bal.ent} يوماً في السنة (م109)</div></div><button class="btn pri" id="nr">طلب جديد</button></div>
     ${tbl([{ t: 'النوع', h: r => esc(KIND[r.kind] + (r.sub ? ' — ' + (ltn[r.sub] || r.sub) : '')) }, { t: 'من', h: r => fdate(r.from_date) }, { t: 'إلى', h: r => fdate(r.to_date) },
       { t: 'أيام/مبلغ', r: 1, h: r => r.amount != null ? money(r.amount) : (r.days || (r.payload && r.payload.hours ? r.payload.hours + ' س' : '—')) },
       { t: 'الحالة', h: r => badge(r.status) + (r.status === 'pending' ? ` <span class="muted small">عند ${esc(STEP[r.route[r.step]] || '')}</span>` : '') },
-      { t: '', h: r => r.status === 'pending' ? `<button class="btn sm" data-cancel="${r.id}">إلغاء</button>` : '' }], rs, { empty: 'لا توجد طلبات بعد', onRow: true })}`;
+      { t: '', h: r => r.status === 'pending' && !(r.kind === 'resign' && (Date.now() - new Date(r.created_at)) > 7 * 864e5) ? `<button class="btn sm" data-cancel="${r.id}">${r.kind === 'resign' ? 'العدول عن الاستقالة' : 'إلغاء'}</button>` : '' }], rs, { empty: 'لا توجد طلبات بعد', onRow: true })}`;
   bindRows(page, rs, r => requestDetail(r));
   $$('[data-cancel]', page).forEach(b => b.onclick = async ev => { ev.stopPropagation(); if (!await confirmBox('إلغاء الطلب', 'هل تريد إلغاء هذا الطلب؟', 'إلغاء الطلب')) return; try { await db.rpc('cancel_request', { p_id: b.dataset.cancel }); toast('أُلغي الطلب'); route(); } catch (e) { toast(e.message); } });
   $('#nr', page).onclick = () => newRequest(lt);
 };
+const EVENT_LEAVES = { marriage: 'تُحتسب 5 أيام من تاريخ الزواج — م113', death: 'تُحتسب 5 أيام من تاريخ الوفاة — م113', death2: 'تُحتسب 3 أيام من تاريخ الوفاة — م113', birth: '3 أيام تؤخذ خلال 7 أيام من تاريخ الولادة — م113', iddah: 'تبدأ من تاريخ الوفاة ولا تقل عن 4 أشهر و10 أيام — م160', iddahn: '15 يوماً من تاريخ الوفاة — م160' };
 function newRequest(lt) {
   const g = S.myEmp && S.myEmp.gender;
   const leaveOpts = lt.filter(l => !l.gender || l.gender === g).map(l => opt(l.code, l.name_ar + (l.article ? ' (' + l.article + ')' : ''))).join('');
@@ -527,22 +529,30 @@ function newRequest(lt) {
     <div data-k="leave">${field('نوع الإجازة', `<select name="sub">${leaveOpts}</select>`)}</div>
     <div data-k="leave permit">${field('من / التاريخ', `<input type="date" name="from" value="${today()}">`)}</div>
     <div data-k="leave">${field('إلى', `<input type="date" name="to" value="${today()}">`)}</div>
+    <div data-k="event" class="wide">${field('تاريخ الواقعة (الزواج/الوفاة/الولادة)', `<input type="date" name="event" value="${today()}">`)}<p class="muted small" id="evh" style="margin:4px 0 0"></p></div>
     <div data-k="permit">${field('عدد الساعات (حتى 4)', `<input name="hours" type="number" step="0.5" min="0.5" max="4" value="1">`)}</div>
     <div data-k="advance expense">${field('المبلغ', `<input name="amount" type="number" step="0.01" min="0">`)}</div>
-    <div data-k="advance">${field('عدد الأقساط', `<input name="inst" type="number" min="1" max="12" value="1">`)}</div>
-    <div data-k="resign">${field('آخر يوم عمل', `<input type="date" name="last" value="${today()}">`)}</div>
+    <div data-k="advance">${field('عدد الأقساط', `<input name="inst" type="number" min="1" max="24" value="1">`)}</div>
+    <div data-k="advance" class="wide"><p class="muted small" id="advh" style="margin:0"></p></div>
+    <div data-k="resign" class="wide"><div class="note">حسب المادة 79 مكرر: لا يُحدد للاستقالة تاريخ مؤجل، وتنتهي العلاقة من تاريخ قبولها. وإذا لم يُرد عليها خلال 30 يوماً تُعد مقبولة. ويحق لك العدول عنها خلال 7 أيام من تقديمها. تبقى ملتزماً بالعمل خلال هذه المدة.</div></div>
     ${field('ملاحظات', `<textarea name="note" rows="2"></textarea>`, 'wide')}</div>`, {
     ok: 'إرسال', onOk: async f => {
       const k = f.kind, a = { p_company: S.cid, p_kind: k, p_note: blank(f.note), p_payload: {} };
-      if (k === 'leave') Object.assign(a, { p_sub: f.sub, p_from: f.from, p_to: f.to });
+      if (k === 'leave') { Object.assign(a, { p_sub: f.sub, p_from: f.from, p_to: f.to }); if (EVENT_LEAVES[f.sub]) a.p_payload = { event_date: f.event }; }
       if (k === 'permit') Object.assign(a, { p_from: f.from, p_to: f.from, p_payload: { hours: +f.hours } });
       if (k === 'advance' || k === 'expense') { if (!(+f.amount > 0)) throw new Error('أدخل المبلغ'); a.p_amount = +f.amount; if (k === 'advance') a.p_payload = { inst: +f.inst || 1 }; }
-      if (k === 'resign') a.p_to = f.last;
       await db.rpc('submit_request', a); toast('أُرسل الطلب'); route();
     }
   });
-  const sync = () => { const k = $('#rk').value; $$('[data-k]', $('#dlg')).forEach(d => d.hidden = !d.dataset.k.split(' ').includes(k)); };
-  $('#rk').onchange = sync; sync();
+  const D = $('#dlg'), gross = S.myEmp ? n0(S.myEmp.basic) + n0(S.myEmp.housing) + n0(S.myEmp.transport) : 0;
+  const sync = () => {
+    const k = $('#rk').value, sub = D.querySelector('[name=sub]').value, ev = k === 'leave' && EVENT_LEAVES[sub];
+    $$('[data-k]', D).forEach(d => d.hidden = d.dataset.k === 'event' ? !ev : !d.dataset.k.split(' ').includes(k));
+    if (ev) $('#evh', D).textContent = EVENT_LEAVES[sub];
+    const amt = n0(D.querySelector('[name=amount]').value), cap = r2(gross * 0.10);
+    if (k === 'advance') $('#advh', D).textContent = gross ? `القسط الشهري لا يزيد على 10% من أجرك (${money(cap)}) — م92.` + (amt ? ` أقل عدد أقساط لهذا المبلغ: ${Math.ceil(amt / cap)}.` : '') : '';
+  };
+  D.addEventListener('input', sync); D.addEventListener('change', sync); sync();
 }
 async function requestDetail(r, { decide } = {}) {
   const acts = await db.get('request_actions', { request_id: 'eq.' + r.id, order: 'at' });
@@ -552,6 +562,7 @@ async function requestDetail(r, { decide } = {}) {
     ${r._emp ? `<p>الموظف: ${esc(r._emp.full_name)} <span class="muted">(${esc(r._emp.emp_no)})</span></p>` : ''}
     <p class="muted">${r.from_date ? 'من ' + fdate(r.from_date) + ' إلى ' + fdate(r.to_date) + (r.days ? ' — ' + r.days + ' يوماً' : '') : ''}${r.amount != null ? ' المبلغ: ' + money(r.amount) : ''}${r.payload && r.payload.hours ? ' — ' + r.payload.hours + ' ساعة' : ''}${r.payload && r.payload.inst ? ' — ' + r.payload.inst + ' أقساط' : ''}</p>
     ${r.kind === 'update' ? `<div class="tw"><table><tbody>${Object.entries(r.payload || {}).map(([k, v]) => `<tr><td class="muted">${esc({ phone: 'الجوال', email: 'البريد الشخصي', iban: 'الآيبان' }[k] || k)}</td><td class="num">${esc(v)}</td></tr>`).join('')}</tbody></table></div>` : ''}
+    ${r.payload && r.payload.event_date ? `<p class="muted small">تاريخ الواقعة: ${fdate(r.payload.event_date)}</p>` : ''}
     ${r.note ? `<p>${esc(r.note)}</p>` : ''}
     <p class="small muted">مسار الاعتماد: ${r.route.map((s, i) => (i < r.step ? '✓ ' : i === r.step && r.status === 'pending' ? '◀ ' : '') + STEP[s]).join(' ← ') || 'اعتماد تلقائي'}</p>
     <ul class="timeline">${acts.map(a => `<li>${esc(label[a.action])}${a.actor_step ? ' — ' + esc(STEP[a.actor_step]) : ''} <span class="muted small num">${esc(String(a.at).slice(0, 16).replace('T', ' '))}</span>${a.note ? '<br><span class="small">' + esc(a.note) + '</span>' : ''}</li>`).join('')}</ul>
@@ -582,14 +593,14 @@ VIEWS['#/payslips'] = async page => {
   const runs = lines.length ? await db.get('payroll_runs', { id: 'in.(' + lines.map(l => l.run_id).join(',') + ')' }) : [];
   const rm = {}; runs.forEach(r => rm[r.id] = r);
   const rows = lines.map(l => Object.assign({}, l, { _r: rm[l.run_id] })).filter(l => l._r).sort((a, b) => (b._r.year * 12 + b._r.month) - (a._r.year * 12 + a._r.month));
-  page.innerHTML = `<div class="head"><div><h1>قسائم الراتب</h1></div></div>${tbl([{ t: 'الشهر', h: l => `${l._r.month}/${l._r.year}` }, { t: 'الإجمالي', r: 1, h: l => money(l.gross) }, { t: 'الاستقطاعات', r: 1, h: l => money(n0(l.gosi) + n0(l.absence) + n0(l.deductions) + n0(l.advance)) }, { t: 'الصافي', r: 1, h: l => '<b>' + money(l.net) + '</b>' }, { t: 'الحالة', h: l => badge(l._r.status) }], rows, { empty: 'لا توجد قسائم معتمدة بعد', onRow: true })}`;
+  page.innerHTML = `<div class="head"><div><h1>قسائم الراتب</h1></div></div>${tbl([{ t: 'الشهر', h: l => `${l._r.month}/${l._r.year}` }, { t: 'الإجمالي', r: 1, h: l => money(l.gross) }, { t: 'الاستقطاعات', r: 1, h: l => money(n0(l.gosi) + n0(l.absence) + n0(l.sick_deduction) + n0(l.deductions) + n0(l.damages) + n0(l.advance)) }, { t: 'الصافي', r: 1, h: l => '<b>' + money(l.net) + '</b>' }, { t: 'الحالة', h: l => badge(l._r.status) }], rows, { empty: 'لا توجد قسائم معتمدة بعد', onRow: true })}`;
   bindRows(page, rows, l => payslip(l, S.myEmp));
 };
 function payslip(l, e) {
   const row = (t, v, neg) => `<tr><td>${esc(t)}</td><td class="r num">${neg && n0(v) ? '−' : ''}${money(v)}</td></tr>`;
   modal(`قسيمة راتب ${l._r ? l._r.month + '/' + l._r.year : ''}`, `<p><b>${esc(e ? e.full_name : '')}</b> <span class="muted">${esc(e ? e.emp_no : '')}</span></p><div class="tw"><table><tbody>
     ${row('الراتب الأساسي', l.basic)}${row('بدل السكن', l.housing)}${row('بدل النقل', l.transport)}${n0(l.overtime) ? row('عمل إضافي (' + l.overtime_hours + ' ساعة)', l.overtime) : ''}${n0(l.bonus) ? row('مكافأة', l.bonus) : ''}
-    ${row('التأمينات الاجتماعية', l.gosi, 1)}${n0(l.absence) ? row('غياب/إجازة بدون راتب (' + l.absence_days + ' يوم)', l.absence, 1) : ''}${n0(l.deductions) ? row('استقطاعات', l.deductions, 1) : ''}${n0(l.advance) ? row('قسط سلفة', l.advance, 1) : ''}
+    ${row('التأمينات الاجتماعية', l.gosi, 1)}${n0(l.absence) ? row('غياب/إجازة بدون راتب (' + l.absence_days + ' يوم)', l.absence, 1) : ''}${n0(l.sick_deduction) ? row('إجازة مرضية (' + l.sick_days + ' يوم بأجر جزئي/بدون أجر)', l.sick_deduction, 1) : ''}${n0(l.deductions) ? row('غرامات', l.deductions, 1) : ''}${n0(l.damages) ? row('اقتطاع تلفيات', l.damages, 1) : ''}${n0(l.advance) ? row('قسط سلفة', l.advance, 1) : ''}
     </tbody><tfoot><tr><td>الصافي</td><td class="r num">${money(l.net)}</td></tr></tfoot></table></div>
     <div style="margin-top:10px"><button type="button" class="btn sm" onclick="window.print()">طباعة</button></div>`);
 }
@@ -625,7 +636,7 @@ VIEWS['#/employees'] = async (page, arg, q) => {
      <a class="btn" href="#/employees${showEnded ? '' : '?all=1'}">${showEnded ? 'على رأس العمل فقط' : 'إظهار المنتهية خدماتهم'}</a><button class="btn" id="dep">الأقسام</button><button class="btn pri" id="ne">إضافة موظف</button></div></div>
    ${tbl([{ t: 'الرقم', k: 'emp_no' }, { t: 'الاسم', k: 'full_name' }, { t: 'المسمى', k: 'job_title' }, { t: 'القسم', h: e => esc(dm[e.department_id] || '—') }, { t: 'المدير', h: e => esc(e.manager_id && em[e.manager_id] ? em[e.manager_id].full_name : '—') },
       { t: 'الإجمالي', r: 1, h: e => money(n0(e.basic) + n0(e.housing) + n0(e.transport)) },
-      { t: 'الدخول', h: e => { const l = cache.logins[e.id]; return !l ? '<span class="badge">بدون حساب</span>' : l.by_number ? '<span class="badge info">بالرقم الوظيفي</span>' + (l.must_change_password ? ' <span class="badge wait">لم يغيّر كلمة المرور بعد</span>' : '') : '<span class="badge info">بالبريد</span>'; } }, { t: 'الحالة', h: e => e.end_date && e.end_date < today() ? '<span class="badge bad">منتهية</span>' : e.end_date ? '<span class="badge wait">آخر يوم ' + fdate(e.end_date) + '</span>' : '<span class="badge ok">على رأس العمل</span>' }],
+      { t: 'الدخول', h: e => { const l = cache.logins[e.id]; return !l ? '<span class="badge">بدون حساب</span>' : l.by_number ? '<span class="badge info">بالرقم الوظيفي</span>' + (l.must_change_password ? ' <span class="badge wait">لم يغيّر كلمة المرور بعد</span>' : '') : '<span class="badge info">بالبريد</span>'; } }, { t: 'الحالة', h: e => e.end_date && e.end_date < today() ? '<span class="badge bad">منتهية</span>' : e.end_date ? '<span class="badge wait">آخر يوم ' + fdate(e.end_date) + '</span>' : e.probation_end && e.probation_end >= today() ? '<span class="badge info">تحت التجربة حتى ' + fdate(e.probation_end) + '</span>' : '<span class="badge ok">على رأس العمل</span>' }],
      rows, { empty: 'لم تُضف موظفين بعد', onRow: true })}`;
   bindRows(page, rows, e => employeeForm(e));
   $('#ne', page).onclick = () => employeeForm(null);
@@ -652,6 +663,7 @@ async function employeeForm(e, { linkMe } = {}) {
     ${field('القسم', `<select name="department_id"><option value="">—</option>${deps.map(d => opt(d.id, d.name, v.department_id)).join('')}</select>`)}
     ${field('المدير المباشر', `<select name="manager_id"><option value="">—</option>${others.map(x => opt(x.id, x.full_name + ' (' + x.emp_no + ')', v.manager_id)).join('')}</select>`)}
     ${field('تاريخ المباشرة', `<input type="date" name="hire_date" value="${esc(v.hire_date)}">`)}
+    ${field('نهاية فترة التجربة (حد أقصى 180 يوماً — م53)', `<input type="date" name="probation_end" value="${esc(v.probation_end || '')}">`)}
     ${field('نظام التأمينات', `<select name="gosi_new">${opt('', 'حسب تاريخ أول تسجيل (تلقائي)', v.gosi_new == null ? '' : '')}${opt('false', 'النظام السابق (قبل 3 يوليو 2024)', v.gosi_new === false ? 'false' : '-')}${opt('true', 'النظام الجديد', v.gosi_new === true ? 'true' : '-')}</select>`)}
     ${field('الراتب الأساسي', inp('basic', v.basic, 'type="number" step="0.01" min="0" required'))}${field('بدل السكن', inp('housing', v.housing, 'type="number" step="0.01" min="0"'))}${field('بدل النقل', inp('transport', v.transport, 'type="number" step="0.01" min="0"'))}
     ${field('الآيبان', inp('iban', v.iban, 'dir="ltr" placeholder="SA…" maxlength="24"'))}${field('الجوال', inp('phone', v.phone, 'dir="ltr"'))}${field('البريد', inp('email', v.email, 'dir="ltr" type="email"'))}
@@ -665,8 +677,9 @@ async function employeeForm(e, { linkMe } = {}) {
       if (f.national_id && !/^[12]\d{9}$/.test(f.national_id)) throw new Error('رقم الهوية/الإقامة 10 أرقام يبدأ بـ 1 أو 2');
       if (f.iban && !/^SA\d{22}$/.test(f.iban.replace(/\s/g, '').toUpperCase())) throw new Error('الآيبان يبدأ بـ SA ويليه 22 رقماً');
       if (!(+f.basic >= 0) || f.basic === '') throw new Error('أدخل الراتب الأساسي');
+      if (f.probation_end && (new Date(f.probation_end) - new Date(f.hire_date)) / 864e5 > 179) throw new Error('فترة التجربة لا تزيد على 180 يوماً — م53');
       const row = { emp_no: f.emp_no, full_name: f.full_name, national_id: blank(f.national_id), is_saudi: f.is_saudi === 'true', gender: f.gender, job_title: blank(f.job_title),
-        department_id: blank(f.department_id), manager_id: blank(f.manager_id), hire_date: f.hire_date, gosi_new: f.gosi_new === '' ? null : f.gosi_new === 'true',
+        department_id: blank(f.department_id), manager_id: blank(f.manager_id), hire_date: f.hire_date, probation_end: blank(f.probation_end), gosi_new: f.gosi_new === '' ? null : f.gosi_new === 'true',
         basic: +f.basic, housing: +f.housing || 0, transport: +f.transport || 0, iban: f.iban ? f.iban.replace(/\s/g, '').toUpperCase() : null, phone: blank(f.phone), email: blank(f.email) };
       if (e) { Object.assign(row, { end_date: blank(f.end_date), end_reason: blank(f.end_reason) }); await db.upd('employees', { id: 'eq.' + e.id }, row); }
       else {
@@ -740,13 +753,16 @@ async function payrollRun(page, id) {
     <div class="row">${draft && isHR() ? '<button class="btn" id="re">إعادة الاحتساب</button>' : ''}${draft && has('owner', 'finance') ? '<button class="btn pri" id="ap">اعتماد وترحيل القيد</button>' : ''}${run.status === 'approved' && has('owner', 'finance') ? '<button class="btn pri" id="pd">تسجيل الصرف</button>' : ''}${run.status !== 'draft' ? '<button class="btn" id="wps">ملف حماية الأجور</button>' : ''}</div></div>
     ${draft && !has('owner', 'finance') ? '<div class="note">بعد المراجعة يعتمده المدير العام أو المدير المالي.</div>' : ''}
     ${tbl([{ t: 'الموظف', h: l => esc((em[l.employee_id] || {}).full_name || '') }, { t: 'الإجمالي', r: 1, h: l => money(l.gross) }, { t: 'إضافي', r: 1, h: l => money(l.overtime) }, { t: 'مكافأة', r: 1, h: l => money(l.bonus) },
-      { t: 'التأمينات', r: 1, h: l => money(l.gosi) }, { t: 'غياب', r: 1, h: l => money(l.absence) }, { t: 'استقطاع', r: 1, h: l => money(l.deductions) }, { t: 'سلفة', r: 1, h: l => money(l.advance) }, { t: 'الصافي', r: 1, h: l => '<b>' + money(l.net) + '</b>' }],
-      lines, { onRow: true, foot: `<td>الإجمالي</td>${['gross', 'overtime', 'bonus', 'gosi', 'absence', 'deductions', 'advance', 'net'].map(k => `<td class="r num">${money(sum(k))}</td>`).join('')}` })}
+      { t: 'التأمينات', r: 1, h: l => money(l.gosi) }, { t: 'بدون أجر', r: 1, h: l => money(l.absence) }, { t: 'مرضية', r: 1, h: l => money(l.sick_deduction) }, { t: 'غرامات', r: 1, h: l => money(l.deductions) }, { t: 'تلفيات', r: 1, h: l => money(l.damages) }, { t: 'سلفة', r: 1, h: l => money(l.advance) }, { t: 'الصافي', r: 1, h: l => '<b>' + money(l.net) + '</b>' }],
+      lines, { onRow: true, foot: `<td>الإجمالي</td>${['gross', 'overtime', 'bonus', 'gosi', 'absence', 'sick_deduction', 'deductions', 'damages', 'advance', 'net'].map(k => `<td class="r num">${money(sum(k))}</td>`).join('')}` })}
+    <p class="muted small">المرضية: أول 30 يوماً بأجر كامل، ثم 60 يوماً بثلاثة أرباع الأجر، ثم 30 يوماً بدون أجر خلال سنة الإجازة المرضية (م117). قسط السلفة لا يتجاوز 10% من الأجر (م92)، ومجموع الحسميات لا يتجاوز نصف الأجر (م93).</p>
     <p class="muted small">حصة المنشأة في التأمينات: <span class="num">${money(sum('employer_gosi'))}</span></p>`;
   bindRows(page, lines, l => {
     if (!(draft && isHR())) return payslip(Object.assign({ _r: run }, l), em[l.employee_id]);
-    modal('تعديل بند — ' + (em[l.employee_id] || {}).full_name, `<div class="fg">${field('ساعات العمل الإضافي', inp('ot', l.overtime_hours, 'type="number" step="0.5" min="0"'))}${field('مكافأة', inp('b', l.bonus, 'type="number" step="0.01" min="0"'))}${field('استقطاعات', inp('d', l.deductions, 'type="number" step="0.01" min="0"'))}</div><p class="muted small">أجر الساعة الإضافية = الأجر الفعلي ÷ 240 + نصف الأساسي ÷ 240 (م107).</p>`,
-      { onOk: async f => { await db.rpc('payroll_adjust', { p_run: id, p_emp: l.employee_id, p_ot_hours: +f.ot || 0, p_bonus: +f.b || 0, p_deductions: +f.d || 0 }); route(); } });
+    const cap5 = r2(n0(l.gross) / 30 * 5);
+    modal('تعديل بند — ' + (em[l.employee_id] || {}).full_name, `<div class="fg">${field('ساعات العمل الإضافي', inp('ot', l.overtime_hours, 'type="number" step="0.5" min="0"'))}${field('مكافأة', inp('b', l.bonus, 'type="number" step="0.01" min="0"'))}${field('غرامات جزائية (حد ' + money(cap5) + ')', inp('d', l.deductions, 'type="number" step="0.01" min="0"'))}${field('اقتطاع تلفيات (حد ' + money(cap5) + ')', inp('dm', l.damages, 'type="number" step="0.01" min="0"'))}</div>
+      <p class="muted small">أجر الساعة الإضافية = أجر الساعة + 50% من أجر الساعة الأساسي (م107). الغرامة لا تتجاوز أجر 5 أيام في الشهر (م70)، واقتطاع التلفيات كذلك (م91)، ولا يوقَّع جزاء إلا بعد إبلاغ الموظف كتابة والتحقيق معه (م71).</p>`,
+      { onOk: async f => { await db.rpc('payroll_set_line', { p_run: id, p_emp: l.employee_id, p_ot_hours: +f.ot || 0, p_bonus: +f.b || 0, p_fines: +f.d || 0, p_damages: +f.dm || 0 }); route(); } });
   });
   if ($('#re', page)) $('#re', page).onclick = () => busy($('#re', page), async () => { await db.rpc('payroll_prepare', { p_company: S.cid, p_year: run.year, p_month: run.month, p_pay_date: run.pay_date }); route(); });
   if ($('#ap', page)) $('#ap', page).onclick = async () => { if (!await confirmBox('اعتماد المسير', 'بعد الاعتماد يُرحّل قيد الاستحقاق ولا يمكن تعديل المسير.', 'اعتماد')) return; try { await db.rpc('payroll_approve', { p_run: id }); toast('اعتُمد المسير'); route(); } catch (e) { toast(e.message); } };
@@ -755,25 +771,44 @@ async function payrollRun(page, id) {
 }
 function wpsFile(run, lines, em) {
   const miss = lines.filter(l => !(em[l.employee_id] || {}).iban || !(em[l.employee_id] || {}).national_id);
-  const rows = lines.map(l => { const e = em[l.employee_id] || {}; return [e.national_id || '', e.full_name || '', e.iban || '', r2(l.basic).toFixed(2), r2(l.housing).toFixed(2), r2(n0(l.transport) + n0(l.overtime) + n0(l.bonus)).toFixed(2), r2(n0(l.gosi) + n0(l.absence) + n0(l.deductions) + n0(l.advance)).toFixed(2), r2(l.net).toFixed(2)].join(','); });
+  const rows = lines.map(l => { const e = em[l.employee_id] || {}; return [e.national_id || '', e.full_name || '', e.iban || '', r2(l.basic).toFixed(2), r2(l.housing).toFixed(2), r2(n0(l.transport) + n0(l.overtime) + n0(l.bonus)).toFixed(2), r2(n0(l.gosi) + n0(l.absence) + n0(l.sick_deduction) + n0(l.deductions) + n0(l.damages) + n0(l.advance)).toFixed(2), r2(l.net).toFixed(2)].join(','); });
   const csv = '﻿' + ['national_id,name,iban,basic,housing,other_earnings,deductions,net', ...rows].join('\r\n');
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
   modal('ملف حماية الأجور', `${miss.length ? `<div class="err">${miss.length} موظف بلا آيبان أو رقم هوية — أكملها قبل الرفع.</div>` : ''}<p>ملف CSV بالحقول المطلوبة لرفع الرواتب في «مدد» أو البنك. راجع قالب بنكك قبل الرفع، فبعض البنوك تطلب ترتيب أعمدة مختلفاً.</p><a class="btn pri" download="wps-${run.year}-${String(run.month).padStart(2, '0')}.csv" href="${url}">تنزيل الملف</a>`);
 }
 
 /* ===== end of service ===== */
-const EOS_REASONS = { resign: 'استقالة العامل (م85)', agree: 'اتفاق الطرفين (م74/1)', expiry: 'انتهاء العقد محدد المدة (م74/2)', employer: 'إنهاء من صاحب العمل لسبب مشروع (م75)', noreason: 'إنهاء دون سبب مشروع (م77)', art81: 'ترك العمل مع بقاء الحقوق (م81)', resignw: 'استقالة العاملة للزواج أو الولادة (م87)', resignfm: 'ترك العمل لقوة قاهرة (م87)', force: 'القوة القاهرة (م74)', ret: 'بلوغ سن التقاعد (م74)', disab: 'العجز الكلي (م74)', death: 'الوفاة (م74)', art80: 'فسخ بدون مكافأة (م80)' };
+const EOS_REASONS = { resign: 'استقالة العامل (م85)', agree: 'اتفاق الطرفين (م74/1)', expiry: 'انتهاء العقد محدد المدة (م74/2)', employer: 'إنهاء من صاحب العمل لسبب مشروع (م75)', noreason: 'إنهاء دون سبب مشروع (م77)', art81: 'ترك العمل مع بقاء الحقوق (م81)', resignw: 'استقالة العاملة للزواج أو الولادة (م87)', resignfm: 'ترك العمل لقوة قاهرة (م87)', force: 'القوة القاهرة (م74)', ret: 'بلوغ سن التقاعد (م74)', disab: 'العجز الكلي (م74)', death: 'الوفاة (م74)', art80: 'فسخ بدون مكافأة (م80)', probation: 'إنهاء خلال فترة التجربة (م54)' };
 VIEWS['#/eos'] = async page => {
   const em = await employeesMap();
-  page.innerHTML = `<div class="head"><div><h1>مكافأة نهاية الخدمة</h1><div class="muted">حسب المواد 84 و85 و87 من نظام العمل</div></div></div><div class="card"><form id="ef" class="fg" novalidate>
-    ${field('الموظف', `<select name="e"><option value="">— إدخال يدوي —</option>${Object.values(em).map(e => opt(e.id, e.full_name)).join('')}</select>`)}
-    ${field('الأجر الفعلي الشهري', inp('w', '', 'type="number" step="0.01" min="0"'))}${field('تاريخ المباشرة', '<input type="date" name="s">')}${field('آخر يوم عمل', `<input type="date" name="t" value="${today()}">`)}
-    ${field('سبب انتهاء العلاقة', `<select name="r">${Object.entries(EOS_REASONS).map(([k, t]) => opt(k, t)).join('')}</select>`)}${field('أيام إجازة غير مستخدمة', inp('l', '0', 'type="number" min="0" step="0.5"'))}
+  page.innerHTML = `<div class="head"><div><h1>مكافأة نهاية الخدمة والمخالصة</h1><div class="muted">المواد 77 و84 إلى 88 و111 و116 من نظام العمل</div></div></div><div class="card"><form id="ef" class="fg" novalidate>
+    ${field('الموظف', `<select name="e"><option value="">— إدخال يدوي —</option>${Object.values(em).map(e => opt(e.id, e.full_name + ' (' + e.emp_no + ')')).join('')}</select>`)}
+    <div data-m="manual">${field('الأجر الفعلي الشهري', inp('w', '', 'type="number" step="0.01" min="0"'))}</div><div data-m="manual">${field('تاريخ المباشرة', '<input type="date" name="s">')}</div>
+    ${field('آخر يوم عمل', `<input type="date" name="t" value="${today()}">`)}
+    ${field('سبب انتهاء العلاقة', `<select name="r">${Object.entries(EOS_REASONS).map(([k, t]) => opt(k, t)).join('')}</select>`)}
+    <div data-m="manual">${field('أيام إجازة غير مستخدمة', inp('l', '0', 'type="number" min="0" step="0.5"'))}</div>
+    <div data-m="emp">${field('نهاية العقد محدد المدة (إن وجد)', '<input type="date" name="ce">')}</div>
     <div class="wide"><button class="btn pri" id="eb">احسب</button></div></form><div id="er"></div></div>`;
-  const f = $('#ef', page); f.e.onchange = () => { const e = em[f.e.value]; if (e) { f.w.value = n0(e.basic) + n0(e.housing) + n0(e.transport); f.s.value = e.hire_date; if (e.end_date) f.t.value = e.end_date; } };
-  f.onsubmit = async ev => { ev.preventDefault(); const v = formData(f); if (!(+v.w > 0) || !v.s || !v.t) return showErr($('#er', page), 'أكمل الأجر والتواريخ');
-    try { const [x] = await db.rpc('eos_calc', { p_wage: +v.w, p_start: v.s, p_end: v.t, p_reason: v.r, p_unused_leave: +v.l || 0 });
-      $('#er', page).innerHTML = `<div class="tw" style="margin-top:14px"><table><tbody><tr><td>مدة الخدمة</td><td class="r num">${(+x.years).toFixed(2)} سنة</td></tr><tr><td>المكافأة الكاملة</td><td class="r num">${money(x.full_award)}</td></tr><tr><td>النسبة المستحقة</td><td class="r num">${Math.round(x.fraction * 100)}%</td></tr><tr><td>المكافأة المستحقة</td><td class="r num">${money(x.award)}</td></tr><tr><td>بدل الإجازات</td><td class="r num">${money(x.leave_pay)}</td></tr></tbody><tfoot><tr><td>الإجمالي</td><td class="r num">${money(x.total)}</td></tr></tfoot></table></div><p class="muted small">تقدير استرشادي؛ راجع الحالات الخاصة مع مختص قبل الصرف.</p>`; } catch (e) { showErr($('#er', page), e); } };
+  const f = $('#ef', page);
+  const mode = () => { const m = f.e.value ? 'emp' : 'manual'; $$('[data-m]', page).forEach(d => d.hidden = d.dataset.m !== m); };
+  f.e.onchange = mode; mode();
+  const row = (t, v) => `<tr><td>${t}</td><td class="r num">${v}</td></tr>`;
+  f.onsubmit = async ev => { ev.preventDefault(); const v = formData(f);
+    try {
+      if (v.e) {
+        const [x] = await db.rpc('eos_for_employee', { p_emp: v.e, p_end: v.t, p_reason: v.r, p_contract_end: blank(v.ce) });
+        const e = em[v.e]; const due = new Date(new Date(v.t).getTime() + (v.r.startsWith('resign') ? 14 : 7) * 864e5).toISOString().slice(0, 10);
+        $('#er', page).innerHTML = `<div class="tw" style="margin-top:14px"><table><tbody>${row('الأجر الأخير', money(x.wage))}${row('مدة الخدمة', (+x.years).toFixed(2) + ' سنة (' + x.service_days + ' يوم)')}${+x.excluded_days ? row('مستبعد: إجازات بدون أجر تجاوزت 20 يوماً (م116)', x.excluded_days + ' يوم') : ''}
+          ${row('المكافأة الكاملة (م84)', money(x.full_award))}${row('النسبة المستحقة', Math.round(x.fraction * 100) + '%')}${row('المكافأة المستحقة', money(x.award))}
+          ${row('رصيد الإجازة السنوية (م111)', (+x.leave_days).toFixed(2) + ' يوم')}${row('بدل الإجازة', money(x.leave_pay))}${+x.compensation ? row('تعويض الإنهاء لغير سبب مشروع (م77)', money(x.compensation)) : ''}</tbody>
+          <tfoot><tr><td>الإجمالي</td><td class="r num">${money(x.total)}</td></tr></tfoot></table></div>
+          <p class="muted small">يُصرف خلال ${v.r.startsWith('resign') ? 'أسبوعين' : 'أسبوع'} من انتهاء العلاقة، أي حتى ${due} (م88)، ويجوز حسم الديون المستحقة بسبب العمل كرصيد السلف. لا تشمل الأرقام الأجر المستحق عن أيام الشهر الأخير، ولا مقابل الإشعار إن لم يُراعَ (م76). تقدير استرشادي؛ راجع الحالات الخاصة مع مختص.</p>`;
+        return;
+      }
+      if (!(+v.w > 0) || !v.s || !v.t) return showErr($('#er', page), 'أكمل الأجر والتواريخ');
+      const [x] = await db.rpc('eos_calc', { p_wage: +v.w, p_start: v.s, p_end: v.t, p_reason: v.r, p_unused_leave: +v.l || 0 });
+      $('#er', page).innerHTML = `<div class="tw" style="margin-top:14px"><table><tbody>${row('مدة الخدمة', (+x.years).toFixed(2) + ' سنة')}${row('المكافأة الكاملة', money(x.full_award))}${row('النسبة المستحقة', Math.round(x.fraction * 100) + '%')}${row('المكافأة المستحقة', money(x.award))}${row('بدل الإجازات', money(x.leave_pay))}</tbody><tfoot><tr><td>الإجمالي</td><td class="r num">${money(x.total)}</td></tr></tfoot></table></div><p class="muted small">تقدير استرشادي؛ اختر الموظف من القائمة لحساب المخالصة كاملة من بياناته.</p>`;
+    } catch (e) { showErr($('#er', page), e); } };
 };
 
 /* ===== users & invitations ===== */
