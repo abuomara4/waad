@@ -667,14 +667,16 @@ VIEWS['#/users'] = async page => {
   const pending = inv.filter(i => !i.accepted_at);
   const admin = has('owner', 'admin');
   page.innerHTML = `<div class="head"><div><h1>المستخدمون والدعوات</h1></div><button class="btn pri" id="ni">دعوة مستخدم</button></div>
-    <h2>الدعوات المعلّقة</h2>${tbl([{ t: 'البريد', h: i => `<span class="num">${esc(i.email)}</span>` }, { t: 'الدور', h: i => esc(ROLES[i.role]) }, { t: 'سجل الموظف', h: i => esc(i.employee_id && em[i.employee_id] ? em[i.employee_id].full_name : '—') }, { t: 'رمز الدعوة', h: i => `<span class="code">${esc(i.code)}</span>` }, { t: '', h: i => `<button class="btn sm danger" data-rv="${i.id}">سحب</button>` }], pending, { empty: 'لا توجد دعوات معلّقة' })}
+    <h2>الدعوات المعلّقة</h2>${tbl([{ t: 'البريد', h: i => `<span class="num">${esc(i.email)}</span>` }, { t: 'الدور', h: i => esc(ROLES[i.role]) }, { t: 'سجل الموظف', h: i => esc(i.employee_id && em[i.employee_id] ? em[i.employee_id].full_name : '—') }, { t: 'رمز الدعوة', h: i => `<span class="code">${esc(i.code)}</span>` }, { t: '', h: i => `<button class="btn sm danger" data-rv="${i.id}">سحب</button>` }], pending, { empty: 'لا توجد دعوات معلّقة', onRow: true })}
     <div style="height:18px"></div><h2>المستخدمون</h2>${tbl([{ t: 'البريد', h: m => `<span class="num">${esc(mail[m.user_id] || '—')}</span>` }, { t: 'الدور', h: m => esc(ROLES[m.role]) }, { t: 'سجل الموظف', h: m => esc(m.employee_id && em[m.employee_id] ? em[m.employee_id].full_name : '—') }, { t: '', h: m => admin && (m.role !== 'owner' || has('owner')) ? `<button class="btn sm" data-ed="${m.user_id}">تعديل</button>` : '' }], mem)}`;
+  bindRows(page, pending, inviteBox);
+  $$('[data-rv]', page).forEach(b => b.addEventListener('click', ev => ev.stopPropagation()));
   $('#ni', page).onclick = () => {
     const linked = new Set(mem.map(m => m.employee_id).filter(Boolean));
     modal('دعوة مستخدم', `<div class="fg">${field('البريد الإلكتروني', inp('email', '', 'type="email" dir="ltr" required'))}${field('الدور', `<select name="role">${INVITABLE().map(r => opt(r, ROLES[r])).join('')}</select>`)}
       ${field('ربطه بسجل موظف', `<select name="emp"><option value="">—</option>${Object.values(em).filter(e => !linked.has(e.id)).map(e => opt(e.id, e.full_name + ' (' + e.emp_no + ')')).join('')}</select>`, 'wide')}</div>
       <p class="muted small">بعد الحفظ يظهر رمز دعوة. أرسله للشخص مع رابط النظام؛ ينشئ حساباً بنفس البريد ثم يُدخل الرمز.</p>`, {
-      ok: 'إنشاء الدعوة', onOk: async f => { await db.rpc('invite_member', { p_company: S.cid, p_email: f.email, p_role: f.role, p_employee: blank(f.emp) }); toast('أُنشئت الدعوة — انسخ الرمز من الجدول'); route(); }
+      ok: 'إنشاء الدعوة', onOk: async f => { const id = await db.rpc('invite_member', { p_company: S.cid, p_email: f.email, p_role: f.role, p_employee: blank(f.emp) }); const [i] = await db.get('invites', { id: 'eq.' + id }); route(); setTimeout(() => inviteBox(i), 60); }
     });
   };
   $$('[data-rv]', page).forEach(b => b.onclick = async () => { try { await db.rpc('revoke_invite', { p_id: b.dataset.rv }); route(); } catch (e) { toast(e.message); } });
@@ -688,6 +690,19 @@ VIEWS['#/users'] = async page => {
     if ($('#rm', d)) $('#rm', d).onclick = async () => { try { await db.del('members', { company_id: 'eq.' + S.cid, user_id: 'eq.' + m.user_id }); d.close(); toast('أُزيل المستخدم'); route(); } catch (e) { showErr($('#merr', d), e); } };
   });
 };
+
+function inviteBox(i) {
+  if (!i) return;
+  const link = location.origin + location.pathname;
+  const msg = 'دعوة للانضمام إلى ' + S.company.name + ' في نظام وعد:\n1) افتح ' + link + '\n2) اختر «حساب جديد» وسجّل بالبريد ' + i.email + '\n3) أدخل رمز الدعوة: ' + i.code;
+  const d = modal('رمز الدعوة', `<p class="muted small">أرسل الرمز والرابط إلى <b class="num">${esc(i.email)}</b> (${esc(ROLES[i.role])}). يسجّل بنفس البريد ثم يُدخل الرمز.</p>
+    <div style="text-align:center;margin:14px 0"><span class="code" id="ic" style="font-size:28px;padding:6px 16px">${esc(i.code)}</span></div>
+    <div class="row" style="justify-content:center"><button type="button" class="btn pri" id="cpc">نسخ الرمز</button><button type="button" class="btn" id="cpm">نسخ رسالة جاهزة</button>${navigator.share ? '<button type="button" class="btn" id="shm">مشاركة</button>' : ''}</div>`);
+  const copy = async (t, b) => { try { await navigator.clipboard.writeText(t); b.textContent = 'نُسخ ✓'; } catch (e) { toast('انسخه يدوياً: ' + t); } };
+  $('#cpc', d).onclick = e => copy(i.code, e.target);
+  $('#cpm', d).onclick = e => copy(msg, e.target);
+  if ($('#shm', d)) $('#shm', d).onclick = () => navigator.share({ text: msg }).catch(() => {});
+}
 
 /* ===== company settings & finance permissions ===== */
 const FPERMS = { dash: 'لوحة المالية', sales: 'المبيعات والعملاء', purch: 'المشتريات والموردون', stock: 'عرض المخزون', stockadj: 'تسوية المخزون', items: 'إدارة الأصناف', void: 'الإلغاء والإشعارات الدائنة', je: 'عرض القيود', jepost: 'ترحيل القيود اليدوية', ledger: 'دفتر الأستاذ', reports: 'القوائم المالية', vat: 'إقرار الضريبة', coa: 'دليل الحسابات', payroll: 'قيود الرواتب', settings: 'إعدادات المالية' };
