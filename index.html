@@ -42,6 +42,8 @@ h2{font-size:17px;margin:0 0 12px;font-weight:600}
 .main{min-width:0}
 .top{display:flex;align-items:center;gap:10px;padding:12px 24px;border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0;z-index:5}
 .top .sp{flex:1}
+.top .cname{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#cs{max-width:220px}
 .btn.menu{display:none}
 .page{padding:24px;max-width:1200px}
 .head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
@@ -99,7 +101,9 @@ dialog::backdrop{background:rgba(15,23,42,.45)}
  .side.open{transform:none}
  .btn.menu{display:inline-flex}
  .page{padding:16px}
- .top{padding:10px 16px}
+ .top{padding:10px 16px;flex-wrap:wrap;gap:6px}
+ .top .cname .badge{display:none}
+ #cs{max-width:150px}
  .fg{grid-template-columns:1fr}
 }
 @media print{.side,.top,.btn{display:none!important}.shell{display:block}.card{box-shadow:none}}
@@ -329,7 +333,7 @@ function changePasswordView(forced = true) {
 }
 
 /* ===== onboarding: create a company or join with an invite code ===== */
-function onboardView() {
+function onboardView(fromApp = false) {
   $('#app').innerHTML = `<div class="auth"><div class="abox" style="max-width:520px">${BRAND}
     <div class="card"><h2>انضم إلى منشأتك</h2><p class="muted small">إذا أرسلت لك الموارد البشرية رمز دعوة، أدخله هنا.</p>
       <form id="jf" class="row" novalidate><input name="code" placeholder="رمز الدعوة" dir="ltr" style="flex:1;letter-spacing:2px;text-transform:uppercase"><button class="btn pri" id="jb">انضمام</button></form><div id="jerr"></div></div>
@@ -340,7 +344,8 @@ function onboardView() {
         ${field('السجل التجاري (اختياري)', inp('cr', '', 'dir="ltr" inputmode="numeric"'))}
         <div class="wide"><div id="cerr"></div><button class="btn pri" id="cb">إنشاء المنشأة</button></div>
       </form><p class="muted small">ستكون مالك المنشأة، ويُنشأ دليل الحسابات تلقائياً.</p></div>
-    <p class="muted small" style="text-align:center">${esc(S.session.user.email)} · <a href="#" id="lo">تسجيل الخروج</a></p></div></div>`;
+    <p class="muted small" style="text-align:center">${fromApp ? '<a href="#" id="back">رجوع لمنشأتي</a> · ' : ''}${esc(S.session.user.email)} · <a href="#" id="lo">تسجيل الخروج</a></p></div></div>`;
+  if ($('#back')) $('#back').onclick = e => { e.preventDefault(); shell(); route(); };
   $('#lo').onclick = async e => { e.preventDefault(); await authApi.signOut(); authView(); };
   $('#jf').onsubmit = async e => { e.preventDefault(); const code = e.target.code.value.trim(); if (!code) return showErr('#jerr', 'أدخل الرمز');
     try { await busy($('#jb'), async () => { const cid = await db.rpc('accept_invite', { p_code: code }); S.cid = cid; LS.set('waad.cid', cid); await boot(); toast('تم الانضمام'); }); } catch (er) { showErr('#jerr', er); } };
@@ -404,11 +409,12 @@ function navItems() {
   return it;
 }
 function shell() {
-  const multi = S.companies.length > 1;
+  const staffAcct = /@staff\.waad\.app$/i.test((S.session.user || {}).email || '');
+  const multi = S.companies.length > 1 || !staffAcct;
   $('#app').innerHTML = `<div class="shell"><aside class="side" id="side">${BRAND}<nav class="nav" id="nav"></nav></aside>
     <div class="main"><header class="top"><button class="btn sm menu" id="mb" aria-label="القائمة">☰</button>
-      <div><b>${esc(S.company ? S.company.name : '')}</b> <span class="badge info">${esc(ROLES[S.role] || S.role)}</span></div><div class="sp"></div>
-      ${multi ? `<select id="cs" style="width:auto;min-height:32px">${S.companies.map(c => opt(c.company_id, c.name, S.cid)).join('')}</select>` : ''}
+      <div class="cname"><b>${esc(S.company ? S.company.name : '')}</b> <span class="badge info">${esc(ROLES[S.role] || S.role)}</span></div><div class="sp"></div>
+      ${multi ? `<select id="cs" style="width:auto;min-height:32px">${S.companies.map(c => opt(c.company_id, c.name, S.cid)).join('')}${staffAcct ? '' : '<option value="__new">+ منشأة جديدة</option>'}</select>` : ''}
       <button class="btn sm" id="th" title="الوضع الليلي/النهاري">◐</button>
       <button class="btn sm" id="pw">كلمة المرور</button><button class="btn sm" id="lo">خروج</button></header>
       <main class="page" id="page"></main></div></div>`;
@@ -417,7 +423,7 @@ function shell() {
   $('#th').onclick = toggleTheme;
   $('#pw').onclick = () => changePasswordView(false);
   $('#lo').onclick = async () => { await authApi.signOut(); authView(); };
-  if (multi) $('#cs').onchange = async e => { S.cid = e.target.value; LS.set('waad.cid', S.cid); await loadContext(); shell(); location.hash = '#/home'; route(); };
+  if (multi) $('#cs').onchange = async e => { if (e.target.value === '__new') { e.target.value = S.cid; return onboardView(true); } S.cid = e.target.value; LS.set('waad.cid', S.cid); await loadContext(); shell(); location.hash = '#/home'; route(); };
   refreshCounts();
 }
 function drawNav() {
