@@ -108,6 +108,8 @@ dialog::backdrop{background:rgba(15,23,42,.45)}
 }
 @media print{.side,.top,.btn{display:none!important}.shell{display:block}.card{box-shadow:none}}
 
+.linkbtn{border:0;background:none;padding:0;font:inherit;color:var(--accent);cursor:pointer}
+
 </style>
 </head>
 <body>
@@ -115,11 +117,57 @@ dialog::backdrop{background:rgba(15,23,42,.45)}
 <div id="toast" role="status" aria-live="polite" hidden></div>
 <dialog id="dlg"></dialog>
 <script>
+const EN = {"ء":"ء","آخر":"Last","آخر يوم":"Last day","آخر يوم عمل":"Last working day","أجر الساعة":"hourly wage","أجر الساعة الإضافية":"Overtime hourly pay","أحرف أو أكثر":"characters or more","أحرف على الأقل":"characters minimum","أخت":"sister","أدخل الاسم الكامل":"Enter the full name","أدخل الراتب الأساسي":"Enter the basic salary","أدخل الرقم الوظيفي":"Enter the employee number","أدخل الرمز":"Enter the code","أدخل الرمز والاسم":"Enter the code and name","أدخل السعر":"Enter the price","أدخل المبلغ":"Enter the amount","أدخل المسمى الوظيفي":"Enter the job title","أدخل تاريخ البداية":"Enter the start date","أدخل تاريخ الواقعة":"Enter the event date","أدخل تاريخاً صحيحاً":"Enter a valid date","أدخل رقماً صحيحاً":"Enter a valid number","أدخل رمز الدعوة":"Enter the invitation code","أدخل رمز المنشأة كما وصلك":"Enter the company code exactly as you received it","أدخل رمز منشأتك مرة واحدة":"Enter your company code once","أدخل عنوان الدورة":"Enter the course title","أدخل كلمة المرور":"Enter the password","أدخل كمية التسوية":"Enter the adjustment quantity","أدخل كمية مرتجع لبند واحد على الأقل":"Enter a return quantity for at least one line","أدخل مبلغاً أكبر من صفر":"Enter an amount greater than zero","أدخله هنا":"enter it here","أرباح":"Profit","أرسل الرمز والرابط إلى":"Send the code and link to","أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك":"We sent a password reset link to your email","أرسله للشخص مع رابط النظام":"send it to the person with the system link","أرقام":"digits","أرقام إنجليزية":"English digits","أرقام يبدأ بـ":"digits starting with","أسبوع":"one week","أسبوعين":"two weeks","أشهر و":"months and","أصول":"Asset","أضف":"Add a","أضف الموظفين":"Add employees","أضف بنداً واحداً على الأقل":"Add at least one line","أضف سجلات الموظفين ورواتبهم ومديريهم المباشرين":"Add employee records, salaries and direct managers","أضف عميلاً أولاً":"Add a customer first","أضف مورداً أولاً":"Add a supplier first","أضف نفسك كموظف":"Add yourself as an employee","أضف هدفاً واحداً على الأقل":"Add at least one goal","أطفئ خيار":"Turn off the","أعط درجة لكل هدف قبل الإرسال":"Score every goal before sending","أعطها للموظف الآن":"give it to the employee now","أعطِ فريقك الدخول":"Give your team access","أعمار الذمم الدائنة":"AP aging","أعمار الذمم المدينة":"AR aging","أعمدة مطلوبة غير موجودة":"Missing required columns","أقساط":"installments","أقساط على الأقل":"installments at minimum","أقل عدد أقساط لهذا المبلغ":"Minimum installments for this amount","أقل مدة لهذه الإجازة":"The minimum for this leave is","أكمل":"Completed","أكمل الأجر والتواريخ":"Complete the wage and dates","أكملها قبل الرفع":"complete them before uploading","أمين مستودع":"Storekeeper","أنت عضو في هذه المنشأة مسبقاً":"You are already a member of this company","أنثى":"Female","أنشأنا حسابك":"We created your account","أهداف بأوزان ودرجات من":"Weighted goals scored from","أهلاً":"Welcome","أو":"or","أو أنشئ منشأة جديدة":"Or create a new company","أو البنك":"or the bank","أو لمن وصلته دعوة بالبريد من الإدارة":"or for someone invited by email by management","أول":"First","أول دخول":"First sign-in","أولاً":"first","أي حتى":"i.e. by","أيام":"days","أيام إجازة غير مستخدمة":"Unused leave days","أيام تؤخذ خلال":"days taken within","أيام في الشهر":"days per month","أيام من تاريخ الزواج":"days from the marriage date","أيام من تاريخ الوفاة":"days from the date of death","أيام من تاريخ الولادة":"days of the birth","أيام من تقديمها":"days of submitting it","أيام من تقديمها فقط":"days of submitting it","أُرسل":"Submitted","أُرسل التقييم للموارد البشرية":"Review sent to HR","أُرسل التقييم ولا يمكن تعديله إلا إذا أعادته الموارد البشرية":"The review was sent and can only be changed if HR returns it","أُرسل الطلب":"Request sent","أُرسل طلب التعديل للموارد البشرية":"Change request sent to HR","أُزيل المستخدم":"User removed","أُضيف الحساب":"Account added","أُعيد التقييم للمقيّم":"Review returned to the reviewer","أُلغي":"Cancelled","أُلغي الطلب":"Request cancelled","أُلغيت الفاتورة":"Invoice voided","إأآ":"إأآ","إجازات بدون أجر تجاوزت":"unpaid leave beyond","إجازة":"Leave","إجازة اختبارات":"Exam leave","إجازة المولود تؤخذ خلال":"Paternity leave must be taken within","إجازة بدون راتب":"Unpaid leave","إجازة حج":"Hajj leave","إجازة زواج":"Marriage leave","إجازة سنوية":"Annual leave","إجازة عدة":"Iddah leave","إجازة مرضية":"Sick leave","إجازة مولود":"Paternity leave","إجازة مولود من ذوي الإعاقة":"Leave for a newborn with a disability","إجازة وضع":"Maternity leave","إجازة وفاة أخ":"Bereavement leave — brother","إجازة وفاة الزوج":"Husband's death leave","إجازة وفاة قريب من الدرجة الأولى":"Bereavement leave — first-degree relative","إجمالي الأساسي والبدلات":"basic plus allowances","إجمالي المبيعات المرحّلة":"Total posted sales","إجمالي المشتريات المرحّلة":"Total posted purchases","إدارة الأصناف":"Manage items","إدخال يدوي":"Manual entry","إذا أرسلت لك الموارد البشرية رمز دعوة":"If HR sent you an invitation code","إذا اكتمل عدد الشواغر تُغلق الوظيفة تلقائياً":"When all positions are filled, the opening closes automatically","إذا كان في أي سطر خطأ لا يُستورد شيء":"If any row has an error, nothing is imported","إرسال":"Send","إرسال الطلب":"Send request","إرسال للاعتماد":"Send for approval","إزالة من الدورة":"Remove from course","إزالة من المنشأة":"Remove from company","إشعار دائن":"Credit note","إشعار مدين":"Debit note","إضافة":"Add","إضافة بياناتي":"Add my details","إضافة متدربين":"Add trainees","إضافة مرشح":"Add candidate","إضافة موظف":"Add employee","إضافي":"Overtime","إظهار المنتهية خدماتهم":"Show former employees","إعادة الاحتساب":"Recalculate","إعادة التعيين":"Reset","إعادة المحاولة":"Try again","إعادة تعيين كلمة المرور":"Reset password","إعادة طلب":"Reorder","إعادة للمقيّم":"Return to reviewer","إعداد":"Prepare","إعداد مسير":"Prepare payroll","إعداد مسير شهر":"Prepare monthly payroll","إعدادات المالية":"Finance settings","إعدادات المنشأة":"Company settings","إغلاق":"Close","إغلاق الدورة":"Close cycle","إقرار الضريبة":"VAT return","إلزامية عند الإعادة":"required when returning","إلزامية عند الرفض":"required when rejecting","إلغاء":"Cancel","إلغاء الطلب":"Cancel request","إلغاء الفاتورة":"Void invoice","إلغاء فاتورة مبيعات":"Sales invoice void","إلغاء فاتورة مشتريات":"Purchase bill void","إلى":"to","إلى حساب":"To account","إن كان مسجلاً":"if it is registered","إن وجد":"if any","إنجاز المشروع في موعده":"delivering the project on time","إنشاء الحساب":"Create account","إنشاء الدخول":"Create sign-in","إنشاء الدعوة":"Create invitation","إنشاء المنشأة":"Create company","إنشاء دخول":"Create sign-in","إنشاء دخول للموظف":"Create employee sign-in","إنهاء خلال فترة التجربة":"Termination during probation","إنهاء دون سبب مشروع":"Termination without a valid reason","إنهاء من صاحب العمل لسبب مشروع":"Termination by the employer for a valid reason","إيرادات":"Revenue","إيرادات أخرى":"Other income","إيرادات الخدمات":"Service revenue","إيرادات المبيعات":"Sales revenue","ا":"ا","اتفاق الطرفين":"Mutual agreement","احذف المستخدم بدلاً منها":"remove the user instead","احسب":"Calculate","احفظ الملف بصيغة":"save the file as","احفظه بصيغة":"save it as","اختر":"choose","اختر الصندوق أو البنك":"Choose cash or bank","اختر العميل":"Choose the customer","اختر المورد":"Choose the supplier","اختر الموظف من القائمة لحساب المخالصة كاملة من بياناته":"choose the employee from the list for a full settlement from their data","اختر الموظفين":"Choose employees","اختر كلمة مرور جديدة":"Choose a new password","اختر كلمة مرور خاصة بك لا يعرفها غيرك":"Choose your own password that nobody else knows","اختر موظفاً واحداً على الأقل":"Choose at least one employee","اختيار الملف":"Choose file","اختياري":"optional","اربطه الآن":"Link it now","ارفع الملف":"Upload the file","استئذان":"Permission","استحقاق رواتب":"Payroll accrual","استخدم القالب":"use the template","استخدم كلمة المرور التي أعطتك إياها الموارد البشرية":"use the password HR gave you","استقالة":"Resignation","استقالة اعتُبرت مقبولة لمضي":"resignation(s) deemed accepted after","استقالة العامل":"Resignation by the employee","استقالة العاملة للزواج أو الولادة":"Resignation by a female employee for marriage or childbirth","استيراد":"Import","استيراد الموظفين من":"Import employees from","استيراد من":"Import from","استُورد":"Imported","اسم الدورة":"Cycle name","اسم القسم":"Department name","اسم المنشأة":"Company name","اسم الموظف":"Employee name","اطلاع الموظف":"Employee acknowledgement","اطلب من الموارد البشرية إعادة تعيينها":"ask HR to reset it","اطلب من الموارد البشرية ربطه":"Ask HR to link it","اطّلع":"Acknowledged","اطّلع الموظف في":"The employee acknowledged on","اطّلعت":"Acknowledged","اطّلعت على التقييم":"I have read the review","اعتماد":"Approve","اعتماد المسير":"Approve payroll","اعتماد تلقائي":"Automatic approval","اعتماد وترحيل القيد":"Approve and post entry","اعتمد المسير قبل الصرف":"Approve the payroll before paying it","اعتُمد":"Approved","اعتُمد التقييم":"Review approved","اعتُمد المسير":"Payroll approved","افتتاحي":"Opening","افتح":"Open","افتح رابط التأكيد في بريدك":"open the confirmation link in your email","افتح رسالة التأكيد في بريدك ثم سجّل الدخول":"Open the confirmation email, then sign in","افتح سجله من":"open their record from","اقتطاع التلفيات لا يزيد على أجر":"Damage deductions cannot exceed the wage of","اقتطاع تلفيات":"Damage deduction","اكتب بريدك أولاً":"Type your email first","اكتب بيان القيد":"Write the entry description","اكتب سبب الإشعار":"Write the reason for the note","اكتب سبب الإعادة للمقيّم":"Write the reason for returning it to the reviewer","اكتب سبب الإلغاء":"Write the reason for voiding","اكتب سبب التسوية":"Write the reason for the adjustment","اكتب سبب الرفض":"Write the reason for rejection","اكتب عنوان الهدف":"Write the title of goal","الآيبان":"IBAN","الآيبان يبدأ بـ":"The IBAN starts with","الأجر الأخير":"Last wage","الأجر الفعلي الشهري":"Actual monthly wage","الأرباح المبقاة":"Retained earnings","الأساسي":"Basic","الأصناف والمخزون":"Items and inventory","الأصول":"Assets","الأصول الثابتة":"Fixed assets","الأعمدة المطلوبة":"Required columns","الأقسام":"Departments","الأقسام غير الموجودة تُنشأ تلقائياً":"Departments that don't exist are created automatically","الأهداف من":"Goals: from","الأيام":"Days","الإجازات المعتمدة في":"Approved leave in","الإجمالي":"Total","الإجمالي قبل الضريبة":"Total before VAT","الإدارة":"Administration","الإدارة بالبريد":"Management by email","الإشعارات":"Notes","الإعدادات":"Settings","الإقامة":"Iqama","الإلغاء والإشعارات الدائنة":"Voids and credit notes","الإنجاز":"Progress","الإيجار":"Rent","الإيرادات":"Revenue","الاستئذان من دقائق حتى":"A permission runs from a few minutes up to","الاستحقاق":"Due","الاستقطاعات":"Deductions","الاسم":"Name","الاسم الكامل":"Full name","الاسم الكامل مطلوب":"Full name is required","الاسم والهوية والجوال والبريد":"name, ID, mobile and email","الاطلاع":"Acknowledgement","الاعتمادات":"Approvals","البدلات أرقام":"Allowances must be numbers","البريد":"Email","البريد أو كلمة المرور غير صحيحة":"Wrong email or password","البريد الإلكتروني":"Email","البريد الإلكتروني غير صحيح":"Invalid email address","البريد الشخصي":"Personal email","البند":"Line","البنك":"Bank","البيان":"Description","التأمينات":"GOSI","التأمينات الاجتماعية":"Social insurance (GOSI)","التأمينات الاجتماعية المستحقة":"GOSI payable","التاريخ":"Date","التاريخ قبل تاريخ الفاتورة":"The date is before the invoice date","التاريخ لا يكون في المستقبل":"The date cannot be in the future","التدريب":"Training","التعديل يمر على الموارد البشرية":"Changes go through HR","التعيين يتم من زر":"Hiring is done with the button","التعيينات":"Hires","التقارير":"Reports","التقدير":"Rating","التقييم":"Rating","التقييم غير موجود":"Review not found","التقييم للمدير المباشر أو الموارد البشرية":"reviews are for the direct manager or HR","التقييم لم يُعتمد بعد":"The review is not approved yet","التقييم ليس بانتظار الاعتماد":"The review is not awaiting approval","التكلفة":"Cost","التنبيه":"Alert","التوظيف":"Recruitment","الجنس":"Gender","الجنسية":"Nationality","الجهة":"Provider","الجهة المقدمة":"Provider","الجوال":"Mobile","الحالة":"Status","الحالي":"current","الحد الأقصى":"The maximum is","الحد الأقصى لهذه الإجازة":"The maximum for this leave is","الحساب":"Account","الحساب البنكي":"bank account","الحساب الرئيسي":"Parent account","الحساب الرئيسي غير موجود":"Parent account not found","الحساب مرتبط مسبقاً":"The account is already linked","الخصوم":"Liabilities","الخصوم وحقوق الملكية":"Liabilities and equity","الدخول":"Sign-in","الدرجات":"Scores","الدرجة":"Score","الدعوات المعلّقة":"Pending invitations","الدعوة غير موجودة":"Invitation not found","الدعوة مقبولة":"The invitation was already accepted","الدور":"Role","الدورات والحضور والشهادات":"Courses, attendance and certificates","الدورة":"Course","الدورة غير موجودة":"Not found","الرئيسية":"Home","الرابط":"Link","الراتب الأساسي":"Basic salary","الراتب الأساسي رقم مطلوب":"Basic salary is a required number","الراتب المتوقع":"Expected salary","الرصيد":"Balance","الرصيد المتاح":"available balance","الرقم":"No.","الرقم الضريبي":"VAT number","الرقم الوظيفي":"Employee number","الرقم الوظيفي أو كلمة المرور غير صحيحة":"Wrong employee number or password","الرقم الوظيفي للمدير":"Manager's employee number","الرقم الوظيفي مستخدم مسبقاً":"The employee number is already used","الرقم الوظيفي مسجّل مسبقاً":"The employee number already exists","الرقم الوظيفي مطلوب":"Employee number is required","الرقم الوظيفي يجب أن يكون أرقاماً أو حروفاً إنجليزية ليُستخدم في الدخول":"The employee number must be digits or English letters to be used for sign-in","الرقم الوظيفي يُكتب بحروف إنجليزية أو أرقام فقط ليُستخدم في الدخول":"The employee number must use English letters or digits only to be used for sign-in","الرمز":"Code","الرمز مستخدم مسبقاً":"The code is already used","الرواتب الشهرية":"Monthly salaries","الرواتب والأجور":"Salaries and wages","الزواج":"marriage","الساعات":"Hours","السبب":"Reason","السجل التجاري":"Commercial registration","السجل موجود مسبقاً":"The record already exists","السطر":"Row","السطر الواحد إما مدين أو دائن":"Each line is either a debit or a credit","السعر":"Price","السكن":"housing","السلفة لا تزيد على الراتب الأساسي":"The advance cannot exceed the basic salary","السنة":"Year","السندات":"Vouchers","الشهر":"Month","الصافي":"Net","الصلاحية":"Role","الصندوق":"Cash","الصنف":"Item","الصنف غير موجود أو ليس مخزنياً":"Item not found or not a stock item","الضريبة":"VAT","الطرف":"Party","الطرف غير صالح":"Invalid party","الطلب غير موجود":"Request not found","الطلب ليس بانتظار قرار":"The request is not awaiting a decision","الطلبات التي تنتظر قرارك":"Requests awaiting your decision","العجز أكبر من الرصيد المتوفر":"The shortage exceeds the available stock","العجز الكلي":"Total disability","العدد":"Count","العدول عن الاستقالة":"Withdraw resignation","العربية":"العربية","العملاء":"Customers","العميل":"Customer","العنوان":"Address","الغرامات لا تزيد على أجر":"Fines cannot exceed the wage of","الغرامة لا تتجاوز أجر":"A fine cannot exceed the wage of","الفاتورة غير موجودة":"Invoice not found","الفاتورة ملغاة مسبقاً":"The invoice is already void","الفترة":"Period","الفترة تتداخل مع إجازة سابقة":"The period overlaps an earlier leave","الفترة غير المقفلة":"unclosed period","الفرق":"Difference","القائمة":"Menu","القابلة للاسترداد":"refundable","القسط الشهري لا يزيد على":"The monthly installment cannot exceed","القسم":"Department","القسم غير موجود":"Department not found","القوائم المالية":"Financial statements","القوة القاهرة":"Force majeure","القيد":"Entry","القيد غير متوازن":"The entry is unbalanced","القيد غير موجود":"Entry not found","القيد معكوس مسبقاً":"The entry is already reversed","القيم لا تكون سالبة":"Values cannot be negative","القيود الآلية تُعكس بإلغاء مستندها":"Automatic entries are reversed by voiding their document","القيود اليومية":"Journal entries","القيود لا تُعدّل":"entries are never edited","الكمية":"Quantity","الكمية أكبر من صفر":"Quantity must be greater than zero","الكمية المتوفرة من":"Available quantity of","المالك":"Owner","المالية":"Finance","المباشرة":"Start","المبلغ":"Amount","المبلغ أكبر من المتبقي":"The amount exceeds the remaining balance","المبيعات":"Sales","المبيعات الخاضعة للنسبة الأساسية":"Standard-rated sales","المبيعات الصفرية":"Zero-rated sales","المبيعات والعملاء":"Sales and customers","المتاح":"Available","المتبقي":"Remaining","المتدربون":"Trainees","المخزون":"Inventory","المدير":"Manager","المدير العام":"General Manager","المدير المالي":"Finance Manager","المدير المالي والمالك يرون كل شيء":"The finance manager and owner see everything","المدير المباشر":"Direct manager","المدير المباشر غير موجود":"Direct manager not found","المدينة":"City","المرافق والاتصالات":"Utilities and telecom","المرحلة":"Stage","المرشح":"Candidate","المرشح عُيّن ولا يمكن تغيير مرحلته":"The candidate was hired; the stage can no longer change","المرشح غير موجود":"Candidate not found","المرشحون":"Candidates","المرضية":"Sick leave","المركز المالي":"Balance sheet","المستحقة":"payable","المستخدم":"used","المستخدمون":"Users","المستخدمون والدعوات":"Users and invitations","المستند غير موجود":"Document not found","المستند غير موجود أو ملغى":"Document not found or void","المستند لا يخص هذا الطرف":"The document does not belong to this party","المستند لا يطابق نوع السند":"The document does not match the voucher type","المستند ملغى":"The document is void","المسدد والمرتجع":"Paid and returned","المسمى":"Title","المسمى الوظيفي":"Job title","المسير غير موجود":"Payroll not found","المسير فارغ":"The payroll is empty","المسير معتمد مسبقاً":"The payroll is already approved","المسير معتمد ولا يمكن تعديله":"The payroll is approved and cannot be changed","المسيرات":"Payroll runs","المشتريات":"Purchases","المشتريات الخاضعة للنسبة الأساسية":"Standard-rated purchases","المشتريات الصفرية":"Zero-rated purchases","المشتريات والموردون":"Purchases and suppliers","المصدر":"Source","المصروفات":"Expenses","المغادرون":"Leavers","المقابلة":"Interview","المقيّم":"Reviewer","المكافأة الكاملة":"Full award","المكافأة المستحقة":"Award due","المكان":"Location","الملاحظات":"Notes","الملف فارغ":"The file is empty","الملف لا يحتوي موظفين":"The file has no employees","الملف ليس بصيغة":"The file is not in","المنشأة":"Company","المواد":"Articles","الموارد البشرية":"HR","الموارد البشرية والمالية":"HR and finance","المواصلات":"transport","المورد":"Supplier","الموردون":"Suppliers","الموظف":"Employee","الموظف غير موجود":"Employee not found","الموظف غير موجود في المسير":"The employee is not in this payroll","الموظف غير موجود في المنشأة":"The employee is not in this company","الموظفون":"Employees","الموظفون على رأس العمل":"Active employees","الموظفون لا يسجلون هنا":"Employees don't sign up here","النتيجة":"Result","النسبة":"Share","النسبة المستحقة":"Entitled share","النظام الجديد":"New regime","النظام السابق":"Previous regime","النقدية والبنوك":"Cash and banks","النقل":"transport","النهاري":"light mode","النوع":"Type","الهدف":"Goal","الهوية":"ID","الوحدة":"Unit","الوزن":"Weight","الوصف والمتطلبات":"Description and requirements","الوضع الليلي":"Dark","الوظائف الشاغرة والمرشحون حتى التعيين":"Openings and candidates through to hiring","الوظيفة":"Job","الوظيفة غير موجودة":"Opening not found","الوفاة":"death","الولادة":"birth","امراة":"woman","انتظر قليلاً ثم أعد المحاولة":"wait a little and try again","انتهاء الشهادة":"Certificate expiry","انتهاء العقد محدد المدة":"End of a fixed-term contract","انتهاء شهادة":"Certificate expiring","انتهت الجلسة":"Session expired","انتهت خدمتك":"Your employment has ended","انثى":"female","انثي":"female","انسخ البيانات من الجدول":"copy the details from the table","انسخه يدوياً":"Copy it manually","انضم إلى منشأتك":"Join your company","انضمام":"Join","ايبان":"iban","بالبريد":"By email","بالحقول المطلوبة لرفع الرواتب في":"with the fields required to upload salaries to","بالرقم الوظيفي":"By employee number","بانتظار":"Pending","بانتظار اطلاعك":"Awaiting your acknowledgement","بانتظار اعتماد الموارد البشرية":"Awaiting HR approval","بانتظار اعتمادك":"Awaiting your approval","بدء الدورة":"Start cycle","بدل الإجازات":"Leave pay","بدل الإجازة":"Leave pay","بدل السكن":"Housing allowance","بدل النقل":"Transport allowance","بدون أجر":"Unpaid","بدون حساب":"No account","بدون قسم":"No department","بعد الاعتماد يُرحّل قيد الاستحقاق ولا يمكن تعديل المسير":"After approval the accrual entry is posted and the payroll can no longer change","بعد الحفظ يظهر رمز دعوة":"After saving, an invitation code appears","بعد المراجعة يعتمده المدير العام أو المدير المالي":"After review, the General Manager or Finance Manager approves it","بلوغ سن التقاعد":"Retirement age","بند":"line","بند غير موجود في الفاتورة":"Line not found on the invoice","بيانات المنشأة":"Company details","بيانات دخول":"Sign-in details for","بيانات دخولك لنظام وعد":"Your Waad sign-in details","تأكد منه مع الموارد البشرية":"check it with HR","تأكيد":"Confirm","تأكيد كلمة المرور":"Confirm password","تأكيدها":"Confirm it","تاريخ الاستحقاق":"Due date","تاريخ الاستحقاق قبل تاريخ الفاتورة":"The due date is before the invoice date","تاريخ التعيين":"Hire date","تاريخ السند قبل تاريخ الفاتورة":"The voucher date is before the invoice date","تاريخ السند لا يكون في المستقبل":"The voucher date cannot be in the future","تاريخ الصرف":"Pay date","تاريخ الطلب":"Request date","تاريخ الفاتورة لا يكون في المستقبل":"The invoice date cannot be in the future","تاريخ المباشرة":"Start date","تاريخ المباشرة غير صحيح":"Invalid start date","تاريخ المباشرة مطلوب بصيغة":"Start date is required in the format","تاريخ النهاية قبل البداية":"The end date is before the start date","تاريخ الواقعة":"Event date","تاريخ الواقعة غير صحيح":"Invalid event date","تاريخ انتهاء الخدمة":"End of service date","تاريخ انتهاء الشهادة":"Certificate expiry date","تبدأ إجازة العدة من تاريخ الوفاة":"Iddah leave starts on the date of death","تبدأ الإجازة من تاريخ الواقعة أو بعده":"The leave starts on or after the event date","تبدأ من تاريخ الوفاة ولا تقل عن":"Starts on the date of death and is not less than","تبقى ملتزماً بالعمل خلال هذه المدة":"You remain bound to work during this period","تتجاوز":"Exceeds","تتوقف كلمة المرور الحالية وتظهر لك كلمة مؤقتة جديدة":"The current password stops working and a new temporary one is shown to you","تحت التجربة حتى":"On probation until","تحتاج صلاحية":"requires the permission","تحديث بيانات":"Data change","تحقق من الإنترنت":"check your internet connection","تحقق من الكميات والأسعار":"Check the quantities and prices","تدريبي":"My training","ترحيل":"Post","ترحيل الإشعار":"Post note","ترحيل الفاتورة":"Post invoice","ترحيل القيود اليدوية":"Post manual entries","ترك العمل لقوة قاهرة":"Leaving work due to force majeure","ترك العمل مع بقاء الحقوق":"Leaving work with rights retained","تسجيل":"Record","تسجيل الخروج":"Sign out","تسجيل الصرف":"Record payment","تسجيل صرف":"Record payment","تسجيل صرف الرواتب":"Record salary payment","تسجيل قبض":"Record receipt","تسوية المخزون":"Stock adjustment","تسوية مخزون":"Stock adjustment","تصدير الأقسام":"Export departments","تصدير الموظفين":"Export employees","تعديل":"Edit","تعديل الدورة":"Edit course","تعديل الوظيفة":"Edit opening","تعديل بند":"Edit line","تعديل بيانات موظف":"Edit employee","تعديل صنف":"Edit item","تعديل مستخدم":"Edit user","تعذر النسخ":"Copy failed","تعذّر الاتصال بالخادم":"Could not reach the server","تعذّر قراءة الورقة الأولى في الملف":"Could not read the first sheet of the file","تعريف بالراتب":"Salary certificate","تعطيك إياه الموارد البشرية":"HR gives it to you","تعليق":"Comment","تعليق المقيّم":"Reviewer comment","تعليقك":"Your comment","تعويض الإنهاء لغير سبب مشروع":"Compensation for termination without a valid reason","تعيين":"Hire","تعيين وإنشاء سجل موظف":"Hire and create employee record","تغيير":"Change","تغيير كلمة المرور":"Change password","تفاصيل الطلب":"Request details","تقارير الموارد البشرية":"HR reports","تقدير استرشادي":"Indicative estimate","تقدّم":"Applied","تقييم":"Review of","تقييم الأداء":"Performance reviews","تقييم المقابلة":"Interview rating","تقييم فريقي":"My team's reviews","تقييماتي":"My reviews","تكلفة البضاعة المباعة":"Cost of goods sold","تكلفة التدريب":"Training cost","تكلفة المبيعات":"Cost of sales","تكلفة الوحدة":"Unit cost","تلفيات":"Damages","تلقائي":"automatic","تم":"Done","تم الاعتماد":"Approved","تم الانضمام":"Joined","تم التعيين":"Hired","تم الحفظ":"Saved","تم الرفض":"Rejected","تنبيهات خلال":"Alerts within","تنزيل القالب":"Download template","تنزيل الملف":"Download file","توزيع نتائج":"Results distribution —","تُحتسب":"Counted as","تُحتسب هذه الإجازة من تاريخ الواقعة":"This leave is counted from the event date","تُعكس فقط":"they are only reversed","تُمنح هذه الإجازة بعد":"This leave is granted after","ثلاث خطوات وتبدأ":"Three steps and you're ready","ثم":"then","ثم أعد المحاولة":"then try again","ثم رقمه الوظيفي وكلمة مرور مؤقتة":"then their employee number and a temporary password","جارٍ التحميل":"Loading","جاهز للاستيراد":"ready to import","جديدة":"new","جزء من الكمية بيع":"part of the quantity has been sold","جهّز منشأتك":"Set up your company","جوال":"mobile","حتى":"until","حتى تاريخ":"As of","حد":"limit","حد أقصى":"max","حد إعادة الطلب":"Reorder level","حدث خطأ غير متوقع":"An unexpected error occurred","حدد آخر يوم عمل":"Set the last working day","حدد البيانات المطلوب تعديلها":"Specify the data to change","حدد تاريخ البداية والنهاية":"Set the start and end dates","حدد فترة التقييم بشكل صحيح":"Set a valid review period","حدّد هنا ما يراه غيرهم":"Choose here what others can see","حذف":"Delete","حذف البند":"Delete line","حذف الهدف":"Delete goal","حساب الدخول":"Sign-in account","حساب المصروف غير صالح":"Invalid expense account","حساب جديد بالبريد":"New account by email","حساب فرعي":"Sub-account","حساب فرعي جديد":"New sub-account","حسابات المصروفات":"Expense accounts","حسابك غير مربوط بسجل موظف":"Your account is not linked to an employee record","حسب القسم":"By department","حسب المادة":"Under Article","حسب تاريخ أول تسجيل":"By first registration date","حصة المنشأة في التأمينات":"Employer GOSI share","حصة المنشأة في التأمينات الاجتماعية":"Employer GOSI contribution","حفظ":"Save","حفظ السند":"Save voucher","حفظ كمسودة":"Save as draft","حفظ والمتابعة":"Save and continue","حقوق الملكية":"Equity","حقوق ملكية":"Equity","حُفظ السند":"Voucher saved","حُفظت المسودة":"Draft saved","حُفظت كلمة المرور":"Password saved","خدماتي":"My services","خدمة":"Service","خروج":"Sign out","خسائر":"Loss","خصوم":"Liability","خلال":"within","خيار":"The option","دائن":"Credit","دخلت بكلمة مرور مؤقتة من الموارد البشرية":"You signed in with a temporary password from HR","دخول":"Sign in","دخول الإدارة بالبريد":"Management sign-in by email","دخول الموظفين":"Employee sign-in","دخول بالبريد":"sign in by email","درجة الهدف":"Score of goal","دعوة للانضمام إلى":"Invitation to join","دعوة مستخدم":"Invite user","دفتر الأستاذ":"General ledger","دفعات غير مخصصة":"Unallocated payments","دفعة على الحساب":"On-account payment","دليل الحسابات":"Chart of accounts","دورات":"Courses","دورات التقييم":"Review cycles","دورة التقييم مغلقة":"The review cycle is closed","دورة تدريبية جديدة":"New training course","دورة تقييم جديدة":"New review cycle","دورة جديدة":"New course","ذكر":"Male","ذكر أو أنثى":"Male or Female","ذمم دائنة":"Accounts payable","ذمم مدينة":"Accounts receivable","رأس المال":"Capital","راجع الحالات الخاصة مع مختص":"review special cases with a specialist","راجع قالب بنكك قبل الرفع":"Check your bank's template before uploading","ربطه بسجل موظف":"Link to employee record","رجوع":"Back","رجوع لمنشأتي":"Back to my company","رصيد أول المدة":"Opening balance","رصيد الإجازة السنوية":"Annual leave balance","رصيد الإجازة السنوية المتراكم":"Accrued annual leave balance","رصيد دائن":"Credit balance","رصيد دائن للطرف":"Credit balance for the party","رصيدك المتبقي":"Your remaining balance is","رصيدك المستحق حتى نهاية الإجازة":"Your accrued balance up to the end of the leave is","رفض":"Reject","رقم الإقامة":"iqama number","رقم الجوال":"mobile number","رقم الجوال بصيغة":"Mobile number format","رقم الحساب يبدأ بالرقم":"The account number must start with","رقم الشهادة":"Certificate no.","رقم المدير":"manager number","رقم المورد":"Supplier ref.","رقم الموظف":"employee no","رقم الهوية":"ID number","رقم فاتورة المورد":"Supplier invoice no.","رقم فاتورة المورد مسجّل مسبقاً":"The supplier invoice number is already recorded","رقم مكرر في الملف":"Duplicate number in the file","رقماً":"digits","رقماً يبدأ وينتهي بـ":"digits starting and ending with","رقمه الوظيفي":"their employee number","رمز الدعوة":"Invitation code","رمز الدعوة غير صحيح أو لا يطابق بريدك":"The invitation code is wrong or does not match your email","رمز المنشأة":"Company code","رمز المنشأة غير صحيح":"Wrong company code","رمز المنشأة لدخول الموظفين":"Company code for employee sign-in","رواتب":"Payroll","رواتب مستحقة":"Salaries payable","ريال":"SAR","رُحّل الإشعار":"Note posted","رُحّل القيد":"Entry posted","رُحّلت الفاتورة":"Invoice posted","رُفض":"Rejected","زيادة":"Increase","س":"h","سارة أحمد":"Sara Ahmed","ساعات":"hours","ساعات التدريب":"Training hours","ساعات العمل الإضافي":"Overtime hours","ساعة":"hours","سبب الإلغاء":"Void reason","سبب الانتهاء":"End reason","سبب انتهاء العلاقة":"Reason for ending employment","سبب انتهاء خدمة غير معروف":"Unknown end-of-service reason","سبق أن اطّلعت على التقييم":"You have already acknowledged this review","ستكون مالك المنشأة":"You will be the company owner","سجل الموظف":"Employee record","سجل الموظف مربوط بحساب آخر":"The employee record is linked to another account","سجّل الدخول":"Sign in","سجّل الدخول أولاً":"Please sign in first","سجّل الدخول مجدداً":"sign in again","سحب":"Revoke","سطر":"line","سطر فيه أخطاء":"row(s) have errors","سعر البيع":"Sale price","سعودي":"Saudi","سعودي أو غير سعودي":"Saudi or Non-Saudi","سعودية":"saudi","سعوديه":"saudi","سلف الموظفين":"Employee advances","سلفة":"Advance","سنة":"years","سنة خدمة":"year(s) of service","سند صرف":"Payment voucher","سند قبض":"Receipt voucher","سندات القبض والصرف":"Receipts and payments","سيدخل الموظف برمز المنشأة":"The employee will sign in with the company code","سيُربط هذا السجل بحسابك":"This record will be linked to your account","سيُطلب منك تغييرها عند أول دخول":"You will be asked to change it at first sign-in","سُجل الصرف":"Payment recorded","سُجلت التسوية":"Adjustment recorded","سُجّل اطلاعك":"your acknowledgement is recorded","شاغر":"position(s)","شكراً":"Thank you","شهادات تنتهي خلال":"Certificates expiring within","شهادة منتهية":"Certificate expired","شهر كامل بعد إجازة الوضع":"One month with full pay after maternity leave","شهراً":"months","صافي الربح":"Net profit","صافي الضريبة":"Net VAT","صافي المرتجعات":"net of returns","صحّحها في الملف ثم ارفعه مجدداً":"fix them in the file and upload it again","صرف":"Payment","صرف رواتب":"Salary payment","صلاحيات المحاسب وأمين المستودع":"Accountant and storekeeper permissions","صلاحيات المدير المالي ثابتة":"The finance manager's permissions are fixed","صنف أو حساب مصروف":"Item or expense account","صنف جديد":"New item","صنف غير موجود":"Item not found","ضريبة القيمة المضافة":"VAT","ضريبة المخرجات":"Output VAT","ضريبة المدخلات":"Input VAT","طباعة":"Print","طلب تعديل بيانات":"Data change request","طلب تعديل بياناتي":"Request a change to my data","طلب جديد":"New request","طلباتي":"My requests","طلباتي قيد المعالجة":"My requests in progress","عجز":"Shortage","عدد الأقساط":"Number of installments","عدد الأقساط حتى":"Installments: up to","عدد الأقساط من":"Installments: from","عدد الساعات":"Number of hours","عدد الشواغر":"Positions","عدّل دوره من قائمة المستخدمين":"change their role from the users list","عرض":"Show","عرض القيود":"View entries","عرض المخزون":"View stock","عرض وظيفي":"Offer","عكس":"Reverse","عكس القيد":"Reverse entry","على رأس العمل":"Active","على رأس العمل فقط":"Active only","عمل إضافي":"Overtime","عميل":"customer","عميلاً":"a customer","عند":"at","عنوان الدورة":"Course title","عُكس القيد":"Entry reversed","عُيّن":"Hired","عُيّن المرشح وأُنشئ سجل الموظف":"Candidate hired and employee record created","عُيّن هذا المرشح وأُنشئ سجله في":"This candidate was hired and their record created in","غرامات":"Fines","غرامات جزائية":"Disciplinary fines","غـ":"غـ","غياب":"Absence","غير سعودي":"Non-Saudi","غير سعودية":"non-saudi","غير سعوديه":"non-saudi","غير صحيحة":"incorrect","غير متوازن":"Unbalanced","غير مرضٍ":"Unsatisfactory","غير مستحق":"Not due","غير مسلمة":"non-Muslim","غير مصرح":"Not authorized","غير مصرح لك باعتماد هذه المرحلة":"You are not allowed to approve this step","غير مصرح لك بدعوة دور":"You are not allowed to invite the role","غير مصرح لك بمنح دور":"You are not allowed to grant the role","غير موجود":"not found","غير موجود أو رئيسي":"not found or is a parent account","غيّر كلمة مرورك من حسابك":"change your password from your account","غيّر ما تريد تعديله فقط":"Change only what you want to update","فاتورة":"Invoice","فاتورة ضريبية":"Tax invoice","فاتورة ضريبية مبسطة":"Simplified tax invoice","فاتورة مبيعات":"Sales invoice","فاتورة مبيعات جديدة":"New sales invoice","فاتورة مشتريات":"Purchase bill","فاتورة مشتريات جديدة":"New purchase bill","فبعض البنوك تطلب ترتيب أعمدة مختلفاً":"as some banks require a different column order","فترة التجربة لا تزيد على":"Probation cannot exceed","فتنتهي في":"so it ends on","فرز أولي":"Screening","فروقات المخزون":"Inventory differences","فسخ بدون مكافأة":"Dismissal without award","فقط":"only","فقط المالك يحذف مالكاً":"Only an owner can remove an owner","فقط المالك يغيّر صلاحية المالك":"Only an owner can change an owner's role","فقط المالك يمنح صلاحية المالك":"Only an owner can grant the owner role","فلن يستطيع الموظف الدخول حتى يُطفأ":"so the employee cannot sign in until it is turned off","في إعدادات":"in the settings of","في المالية":"in finance","في المقابلات":"In interviews","في نظام وعد":"in Waad","قائمة الدخل":"Income statement","قبض":"Receipt","قبل":"before","قدّم الطلب قبل":"Submit the request","قسائم الراتب":"Payslips","قسط السلفة لا يتجاوز":"An advance installment cannot exceed","قسط سلفة":"Advance installment","قسيمة راتب":"Payslip","قيد":"Entry","قيد غير متوازن":"Unbalanced entry","قيد يدوي":"Manual entry","قيمة غير صالحة في أحد الحقول":"Invalid value in one of the fields","قيود الرواتب":"Payroll entries","كامل":"Full pay","كل الموظفين مسجّلون في الدورة":"All employees are enrolled in the course","كلمة المرور":"Password","كلمة المرور الجديدة":"New password","كلمة المرور المؤقتة":"Temporary password","كلمتا المرور غير متطابقتين":"The passwords do not match","كمية المرتجع":"Return quantity","كمية المرتجع أكبر من المتاح":"The return quantity exceeds what is available","لا":"No","لا بد أن يبقى للمنشأة مالك واحد على الأقل":"The company must keep at least one owner","لا تشمل الأرقام الأجر المستحق عن أيام الشهر الأخير":"The figures exclude wages due for the days of the final month","لا تقل عن":"not less than","لا تملك صلاحية التقارير":"You don't have permission for reports","لا توجد أرصدة":"No balances","لا توجد أرصدة مفتوحة":"No open balances","لا توجد أصناف":"No items","لا توجد أقسام":"No departments","لا توجد إجازات معتمدة هذه السنة":"No approved leave this year","لا توجد بيانات":"No data","لا توجد تقييمات معتمدة لك بعد":"No approved reviews for you yet","لا توجد تنبيهات":"No alerts","لا توجد حركات":"No transactions","لا توجد دعوات معلّقة":"No pending invitations","لا توجد دورات بعد":"No courses yet","لا توجد سندات":"No vouchers","لا توجد صفوف موظفين تحت العناوين":"No employee rows under the headers","لا توجد طلبات بعد":"No requests yet","لا توجد فواتير":"No invoices","لا توجد قسائم معتمدة بعد":"No approved payslips yet","لا توجد قيود":"No entries","لا توجد مسيرات":"No payroll runs","لا توجد وظائف شاغرة":"No job openings","لا شيء بانتظارك":"Nothing waiting for you","لا يصح تحديد تاريخ مؤجل للاستقالة":"A resignation cannot carry a deferred date","لا يكون الموظف مديراً لنفسه":"an employee cannot be their own manager","لا يمكن إلغاء طلب تم البت فيه":"A request already decided cannot be cancelled","لا يمكن إلغاء فاتورة عليها سداد":"An invoice with payments cannot be voided","لا يمكن الإلغاء":"cannot be voided","لا يمكن الحذف لارتباطه بسجلات أخرى":"Cannot delete because it is linked to other records","لا يمكن تعيين مرشح مرحلته":"Cannot hire a candidate whose stage is","لا يمكن طلب تعديل الحقل":"You cannot request a change to the field","لا يمكنك تقييم نفسك":"You cannot review yourself","لا يملك حساباً بعد":"No account yet","لا يوجد":"None","لا يوجد حساب دخول لهذا الموظف":"This employee has no sign-in account","لا يوجد رقم ضريبي مسجّل":"No VAT number registered","لا يوجد مرشحون بعد":"No candidates yet","لا يوجد موظفون":"No employees","لا يوجد موظفون على رأس العمل في هذه الفترة":"No active employees in this period","لا يُحدد للاستقالة تاريخ مؤجل":"a resignation carries no deferred date","لديك حساب":"Have an account","لديك طلب استقالة قيد المعالجة":"You already have a resignation in progress","لديك طلب تعديل بيانات قيد المراجعة":"You already have a data-change request under review","لذلك لا تظهر لك خدمات الإجازات والطلبات":"so leave and request services are not shown to you","لصاحب منشأة جديدة":"For the owner of a new company","للأب":"for the father","للزيادة":"for increases","للموظف حساب دخول مسبقاً":"The employee already has a sign-in account","لم تبدأ أي دورة تقييم":"No review cycle started","لم تغيّر أي بيانات":"You did not change anything","لم تُضف موظفين بعد":"No employees added yet","لم يحضر":"No-show","لم يغيّر كلمة المرور بعد":"Hasn't changed the password yet","لم يُؤكَّد البريد بعد":"Email not confirmed yet","لم يُرسل":"Not sent","لم يُسجَّل متدربون":"No trainees enrolled","لم يُنشأ حساب الدخول بعد":"The sign-in account has not been created yet","لن تظهر كلمة المرور مجدداً":"The password will not be shown again","لن يمكن تعديل أي تقييم في هذه الدورة بعد الإغلاق":"No review in this cycle can be changed after closing","لوحة المالية":"Finance dashboard","ليست لديك صلاحية لهذا الإجراء":"You don't have permission for this action","ليظهر لك نظام الطلبات وقسائم الراتب":"so requests and payslips appear for you","ليُنشأ سجل الموظف":"so the employee record is created","م":"Art.","مبسطة":"simplified","مبلغ":"amount","مبيعات":"Sales","متأخرة":"Overdue","متابعة":"Continue","متبقي":"remaining","متصفحك لا يدعم قراءة ملفات":"Your browser cannot read","متميز":"Outstanding","متوازن":"Balanced","متوسط الراتب":"Average salary","متوسط العدد":"average headcount","متوسط مدة الخدمة":"Average length of service","مثال":"Example","مجالات التطوير":"Areas for development","مجموع أوزان الأهداف يجب أن يساوي":"Goal weights must total","مجموع الأوزان":"Total weight","مجموع الحسميات لا يتجاوز نصف الأجر":"Total deductions cannot exceed half the wage","محاسب":"Accountant","محاسبة":"Accountant","محاولات كثيرة":"Too many attempts","مخالصة":"Final settlement","مخرجات":"Output","مخزني":"Stock","مخزون":"Stock","مخصص مكافأة نهاية الخدمة":"End-of-service provision","مدة الخدمة":"Length of service","مدخلات":"Input","مدد":"Mudad","مدير النظام":"System admin","مدير قسم":"Department manager","مدين":"Debit","مرتجع":"Return","مرتجع مبيعات":"Sales return","مرتجع مشتريات":"Purchase return","مرحلتك":"Your step","مرحّلة":"Posted","مرشح جديد":"New candidate","مرضية":"Sick","مرفوض":"Rejected","مسار الاعتماد":"Approval route","مستبعد":"Excluded","مستحقة":"Due","مسجّل":"Enrolled","مسجّل مسبقاً":"already exists","مسددة":"Paid","مسلمة":"Muslim","مسودة":"Draft","مسير":"Payroll","مسير الرواتب":"Payroll","مشاركة":"Share","مشتريات":"Purchases","مصروف":"Paid","مصروفات":"Expense","مصروفات أخرى":"Other expenses","مصروفات إدارية وعمومية":"General and administrative expenses","مصروفات مدفوعة مقدماً":"Prepaid expenses","مطالبة مصروفات":"Expense claim","معتمد":"Approved","معدل الدوران":"Turnover rate","معكوس":"Reversed","معلّقة":"On hold","مغلقة":"Closed","مفتوحة":"Open","مفعّل في":"is enabled in","مقابل":"against","مقابل فاتورة":"Against invoice","مقابلة":"Interview","مقبولة حكماً لمضي":"Deemed accepted after","مكافأة":"Bonus","مكافأة نهاية الخدمة":"End-of-service award","مكافأة نهاية الخدمة والمخالصة":"End-of-service award and settlement","مكرر":"Duplicate","مكرر في الملف":"is duplicated in the file","ملاحظات":"Notes","ملاحظة":"Note","ملاحظة الموارد البشرية":"HR note","ملاحظة للموارد البشرية":"Note for HR","ملخص استرشادي لتعبئة الإقرار في بوابة هيئة الزكاة والضريبة والجمارك":"Indicative summary for filing the return on the ZATCA portal","ملغاة":"Void","ملغى":"Cancelled","ملف":"File","ملف حماية الأجور":"WPS file","ملفي":"My profile","من":"from","من أجر الساعة الأساسي":"of the basic hourly wage","من أجرك":"of your wage","من الأجر":"of the wage","من الملف أو من الموظفين الحاليين":"from the file or from current employees","من انتهاء العلاقة":"of the end of employment","من حساب":"From account","من ليس له مدير مباشر تقيّمه الموارد البشرية":"employees without a direct manager are reviewed by HR","من نظام العمل":"of the Labor Law","منتهية":"Ended","منشأة جديدة":"New company","مورد":"supplier","مورداً":"a supplier","موظف":"Employee","موظف بلا آيبان أو رقم هوية":"employee(s) without an IBAN or ID number","موظف في الملف":"employee(s) in the file","موظف في الملف الواحد":"employees per file","موعد المقابلة":"Interview time","ميزان المراجعة":"Trial balance","نزّل القالب واملأ سطراً لكل موظف":"Download the template and fill one row per employee","نسبة التوطين":"Saudization","نسبة السعوديين":"Saudization rate","نسبة النساء":"Share of women","نسخ الرسالة":"Copy message","نسخ الرمز":"Copy code","نسخ رسالة جاهزة":"Copy ready message","نسيت كلمة المرور":"Forgot your password","نسيتها":"Forgot it","نظام التأمينات":"GOSI regime","نعم":"Yes","نقاط القوة":"Strengths","نهاية التجربة":"probation end","نهاية الخدمة قبل بدايتها":"The end of service is before its start","نهاية العقد محدد المدة":"Fixed-term contract end","نهاية فترة التجربة":"Probation end","نهاية فترة التجربة غير صحيحة":"Invalid probation end","نوع إجازة غير معروف":"Unknown leave type","نوع الإجازة":"Leave type","نوع الإشعار غير صالح":"Invalid note type","نوع السند غير صالح":"Invalid voucher type","نوع الطلب":"Request type","نُسخ":"Copied","نُسخت":"Copied","هدف":"goal","هذا الإجراء يتطلب أحد الأدوار":"this action requires one of the roles","هذا البريد قبل الدعوة مسبقاً":"This email has already accepted the invitation","هذا البريد مسجّل مسبقاً":"This email is already registered","هذا الموظف يدخل ببريده":"This employee signs in with their email","هذه الإجازة تُمنح مرة واحدة خلال الخدمة":"This leave is granted once during employment","هذه الإجازة لا تنطبق عليك":"This leave does not apply to you","هذه الصفحة للموارد البشرية":"This page is for HR","هل تريد إلغاء هذا الطلب":"Do you want to cancel this request","و":"and","وإذا لم يُرد عليها خلال":"If there is no reply within","واضغط":"and press","واقتطاع التلفيات كذلك":"and so do damage deductions","والمدير المباشر يُكتب برقمه الوظيفي":"and the direct manager is written as their employee number","وتبقى الفاتورة ظاهرة بحالة ملغاة":"and the invoice stays visible as void","وتنتهي العلاقة من تاريخ قبولها":"and employment ends on the date it is accepted","وراجع المعاينة ثم اضغط استيراد":"review the preview, then press Import","وزن الهدف":"Weight of goal","وسجّل بالبريد":"and sign up with the email","وسيتذكره النظام":"and the system will remember it","وسيُطلب منك تغييرها":"and you will be asked to change it","وظيفة شاغرة جديدة":"New job opening","وعد":"Waad","وكلمة مرور مؤقتة تظهر لك الآن":"and a temporary password shown to you now","ولا مقابل الإشعار إن لم يُراعَ":"or pay in lieu of notice if notice was not given","ولا يوقَّع جزاء إلا بعد إبلاغ الموظف كتابة والتحقيق معه":"and no penalty may be imposed before notifying the employee in writing and investigating","ومجموع الحسميات لا يتجاوز نصف الأجر":"and total deductions cannot exceed half the wage","ويجوز حسم الديون المستحقة بسبب العمل كرصيد السلف":"work-related debts such as outstanding advances may be deducted","ويجوز شهر إضافي بدون أجر":"plus an optional unpaid month","ويحق لك العدول عنها خلال":"You may withdraw it within","ويكون المقيّم مديره المباشر":"and the reviewer is their direct manager","ويليه":"followed by","ويمكنك إعادة تعيينها لاحقاً":"you can reset it later","ويُطبَّق تلقائياً بعد اعتماده":"and is applied automatically once approved","ويُطلب من الموظف تغييرها عند الدخول":"and the employee is asked to change it at sign-in","ويُطلب منه تغييرها عند أول دخول":"and must change it at first sign-in","ويُعرف أنك المدير العام في مسارات الاعتماد":"and approval routes know you are the General Manager","ويُنشأ دليل الحسابات تلقائياً":"and the chart of accounts is created automatically","يجب أن يكون أكبر من صفر":"must be greater than zero","يجوز العدول عن الاستقالة خلال":"A resignation may be withdrawn only within","يحتاج إلى تحسين":"Needs improvement","يحتسب النظام التأمينات والغياب وأقساط السلف تلقائياً":"The system calculates GOSI, absence and advance installments automatically","يدخل بالرقم الوظيفي":"Signs in with employee number","يدخل ببريده الإلكتروني":"Signs in with their email","يدخل برمز المنشأة":"they sign in with the company code","يدخلون برمز المنشأة ورقمهم الوظيفي":"they sign in with the company code and their employee number","يدوي":"Manual","يستعيد كلمة المرور من":"and recovers the password from","يسجّل بنفس البريد ثم يُدخل الرمز":"They sign up with the same email, then enter the code","يفوق التوقعات":"Exceeds expectations","يقيّم المدير المباشر وتعتمد الموارد البشرية ثم يطّلع الموظف":"the direct manager reviews, HR approves, then the employee acknowledges","يلبي التوقعات":"Meets expectations","يمكنك إعادة الإعداد ما دام المسير مسودة":"You can prepare it again while the payroll is a draft","ينشئ حساباً بنفس البريد ثم يُدخل الرمز":"they create an account with the same email, then enter the code","يوليو":"July","يوم":"days","يوم بأجر جزئي":"days with partial pay","يوماً":"days","يوماً بأجر كامل":"days with full pay","يوماً بثلاثة أرباع الأجر":"days at three-quarters pay","يوماً بدون أجر":"days unpaid","يوماً بدون أجر خلال سنة الإجازة المرضية":"days unpaid within the sick-leave year","يوماً تُعد مقبولة":"days, it is deemed accepted","يوماً دون رد":"days without a reply","يوماً على الأقل":"days in advance","يوماً في السنة":"days a year","يوماً كامل":"days full pay","يوماً متراكماً":"days accrued","يوماً مرضية خلال سنة الإجازة المرضية":"sick days within the sick-leave year","يوماً من تاريخ الوفاة":"days from the date of death","يُصرف خلال":"Payable within","يُعكس القيد وحركة المخزون":"The entry and stock movement are reversed","يُنشأ تقييم لكل موظف على رأس العمل":"A review is created for every active employee","يُنشأ سجل الموظف ببيانات المرشح":"The employee record is created from the candidate's details","ْٰ":"ْٰ","ۓ":"ۓ"};
 'use strict';
 /* ===== config: the publishable key is meant to live in the browser; RLS protects the data ===== */
 const CFG = Object.assign({ url: 'https://egfygyfmwqxshvwbevdd.supabase.co', key: 'sb_publishable_D7qaBJ4XKd2omtoK_-SZ6A_-wa0wn-r' }, window.WAAD_CONFIG || {});
 const LS = { get(k) { try { return JSON.parse(localStorage.getItem(k)) } catch (e) { return null } },
              set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)) } catch (e) {} } };
+
+/* ===== language: Arabic (default) or English. Screens are written in Arabic; in English mode a DOM
+   observer swaps every Arabic text run for its entry in EN (i18n/en.tsv), longest phrase first. ===== */
+let LANG = LS.get('waad.lang') === 'en' ? 'en' : 'ar';
+const AR_L = '[ء-غـ-ْٰ-ۓ]';
+const AR_RUN = new RegExp(AR_L + '+(?:[  ]+' + AR_L + '+)*', 'g');
+const AR_PUNCT = { '،': ',', '؛': ';', '؟': '?', '«': '"', '»': '"' };
+function trRun(run) {
+  if (EN[run] != null) return EN[run];
+  const w = run.split(/[  ]+/), out = [];
+  for (let i = 0; i < w.length;) {
+    let j = w.length, hit = null;
+    for (; j > i; j--) { const k = w.slice(i, j).join(' '); if (EN[k] != null) { hit = EN[k]; break; } }
+    if (hit != null) { out.push(hit); i = j; continue; }
+    const x = w[i];
+    if (x.length > 2 && x[0] === 'و' && EN[x.slice(1)] != null) { out.push('and ' + EN[x.slice(1)]); i++; continue; }
+    return run;   // an unknown word means user data (a name, a memo): leave the whole run as typed
+  }
+  return out.join(' ');
+}
+function trTo(s) {
+  s = String(s == null ? '' : s); if (!/[؀-ۿ«»]/.test(s)) return s;
+  return s.replace(AR_RUN, trRun).replace(/[،؛؟«»]/g, c => AR_PUNCT[c]).replace(/Art\.(\d)/g, 'Art. $1')
+    .replace(/[٠-٩]/g, d => d.charCodeAt(0) - 0x660);
+}
+const tr = s => LANG === 'en' ? trTo(s) : s;
+const TR_ATTRS = ['placeholder', 'title', 'aria-label'];
+function trWalk(n) {
+  if (n.nodeType === 3) { const p = n.parentElement; if (p && !p.closest('[data-nt],textarea,script,style')) { const t = trTo(n.nodeValue); if (t !== n.nodeValue) n.nodeValue = t; } return; }
+  if (n.nodeType !== 1 || n.closest('[data-nt],script,style')) return;
+  for (const a of TR_ATTRS) if (n.hasAttribute(a)) { const v = n.getAttribute(a), t = trTo(v); if (t !== v) n.setAttribute(a, t); }
+  if (n.tagName !== 'TEXTAREA') for (const c of [...n.childNodes]) trWalk(c);
+}
+let trObs = null;
+function applyLang() {
+  const h = document.documentElement; h.lang = LANG; h.dir = LANG === 'en' ? 'ltr' : 'rtl';
+  document.title = LANG === 'en' ? 'Waad — HR and finance' : 'وعد — الموارد البشرية والمالية';
+  if (trObs) { trObs.disconnect(); trObs = null; }
+  if (LANG !== 'en') return;
+  trWalk(document.body);
+  trObs = new MutationObserver(ms => { for (const m of ms) { if (m.type === 'childList') m.addedNodes.forEach(trWalk); else trWalk(m.target); } });
+  trObs.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: TR_ATTRS });
+}
+function setLang(l) { LANG = l === 'en' ? 'en' : 'ar'; LS.set('waad.lang', LANG); const d = document.getElementById('dlg'); if (d && d.open) d.close(); applyLang(); boot(); }
+const langBtn = cls => `<button type="button" class="${cls}" id="lg" data-nt lang="${LANG === 'en' ? 'ar' : 'en'}">${LANG === 'en' ? 'العربية' : 'English'}</button>`;
 
 /* ===== minimal Supabase client (Auth + PostgREST) — no external dependency ===== */
 const S = { session: LS.get('waad.session'), cid: LS.get('waad.cid'), companies: [], role: null, emp: null, perms: new Set(), company: null, myEmp: null };
@@ -247,7 +295,7 @@ applyTheme(LS.get('waad.theme'));
 function toggleTheme() { const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; const t = dark ? 'light' : 'dark'; LS.set('waad.theme', t); applyTheme(t); }
 
 /* ===== auth screens ===== */
-const BRAND = `<div class="brand"><div class="mark">و</div><div><b>وعد</b><div class="muted small">الموارد البشرية والمالية</div></div></div>`;
+const brand = () => `<div class="brand"><div class="mark" data-nt>${LANG === 'en' ? 'W' : 'و'}</div><div><b>وعد</b><div class="muted small">الموارد البشرية والمالية</div></div></div>`;
 // company code can arrive in the link HR shares: …/waad/?c=1FB695
 (() => { try { const c = new URLSearchParams(location.search).get('c'); if (c && /^[A-Za-z0-9]{4,10}$/.test(c) && c.toUpperCase() !== LS.get('waad.ccode')) { LS.set('waad.ccode', c.toUpperCase()); LS.set('waad.cname', null); } } catch (e) {} })();
 const staffEmail = (code, empNo) => String(empNo).trim().toLowerCase() + '.' + String(code).trim().toLowerCase() + '@staff.waad.app';
@@ -277,12 +325,13 @@ function authView(tab = 'staff', msg = '') {
       : `<p class="muted small" style="margin:10px 0 0">لصاحب منشأة جديدة، أو لمن وصلته دعوة بالبريد من الإدارة. الموظفون لا يسجلون هنا — يدخلون برمز المنشأة ورقمهم الوظيفي.</p>`;
   }
   const links = tab === 'staff' ? `<a href="#" data-go="in">دخول الإدارة بالبريد</a> · <a href="#" data-go="up">حساب جديد بالبريد</a>` : `<a href="#" data-go="staff">دخول الموظفين</a> · ${tab === 'in' ? '<a href="#" data-go="up">حساب جديد بالبريد</a>' : '<a href="#" data-go="in">لديك حساب؟ دخول بالبريد</a>'}`;
-  app.innerHTML = `<div class="auth"><div class="abox">${BRAND}<div class="card">
+  app.innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card">
     ${tab !== 'staff' ? `<h2>${tab === 'in' ? 'دخول الإدارة بالبريد' : 'حساب جديد بالبريد'}</h2>` : ''}
     ${msg ? `<div class="note">${esc(msg)}</div>` : ''}
     <form id="af" novalidate>${body}<div id="aerr"></div><div style="height:12px"></div><button class="btn pri full" id="ab">${btn}</button>${foot}</form></div>
     <p class="muted small" style="text-align:center">${links}</p>
-    <p class="muted small" style="text-align:center"><a href="#" id="theme">الوضع الليلي/النهاري</a></p></div></div>`;
+    <p class="muted small" style="text-align:center"><a href="#" id="theme">الوضع الليلي/النهاري</a> · ${langBtn('linkbtn')}</p></div></div>`;
+  $('#lg').onclick = () => setLang(LANG === 'en' ? 'ar' : 'en');
   $$('[data-go]', app).forEach(a => a.onclick = e => { e.preventDefault(); authView(a.dataset.go); });
   $('#theme').onclick = e => { e.preventDefault(); toggleTheme(); };
   if ($('#chg')) $('#chg').onclick = e => { e.preventDefault(); LS.set('waad.ccode', null); LS.set('waad.cname', null); authView('staff'); };
@@ -318,7 +367,7 @@ function authView(tab = 'staff', msg = '') {
 
 /* first login with a temporary password → choose a personal one */
 function changePasswordView(forced = true) {
-  $('#app').innerHTML = `<div class="auth"><div class="abox">${BRAND}<div class="card"><h2>${forced ? 'اختر كلمة مرور جديدة' : 'تغيير كلمة المرور'}</h2>
+  $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><h2>${forced ? 'اختر كلمة مرور جديدة' : 'تغيير كلمة المرور'}</h2>
     ${forced ? '<p class="muted small">دخلت بكلمة مرور مؤقتة من الموارد البشرية. اختر كلمة مرور خاصة بك لا يعرفها غيرك.</p>' : ''}
     <form id="pf" novalidate>${field('كلمة المرور الجديدة (8 أحرف أو أكثر)', '<input name="p1" type="password" autocomplete="new-password" dir="ltr">')}<div style="height:10px"></div>
     ${field('تأكيدها', '<input name="p2" type="password" autocomplete="new-password" dir="ltr">')}<div id="perr"></div><div style="height:12px"></div>
@@ -334,7 +383,7 @@ function changePasswordView(forced = true) {
 
 /* ===== onboarding: create a company or join with an invite code ===== */
 function onboardView(fromApp = false) {
-  $('#app').innerHTML = `<div class="auth"><div class="abox" style="max-width:520px">${BRAND}
+  $('#app').innerHTML = `<div class="auth"><div class="abox" style="max-width:520px">${brand()}
     <div class="card"><h2>انضم إلى منشأتك</h2><p class="muted small">إذا أرسلت لك الموارد البشرية رمز دعوة، أدخله هنا.</p>
       <form id="jf" class="row" novalidate><input name="code" placeholder="رمز الدعوة" dir="ltr" style="flex:1;letter-spacing:2px;text-transform:uppercase"><button class="btn pri" id="jb">انضمام</button></form><div id="jerr"></div></div>
     <div class="card"><h2>أو أنشئ منشأة جديدة</h2>
@@ -376,7 +425,7 @@ async function boot() {
     if (S.mustChange) return changePasswordView(true);
   } catch (e) {
     if (e.status === 401) { setSession(null); return authView('in', 'انتهت الجلسة — سجّل الدخول مجدداً'); }
-    $('#app').innerHTML = `<div class="auth"><div class="abox">${BRAND}<div class="card"><div class="err">${esc(e.message)}</div><button class="btn" onclick="boot()">إعادة المحاولة</button></div></div></div>`; return;
+    $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><div class="err">${esc(e.message)}</div><button class="btn" onclick="boot()">إعادة المحاولة</button></div></div></div>`; return;
   }
   shell(); route();
 }
@@ -387,13 +436,16 @@ let NAVC = { approvals: 0 };
 function navItems() {
   const it = []; const g = t => it.push({ g: t });
   it.push({ h: '#/home', t: 'الرئيسية' });
-  if (S.emp) { g('خدماتي'); it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/payslips', t: 'قسائم الراتب' }, { h: '#/profile', t: 'ملفي' }); }
+  if (S.emp) { g('خدماتي'); it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/payslips', t: 'قسائم الراتب' }, { h: '#/reviews', t: 'تقييم الأداء' }, { h: '#/profile', t: 'ملفي' }); }
   if (!['accountant', 'storekeeper'].includes(S.role) || S.emp) it.push({ h: '#/approvals', t: 'الاعتمادات', pill: NAVC.approvals });
   if (isHR() || has('finance')) {
     g('الموارد البشرية');
     if (isHR()) it.push({ h: '#/employees', t: 'الموظفون' });
     it.push({ h: '#/payroll', t: 'مسير الرواتب' });
     if (isHR()) it.push({ h: '#/eos', t: 'مكافأة نهاية الخدمة' });
+    if (isHR() && !S.emp) it.push({ h: '#/reviews', t: 'تقييم الأداء' });
+    if (isHR()) it.push({ h: '#/recruit', t: 'التوظيف' }, { h: '#/training', t: 'التدريب' });
+    it.push({ h: '#/hrreports', t: 'تقارير الموارد البشرية' });
   }
   if (isFin()) {
     g('المالية');
@@ -411,16 +463,17 @@ function navItems() {
 function shell() {
   const staffAcct = /@staff\.waad\.app$/i.test((S.session.user || {}).email || '');
   const multi = S.companies.length > 1 || !staffAcct;
-  $('#app').innerHTML = `<div class="shell"><aside class="side" id="side">${BRAND}<nav class="nav" id="nav"></nav></aside>
+  $('#app').innerHTML = `<div class="shell"><aside class="side" id="side">${brand()}<nav class="nav" id="nav"></nav></aside>
     <div class="main"><header class="top"><button class="btn sm menu" id="mb" aria-label="القائمة">☰</button>
       <div class="cname"><b>${esc(S.company ? S.company.name : '')}</b> <span class="badge info">${esc(ROLES[S.role] || S.role)}</span></div><div class="sp"></div>
       ${multi ? `<select id="cs" style="width:auto;min-height:32px">${S.companies.map(c => opt(c.company_id, c.name, S.cid)).join('')}${staffAcct ? '' : '<option value="__new">+ منشأة جديدة</option>'}</select>` : ''}
-      <button class="btn sm" id="th" title="الوضع الليلي/النهاري">◐</button>
+      ${langBtn('btn sm')}<button class="btn sm" id="th" title="الوضع الليلي/النهاري">◐</button>
       <button class="btn sm" id="pw">كلمة المرور</button><button class="btn sm" id="lo">خروج</button></header>
       <main class="page" id="page"></main></div></div>`;
   drawNav();
   $('#mb').onclick = () => $('#side').classList.toggle('open');
   $('#th').onclick = toggleTheme;
+  $('#lg').onclick = () => setLang(LANG === 'en' ? 'ar' : 'en');
   $('#pw').onclick = () => changePasswordView(false);
   $('#lo').onclick = async () => { await authApi.signOut(); authView(); };
   if (multi) $('#cs').onchange = async e => { if (e.target.value === '__new') { e.target.value = S.cid; return onboardView(true); } S.cid = e.target.value; LS.set('waad.cid', S.cid); await loadContext(); shell(); location.hash = '#/home'; route(); };
@@ -616,6 +669,7 @@ VIEWS['#/profile'] = async page => {
     ${r('الراتب الأساسي', `<span class="num">${money(e.basic)}</span>`)}${r('بدل السكن', `<span class="num">${money(e.housing)}</span>`)}${r('بدل النقل', `<span class="num">${money(e.transport)}</span>`)}
     ${r('الجوال', `<span class="num">${esc(e.phone || '—')}</span>`)}${r('البريد الشخصي', `<span class="num">${esc(e.email || '—')}</span>`)}${r('الآيبان', `<span class="num">${esc(e.iban || '—')}</span>`)}</tbody></table></div>
     <div class="row" style="margin-top:12px"><button class="btn pri" id="upd">طلب تعديل بياناتي</button><span class="muted small">التعديل يمر على الموارد البشرية، ويُطبَّق تلقائياً بعد اعتماده.</span></div></div>`;
+  page.insertAdjacentHTML('beforeend', await myTrainingHtml());
   $('#upd', page).onclick = () => modal('طلب تعديل بيانات', `<p class="muted small">غيّر ما تريد تعديله فقط.</p><div class="fg">${field('الجوال', inp('phone', e.phone, 'dir="ltr" placeholder="05XXXXXXXX"'))}${field('البريد الشخصي', inp('email', e.email, 'dir="ltr" type="email"'))}${field('الآيبان', inp('iban', e.iban, 'dir="ltr" placeholder="SA…" maxlength="24"'), 'wide')}${field('ملاحظة للموارد البشرية', '<textarea name="note" rows="2"></textarea>', 'wide')}</div>`, {
     ok: 'إرسال الطلب', onOk: async f => {
       const p = {}; ['phone', 'email', 'iban'].forEach(k => { let v = f[k].trim(); if (k === 'iban') v = v.replace(/\s/g, '').toUpperCase(); if (v && v !== (e[k] || '')) p[k] = v; });
@@ -633,7 +687,7 @@ VIEWS['#/employees'] = async (page, arg, q) => {
   const showEnded = q.get('all') === '1';
   const rows = cache.emps.filter(e => showEnded || !e.end_date || e.end_date >= today());
   page.innerHTML = `<div class="head"><div><h1>الموظفون</h1><div class="muted">${rows.length} موظف</div></div><div class="row">
-     <a class="btn" href="#/employees${showEnded ? '' : '?all=1'}">${showEnded ? 'على رأس العمل فقط' : 'إظهار المنتهية خدماتهم'}</a><button class="btn" id="dep">الأقسام</button><button class="btn pri" id="ne">إضافة موظف</button></div></div>
+     <a class="btn" href="#/employees${showEnded ? '' : '?all=1'}">${showEnded ? 'على رأس العمل فقط' : 'إظهار المنتهية خدماتهم'}</a><button class="btn" id="dep">الأقسام</button><button class="btn" id="imx">استيراد من Excel</button><button class="btn pri" id="ne">إضافة موظف</button></div></div>
    ${tbl([{ t: 'الرقم', k: 'emp_no' }, { t: 'الاسم', k: 'full_name' }, { t: 'المسمى', k: 'job_title' }, { t: 'القسم', h: e => esc(dm[e.department_id] || '—') }, { t: 'المدير', h: e => esc(e.manager_id && em[e.manager_id] ? em[e.manager_id].full_name : '—') },
       { t: 'الإجمالي', r: 1, h: e => money(n0(e.basic) + n0(e.housing) + n0(e.transport)) },
       { t: 'الدخول', h: e => { const l = cache.logins[e.id]; return !l ? '<span class="badge">بدون حساب</span>' : l.by_number ? '<span class="badge info">بالرقم الوظيفي</span>' + (l.must_change_password ? ' <span class="badge wait">لم يغيّر كلمة المرور بعد</span>' : '') : '<span class="badge info">بالبريد</span>'; } }, { t: 'الحالة', h: e => e.end_date && e.end_date < today() ? '<span class="badge bad">منتهية</span>' : e.end_date ? '<span class="badge wait">آخر يوم ' + fdate(e.end_date) + '</span>' : e.probation_end && e.probation_end >= today() ? '<span class="badge info">تحت التجربة حتى ' + fdate(e.probation_end) + '</span>' : '<span class="badge ok">على رأس العمل</span>' }],
@@ -641,6 +695,7 @@ VIEWS['#/employees'] = async (page, arg, q) => {
   bindRows(page, rows, e => employeeForm(e));
   $('#ne', page).onclick = () => employeeForm(null);
   $('#dep', page).onclick = () => departmentsDlg();
+  $('#imx', page).onclick = () => importDialog();
 };
 function departmentsDlg() {
   const list = () => (cache.deps || []).map(d => `<li class="row" style="justify-content:space-between"><span>${esc(d.name)}</span><button type="button" class="btn sm danger" data-del="${d.id}">حذف</button></li>`).join('') || '<li class="muted">لا توجد أقسام</li>';
@@ -726,8 +781,8 @@ function credentialsBox(e, pw, warnConfirm) {
     <div class="tw"><table><tbody>${row('رمز المنشأة', S.company.code)}${row('الرقم الوظيفي', e.emp_no)}${row('كلمة المرور المؤقتة', pw)}</tbody></table></div>
     <p class="muted small">لن تظهر كلمة المرور مجدداً. أعطها للموظف الآن، ويمكنك إعادة تعيينها لاحقاً.</p>
     <div class="row" style="justify-content:center"><button type="button" class="btn pri" id="cpm">نسخ الرسالة</button>${navigator.share ? '<button type="button" class="btn" id="shm">مشاركة</button>' : ''}</div>`);
-  $('#cpm', d).onclick = async ev => { try { await navigator.clipboard.writeText(msg); ev.target.textContent = 'نُسخت ✓'; } catch (er) { toast('تعذر النسخ — انسخ البيانات من الجدول'); } };
-  if ($('#shm', d)) $('#shm', d).onclick = () => navigator.share({ text: msg }).catch(() => {});
+  $('#cpm', d).onclick = async ev => { try { await navigator.clipboard.writeText(tr(msg)); ev.target.textContent = 'نُسخت ✓'; } catch (er) { toast('تعذر النسخ — انسخ البيانات من الجدول'); } };
+  if ($('#shm', d)) $('#shm', d).onclick = () => navigator.share({ text: tr(msg) }).catch(() => {});
 }
 
 
@@ -852,8 +907,8 @@ function inviteBox(i) {
     <div class="row" style="justify-content:center"><button type="button" class="btn pri" id="cpc">نسخ الرمز</button><button type="button" class="btn" id="cpm">نسخ رسالة جاهزة</button>${navigator.share ? '<button type="button" class="btn" id="shm">مشاركة</button>' : ''}</div>`);
   const copy = async (t, b) => { try { await navigator.clipboard.writeText(t); b.textContent = 'نُسخ ✓'; } catch (e) { toast('انسخه يدوياً: ' + t); } };
   $('#cpc', d).onclick = e => copy(i.code, e.target);
-  $('#cpm', d).onclick = e => copy(msg, e.target);
-  if ($('#shm', d)) $('#shm', d).onclick = () => navigator.share({ text: msg }).catch(() => {});
+  $('#cpm', d).onclick = e => copy(tr(msg), e.target);
+  if ($('#shm', d)) $('#shm', d).onclick = () => navigator.share({ text: tr(msg) }).catch(() => {});
 }
 
 /* ===== company settings & finance permissions ===== */
@@ -870,6 +925,440 @@ VIEWS['#/settings'] = async page => {
     try { await busy($('#cb', page), async () => { await db.upd('companies', { id: 'eq.' + S.cid }, { name: f.name, vat_no: blank(f.vat_no), cr_no: blank(f.cr_no), address: blank(f.address) }); await loadContext(); shell(); toast('تم الحفظ'); route(); }); } catch (er) { showErr($('#cerr', page), er); } };
   $$('input[data-p]', page).forEach(c => c.onchange = async () => { try { await db.rpc('set_finance_permission', { p_company: S.cid, p_role: c.dataset.r, p_perm: c.dataset.p, p_allowed: c.checked }); toast('تم'); } catch (e) { c.checked = !c.checked; toast(e.message); } });
 };
+
+'use strict';
+/* ===== performance reviews ===== */
+const RATING = { 1: 'غير مرضٍ', 2: 'يحتاج إلى تحسين', 3: 'يلبي التوقعات', 4: 'يفوق التوقعات', 5: 'متميز' };
+const RV_STATUS = { draft: ['لم يُرسل', 'wait'], submitted: ['بانتظار اعتماد الموارد البشرية', 'info'], approved: ['معتمد', 'ok'] };
+const rvBadge = s => `<span class="badge ${RV_STATUS[s][1]}">${esc(RV_STATUS[s][0])}</span>`;
+const ratingTxt = o => o == null ? '—' : `<span class="num">${(+o).toFixed(2)}</span> ${esc(RATING[Math.min(5, Math.max(1, Math.round(+o)))])}`;
+
+VIEWS['#/reviews'] = async (page, arg) => {
+  if (arg) return reviewCycle(page, arg);
+  const hr = isHR();
+  const [cycles, revs, em] = await Promise.all([db.get('review_cycles', { company_id: 'eq.' + S.cid, order: 'period_end.desc' }), db.get('reviews', { company_id: 'eq.' + S.cid }), employeesMap().catch(() => ({}))]);
+  const cyc = {}; cycles.forEach(c => cyc[c.id] = c);
+  const mine = revs.filter(r => r.employee_id === S.emp && r.status === 'approved');
+  const team = revs.filter(r => S.emp && r.reviewer_id === S.emp && r.employee_id !== S.emp && cyc[r.cycle_id] && cyc[r.cycle_id].status === 'open');
+  const nm = id => esc((em[id] || {}).full_name || '—');
+  page.innerHTML = `<div class="head"><div><h1>تقييم الأداء</h1><div class="muted">أهداف بأوزان ودرجات من 1 إلى 5، يقيّم المدير المباشر وتعتمد الموارد البشرية ثم يطّلع الموظف</div></div>${hr ? '<button class="btn pri" id="nc">دورة تقييم جديدة</button>' : ''}</div>
+    ${team.length ? `<h2>تقييم فريقي</h2>${tbl([{ t: 'الموظف', h: r => nm(r.employee_id) }, { t: 'الدورة', h: r => esc(cyc[r.cycle_id].name) }, { t: 'الحالة', h: r => rvBadge(r.status) }, { t: 'النتيجة', h: r => ratingTxt(r.overall) }], team, { onRow: true })}<div style="height:18px"></div>` : ''}
+    ${S.emp ? `<h2>تقييماتي</h2>${tbl([{ t: 'الدورة', h: r => esc((cyc[r.cycle_id] || {}).name || '') }, { t: 'النتيجة', h: r => ratingTxt(r.overall) }, { t: 'الاطلاع', h: r => r.ack_at ? '<span class="badge ok">اطّلعت</span>' : '<span class="badge wait">بانتظار اطلاعك</span>' }], mine, { empty: 'لا توجد تقييمات معتمدة لك بعد', onRow: true })}<div style="height:18px"></div>` : ''}
+    ${hr ? `<h2>دورات التقييم</h2>${tbl([{ t: 'الدورة', k: 'name' }, { t: 'الفترة', h: c => fdate(c.period_start) + ' → ' + fdate(c.period_end) }, { t: 'الإنجاز', h: c => { const rs = revs.filter(r => r.cycle_id === c.id); return `<span class="num">${rs.filter(r => r.status === 'approved').length}/${rs.length}</span>`; } }, { t: 'الحالة', h: c => c.status === 'open' ? '<span class="badge info">مفتوحة</span>' : '<span class="badge">مغلقة</span>' }], cycles, { empty: 'لم تبدأ أي دورة تقييم', onRow: true })}` : ''}`;
+  const tbls = $$('.tw', page); let i = 0;
+  if (team.length) bindRows(tbls[i++], team, r => reviewForm(r, em, cyc[r.cycle_id]));
+  if (S.emp) bindRows(tbls[i++], mine, r => reviewView(r, em, cyc[r.cycle_id], { ack: !r.ack_at }));
+  if (hr) bindRows(tbls[i++], cycles, c => location.hash = '#/reviews/' + c.id);
+  if ($('#nc', page)) $('#nc', page).onclick = () => { const y = new Date().getFullYear();
+    modal('دورة تقييم جديدة', `<div class="fg">${field('اسم الدورة', inp('n', 'تقييم الأداء ' + y), 'wide')}${field('من', `<input type="date" name="s" value="${y}-01-01">`)}${field('إلى', `<input type="date" name="e" value="${y}-12-31">`)}</div><p class="muted small">يُنشأ تقييم لكل موظف على رأس العمل، ويكون المقيّم مديره المباشر. من ليس له مدير مباشر تقيّمه الموارد البشرية.</p>`, {
+      ok: 'بدء الدورة', onOk: async f => { const id = await db.rpc('start_review_cycle', { p_company: S.cid, p_name: f.n, p_start: f.s, p_end: f.e }); location.hash = '#/reviews/' + id; } }); };
+};
+async function reviewCycle(page, id) {
+  const [[c], revs, em] = await Promise.all([db.get('review_cycles', { id: 'eq.' + id }), db.get('reviews', { cycle_id: 'eq.' + id }), employeesMap()]);
+  if (!c) throw new Error('الدورة غير موجودة');
+  revs.sort((a, b) => String((em[a.employee_id] || {}).emp_no).localeCompare(String((em[b.employee_id] || {}).emp_no)));
+  const nm = i => esc((em[i] || {}).full_name || '—');
+  const dist = [1, 2, 3, 4, 5].map(k => revs.filter(r => r.status === 'approved' && Math.round(+r.overall) === k).length);
+  page.innerHTML = `<div class="head"><div><a href="#/reviews" class="small">← تقييم الأداء</a><h1>${esc(c.name)} ${c.status === 'open' ? '<span class="badge info">مفتوحة</span>' : '<span class="badge">مغلقة</span>'}</h1><div class="muted">${fdate(c.period_start)} → ${fdate(c.period_end)}</div></div>${c.status === 'open' ? '<button class="btn" id="cl">إغلاق الدورة</button>' : ''}</div>
+    <div class="grid" style="margin-bottom:16px">${[5, 4, 3, 2, 1].map(k => `<div class="card kpi"><div class="muted small">${esc(RATING[k])}</div><div class="v num">${dist[k - 1]}</div></div>`).join('')}</div>
+    ${tbl([{ t: 'الموظف', h: r => nm(r.employee_id) }, { t: 'المقيّم', h: r => r.reviewer_id ? nm(r.reviewer_id) : '<span class="muted">الموارد البشرية</span>' }, { t: 'الحالة', h: r => rvBadge(r.status) }, { t: 'النتيجة', h: r => ratingTxt(r.overall) }, { t: 'اطلاع الموظف', h: r => r.ack_at ? '<span class="badge ok">اطّلع</span>' : '—' }], revs, { onRow: true })}`;
+  bindRows(page, revs, r => r.status === 'submitted' ? reviewView(r, em, c, { decide: true }) : r.status === 'draft' && c.status === 'open' ? reviewForm(r, em, c) : reviewView(r, em, c));
+  if ($('#cl', page)) $('#cl', page).onclick = async () => { if (!await confirmBox('إغلاق الدورة', 'لن يمكن تعديل أي تقييم في هذه الدورة بعد الإغلاق.', 'إغلاق')) return; try { await db.rpc('close_review_cycle', { p_id: id }); route(); } catch (e) { toast(e.message); } };
+}
+function reviewForm(r, em, c) {
+  const goals = (r.goals && r.goals.length ? r.goals : [{ t: '', w: 100, s: null, c: '' }]).map(g => Object.assign({}, g));
+  const e = em[r.employee_id] || {};
+  const d = modal('تقييم ' + (e.full_name || ''), `<p class="muted small">${esc(c.name)} · ${esc(e.job_title || '')}${r.hr_comment ? ` — <span class="bad">ملاحظة الموارد البشرية: ${esc(r.hr_comment)}</span>` : ''}</p>
+    <div class="tw"><table><thead><tr><th>الهدف</th><th>الوزن %</th><th>الدرجة</th><th>تعليق</th><th></th></tr></thead><tbody id="gl"></tbody></table></div>
+    <div class="row" style="margin:8px 0 14px"><button type="button" class="btn sm" id="ga">+ هدف</button><span class="sp" style="flex:1"></span><span class="small">مجموع الأوزان: <b class="num" id="gw"></b>% · النتيجة: <b id="go"></b></span></div>
+    <div class="fg">${field('نقاط القوة', `<textarea name="st" rows="2">${esc(r.strengths || '')}</textarea>`, 'wide')}${field('مجالات التطوير', `<textarea name="im" rows="2">${esc(r.improvements || '')}</textarea>`, 'wide')}${field('تعليق المقيّم', `<textarea name="cm" rows="2">${esc(r.manager_comment || '')}</textarea>`, 'wide')}</div>
+    <p class="muted small">الدرجات: ${[1, 2, 3, 4, 5].map(k => k + ' ' + RATING[k]).join(' · ')}</p>`, {
+    wide: true, ok: 'إرسال للاعتماد', onOk: async f => { await save(f, true); toast('أُرسل التقييم للموارد البشرية'); route(); } });
+  const save = (f, submit) => db.rpc('save_review', { p_id: r.id, p_goals: goals.map(g => ({ t: g.t.trim(), w: +g.w || 0, s: g.s ? +g.s : null, c: (g.c || '').trim() || undefined })), p_strengths: f.st, p_improvements: f.im, p_comment: f.cm, p_submit: submit });
+  const draw = () => {
+    $('#gl', d).innerHTML = goals.map((g, i) => `<tr><td style="min-width:200px"><input data-i="${i}" data-k="t" value="${esc(g.t)}" placeholder="مثال: إنجاز المشروع في موعده"></td>
+      <td style="width:90px"><input data-i="${i}" data-k="w" type="number" min="0" max="100" value="${esc(g.w)}"></td>
+      <td style="width:150px"><select data-i="${i}" data-k="s"><option value="">—</option>${[1, 2, 3, 4, 5].map(k => opt(k, k + ' — ' + RATING[k], g.s)).join('')}</select></td>
+      <td style="min-width:160px"><input data-i="${i}" data-k="c" value="${esc(g.c || '')}"></td><td><button type="button" class="btn sm danger" data-rm="${i}" aria-label="حذف الهدف">×</button></td></tr>`).join('');
+    $$('[data-k]', d).forEach(x => x.oninput = x.onchange = () => { goals[+x.dataset.i][x.dataset.k] = x.value; sums(); });
+    $$('[data-rm]', d).forEach(b => b.onclick = () => { goals.splice(+b.dataset.rm, 1); draw(); });
+    sums();
+  };
+  const sums = () => { const w = goals.reduce((a, g) => a + n0(g.w), 0), ok = w === 100 && goals.every(g => g.s);
+    $('#gw', d).textContent = w; $('#gw', d).className = 'num ' + (w === 100 ? 'ok' : 'bad');
+    $('#go', d).innerHTML = ok ? ratingTxt(goals.reduce((a, g) => a + n0(g.w) * n0(g.s), 0) / 100) : '—'; };
+  $('#ga', d).onclick = () => { if (goals.length < 10) { goals.push({ t: '', w: 0, s: null, c: '' }); draw(); } };
+  draw();
+  const sv = document.createElement('button'); sv.type = 'button'; sv.className = 'btn'; sv.textContent = 'حفظ كمسودة';
+  $('.df', d).insertBefore(sv, $('#mok', d));
+  sv.onclick = async () => { try { await busy(sv, () => save(formData($('#mform', d)), false)); d.close(); toast('حُفظت المسودة'); route(); } catch (er) { showErr($('#merr', d), er); } };
+}
+function reviewView(r, em, c, { decide, ack } = {}) {
+  const e = em[r.employee_id] || S.myEmp || {};
+  const body = `<p><b>${esc(e.full_name || '')}</b> <span class="muted">${esc(c ? c.name : '')}</span> ${rvBadge(r.status)}</p>
+    <div class="tw"><table><thead><tr><th>الهدف</th><th class="r">الوزن</th><th class="r">الدرجة</th><th>تعليق</th></tr></thead><tbody>${(r.goals || []).map(g => `<tr><td>${esc(g.t)}</td><td class="r num">${esc(g.w)}%</td><td class="r num">${g.s ? esc(g.s) : '—'}</td><td>${esc(g.c || '')}</td></tr>`).join('')}</tbody>
+    <tfoot><tr><td>النتيجة</td><td></td><td class="r" colspan="2">${ratingTxt(r.overall)}</td></tr></tfoot></table></div>
+    ${r.strengths ? `<p><b>نقاط القوة:</b> ${esc(r.strengths)}</p>` : ''}${r.improvements ? `<p><b>مجالات التطوير:</b> ${esc(r.improvements)}</p>` : ''}${r.manager_comment ? `<p><b>تعليق المقيّم:</b> ${esc(r.manager_comment)}</p>` : ''}
+    ${r.hr_comment ? `<p><b>ملاحظة الموارد البشرية:</b> ${esc(r.hr_comment)}</p>` : ''}${r.ack_at ? `<p class="muted small">اطّلع الموظف في ${fdate(r.ack_at)}${r.employee_comment ? ': ' + esc(r.employee_comment) : ''}</p>` : ''}
+    ${decide ? field('ملاحظة (إلزامية عند الإعادة)', '<textarea name="note" rows="2"></textarea>') : ''}${ack ? field('تعليقك (اختياري)', '<textarea name="note" rows="2"></textarea>') : ''}`;
+  const d = modal('تقييم الأداء', body, decide ? { ok: 'اعتماد', onOk: async f => { await db.rpc('decide_review', { p_id: r.id, p_approve: true, p_comment: blank(f.note) }); toast('اعتُمد التقييم'); route(); } }
+    : ack ? { ok: 'اطّلعت على التقييم', onOk: async f => { await db.rpc('acknowledge_review', { p_id: r.id, p_comment: blank(f.note) }); toast('شكراً، سُجّل اطلاعك'); route(); } } : {});
+  if (decide) {
+    const rb = document.createElement('button'); rb.type = 'button'; rb.className = 'btn danger'; rb.textContent = 'إعادة للمقيّم';
+    $('.df', d).insertBefore(rb, $('#mok', d));
+    rb.onclick = async () => { try { await busy(rb, () => db.rpc('decide_review', { p_id: r.id, p_approve: false, p_comment: $('#mform', d).note.value })); d.close(); toast('أُعيد التقييم للمقيّم'); route(); } catch (er) { showErr($('#merr', d), er); } };
+  }
+}
+
+/* ===== recruitment ===== */
+const STAGES = { applied: 'تقدّم', screening: 'فرز أولي', interview: 'مقابلة', offer: 'عرض وظيفي', hired: 'تم التعيين', rejected: 'مرفوض' };
+const STAGE_CLS = { applied: '', screening: 'info', interview: 'info', offer: 'wait', hired: 'ok', rejected: 'bad' };
+const OPEN_ST = { open: ['مفتوحة', 'ok'], onhold: ['معلّقة', 'wait'], closed: ['مغلقة', ''] };
+const stBadge = s => `<span class="badge ${STAGE_CLS[s]}">${esc(STAGES[s])}</span>`;
+VIEWS['#/recruit'] = async (page, arg) => {
+  if (!isHR()) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
+  if (arg) return opening(page, arg);
+  const [ops, cands, deps] = await Promise.all([db.get('job_openings', { company_id: 'eq.' + S.cid, order: 'created_at.desc' }), db.get('candidates', { company_id: 'eq.' + S.cid, select: 'opening_id,stage' }), db.get('departments', { company_id: 'eq.' + S.cid, order: 'name' })]);
+  const dm = {}; deps.forEach(d => dm[d.id] = d.name);
+  const cnt = (o, f) => cands.filter(c => c.opening_id === o.id && f(c)).length;
+  page.innerHTML = `<div class="head"><div><h1>التوظيف</h1><div class="muted">الوظائف الشاغرة والمرشحون حتى التعيين</div></div><button class="btn pri" id="no">وظيفة شاغرة جديدة</button></div>
+    ${tbl([{ t: 'الوظيفة', k: 'title' }, { t: 'القسم', h: o => esc(dm[o.department_id] || '—') }, { t: 'العدد', r: 1, h: o => o.positions }, { t: 'المرشحون', r: 1, h: o => cnt(o, () => true) }, { t: 'في المقابلات', r: 1, h: o => cnt(o, c => c.stage === 'interview') }, { t: 'عُيّن', r: 1, h: o => cnt(o, c => c.stage === 'hired') }, { t: 'الحالة', h: o => `<span class="badge ${OPEN_ST[o.status][1]}">${esc(OPEN_ST[o.status][0])}</span>` }], ops, { empty: 'لا توجد وظائف شاغرة', onRow: true })}`;
+  bindRows(page, ops, o => location.hash = '#/recruit/' + o.id);
+  $('#no', page).onclick = () => openingForm(null, deps);
+};
+function openingForm(o, deps) {
+  const v = o || { positions: 1, status: 'open' };
+  modal(o ? 'تعديل الوظيفة' : 'وظيفة شاغرة جديدة', `<div class="fg">${field('المسمى الوظيفي', inp('title', v.title, 'required'))}${field('القسم', `<select name="dep"><option value="">—</option>${deps.map(d => opt(d.id, d.name, v.department_id)).join('')}</select>`)}
+    ${field('عدد الشواغر', inp('pos', v.positions, 'type="number" min="1" max="100"'))}${field('الحالة', `<select name="st">${Object.entries(OPEN_ST).map(([k, [t]]) => opt(k, t, v.status)).join('')}</select>`)}
+    ${field('الوصف والمتطلبات', `<textarea name="desc" rows="4">${esc(v.description || '')}</textarea>`, 'wide')}</div>`, {
+    onOk: async f => { if (f.title.length < 2) throw new Error('أدخل المسمى الوظيفي');
+      const row = { title: f.title, department_id: blank(f.dep), positions: +f.pos || 1, status: f.st, description: blank(f.desc) };
+      if (o) await db.upd('job_openings', { id: 'eq.' + o.id }, row); else { const [x] = await db.ins('job_openings', Object.assign(row, { company_id: S.cid })); location.hash = '#/recruit/' + x.id; return; }
+      route(); } });
+}
+async function opening(page, id) {
+  const [[o], cands, deps] = await Promise.all([db.get('job_openings', { id: 'eq.' + id }), db.get('candidates', { opening_id: 'eq.' + id, order: 'created_at' }), db.get('departments', { company_id: 'eq.' + S.cid, order: 'name' })]);
+  if (!o) throw new Error('الوظيفة غير موجودة');
+  const by = s => cands.filter(c => c.stage === s).length;
+  page.innerHTML = `<div class="head"><div><a href="#/recruit" class="small">← التوظيف</a><h1>${esc(o.title)} <span class="badge ${OPEN_ST[o.status][1]}">${esc(OPEN_ST[o.status][0])}</span></h1><div class="muted">${o.positions} شاغر · ${by('hired')} عُيّن</div></div>
+    <div class="row"><button class="btn" id="eo">تعديل الوظيفة</button><button class="btn pri" id="nc">إضافة مرشح</button></div></div>
+    ${o.description ? `<div class="card" style="white-space:pre-wrap">${esc(o.description)}</div>` : ''}
+    <div class="grid" style="margin-bottom:16px">${Object.keys(STAGES).map(s => `<div class="card kpi"><div class="muted small">${esc(STAGES[s])}</div><div class="v num">${by(s)}</div></div>`).join('')}</div>
+    ${tbl([{ t: 'المرشح', k: 'full_name' }, { t: 'الجوال', h: c => `<span class="num">${esc(c.phone || '—')}</span>` }, { t: 'الجنسية', h: c => c.is_saudi ? 'سعودي' : 'غير سعودي' }, { t: 'الراتب المتوقع', r: 1, h: c => money(c.expected_salary) }, { t: 'التقييم', h: c => c.rating ? '★'.repeat(c.rating) : '—' }, { t: 'المقابلة', h: c => c.interview_at ? `<span class="num">${esc(String(c.interview_at).slice(0, 16).replace('T', ' '))}</span>` : '—' }, { t: 'المرحلة', h: c => stBadge(c.stage) }], cands, { empty: 'لا يوجد مرشحون بعد', onRow: true })}`;
+  bindRows(page, cands, c => candidateForm(c, o, deps));
+  $('#nc', page).onclick = () => candidateForm(null, o, deps);
+  $('#eo', page).onclick = () => openingForm(o, deps);
+}
+function candidateForm(c, o, deps) {
+  const v = c || { is_saudi: true, gender: 'm', stage: 'applied' };
+  const locked = v.stage === 'hired';
+  const stages = Object.entries(STAGES).filter(([k]) => k !== 'hired' || locked);
+  const local = v.interview_at ? new Date(new Date(v.interview_at).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '';
+  const d = modal(c ? 'المرشح: ' + c.full_name : 'مرشح جديد — ' + o.title, `<div class="fg">
+    ${field('الاسم الكامل', inp('full_name', v.full_name, 'required'))}${field('الجوال', inp('phone', v.phone, 'dir="ltr" placeholder="05XXXXXXXX"'))}${field('البريد', inp('email', v.email, 'dir="ltr" type="email"'))}
+    ${field('رقم الهوية/الإقامة', inp('national_id', v.national_id, 'dir="ltr" inputmode="numeric" maxlength="10"'))}
+    ${field('الجنسية', `<select name="is_saudi">${opt('true', 'سعودي', String(v.is_saudi))}${opt('false', 'غير سعودي', String(v.is_saudi))}</select>`)}
+    ${field('الجنس', `<select name="gender">${opt('m', 'ذكر', v.gender)}${opt('f', 'أنثى', v.gender)}</select>`)}
+    ${field('الراتب المتوقع', inp('sal', v.expected_salary, 'type="number" step="0.01" min="0"'))}
+    ${field('المرحلة', `<select name="stage" ${locked ? 'disabled' : ''}>${stages.map(([k, t]) => opt(k, t, v.stage)).join('')}</select>`)}
+    ${field('موعد المقابلة', `<input type="datetime-local" name="iv" value="${local}">`)}
+    ${field('تقييم المقابلة', `<select name="rating"><option value="">—</option>${[1, 2, 3, 4, 5].map(k => opt(k, '★'.repeat(k), v.rating)).join('')}</select>`)}
+    ${field('ملاحظات', `<textarea name="notes" rows="3">${esc(v.notes || '')}</textarea>`, 'wide')}
+    ${c && !['hired', 'rejected'].includes(c.stage) ? '<div class="wide"><button type="button" class="btn pri" id="hire">تعيين وإنشاء سجل موظف</button></div>' : ''}
+    ${locked ? '<div class="wide note">عُيّن هذا المرشح وأُنشئ سجله في «الموظفون».</div>' : ''}</div>`, {
+    wide: true, onOk: async f => {
+      if (f.full_name.length < 3) throw new Error('أدخل الاسم الكامل');
+      if (f.national_id && !/^[12]\d{9}$/.test(f.national_id)) throw new Error('رقم الهوية/الإقامة 10 أرقام يبدأ بـ 1 أو 2');
+      const row = { full_name: f.full_name, phone: blank(f.phone), email: blank(f.email), national_id: blank(f.national_id), is_saudi: f.is_saudi === 'true', gender: f.gender, expected_salary: f.sal === '' ? null : +f.sal, interview_at: f.iv ? new Date(f.iv).toISOString() : null, rating: f.rating ? +f.rating : null, notes: blank(f.notes) };
+      if (!locked) row.stage = f.stage;
+      if (c) await db.upd('candidates', { id: 'eq.' + c.id }, row); else await db.ins('candidates', Object.assign(row, { company_id: S.cid, opening_id: o.id }));
+      toast('تم الحفظ'); route();
+    } });
+  if ($('#hire', d)) $('#hire', d).onclick = () => hireForm(c, o, deps);
+}
+async function hireForm(c, o, deps) {
+  const em = await employeesMap(true);
+  const nums = Object.values(em).map(e => +e.emp_no).filter(n => n > 0);
+  const next = String(nums.length ? Math.max(...nums) + 1 : 1000);
+  const basic = c.expected_salary ? r2(c.expected_salary / 1.35) : '';
+  modal('تعيين ' + c.full_name, `<div class="fg">${field('الرقم الوظيفي', inp('emp_no', next, 'dir="ltr" required'))}${field('المسمى الوظيفي', inp('job_title', o.title))}
+    ${field('القسم', `<select name="dep"><option value="">—</option>${deps.map(d => opt(d.id, d.name, o.department_id)).join('')}</select>`)}
+    ${field('المدير المباشر', `<select name="mgr"><option value="">—</option>${Object.values(em).filter(e => !e.end_date).map(e => opt(e.id, e.full_name + ' (' + e.emp_no + ')')).join('')}</select>`)}
+    ${field('تاريخ المباشرة', `<input type="date" name="hd" value="${today()}">`)}${field('نهاية فترة التجربة (حد أقصى 180 يوماً — م53)', '<input type="date" name="pe">')}
+    ${field('الراتب الأساسي', inp('basic', basic, 'type="number" step="0.01" min="0" required'))}${field('بدل السكن', inp('housing', basic ? r2(basic * 0.25) : '', 'type="number" step="0.01" min="0"'))}${field('بدل النقل', inp('transport', basic ? r2(basic * 0.10) : '', 'type="number" step="0.01" min="0"'))}</div>
+    <p class="muted small">يُنشأ سجل الموظف ببيانات المرشح (الاسم والهوية والجوال والبريد). إذا اكتمل عدد الشواغر تُغلق الوظيفة تلقائياً.</p>`, {
+    wide: true, ok: 'تعيين', onOk: async f => {
+      if (f.basic === '' || !(+f.basic >= 0)) throw new Error('أدخل الراتب الأساسي');
+      if (f.pe && (new Date(f.pe) - new Date(f.hd)) / 864e5 > 179) throw new Error('فترة التجربة لا تزيد على 180 يوماً — م53');
+      await db.rpc('hire_candidate', { p_cand: c.id, p_emp: { emp_no: f.emp_no, job_title: f.job_title, department_id: f.dep, manager_id: f.mgr, hire_date: f.hd, probation_end: f.pe, basic: +f.basic, housing: +f.housing || 0, transport: +f.transport || 0 } });
+      cache.emps = null; toast('عُيّن المرشح وأُنشئ سجل الموظف'); route();
+    } });
+}
+
+/* ===== training ===== */
+const TA_ST = { enrolled: ['مسجّل', 'info'], completed: ['أكمل', 'ok'], no_show: ['لم يحضر', 'bad'] };
+VIEWS['#/training'] = async (page, arg) => {
+  if (!isHR()) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
+  if (arg) return training(page, arg);
+  const [trs, att] = await Promise.all([db.get('trainings', { company_id: 'eq.' + S.cid, order: 'start_date.desc' }), db.get('training_attendees', { company_id: 'eq.' + S.cid, select: 'training_id,status,cert_expiry' })]);
+  const y = today().slice(0, 4), thisYear = trs.filter(t => String(t.start_date).startsWith(y));
+  const soon = att.filter(a => a.cert_expiry && a.cert_expiry >= today() && a.cert_expiry <= addDays(today(), 60)).length;
+  page.innerHTML = `<div class="head"><div><h1>التدريب</h1><div class="muted">الدورات والحضور والشهادات</div></div><button class="btn pri" id="nt">دورة جديدة</button></div>
+    <div class="grid" style="margin-bottom:16px"><div class="card kpi"><div class="muted small">دورات ${y}</div><div class="v num">${thisYear.length}</div></div>
+      <div class="card kpi"><div class="muted small">ساعات التدريب ${y}</div><div class="v num">${thisYear.reduce((a, t) => a + n0(t.hours) * att.filter(x => x.training_id === t.id && x.status === 'completed').length, 0)}</div></div>
+      <div class="card kpi"><div class="muted small">تكلفة التدريب ${y}</div><div class="v num">${money(thisYear.reduce((a, t) => a + n0(t.cost), 0))}</div></div>
+      <div class="card kpi"><div class="muted small">شهادات تنتهي خلال 60 يوماً</div><div class="v num ${soon ? 'bad' : ''}">${soon}</div></div></div>
+    ${tbl([{ t: 'الدورة', k: 'title' }, { t: 'الجهة', h: t => esc(t.provider || '—') }, { t: 'التاريخ', h: t => fdate(t.start_date) + (t.end_date && t.end_date !== t.start_date ? ' → ' + fdate(t.end_date) : '') }, { t: 'الساعات', r: 1, h: t => t.hours == null ? '—' : t.hours }, { t: 'التكلفة', r: 1, h: t => money(t.cost) }, { t: 'المتدربون', r: 1, h: t => att.filter(a => a.training_id === t.id).length }], trs, { empty: 'لا توجد دورات بعد', onRow: true })}`;
+  bindRows(page, trs, t => location.hash = '#/training/' + t.id);
+  $('#nt', page).onclick = () => trainingForm(null);
+};
+const addDays = (d, n) => new Date(new Date(d).getTime() + n * 864e5).toISOString().slice(0, 10);
+function trainingForm(t) {
+  const v = t || { start_date: today(), cost: 0 };
+  modal(t ? 'تعديل الدورة' : 'دورة تدريبية جديدة', `<div class="fg">${field('عنوان الدورة', inp('title', v.title, 'required'), 'wide')}${field('الجهة المقدمة', inp('provider', v.provider))}${field('المكان', inp('location', v.location))}
+    ${field('من', `<input type="date" name="sd" value="${esc(v.start_date)}">`)}${field('إلى', `<input type="date" name="ed" value="${esc(v.end_date || '')}">`)}
+    ${field('عدد الساعات', inp('hours', v.hours, 'type="number" step="0.5" min="0"'))}${field('التكلفة', inp('cost', v.cost, 'type="number" step="0.01" min="0"'))}
+    ${field('ملاحظات', `<textarea name="notes" rows="2">${esc(v.notes || '')}</textarea>`, 'wide')}</div>`, {
+    onOk: async f => { if (f.title.length < 3) throw new Error('أدخل عنوان الدورة'); if (!f.sd) throw new Error('أدخل تاريخ البداية');
+      const row = { title: f.title, provider: blank(f.provider), location: blank(f.location), start_date: f.sd, end_date: blank(f.ed), hours: f.hours === '' ? null : +f.hours, cost: +f.cost || 0, notes: blank(f.notes) };
+      if (t) await db.upd('trainings', { id: 'eq.' + t.id }, row); else { const [x] = await db.ins('trainings', Object.assign(row, { company_id: S.cid })); location.hash = '#/training/' + x.id; return; }
+      route(); } });
+}
+async function training(page, id) {
+  const [[t], att, em] = await Promise.all([db.get('trainings', { id: 'eq.' + id }), db.get('training_attendees', { training_id: 'eq.' + id }), employeesMap(true)]);
+  if (!t) throw new Error('الدورة غير موجودة');
+  const inIt = new Set(att.map(a => a.employee_id));
+  att.sort((a, b) => String((em[a.employee_id] || {}).emp_no).localeCompare(String((em[b.employee_id] || {}).emp_no)));
+  page.innerHTML = `<div class="head"><div><a href="#/training" class="small">← التدريب</a><h1>${esc(t.title)}</h1><div class="muted">${esc(t.provider || '')} · ${fdate(t.start_date)}${t.end_date ? ' → ' + fdate(t.end_date) : ''} · ${t.hours == null ? '' : t.hours + ' ساعة · '}<span class="num">${money(t.cost)}</span></div></div>
+    <div class="row"><button class="btn" id="et">تعديل الدورة</button><button class="btn pri" id="ad">إضافة متدربين</button></div></div>
+    ${tbl([{ t: 'الموظف', h: a => esc((em[a.employee_id] || {}).full_name || '') }, { t: 'الحالة', h: a => `<span class="badge ${TA_ST[a.status][1]}">${esc(TA_ST[a.status][0])}</span>` }, { t: 'رقم الشهادة', h: a => `<span class="num">${esc(a.certificate_no || '—')}</span>` }, { t: 'انتهاء الشهادة', h: a => a.cert_expiry ? (a.cert_expiry < today() ? `<span class="badge bad">${fdate(a.cert_expiry)}</span>` : fdate(a.cert_expiry)) : '—' }], att, { empty: 'لم يُسجَّل متدربون', onRow: true })}`;
+  bindRows(page, att, a => { const e = em[a.employee_id] || {};
+    const d = modal(e.full_name || '', `<div class="fg">${field('الحالة', `<select name="st">${Object.entries(TA_ST).map(([k, [x]]) => opt(k, x, a.status)).join('')}</select>`)}${field('رقم الشهادة', inp('cn', a.certificate_no, 'dir="ltr"'))}${field('تاريخ انتهاء الشهادة', `<input type="date" name="ce" value="${esc(a.cert_expiry || '')}">`)}</div>
+      <button type="button" class="btn sm danger" id="rm" style="margin-top:12px">إزالة من الدورة</button>`, {
+      onOk: async f => { await db.upd('training_attendees', { training_id: 'eq.' + id, employee_id: 'eq.' + a.employee_id }, { status: f.st, certificate_no: blank(f.cn), cert_expiry: blank(f.ce) }); route(); } });
+    $('#rm', d).onclick = async () => { try { await db.del('training_attendees', { training_id: 'eq.' + id, employee_id: 'eq.' + a.employee_id }); d.close(); route(); } catch (er) { showErr($('#merr', d), er); } }; });
+  $('#et', page).onclick = () => trainingForm(t);
+  $('#ad', page).onclick = () => { const free = Object.values(em).filter(e => !inIt.has(e.id) && (!e.end_date || e.end_date >= today()));
+    modal('إضافة متدربين', free.length ? `<p class="muted small">اختر الموظفين:</p><div style="columns:2;column-gap:16px">${free.map(e => `<label style="display:flex;gap:8px;align-items:center;color:var(--ink);font-size:14px"><input type="checkbox" name="e_${e.id}"> ${esc(e.full_name)}</label>`).join('')}</div>` : '<p class="muted">كل الموظفين مسجّلون في الدورة.</p>', {
+      ok: 'إضافة', onOk: async f => { const ids = Object.keys(f).filter(k => k.startsWith('e_') && f[k]).map(k => k.slice(2)); if (!ids.length) throw new Error('اختر موظفاً واحداً على الأقل');
+        await db.ins('training_attendees', ids.map(eid => ({ training_id: id, employee_id: eid, company_id: S.cid }))); route(); } }); };
+}
+
+/* ===== HR reports ===== */
+VIEWS['#/hrreports'] = async page => {
+  if (!isHR() && !has('finance')) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
+  const y = today().slice(0, 4), yAgo = addDays(today(), -365), in60 = addDays(today(), 60);
+  const [em, deps, reqs, lt, att, trs, cycles, revs] = await Promise.all([employeesMap(true), db.get('departments', { company_id: 'eq.' + S.cid, order: 'name' }),
+    db.get('requests', { company_id: 'eq.' + S.cid, kind: 'eq.leave', status: 'eq.approved', from_date: 'gte.' + y + '-01-01', select: 'sub,days,employee_id' }), LEAVE_TYPES(),
+    isHR() ? db.get('training_attendees', { company_id: 'eq.' + S.cid }) : [], isHR() ? db.get('trainings', { company_id: 'eq.' + S.cid }) : [],
+    isHR() ? db.get('review_cycles', { company_id: 'eq.' + S.cid, order: 'period_end.desc' }) : [], isHR() ? db.get('reviews', { company_id: 'eq.' + S.cid, status: 'eq.approved' }) : []]);
+  const all = Object.values(em), act = all.filter(e => !e.end_date || e.end_date >= today());
+  const gross = e => n0(e.basic) + n0(e.housing) + n0(e.transport);
+  const pct = (a, b) => b ? Math.round(a / b * 1000) / 10 + '%' : '—';
+  const hires = all.filter(e => e.hire_date >= yAgo && e.hire_date <= today()).length;
+  const leavers = all.filter(e => e.end_date && e.end_date >= yAgo && e.end_date < today()).length;
+  const startHc = all.filter(e => e.hire_date < yAgo && (!e.end_date || e.end_date >= yAgo)).length;
+  const avgHc = (startHc + act.length) / 2;
+  const svc = act.length ? act.reduce((a, e) => a + (new Date(today()) - new Date(e.hire_date)) / 864e5 / 365, 0) / act.length : 0;
+  const saudi = act.filter(e => e.is_saudi).length, women = act.filter(e => e.gender === 'f').length;
+  const dm = {}; deps.forEach(d => dm[d.id] = d.name);
+  const groups = [...deps.map(d => ({ n: d.name, l: act.filter(e => e.department_id === d.id) })), { n: 'بدون قسم', l: act.filter(e => !e.department_id || !dm[e.department_id]) }].filter(g => g.l.length);
+  const ltn = {}; lt.forEach(l => ltn[l.code] = l.name_ar);
+  const leaveBy = {}; reqs.forEach(r => leaveBy[r.sub] = (leaveBy[r.sub] || 0) + n0(r.days));
+  const alerts = [
+    ...act.filter(e => e.probation_end && e.probation_end >= today() && e.probation_end <= in60).map(e => ({ d: e.probation_end, t: 'نهاية فترة التجربة', n: e.full_name })),
+    ...att.filter(a => a.cert_expiry && a.cert_expiry <= in60 && em[a.employee_id] && (!em[a.employee_id].end_date || em[a.employee_id].end_date >= today())).map(a => ({ d: a.cert_expiry, t: (a.cert_expiry < today() ? 'شهادة منتهية: ' : 'انتهاء شهادة: ') + ((trs.find(t => t.id === a.training_id) || {}).title || ''), n: em[a.employee_id].full_name })),
+    ...all.filter(e => e.end_date && e.end_date >= today() && e.end_date <= in60).map(e => ({ d: e.end_date, t: 'آخر يوم عمل', n: e.full_name }))].sort((a, b) => a.d < b.d ? -1 : 1);
+  const lastCyc = cycles.find(c => revs.some(r => r.cycle_id === c.id));
+  const dist = lastCyc ? [5, 4, 3, 2, 1].map(k => ({ k, n: revs.filter(r => r.cycle_id === lastCyc.id && Math.round(+r.overall) === k).length })) : [];
+  const kpi = (t, v, s = '') => `<div class="card kpi"><div class="muted small">${esc(t)}</div><div class="v num">${v}</div>${s ? `<div class="muted small">${s}</div>` : ''}</div>`;
+  const tHrs = trs.filter(t => String(t.start_date).startsWith(y)).reduce((a, t) => a + n0(t.hours) * att.filter(x => x.training_id === t.id && x.status === 'completed').length, 0);
+  page.innerHTML = `<div class="head"><div><h1>تقارير الموارد البشرية</h1><div class="muted">حتى ${today()}</div></div><div class="row"><button class="btn" id="xd">تصدير الأقسام CSV</button><button class="btn" id="xe">تصدير الموظفين CSV</button></div></div>
+    <div class="grid" style="margin-bottom:16px">${kpi('الموظفون على رأس العمل', act.length)}${kpi('نسبة السعوديين', pct(saudi, act.length), saudi + ' سعودي · ' + (act.length - saudi) + ' غير سعودي')}${kpi('نسبة النساء', pct(women, act.length))}
+      ${kpi('متوسط مدة الخدمة', svc.toFixed(1), 'سنة')}${kpi('التعيينات (12 شهراً)', hires)}${kpi('المغادرون (12 شهراً)', leavers)}${kpi('معدل الدوران', pct(leavers, avgHc), 'المغادرون ÷ متوسط العدد')}
+      ${kpi('الرواتب الشهرية', money(act.reduce((a, e) => a + gross(e), 0)), 'إجمالي الأساسي والبدلات')}${isHR() ? kpi('ساعات التدريب ' + y, tHrs) : ''}</div>
+    <div class="card"><h2>حسب القسم</h2>${tbl([{ t: 'القسم', k: 'n' }, { t: 'العدد', r: 1, h: g => g.l.length }, { t: 'سعودي', r: 1, h: g => g.l.filter(e => e.is_saudi).length }, { t: 'غير سعودي', r: 1, h: g => g.l.filter(e => !e.is_saudi).length }, { t: 'نسبة التوطين', r: 1, h: g => pct(g.l.filter(e => e.is_saudi).length, g.l.length) }, { t: 'الرواتب الشهرية', r: 1, h: g => money(g.l.reduce((a, e) => a + gross(e), 0)) }, { t: 'متوسط الراتب', r: 1, h: g => money(g.l.reduce((a, e) => a + gross(e), 0) / g.l.length) }], groups, { empty: 'لا يوجد موظفون' })}</div>
+    <div class="card"><h2>الإجازات المعتمدة في ${y}</h2>${tbl([{ t: 'النوع', h: k => esc(ltn[k] || k) }, { t: 'الأيام', r: 1, h: k => leaveBy[k] }], Object.keys(leaveBy), { empty: 'لا توجد إجازات معتمدة هذه السنة' })}</div>
+    <div class="card"><h2>تنبيهات خلال 60 يوماً</h2>${tbl([{ t: 'التاريخ', h: a => fdate(a.d) }, { t: 'التنبيه', h: a => esc(a.t) }, { t: 'الموظف', h: a => esc(a.n) }], alerts, { empty: 'لا توجد تنبيهات' })}</div>
+    ${lastCyc ? `<div class="card"><h2>توزيع نتائج ${esc(lastCyc.name)}</h2>${tbl([{ t: 'التقدير', h: x => x.k + ' — ' + esc(RATING[x.k]) }, { t: 'العدد', r: 1, h: x => x.n }, { t: 'النسبة', r: 1, h: x => pct(x.n, dist.reduce((a, z) => a + z.n, 0)) }], dist)}</div>` : ''}`;
+  const dl = (name, rows) => { const csv = '﻿' + rows.map(r => r.map(tr)).map(r => r.map(v => /[",\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : v).join(',')).join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = name; a.click(); };
+  $('#xd', page).onclick = () => dl('departments-' + today() + '.csv', [['القسم', 'العدد', 'سعودي', 'غير سعودي', 'الرواتب الشهرية'], ...groups.map(g => [g.n, g.l.length, g.l.filter(e => e.is_saudi).length, g.l.filter(e => !e.is_saudi).length, r2(g.l.reduce((a, e) => a + gross(e), 0))])]);
+  $('#xe', page).onclick = () => dl('employees-' + today() + '.csv', [EXPORT_COLS.map(c => c[1]), ...act.map(e => EXPORT_COLS.map(c => c[2](e, em, dm)))]);
+};
+const EXPORT_COLS = [['emp_no', 'الرقم الوظيفي', e => e.emp_no], ['full_name', 'الاسم الكامل', e => e.full_name], ['national_id', 'رقم الهوية/الإقامة', e => e.national_id || ''], ['is_saudi', 'الجنسية', e => e.is_saudi ? 'سعودي' : 'غير سعودي'], ['gender', 'الجنس', e => e.gender === 'f' ? 'أنثى' : 'ذكر'],
+  ['job_title', 'المسمى الوظيفي', e => e.job_title || ''], ['department', 'القسم', (e, em, dm) => dm[e.department_id] || ''], ['manager', 'الرقم الوظيفي للمدير', (e, em) => e.manager_id && em[e.manager_id] ? em[e.manager_id].emp_no : ''], ['hire_date', 'تاريخ المباشرة', e => e.hire_date],
+  ['probation_end', 'نهاية فترة التجربة', e => e.probation_end || ''], ['basic', 'الراتب الأساسي', e => e.basic], ['housing', 'بدل السكن', e => e.housing], ['transport', 'بدل النقل', e => e.transport], ['iban', 'الآيبان', e => e.iban || ''], ['phone', 'الجوال', e => e.phone || ''], ['email', 'البريد', e => e.email || '']];
+
+/* ===== employee import from Excel (.xlsx) or CSV — no external library ===== */
+const IMPORT_COLS = [
+  ['emp_no', 'الرقم الوظيفي', 'employee number|emp no|emp_no|رقم الموظف', true],
+  ['full_name', 'الاسم الكامل', 'full name|name|الاسم|اسم الموظف', true],
+  ['national_id', 'رقم الهوية/الإقامة', 'national id|id|iqama|الهوية|رقم الهوية|رقم الإقامة|national_id'],
+  ['is_saudi', 'الجنسية (سعودي/غير سعودي)', 'nationality|saudi|is_saudi|الجنسية'],
+  ['gender', 'الجنس (ذكر/أنثى)', 'gender|الجنس'],
+  ['job_title', 'المسمى الوظيفي', 'job title|title|job_title|الوظيفة'],
+  ['department', 'القسم', 'department|dept|الإدارة'],
+  ['manager_emp_no', 'الرقم الوظيفي للمدير', 'manager|manager number|manager_emp_no|المدير المباشر|رقم المدير'],
+  ['hire_date', 'تاريخ المباشرة (YYYY-MM-DD)', 'hire date|start date|hire_date|تاريخ التعيين|تاريخ المباشرة', true],
+  ['probation_end', 'نهاية فترة التجربة', 'probation end|probation_end|نهاية التجربة'],
+  ['basic', 'الراتب الأساسي', 'basic|basic salary|الأساسي', true],
+  ['housing', 'بدل السكن', 'housing|housing allowance|السكن'],
+  ['transport', 'بدل النقل', 'transport|transport allowance|النقل|المواصلات'],
+  ['iban', 'الآيبان', 'iban|ايبان|الحساب البنكي'],
+  ['phone', 'الجوال', 'phone|mobile|جوال|رقم الجوال'],
+  ['email', 'البريد', 'email|e-mail|البريد الإلكتروني']];
+const normHead = h => String(h || '').replace(/\(.*?\)|\*/g, '').replace(/[إأآ]/g, 'ا').replace(/\s+/g, ' ').trim().toLowerCase();
+const arDigits = s => String(s).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+function mapHeaders(hdr) {
+  const idx = {};
+  hdr.forEach((h, i) => { const n = normHead(h); if (!n) return;
+    for (const [k, ar, alt] of IMPORT_COLS) if (!(k in idx) && [ar, trTo(ar), ...alt.split('|')].some(a => normHead(a) === n)) { idx[k] = i; break; } });
+  return idx;
+}
+function cellDate(v) {
+  v = arDigits(String(v == null ? '' : v).trim()); if (!v) return '';
+  if (/^\d+(\.\d+)?$/.test(v) && +v > 20000 && +v < 80000) return new Date(Math.round((+v - 25569) * 864e5)).toISOString().slice(0, 10);   // Excel serial date
+  let m = v.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/); if (m) return m[1] + '-' + m[2].padStart(2, '0') + '-' + m[3].padStart(2, '0');
+  m = v.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/); if (m) return m[3] + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0');
+  return v;
+}
+function importRow(raw, idx, rowNo) {
+  const g = k => idx[k] == null ? '' : arDigits(String(raw[idx[k]] == null ? '' : raw[idx[k]]).trim());
+  const num = k => g(k).replace(/[,\s]/g, '').replace(/\.0+$/, '');
+  const r = { _row: rowNo, emp_no: num('emp_no'), full_name: g('full_name'), national_id: num('national_id'), job_title: g('job_title'), department: g('department'),
+    manager_emp_no: num('manager_emp_no'), hire_date: cellDate(raw[idx.hire_date]), probation_end: cellDate(raw[idx.probation_end]), basic: num('basic'), housing: num('housing'), transport: num('transport'),
+    iban: g('iban').replace(/\s/g, '').toUpperCase(), phone: num('phone'), email: g('email') };
+  const nat = normHead(g('is_saudi')); r.is_saudi = !nat || /^(سعودي|سعوديه|سعودية|saudi|ksa|نعم|yes|true|1)$/.test(nat) ? 'true' : 'false';
+  const gd = normHead(g('gender')); r.gender = /^(انثى|انثي|f|female|امراة)$/.test(gd) ? 'f' : 'm';
+  if (/^5\d{8}$/.test(r.phone)) r.phone = '0' + r.phone;
+  const errs = [];
+  if (!r.emp_no) errs.push('الرقم الوظيفي مطلوب');
+  if (r.full_name.length < 3) errs.push('الاسم الكامل مطلوب');
+  if (r.national_id && !/^[12]\d{9}$/.test(r.national_id)) errs.push('رقم الهوية/الإقامة 10 أرقام يبدأ بـ 1 أو 2');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(r.hire_date) || isNaN(new Date(r.hire_date))) errs.push('تاريخ المباشرة غير صحيح');
+  if (r.probation_end && !/^\d{4}-\d{2}-\d{2}$/.test(r.probation_end)) errs.push('نهاية فترة التجربة غير صحيحة');
+  if (!/^\d+(\.\d+)?$/.test(r.basic)) errs.push('الراتب الأساسي رقم مطلوب');
+  if ((r.housing && !/^\d+(\.\d+)?$/.test(r.housing)) || (r.transport && !/^\d+(\.\d+)?$/.test(r.transport))) errs.push('البدلات أرقام');
+  if (r.iban && !/^SA\d{22}$/.test(r.iban)) errs.push('الآيبان يبدأ بـ SA ويليه 22 رقماً');
+  if (nat && !/^(سعودي|سعوديه|سعودية|saudi|ksa|نعم|yes|true|1|غير سعودي|غير سعوديه|غير سعودية|non-saudi|non saudi|expat|لا|no|false|0)$/.test(nat)) errs.push('الجنسية: سعودي أو غير سعودي');
+  if (gd && !/^(ذكر|m|male|انثى|انثي|f|female|امراة)$/.test(gd)) errs.push('الجنس: ذكر أو أنثى');
+  return { r, errs };
+}
+async function unzipEntries(buf) {
+  const dv = new DataView(buf); let e = buf.byteLength - 22;
+  while (e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--;
+  if (e < 0) throw new Error('الملف ليس بصيغة Excel (.xlsx) — احفظه بصيغة xlsx أو CSV');
+  const out = {}; let p = dv.getUint32(e + 16, true);
+  for (let i = 0, n = dv.getUint16(e + 10, true); i < n; i++) {
+    const method = dv.getUint16(p + 10, true), size = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true), xl = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), lo = dv.getUint32(p + 42, true);
+    const name = new TextDecoder().decode(new Uint8Array(buf, p + 46, nl));
+    out[name] = { method, data: new Uint8Array(buf, lo + 30 + dv.getUint16(lo + 26, true) + dv.getUint16(lo + 28, true), size) };
+    p += 46 + nl + xl + cl;
+  }
+  return out;
+}
+async function zipText(z, name) {
+  const e = z[name]; if (!e) return null;
+  if (e.method === 0) return new TextDecoder().decode(e.data);
+  if (typeof DecompressionStream === 'undefined') throw new Error('متصفحك لا يدعم قراءة ملفات Excel — احفظ الملف بصيغة CSV');
+  return new Response(new Blob([e.data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
+}
+async function readXlsx(buf) {
+  const z = await unzipEntries(buf), xml = s => new DOMParser().parseFromString(s, 'application/xml');
+  const wb = xml(await zipText(z, 'xl/workbook.xml') || ''), sh = wb.getElementsByTagNameNS('*', 'sheet')[0];
+  let path = 'xl/worksheets/sheet1.xml';
+  if (sh) { const rid = sh.getAttribute('r:id'), rels = xml(await zipText(z, 'xl/_rels/workbook.xml.rels') || '<x/>');
+    const rel = [...rels.getElementsByTagNameNS('*', 'Relationship')].find(r => r.getAttribute('Id') === rid);
+    if (rel) { const t = rel.getAttribute('Target'); path = t.startsWith('/') ? t.slice(1) : 'xl/' + t; } }
+  const ssx = await zipText(z, 'xl/sharedStrings.xml');
+  const ss = ssx ? [...xml(ssx).getElementsByTagNameNS('*', 'si')].map(si => [...si.getElementsByTagNameNS('*', 't')].map(t => t.textContent).join('')) : [];
+  const sheet = await zipText(z, path); if (!sheet) throw new Error('تعذّر قراءة الورقة الأولى في الملف');
+  const col = ref => { let n = 0; for (const ch of ref.replace(/\d+/g, '')) n = n * 26 + ch.charCodeAt(0) - 64; return n - 1; };
+  return [...xml(sheet).getElementsByTagNameNS('*', 'row')].map(row => { const out = [];
+    for (const c of row.getElementsByTagNameNS('*', 'c')) { const t = c.getAttribute('t'), v = c.getElementsByTagNameNS('*', 'v')[0];
+      out[col(c.getAttribute('r') || 'A')] = t === 's' ? ss[+(v && v.textContent)] : t === 'inlineStr' ? [...c.getElementsByTagNameNS('*', 't')].map(x => x.textContent).join('') : t === 'b' ? (v && v.textContent === '1' ? 'true' : 'false') : v ? v.textContent : ''; }
+    return out; });
+}
+function readCsv(text) {
+  text = text.replace(/^﻿/, ''); const first = text.split(/\r?\n/)[0] || '', sep = (first.match(/;/g) || []).length > (first.match(/,/g) || []).length ? ';' : first.includes('\t') && !first.includes(',') ? '\t' : ',';
+  const rows = [[]]; let f = '', q = false;
+  for (let i = 0; i < text.length; i++) { const ch = text[i];
+    if (q) { if (ch === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += ch; }
+    else if (ch === '"') q = true; else if (ch === sep) { rows[rows.length - 1].push(f); f = ''; }
+    else if (ch === '\n' || ch === '\r') { if (ch === '\r' && text[i + 1] === '\n') i++; rows[rows.length - 1].push(f); f = ''; rows.push([]); }
+    else f += ch; }
+  rows[rows.length - 1].push(f);
+  return rows;
+}
+/* template .xlsx written as an uncompressed zip */
+function crc32(b) { let c, t = crc32.t; if (!t) { t = crc32.t = []; for (let n = 0; n < 256; n++) { c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } }
+  c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = t[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function zipStore(files) {
+  const enc = new TextEncoder(), parts = [], cen = []; let off = 0;
+  for (const [name, text] of files) {
+    const nb = enc.encode(name), d = enc.encode(text), crc = crc32(d), h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint32(14, crc, true); h.setUint32(18, d.length, true); h.setUint32(22, d.length, true); h.setUint16(26, nb.length, true);
+    parts.push(new Uint8Array(h.buffer), nb, d);
+    const c = new DataView(new ArrayBuffer(46)); c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint32(16, crc, true); c.setUint32(20, d.length, true); c.setUint32(24, d.length, true); c.setUint16(28, nb.length, true); c.setUint32(42, off, true);
+    cen.push(new Uint8Array(c.buffer), nb); off += 30 + nb.length + d.length;
+  }
+  const size = cen.reduce((a, x) => a + x.length, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, size, true); e.setUint32(16, off, true);
+  return new Blob([...parts, ...cen, new Uint8Array(e.buffer)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+}
+function templateXlsx(rows) {
+  const x = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const colL = i => String.fromCharCode(65 + i);
+  const sheet = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"${document.documentElement.dir === 'rtl' ? ' rightToLeft="1"' : ''}/></sheetViews><cols><col min="1" max="${rows[0].length}" width="22" customWidth="1"/></cols><sheetData>${rows.map((r, ri) => `<row r="${ri + 1}">${r.map((v, ci) => `<c r="${colL(ci)}${ri + 1}" t="inlineStr"${ri === 0 ? ' s="1"' : ''}><is><t>${x(v)}</t></is></c>`).join('')}</row>`).join('')}</sheetData></worksheet>`;
+  return zipStore([
+    ['[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'],
+    ['_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'],
+    ['xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="employees" sheetId="1" r:id="rId1"/></sheets></workbook>'],
+    ['xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'],
+    ['xl/styles.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Arial"/></font><font><b/><sz val="11"/><name val="Arial"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="2"><xf/><xf fontId="1" applyFont="1"/></cellXfs></styleSheet>'],
+    ['xl/worksheets/sheet1.xml', sheet]]);
+}
+function importDialog() {
+  const d = modal('استيراد الموظفين من Excel', `<ol class="small" style="padding-inline-start:18px;margin-top:0"><li>نزّل القالب واملأ سطراً لكل موظف. الأعمدة المطلوبة: الرقم الوظيفي، الاسم الكامل، تاريخ المباشرة، الراتب الأساسي.</li>
+      <li>الأقسام غير الموجودة تُنشأ تلقائياً، والمدير المباشر يُكتب برقمه الوظيفي (من الملف أو من الموظفين الحاليين).</li><li>ارفع الملف (xlsx أو CSV) وراجع المعاينة ثم اضغط استيراد. إذا كان في أي سطر خطأ لا يُستورد شيء.</li></ol>
+    <div class="row"><button type="button" class="btn" id="tpl">تنزيل القالب</button><label class="btn pri" style="margin:0;color:var(--prim-ink)">اختيار الملف<input type="file" id="imf" accept=".xlsx,.csv,text/csv" hidden></label></div>
+    <div id="imp"></div>`, { wide: true });
+  $('#tpl', d).onclick = () => { const a = document.createElement('a');
+    a.href = URL.createObjectURL(templateXlsx([IMPORT_COLS.map(c => c[1] + (c[3] ? ' *' : '')), ['1001', 'مثال: سارة أحمد', '1012345678', 'سعودي', 'أنثى', 'محاسبة', 'المالية', '', today(), '', '8000', '2000', '800', '', '0500000000', '']].map(r => r.map(tr))));
+    a.download = 'waad-employees-template.xlsx'; a.click(); };
+  $('#imf', d).onchange = async ev => {
+    const file = ev.target.files[0]; if (!file) return; const box = $('#imp', d);
+    try {
+      const buf = await file.arrayBuffer();
+      const rows = /\.csv$/i.test(file.name) ? readCsv(new TextDecoder().decode(buf)) : await readXlsx(buf);
+      const hi = rows.findIndex(r => r && r.some(v => String(v || '').trim())); if (hi < 0) throw new Error('الملف فارغ');
+      const idx = mapHeaders(rows[hi]);
+      const miss = IMPORT_COLS.filter(c => c[3] && !(c[0] in idx)).map(c => c[1]);
+      if (miss.length) throw new Error('أعمدة مطلوبة غير موجودة: ' + miss.join('، ') + ' — استخدم القالب');
+      const items = rows.slice(hi + 1).map((r, i) => r && r.some(v => String(v == null ? '' : v).trim()) ? importRow(r, idx, hi + i + 2) : null).filter(Boolean);
+      if (!items.length) throw new Error('لا توجد صفوف موظفين تحت العناوين');
+      const nos = {}; items.forEach(x => { if (x.r.emp_no) { if (nos[x.r.emp_no]) x.errs.push('رقم مكرر في الملف'); nos[x.r.emp_no] = 1; } });
+      const existing = new Set(Object.values(await employeesMap(true)).map(e => e.emp_no));
+      items.forEach(x => { if (existing.has(x.r.emp_no)) x.errs.push('الرقم الوظيفي مسجّل مسبقاً'); if (x.r.manager_emp_no && !nos[x.r.manager_emp_no] && !existing.has(x.r.manager_emp_no)) x.errs.push('المدير المباشر غير موجود'); });
+      const bad = items.filter(x => x.errs.length);
+      box.innerHTML = `<div class="${bad.length ? 'err' : 'note'}">${items.length} موظف في الملف${bad.length ? ` — ${bad.length} سطر فيه أخطاء، صحّحها في الملف ثم ارفعه مجدداً` : ' — جاهز للاستيراد'}</div>
+        ${tbl([{ t: 'السطر', h: x => x.r._row }, { t: 'الرقم', h: x => esc(x.r.emp_no) }, { t: 'الاسم', h: x => esc(x.r.full_name) }, { t: 'القسم', h: x => esc(x.r.department || '—') }, { t: 'المباشرة', h: x => esc(x.r.hire_date) }, { t: 'الأساسي', r: 1, h: x => money(x.r.basic) }, { t: 'الملاحظات', h: x => x.errs.length ? `<span class="bad">${esc(x.errs.join('، '))}</span>` : '<span class="ok">✓</span>' }], bad.length ? bad.concat(items.filter(x => !x.errs.length)).slice(0, 200) : items.slice(0, 200))}
+        ${bad.length ? '' : `<div class="row" style="margin-top:12px"><button type="button" class="btn pri" id="go">استيراد ${items.length} موظف</button></div><div id="ier"></div>`}`;
+      if ($('#go', d)) $('#go', d).onclick = async () => { try { await busy($('#go', d), async () => { const n = await db.rpc('import_employees', { p_company: S.cid, p_rows: items.map(x => x.r) }); cache.emps = null; cache.deps = null; d.close(); toast('استُورد ' + n + ' موظف'); route(); }); } catch (er) { showErr($('#ier', d), er); } };
+    } catch (er) { showErr(box, er); }
+    ev.target.value = '';
+  };
+}
+
+/* ===== my training (employee) ===== */
+async function myTrainingHtml() {
+  if (!S.emp) return '';
+  const att = await db.get('training_attendees', { employee_id: 'eq.' + S.emp }).catch(() => []);
+  if (!att.length) return '';
+  const trs = await db.get('trainings', { id: 'in.(' + att.map(a => a.training_id).join(',') + ')' }); const tm = {}; trs.forEach(t => tm[t.id] = t);
+  return `<div class="card"><h2>تدريبي</h2>${tbl([{ t: 'الدورة', h: a => esc((tm[a.training_id] || {}).title || '') }, { t: 'التاريخ', h: a => fdate((tm[a.training_id] || {}).start_date) }, { t: 'الحالة', h: a => `<span class="badge ${TA_ST[a.status][1]}">${esc(TA_ST[a.status][0])}</span>` }, { t: 'انتهاء الشهادة', h: a => fdate(a.cert_expiry) }], att)}</div>`;
+}
 
 'use strict';
 const C = () => ({ company_id: 'eq.' + S.cid });
@@ -1105,6 +1594,7 @@ VIEWS['#/reports'] = async (page, arg, q) => {
     rb.innerHTML = tbl([{ t: 'التاريخ', h: x => fdate(x.date) }, { t: 'القيد', h: x => `<span class="num">${esc(x.no || '')}</span>` }, { t: 'البيان', k: 'memo' }, { t: 'مدين', r: 1, h: x => n0(x.debit) ? money(x.debit) : '' }, { t: 'دائن', r: 1, h: x => n0(x.credit) ? money(x.credit) : '' }, { t: 'الرصيد', r: 1, h: x => money(x.balance) }], rows); }
 };
 
+applyLang();
 boot();
 </script>
 </body>
