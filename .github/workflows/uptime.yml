@@ -1,0 +1,26 @@
+# Checks every 30 minutes that the Waad site opens and its database answers.
+# A failed run makes GitHub e-mail the repository owner. The database call also keeps the free project from pausing.
+name: Uptime
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+permissions: {}
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Site opens
+        run: |
+          code=$(curl -sS -o page.html -w '%{http_code}' --retry 2 --retry-delay 20 https://abuomara4.github.io/waad/)
+          echo "HTTP $code"
+          test "$code" = 200 || { echo "::error::The site returned HTTP $code"; exit 1; }
+          grep -q 'supabase.co' page.html || { echo "::error::The page does not look like the Waad app"; exit 1; }
+      - name: Database answers
+        run: |
+          url=$(grep -o "https://[a-z0-9]*\.supabase\.co" page.html | head -1)
+          key=$(grep -o "sb_publishable_[A-Za-z0-9_-]*" page.html | head -1)
+          out=$(curl -sS --retry 2 --retry-delay 20 -X POST "$url/rest/v1/rpc/ping" -H "apikey: $key" -H "Content-Type: application/json" -d '{}')
+          echo "ping: $out"
+          test "$out" = '"ok"' || { echo "::error::The database did not answer (it may be paused or down): $out"; exit 1; }
