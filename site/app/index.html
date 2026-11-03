@@ -548,7 +548,7 @@ const brand = () => `<div class="brand"><img class="wlogo wl-d" src="${LOGO_D}" 
 // company code can arrive in the link HR shares: …/waad/?c=1FB695
 (() => { try { const c = new URLSearchParams(location.search).get('c'); if (c && /^[A-Za-z0-9]{4,10}$/.test(c) && c.toUpperCase() !== LS.get('waad.ccode')) { LS.set('waad.ccode', c.toUpperCase()); LS.set('waad.cname', null); } } catch (e) {} })();
 const staffEmail = (code, empNo) => String(empNo).trim().toLowerCase() + '.' + String(code).trim().toLowerCase() + '@staff.waad.app';
-function authView(tab = 'staff', msg = '') {
+function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
   const app = $('#app'); const ccode = LS.get('waad.ccode') || '', cname = LS.get('waad.cname') || '';
   if (tab === 'staff' && ccode && !cname) {   // code from a link: resolve the company name first
     db.rpc('company_by_code', { p_code: ccode }).then(n => { if (n) { LS.set('waad.cname', n); } else { LS.set('waad.ccode', null); } authView('staff', msg); }).catch(() => { LS.set('waad.ccode', null); authView('staff', msg); });
@@ -598,7 +598,7 @@ function authView(tab = 'staff', msg = '') {
     if (step === 'login') {
       if (!/^[A-Za-z0-9_-]{1,20}$/.test(f.emp)) return showErr('#aerr', 'أدخل الرقم الوظيفي (أرقام إنجليزية)');
       if (!f.password) return showErr('#aerr', 'أدخل كلمة المرور');
-      try { await busy($('#ab'), async () => { await authApi.signIn(staffEmail(ccode, f.emp), f.password); return boot(); }); }
+      try { await busy($('#ab'), async () => { await authApi.signIn(staffEmail(ccode, f.emp), f.password); LS.set('waad.authtab', 'staff'); return boot(); }); }
       catch (er) { showErr('#aerr', /غير صحيحة/.test(er.message) ? 'الرقم الوظيفي أو كلمة المرور غير صحيحة' : er); }
       return;
     }
@@ -606,10 +606,10 @@ function authView(tab = 'staff', msg = '') {
     if (tab === 'up' && f.password.length < 8) return showErr('#aerr', 'كلمة المرور 8 أحرف على الأقل');
     if (tab === 'up' && f.password !== f.password2) return showErr('#aerr', 'كلمتا المرور غير متطابقتين');
     if (tab === 'up' && !f.agree) return showErr('#aerr', 'وافق على شروط الاستخدام وسياسة الخصوصية لإنشاء الحساب');
-    if (tab === 'up') LS.set('waad.terms', TERMS_VERSION);
+    if (tab === 'up') { LS.set('waad.terms', TERMS_VERSION); LS.set('waad.authtab', 'in'); }
     try {
       await busy($('#ab'), async () => {
-        if (tab === 'in') { await authApi.signIn(f.email, f.password); return boot(); }
+        if (tab === 'in') { await authApi.signIn(f.email, f.password); LS.set('waad.authtab', 'in'); return boot(); }
         const signedIn = await authApi.signUp(f.email, f.password);
         if (signedIn) return boot();
         authView('in', 'أنشأنا حسابك. افتح رسالة التأكيد في بريدك ثم سجّل الدخول.');
