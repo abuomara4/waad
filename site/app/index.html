@@ -3429,19 +3429,46 @@ VIEWS['#/org'] = async (page, arg, q) => {
 /* ===== HR dashboard, weekly shift roster, bulk raise, policies, leave statement ===== */
 
 // small inline SVG bar chart (no library): bars = [{ label, values: [..] }], series = [{ name, color }]
+// compact number for axis ticks: 2,500,000 -> 2.5M, 340000 -> 340K (plain LTR number, no currency)
+const kfmt = v => { const a = Math.abs(n0(v)); return a >= 1e6 ? r2(v / 1e6) + 'M' : a >= 1e3 ? Math.round(v / 1e3) + 'K' : String(r2(v)); };
 function barChart(bars, series, { h = 160, fmt = v => String(v) } = {}) {
   const max = Math.max(1, ...bars.flatMap(b => b.values.map(n0)));
-  const W = 640, pad = 22, gw = (W - pad) / Math.max(1, bars.length), bw = Math.max(4, (gw - 8) / series.length);
-  const rects = bars.map((b, i) => b.values.map((v, k) => { const bh = Math.round((n0(v) / max) * (h - 34)); const x = pad + i * gw + 4 + k * bw, y = h - 18 - bh;
+  const W = 640, pad = 40, base = h - 18, plot = h - 34, gw = (W - pad) / Math.max(1, bars.length), bw = Math.max(4, (gw - 8) / series.length);
+  // recessive gridlines at 0/50/100% of max, each labelled compactly, so bar heights read as real magnitudes
+  const grid = [0, .5, 1].map(f => { const y = base - f * plot;
+    return `<line x1="${pad}" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="var(--line)" stroke-width="${f === 0 ? 1 : .5}" ${f ? 'stroke-dasharray="3 3"' : ''}/><text x="${pad - 4}" y="${(y + 3).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--muted)">${esc(kfmt(max * f))}</text>`; }).join('');
+  const rects = bars.map((b, i) => b.values.map((v, k) => { const bh = Math.round((n0(v) / max) * plot); const x = pad + i * gw + 4 + k * bw, y = base - bh;
     return `<rect x="${x.toFixed(1)}" y="${y}" width="${(bw - 2).toFixed(1)}" height="${bh}" rx="2" fill="${series[k].color}"><title>${esc(b.label)} — ${esc(tr(series[k].name))}: ${esc(fmt(v))}</title></rect>`; }).join('')
     + `<text x="${(pad + i * gw + gw / 2).toFixed(1)}" y="${h - 4}" text-anchor="middle" font-size="10" fill="var(--muted)">${esc(b.label)}</text>`).join('');
-  return `<svg viewBox="0 0 ${W} ${h}" class="chart" role="img" style="width:100%;height:auto;direction:ltr">${rects}</svg>
+  return `<svg viewBox="0 0 ${W} ${h}" class="chart" role="img" style="width:100%;height:auto;direction:ltr">${grid}${rects}</svg>
     <div class="row small" style="gap:12px">${series.map(s => `<span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${s.color}"></span> ${esc(tr(s.name))}</span>`).join('')}</div>`;
 }
 const hbars = (rows, fmt = v => String(v)) => { const max = Math.max(1, ...rows.map(r => n0(r.v)));
   return rows.map(r => `<div class="row small" style="gap:8px;margin:4px 0;align-items:center"><span style="min-width:120px">${esc(r.label)}</span>
     <span style="flex:1;background:var(--soft);border-radius:4px;height:12px;position:relative"><span style="position:absolute;inset:0;inset-inline-end:auto;width:${(n0(r.v) / max * 100).toFixed(1)}%;background:var(--accent);border-radius:4px"></span></span>
     <b class="num" style="min-width:40px;text-align:end">${esc(fmt(r.v))}</b></div>`).join(''); };
+
+// tiny inline trend line (no axes/labels) shown next to a headline number — the guide's "indicator line / sparkline"
+const sparkline = (vals, color = 'var(--accent)') => { const v = (vals || []).map(n0); if (v.length < 2) return '';
+  const W = 76, H = 22, p = 2, mn = Math.min(...v), mx = Math.max(...v), rng = mx - mn || 1;
+  const xs = i => p + i * (W - 2 * p) / (v.length - 1), ys = x => H - p - (x - mn) / rng * (H - 2 * p);
+  const pts = v.map((x, i) => `${xs(i).toFixed(1)},${ys(x).toFixed(1)}`).join(' '), lx = xs(v.length - 1).toFixed(1), ly = ys(v[v.length - 1]).toFixed(1);
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" class="spark" preserveAspectRatio="none" style="direction:ltr;overflow:visible" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${lx}" cy="${ly}" r="2.1" fill="${color}"/></svg>`; };
+
+// donut for genuine part-to-whole: top 5 slices, the rest folded into "أخرى"; legend carries label + value + %
+const DONUT_C = ['#3b82f6', '#c9a35c', '#ef4444', '#3fc392', '#8b5cf6'];
+function donut(rows, fmt = v => String(v)) {
+  const all = (rows || []).map(r => ({ label: r.label, v: Math.max(0, n0(r.v)) })).filter(r => r.v > 0).sort((a, b) => b.v - a.v);
+  const total = all.reduce((a, r) => a + r.v, 0);
+  if (!total) return `<p class="muted small">${esc(tr('لا توجد بيانات'))}</p>`;
+  const segs = all.length > 6 ? [...all.slice(0, 5), { label: tr('أخرى'), v: all.slice(5).reduce((a, r) => a + r.v, 0) }] : all;
+  const R = 54, sw = 20, C = 2 * Math.PI * R, cx = 70, cy = 70; let off = 0;
+  const gap = segs.length > 1 ? 2 : 0;   // 2px surface gap between slices
+  const arcs = segs.map((s, i) => { const col = DONUT_C[i] || '#94a3b8', len = s.v / total * C, dash = Math.max(0.5, len - gap), o = off; off += len;
+    return `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-dasharray="${dash.toFixed(2)} ${(C - dash).toFixed(2)}" stroke-dashoffset="${(-o).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"><title>${esc(s.label)}: ${esc(fmt(s.v))} (${r2(s.v / total * 100)}%)</title></circle>`; }).join('');
+  const legend = segs.map((s, i) => `<div class="row small" style="gap:6px;margin:2px 0;align-items:center"><span style="flex:none;width:10px;height:10px;border-radius:2px;background:${DONUT_C[i] || '#94a3b8'}"></span><span style="flex:1">${esc(s.label)}</span><b class="num">${esc(fmt(s.v))}</b><span class="muted num" style="min-width:42px;text-align:end">${r2(s.v / total * 100)}%</span></div>`).join('');
+  return `<div class="row" style="gap:12px;align-items:center;flex-wrap:wrap"><svg viewBox="0 0 140 140" width="140" height="140" style="flex:none;direction:ltr" role="img">${arcs}<text x="70" y="66" text-anchor="middle" font-size="22" font-weight="700" fill="var(--ink)">${esc(fmt(total))}</text><text x="70" y="84" text-anchor="middle" font-size="11" fill="var(--muted)">${esc(tr('الإجمالي'))}</text></svg><div style="flex:1;min-width:150px">${legend}</div></div>`;
+}
 
 VIEWS['#/hrdash'] = async page => {
   if (!(isHR() || has('finance'))) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية والمالية.</div>'; return; }
@@ -3613,13 +3640,14 @@ const anNm = x => (LANG === 'en' && x.name_en) || x.name;
 function anModel(d, lt) {
   const S_ = [], ltn = {}; (lt || []).forEach(l => ltn[l.code] = LANG === 'en' ? l.name_en : l.name_ar);
   const mon = m => m.slice(2);
-  const K = (l, v, f, p, inv) => ({ l, v, f, p, inv });
+  const K = (l, v, f, p, inv, sp) => ({ l, v, f, p, inv, sp });
+  const col = (arr, k) => (arr || []).map(x => n0(x[k]));   // pluck a monthly series for a sparkline
   if (d.exec) { const x = d.exec, notes = [];
     if (x.revenue_prev > 0) notes.push(['الإيرادات مقارنة بالفترة السابقة', anChg(x.revenue, x.revenue_prev), 'pct', anChg(x.revenue, x.revenue_prev) >= 0]);
     if (x.margin != null) notes.push(['هامش صافي الربح', x.margin, 'pct', x.margin >= 0]);
     if (x.payroll_ratio != null) notes.push(['تكلفة الرواتب من الإيرادات', x.payroll_ratio, 'pct', x.payroll_ratio <= 40]);
     if (x.ar > 0 && x.revenue > 0) notes.push(['أيام التحصيل التقريبية (DSO)', Math.round(x.ar / x.revenue * ((new Date(d.to) - new Date(d.from)) / 864e5 + 1)), 'num', null]);
-    S_.push({ k: 'exec', t: 'نظرة عامة', kpis: [K('الإيرادات', x.revenue, 'money', x.revenue_prev), K('المصروفات', x.expenses, 'money', x.expenses_prev, 1), K('صافي الربح', x.profit, 'money', x.profit_prev),
+    S_.push({ k: 'exec', t: 'نظرة عامة', kpis: [K('الإيرادات', x.revenue, 'money', x.revenue_prev, 0, col(x.months, 'revenue')), K('المصروفات', x.expenses, 'money', x.expenses_prev, 1, col(x.months, 'expenses')), K('صافي الربح', x.profit, 'money', x.profit_prev, 0, col(x.months, 'profit')),
       K('هامش الربح', x.margin, 'pct'), K('هامش الربح الإجمالي', x.gross_margin, 'pct'), K('تكلفة الرواتب', x.payroll, 'money', x.payroll_prev, 1), K('الرواتب من الإيرادات', x.payroll_ratio, 'pct'),
       K('النقد في البنك والصندوق', x.cash, 'money', x.cash_prev), K('ذمم العملاء', x.ar, 'money'), K('ذمم الموردين', x.ap, 'money'), K('قيمة المخزون', x.inventory, 'money'),
       K('عدد الموظفين', x.headcount, 'num'), K('الإيراد لكل موظف', x.rev_per_emp, 'money')], notes,
@@ -3634,7 +3662,7 @@ function anModel(d, lt) {
         { t: 'أعمار الذمم', cols: [['البيان'], ['حتى 30 يوماً', 'money'], ['31–60', 'money'], ['61–90', 'money'], ['أكثر من 90', 'money']], rows: [[tr('ذمم العملاء'), ...ag(x.ar_aging)], [tr('ذمم الموردين'), ...ag(x.ap_aging)]] },
         { t: 'التدفق النقدي', cols: [['الشهر'], ['داخل', 'money'], ['خارج', 'money'], ['الصافي', 'money']], rows: x.cash_flow.map(m => [m.m, m.in, m.out, n0(m.in) - n0(m.out)]) }] }); }
   if (d.sales) { const x = d.sales;
-    S_.push({ k: 'sales', t: 'المبيعات', kpis: [K('المبيعات قبل الضريبة', x.total, 'money', x.total_prev), K('عدد الفواتير', x.count, 'num'), K('متوسط الفاتورة', x.count ? x.total / x.count : null, 'money'),
+    S_.push({ k: 'sales', t: 'المبيعات', kpis: [K('المبيعات قبل الضريبة', x.total, 'money', x.total_prev, 0, col(x.months, 'total')), K('عدد الفواتير', x.count, 'num'), K('متوسط الفاتورة', x.count ? x.total / x.count : null, 'money'),
       K('المرتجعات', x.returns, 'money', null, 1), K('المحصّل', x.collected, 'money')],
       notes: x.total > 0 && x.customers.length ? [['حصة أكبر عميل من المبيعات', r2(x.customers[0].total / x.total * 100), 'pct', x.customers[0].total / x.total <= .3]] : [],
       charts: [{ t: 'المبيعات شهرياً', bars: x.months.map(m => ({ label: mon(m.m), values: [m.total] })), series: ['المبيعات'], f: 'money' },
@@ -3642,7 +3670,7 @@ function anModel(d, lt) {
       tables: [{ t: 'أكبر العملاء', cols: [['العميل'], ['الفواتير', 'num'], ['المبلغ', 'money']], rows: x.customers.map(c => [anNm(c), c.n, c.total]) },
         { t: 'الأصناف الأكثر مبيعاً', cols: [['الصنف'], ['الكمية', 'num'], ['المبلغ', 'money']], rows: x.items.map(i => [anNm(i), i.qty, i.total]) }] }); }
   if (d.supply) { const x = d.supply;
-    S_.push({ k: 'supply', t: 'المشتريات والمخزون', kpis: [K('المشتريات قبل الضريبة', x.purchases, 'money', x.purchases_prev, 1), K('المدفوع للموردين', x.paid, 'money'), K('قيمة المخزون', x.stock_value, 'money'),
+    S_.push({ k: 'supply', t: 'المشتريات والمخزون', kpis: [K('المشتريات قبل الضريبة', x.purchases, 'money', x.purchases_prev, 1, col(x.months, 'total')), K('المدفوع للموردين', x.paid, 'money'), K('قيمة المخزون', x.stock_value, 'money'),
       K('أصناف تحت حد الطلب', x.low_stock.length, 'num', null, 1), K('أصناف راكدة', x.slow.length, 'num', null, 1)],
       charts: [{ t: 'المشتريات شهرياً', bars: x.months.map(m => ({ label: mon(m.m), values: [m.total] })), series: ['المشتريات'], f: 'money' },
         { t: 'أكبر الموردين', h: x.suppliers.map(c => ({ label: anNm(c), v: c.total })), f: 'money' }],
@@ -3655,7 +3683,7 @@ function anModel(d, lt) {
     S_.push({ k: 'hr', t: 'الموارد البشرية', kpis: [K('عدد الموظفين', x.headcount, 'num', x.headcount_start), K('منضمون', x.joiners, 'num'), K('مغادرون', x.leavers, 'num', null, 1), K('معدل الدوران', x.turnover, 'pct', null, 1),
       K('السعوديون', x.saudi, 'num'), K('النساء', x.female, 'num'), K('متوسط مدة الخدمة (سنة)', x.tenure, 'num'), K('أيام الغياب', x.absent_days, 'num', null, 1),
       K('ساعات التأخير', x.late_hours, 'num', null, 1), K('ساعات العمل الإضافي', x.ot_hours, 'num'), K('إجمالي الرواتب', p.gross, 'money'), K('تأمينات المنشأة', p.employer_gosi, 'money'), K('الاستقطاعات', p.deductions, 'money')], notes,
-      charts: [{ t: 'أيام الإجازات حسب النوع', h: lv.map(([k, v]) => ({ label: ltn[k] || k, v })), f: 'num' }, { t: 'المغادرون حسب السبب', h: rs.map(([k, v]) => ({ label: tr(EOS_REASONS[k] || 'أخرى'), v })), f: 'num' }],
+      charts: [{ t: 'أيام الإجازات حسب النوع', h: lv.map(([k, v]) => ({ label: ltn[k] || k, v })), f: 'num', donut: 1 }, { t: 'المغادرون حسب السبب', h: rs.map(([k, v]) => ({ label: tr(EOS_REASONS[k] || 'أخرى'), v })), f: 'num', donut: 1 }],
       tables: [{ t: 'الإجازات حسب النوع', cols: [['النوع'], ['الأيام', 'num']], rows: lv.map(([k, v]) => [ltn[k] || k, v]) },
         { t: 'المغادرون حسب السبب', cols: [['السبب'], ['العدد', 'num']], rows: rs.map(([k, v]) => [tr(EOS_REASONS[k] || 'أخرى'), v]) },
         { t: 'الرواتب في الفترة', cols: [['البيان'], ['المبلغ', 'money']], rows: [[tr('الإجمالي'), p.gross], [tr('العمل الإضافي'), p.overtime], [tr('الاستقطاعات'), p.deductions], [tr('الصافي'), p.net], [tr('تأمينات المنشأة'), p.employer_gosi]] }] }); }
@@ -3674,8 +3702,9 @@ function anModel(d, lt) {
 
 function anSectionHtml(s) {
   const kpi = k => { const c = anChg(k.v, k.p), good = c == null ? null : (c >= 0) !== !!k.inv;
-    return `<div class="card kpi"><div class="muted small">${esc(tr(k.l))}</div><div class="v num">${esc(anFmt(k.v, k.f))}</div>${k.p != null ? `<div class="small ${good === false ? 'bad' : good ? 'ok' : 'muted'}">${c == null ? '' : (c >= 0 ? '▲ ' : '▼ ') + Math.abs(c) + '% '}<span class="muted">${esc(tr('السابقة'))}: <span class="num">${esc(anFmt(k.p, k.f))}</span></span></div>` : ''}</div>`; };
-  const chart = c => `<div class="card"><h2>${esc(tr(c.t))}</h2>${c.h ? (c.h.length ? hbars(c.h, v => anFmt(v, c.f)) : `<p class="muted small">${esc(tr('لا توجد بيانات'))}</p>`)
+    const sp = (k.sp && k.sp.length > 1) ? `<div style="margin-top:6px">${sparkline(k.sp, good === false ? 'var(--bad)' : good ? 'var(--ok)' : 'var(--accent)')}</div>` : '';
+    return `<div class="card kpi"><div class="muted small">${esc(tr(k.l))}</div><div class="v num">${esc(anFmt(k.v, k.f))}</div>${k.p != null ? `<div class="small ${good === false ? 'bad' : good ? 'ok' : 'muted'}">${c == null ? '' : (c >= 0 ? '▲ ' : '▼ ') + Math.abs(c) + '% '}<span class="muted">${esc(tr('السابقة'))}: <span class="num">${esc(anFmt(k.p, k.f))}</span></span></div>` : ''}${sp}</div>`; };
+  const chart = c => `<div class="card"><h2>${esc(tr(c.t))}</h2>${c.h ? (c.h.length ? (c.donut ? donut(c.h, v => anFmt(v, c.f)) : hbars(c.h, v => anFmt(v, c.f))) : `<p class="muted small">${esc(tr('لا توجد بيانات'))}</p>`)
     : c.bars.length ? barChart(c.bars.map(b => ({ label: b.label, values: b.values.map(v => Math.max(0, n0(v))) })), c.series.map((n, i) => ({ name: n, color: AN_C[i] })), { fmt: v => anFmt(v, c.f) }) : `<p class="muted small">${esc(tr('لا توجد بيانات'))}</p>`}</div>`;
   const table = t => `<div class="card"><h2>${esc(tr(t.t))}</h2>${t.rows.length ? `<div class="tw"><table><thead><tr>${t.cols.map(c => `<th${c[1] ? ' class="r"' : ''}>${esc(tr(c[0]))}</th>`).join('')}</tr></thead><tbody>
       ${t.rows.map(r => `<tr>${r.map((v, i) => `<td${t.cols[i][1] ? ' class="r num"' : ''}>${esc(anFmt(v, t.cols[i][1]))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : `<p class="muted small">${esc(tr('لا توجد بيانات'))}</p>`}</div>`;
