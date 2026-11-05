@@ -2978,6 +2978,24 @@ const noticeTxt = c => c.contract_type === 'fixed' ? 'ينتهي بانتهاء 
   : c.monthly_paid ? 'مهلة الإشعار: 30 يوماً إذا أنهاه الموظف، و60 يوماً إذا أنهته المنشأة (م75)' : 'مهلة الإشعار: 30 يوماً من أي طرف (م75)';
 async function docAlertCount() { try { return (await db.rpc('doc_alerts', { p_company: S.cid, p_within: 30 })).filter(a => a.level === 'expired' || a.level === 'd30').length; } catch (e) { return 0; } }
 const docWaMsg = (a, e) => 'السلام عليكم ' + String(e.full_name || '').split(' ')[0] + '،\n' + (a.days_left < 0 ? 'انتهت ' : 'تنتهي ') + DOC_T[a.label] + (a.ref_no ? ' رقم ' + a.ref_no : '') + ' بتاريخ ' + a.due + '.\nنأمل تجهيز متطلبات التجديد والتواصل مع الموارد البشرية.\n' + S.company.name;
+// #9/#10 attachments widget: list, open, upload and delete files for one parent row (document or contract)
+async function fileBox(box, table, key, id) {
+  const draw = async () => {
+    const fs = await db.get(table, Object.assign({ select: 'id,file_name,size', order: 'created_at' }, { [key]: 'eq.' + id })).catch(() => []);
+    box.innerHTML = `<label>${esc(tr('المرفقات'))}</label>` + (fs.length ? fs.map(x => `<div class="row" style="gap:8px;align-items:center"><a href="#" data-fo="${x.id}">${esc(x.file_name)}</a><span class="num muted small">${Math.ceil(x.size / 1024)} KB</span><button type="button" class="btn sm" data-fd="${x.id}" aria-label="${esc(tr('حذف المرفق'))}">×</button></div>`).join('') : `<div class="small muted">${esc(tr('لا توجد مرفقات'))}</div>`)
+      + `<label class="btn sm" style="margin-top:6px">${esc(tr('إرفاق ملف'))}<input type="file" accept=".pdf,.doc,.docx,image/*" hidden></label> <span class="small muted">${esc(tr('PDF أو Word أو صورة — حتى 3 ميجابايت'))}</span><div class="fbe"></div>`;
+    $$('[data-fo]', box).forEach(a => a.onclick = e => { e.preventDefault(); openAttachment(a.dataset.fo, table); });
+    $$('[data-fd]', box).forEach(b => b.onclick = async () => { try { await db.del(table, { id: 'eq.' + b.dataset.fd }); draw(); } catch (er) { showErr($('.fbe', box), er); } });
+    $('input[type=file]', box).onchange = async ev => { const file = ev.target.files[0]; if (!file) return;
+      try { let a;
+        if (/\.(docx?)$/i.test(file.name)) { if (file.size > 3 * 1048576) throw new Error(tr('حجم الملف أكبر من 3 ميجابايت') + ': ' + file.name);
+          a = { name: file.name, mime: /\.docx$/i.test(file.name) ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/msword', data: await blobB64(file) }; }
+        else a = await readAttachment(file);
+        await db.ins(table, Object.assign({ company_id: S.cid, file_name: a.name, mime: a.mime, size: Math.round(a.data.length * 3 / 4), data: a.data }, { [key]: id })); draw();
+      } catch (er) { showErr($('.fbe', box), er); } ev.target.value = ''; };
+  };
+  await draw();
+}
 
 VIEWS['#/docs'] = async (page, arg) => {
   if (!isHR()) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
@@ -3027,7 +3045,8 @@ async function docsEmployee(page, id) {
         ${conv ? '<div class="note" style="margin-top:10px">جُدد العقد ثلاث مرات أو بلغت مدته أربع سنوات؛ إذا استمر الطرفان بعد نهايته يتحوّل إلى غير محدد المدة (م55).</div>' : ''}
         ${cur.contract_type === 'fixed' && !e.is_saudi ? '<p class="muted small">إذا استمر العمل بعد انتهاء العقد عُدّ متجدداً لمدة مماثلة (م37).</p>' : ''}`
       : `<div class="note">لا يوجد عقد مسجّل لهذا الموظف.${e.is_saudi ? '' : ' عقد غير السعودي يكون مكتوباً ومحدد المدة (م37).'}</div>`}
-      ${cons.length > 1 ? `<details style="margin-top:10px"><summary class="small">العقود السابقة (${cons.length - 1})</summary>${tbl([{ t: 'النوع', h: c => esc(CT_T[c.contract_type]) }, { t: 'من', h: c => fdate(c.start_date) }, { t: 'إلى', h: c => fdate(c.end_date) }, { t: 'الحالة', h: c => c.status === 'renewed' ? 'جُدّد' : 'انتهى' }], cons.filter(c => c !== cur))}</details>` : ''}</div>
+      ${cons.length > 1 ? `<details style="margin-top:10px"><summary class="small">العقود السابقة (${cons.length - 1})</summary>${tbl([{ t: 'النوع', h: c => esc(CT_T[c.contract_type]) }, { t: 'من', h: c => fdate(c.start_date) }, { t: 'إلى', h: c => fdate(c.end_date) }, { t: 'الحالة', h: c => c.status === 'renewed' ? 'جُدّد' : 'انتهى' }], cons.filter(c => c !== cur))}</details>` : ''}
+      ${cur ? '<div id="cfiles" style="margin-top:12px;border-top:1px solid var(--line3);padding-top:10px"></div>' : ''}</div>
     <div class="card" id="dcard"><div class="row" style="justify-content:space-between"><h2>المستندات</h2><button class="btn sm pri" id="dnew">+ مستند</button></div>
       ${tbl([{ t: 'المستند', h: d => esc(docName(d)) }, { t: 'الرقم', h: d => `<span class="num">${esc(d.doc_no || '—')}</span>` }, { t: 'تاريخ الإصدار', h: d => fdate(d.issue_date) }, { t: 'تاريخ الانتهاء', h: d => fdate(d.expiry_date) }, { t: 'الحالة', h: d => st(d.expiry_date) }], docs, { empty: 'لا توجد مستندات مسجّلة', onRow: true })}
       ${!e.is_saudi ? '<p class="muted small">لغير السعودي: سجّل الإقامة ورخصة العمل وجواز السفر.</p>' : ''}</div>
@@ -3035,16 +3054,18 @@ async function docsEmployee(page, id) {
   leaveStatementCard($('#lvbox', page), e).catch(() => {});
   custodyCard($('#custbox', page), e).catch(er => toast(er.message));
   clearanceCard($('#clrbox', page), e).catch(() => {});
+  if (cur) fileBox($('#cfiles', page), 'contract_files', 'contract_id', cur.id).catch(() => {});
   const docForm = d => { const v = d || { doc_type: e.is_saudi ? 'national_id' : 'iqama', doc_no: (!d && e.national_id) ? e.national_id : '' };
     const m = modal(d ? 'تعديل مستند' : 'مستند جديد', `<div class="fg">${field('نوع المستند', `<select name="t">${Object.entries(DOC_T).filter(([k]) => k !== 'contract').map(([k, t]) => opt(k, t, v.doc_type)).join('')}</select>`)}
       <div data-o>${field('اسم المستند', inp('title', v.title))}</div><div data-o>${enF('title_en', v.title_en)}</div>${field('رقم المستند', inp('no', v.doc_no, 'dir="ltr"'))}
       ${field('تاريخ الإصدار', `<input type="date" name="is" value="${esc(v.issue_date || '')}">`)}${field('تاريخ الانتهاء', `<input type="date" name="ex" value="${esc(v.expiry_date || '')}">`)}
-      ${field('ملاحظات', inp('notes', v.notes), 'wide')}${d ? '<div class="wide"><button type="button" class="btn sm danger" id="ddel">حذف المستند</button></div>' : ''}</div>
+      ${field('ملاحظات', inp('notes', v.notes), 'wide')}${d ? '<div class="wide" id="dfiles" style="border-top:1px solid var(--line3);padding-top:10px"></div><div class="wide"><button type="button" class="btn sm danger" id="ddel">حذف المستند</button></div>' : ''}</div>
       <p class="muted small">التنبيه يظهر قبل الانتهاء بـ90 و60 و30 يوماً. عند التجديد عدّل تاريخ الانتهاء أو أضف المستند الجديد.</p>`, {
       onOk: async f => { if (f.t === 'other' && (f.title || '').trim().length < 2) throw new Error('أدخل اسم المستند'); if (f.is && f.ex && f.ex < f.is) throw new Error('تاريخ الانتهاء قبل الإصدار');
         const row = { doc_type: f.t, title: f.t === 'other' ? f.title.trim() : null, title_en: f.t === 'other' ? blank((f.title_en || '').trim()) : null, doc_no: blank(f.no), issue_date: blank(f.is), expiry_date: blank(f.ex), notes: blank(f.notes) };
         if (d) await db.upd('employee_documents', { id: 'eq.' + d.id }, row); else await db.ins('employee_documents', Object.assign(row, { company_id: S.cid, employee_id: id })); toast('تم الحفظ'); route(); } });
     const sync = () => $$('[data-o]', m).forEach(x => x.hidden = $('select[name=t]', m).value !== 'other'); $('select[name=t]', m).onchange = sync; sync();
+    if (d) fileBox($('#dfiles', m), 'document_files', 'document_id', d.id).catch(() => {});
     if (d) $('#ddel', m).onclick = async () => { try { await db.del('employee_documents', { id: 'eq.' + d.id }); m.close(); route(); } catch (er) { showErr($('#merr', m), er); } }; };
   bindRows($('#dcard', page), docs, docForm);
   $('#dnew', page).onclick = () => docForm(null);
