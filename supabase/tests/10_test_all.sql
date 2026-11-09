@@ -889,7 +889,7 @@ reset role; update public.requests set created_at = now() - interval '10 days' w
 select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
 select t.err($$select public.resign_defer('$$ || :'rs2' || $$', 61, 'تسليم مشروع العميل')$$, '60', 'deferral at most 60 days');
 select t.err($$select public.resign_defer('$$ || :'rs2' || $$', 30, 'x')$$, 'سبب', 'deferral needs a written reason');
-select t.ok(public.resign_defer(:'rs2', 45, 'تسليم مشروع العميل') = current_date + 45, 'deferral counts from the notice date');
+select t.ok(public.resign_defer(:'rs2', 45, 'تسليم مشروع العميل') = (now() at time zone 'Asia/Riyadh')::date + 45, 'deferral counts from the notice date');
 select t.err($$select public.resign_defer('$$ || :'rs2' || $$', 10, 'تمديد آخر للتأجيل')$$, 'سبق', 'only one deferral');
 reset role; update public.requests set created_at = now() - interval '35 days' where id = :'rs2';
 select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
