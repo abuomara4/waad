@@ -54,8 +54,12 @@ jobs:
           DB: ${{ secrets.SUPABASE_DB_URL }}
         run: |
           test -n "$DB" || { echo "::error::Add the SUPABASE_DB_URL secret"; exit 1; }
+          # explain a bad secret without printing it
+          DB="$(printf '%s' "$DB" | tr -d '[:space:]')"
+          case "$DB" in postgres://*|postgresql://*) ;; *) echo "::error::SUPABASE_DB_URL must start with postgresql:// (the saved value is ${#DB} characters and is not a connection URI). Copy the URI from Supabase → Connect → Session pooler."; exit 1;; esac
+          case "$DB" in *YOUR-PASSWORD*|*'['*|*']'*) echo "::error::SUPABASE_DB_URL still has [YOUR-PASSWORD] or brackets; put the real database password in its place."; exit 1;; esac
           sudo apt-get install -y -qq postgresql-client > /dev/null
-          P="psql $DB -v ON_ERROR_STOP=1 -X -q -At"
+          P="psql -v ON_ERROR_STOP=1 -X -q -At -d $DB"
           $P -c "create table if not exists public.schema_migrations (version text primary key, applied_at timestamptz not null default now());
                  alter table public.schema_migrations enable row level security;
                  revoke all on public.schema_migrations from anon, authenticated;"
