@@ -29,10 +29,10 @@ jobs:
         run: python3 app/build.py
       - name: Browser tests
         run: |
-          pip install --break-system-packages playwright==1.49.1 openpyxl
+          pip install --break-system-packages playwright==1.49.1 openpyxl pillow numpy opencv-python-headless
           python3 -m playwright install --with-deps chromium
           export CHROME_PATH=$(python3 -c "from playwright.sync_api import sync_playwright as s; p=s().start(); print(p.chromium.executable_path); p.stop()")
-          bash devserver/start.sh app > dev.log 2>&1
+          bash devserver/start.sh app > dev.log 2>&1 || { cat dev.log; exit 1; }
           SHOTS=/tmp/shots python3 app/tests/e2e_app.py
       - uses: actions/upload-artifact@v4
         with: { name: waad-app, path: app/waad-app.html }
