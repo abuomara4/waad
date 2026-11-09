@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Site opens
         run: |
-          code=$(curl -sS -o page.html -w '%{http_code}' --retry 2 --retry-delay 20 https://abuomara4.github.io/waad/)
+          code=$(curl -sS -o page.html -w '%{http_code}' --retry 2 --retry-delay 20 https://abuomara4.github.io/waad/site/app/)
           echo "HTTP $code"
           test "$code" = 200 || { echo "::error::The site returned HTTP $code"; exit 1; }
           grep -q 'supabase.co' page.html || { echo "::error::The page does not look like the Waad app"; exit 1; }

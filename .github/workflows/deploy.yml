@@ -1,9 +1,10 @@
 # Waad: test every change, then publish it.
 #   1) database tests (all migrations on a throwaway Postgres), translation check, app build, browser tests
 #   2) on main only, after the tests pass: apply new database migrations to Supabase, then publish the app
-# Needs two repository secrets (Settings → Secrets and variables → Actions), added by the owner himself:
+# Needs one repository secret (Settings → Secrets and variables → Actions), added by the owner himself:
 #   SUPABASE_DB_URL   — Supabase → Project Settings → Database → Connection string (URI, session pooler)
-#   WAAD_PAGES_TOKEN  — GitHub fine-grained token with "Contents: Read and write" on abuomara4/waad only
+# Publishing uses the workflow's own GITHUB_TOKEN: it commits the built app to site/app/ on main,
+# and GitHub Pages (branch main, folder /) serves it at abuomara4.github.io/waad/site/app/.
 name: Test and deploy
 on:
   push:
@@ -43,8 +44,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment: production
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
       - name: Apply new database migrations
         env:
           DB: ${{ secrets.SUPABASE_DB_URL }}
@@ -68,16 +72,16 @@ jobs:
             fi
           done
       - name: Build
-        run: python3 app/build.py
-      - name: Publish to abuomara4/waad
-        env:
-          TOKEN: ${{ secrets.WAAD_PAGES_TOKEN }}
-          MSG: ${{ github.event.head_commit.message }}
         run: |
-          test -n "$TOKEN" || { echo "::error::Add the WAAD_PAGES_TOKEN secret"; exit 1; }
-          git clone -q "https://x-access-token:${TOKEN}@github.com/abuomara4/waad.git" site
-          cp app/waad-app.html site/index.html
-          cd site
-          git config user.name "waad-deploy"; git config user.email "waad-deploy@users.noreply.github.com"
-          if git diff --quiet; then echo "no app changes"; exit 0; fi
-          git add index.html; git commit -q -m "Deploy ${GITHUB_SHA::7}: ${MSG:-manual run}"; git push -q
+          python3 app/build.py
+          python3 site/build.py
+      - name: Publish (commit the built app to main; GitHub Pages serves it)
+        run: |
+          mkdir -p site/app && cp app/waad-app.html site/app/index.html
+          git config user.name "waad-deploy"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/app/index.html site/index.html
+          if git diff --cached --quiet; then echo "no app changes"; exit 0; fi
+          git commit -q -m "Deploy ${GITHUB_SHA::7}: built app [skip ci]"
+          git pull -q --rebase origin main
+          git push -q origin HEAD:main

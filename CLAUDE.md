@@ -28,9 +28,10 @@ bash supabase/tests/run.sh           # must say "0 failed"   (needs docker/postg
 
 ## Deploy — automated by CI (this replaces all manual steps)
 `.github/workflows/deploy.yml`: on push to `main` it runs the DB tests + i18n check + build + browser tests, then (main only) applies NEW Supabase migrations and publishes the app.
-Two repository secrets the owner adds once (Settings → Secrets and variables → Actions):
+One repository secret the owner adds once (Settings → Secrets and variables → Actions):
 - `SUPABASE_DB_URL` — Supabase → Project Settings → Database → connection string (URI, session pooler).
-- `WAAD_PAGES_TOKEN` — a GitHub fine-grained token with Contents: Read/Write on `abuomara4/waad` only.
+Publishing needs no token: the deploy job commits the built app to `site/app/index.html` on `main` with its own `GITHUB_TOKEN` (commit tagged `[skip ci]`), and GitHub Pages serves `main` /.
+First deploy treats migrations up to `supabase/BASELINE` as already applied by hand and applies the rest.
 After that: edit source → build + tests green → commit → push. CI migrates Supabase and deploys. No manual SQL editor, no manual file upload.
 
 ## Conventions
@@ -39,4 +40,5 @@ After that: edit source → build + tests green → commit → push. CI migrates
 - Roles: owner/admin/hr/finance/accountant/storekeeper/sales/purch + employee. Modules gated by `company_subscriptions.modules`.
 
 ## Live
-Hosted via GitHub Pages at `abuomara4.github.io/waad/site/app/` (Cloudflare Pages `waad-4k1.pages.dev` is currently not resolving — to revisit). Current built app SHA is in the repo's latest commit on `site/app/index.html`.
+Hosted via GitHub Pages: system at `abuomara4.github.io/waad/site/app/`, landing page at `/waad/site/`. The repo-root `index.html` only redirects to `site/app/` (keeps query + hash). Cloudflare Pages `waad-4k1.pages.dev` serves the landing page.
+Local testing on macOS: `brew install postgresql@16`, then run tests with `LC_ALL=en_US.UTF-8 PG_BIN=/opt/homebrew/opt/postgresql@16/bin PATH=/opt/homebrew/opt/postgresql@16/bin:$PATH`. Browser tests need `pip install playwright==1.49.1 openpyxl pillow numpy opencv-python-headless`. Current built app SHA is in the repo's latest commit on `site/app/index.html`.
