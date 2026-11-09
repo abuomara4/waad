@@ -1,0 +1,83 @@
+# Waad: test every change, then publish it.
+#   1) database tests (all migrations on a throwaway Postgres), translation check, app build, browser tests
+#   2) on main only, after the tests pass: apply new database migrations to Supabase, then publish the app
+# Needs two repository secrets (Settings → Secrets and variables → Actions), added by the owner himself:
+#   SUPABASE_DB_URL   — Supabase → Project Settings → Database → Connection string (URI, session pooler)
+#   WAAD_PAGES_TOKEN  — GitHub fine-grained token with "Contents: Read and write" on abuomara4/waad only
+name: Test and deploy
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Database tests
+        run: bash supabase/tests/run.sh | tee db.log; grep -q ' 0 failed' db.log
+      - name: Every Arabic text has an English translation
+        run: python3 app/i18n/extract.py 2> i18n.log; cat i18n.log; grep -q ' 0 missing' i18n.log
+      - name: Build the app
+        run: python3 app/build.py
+      - name: Browser tests
+        run: |
+          pip install --break-system-packages playwright==1.49.1 openpyxl
+          python3 -m playwright install --with-deps chromium
+          export CHROME_PATH=$(python3 -c "from playwright.sync_api import sync_playwright as s; p=s().start(); print(p.chromium.executable_path); p.stop()")
+          bash devserver/start.sh app > dev.log 2>&1
+          SHOTS=/tmp/shots python3 app/tests/e2e_app.py
+      - uses: actions/upload-artifact@v4
+        with: { name: waad-app, path: app/waad-app.html }
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply new database migrations
+        env:
+          DB: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          test -n "$DB" || { echo "::error::Add the SUPABASE_DB_URL secret"; exit 1; }
+          sudo apt-get install -y -qq postgresql-client > /dev/null
+          P="psql $DB -v ON_ERROR_STOP=1 -X -q -At"
+          $P -c "create table if not exists public.schema_migrations (version text primary key, applied_at timestamptz not null default now());
+                 alter table public.schema_migrations enable row level security;
+                 revoke all on public.schema_migrations from anon, authenticated;"
+          # first run: everything up to the baseline was applied by hand before this pipeline existed
+          if [ "$($P -c 'select count(*) from public.schema_migrations')" = "0" ]; then
+            base=$(cat supabase/BASELINE)
+            for f in supabase/migrations/*.sql; do v=$(basename "$f" .sql); [[ "$v" > "$base" ]] || $P -c "insert into public.schema_migrations(version) values ('$v')"; done
+          fi
+          for f in supabase/migrations/*.sql; do
+            v=$(basename "$f" .sql)
+            if [ "$($P -c "select count(*) from public.schema_migrations where version = '$v'")" = "0" ]; then
+              echo "applying $v"
+              $P -1 -f "$f" -c "insert into public.schema_migrations(version) values ('$v')"
+            fi
+          done
+      - name: Build
+        run: python3 app/build.py
+      - name: Publish to abuomara4/waad
+        env:
+          TOKEN: ${{ secrets.WAAD_PAGES_TOKEN }}
+          MSG: ${{ github.event.head_commit.message }}
+        run: |
+          test -n "$TOKEN" || { echo "::error::Add the WAAD_PAGES_TOKEN secret"; exit 1; }
+          git clone -q "https://x-access-token:${TOKEN}@github.com/abuomara4/waad.git" site
+          cp app/waad-app.html site/index.html
+          cd site
+          git config user.name "waad-deploy"; git config user.email "waad-deploy@users.noreply.github.com"
+          if git diff --quiet; then echo "no app changes"; exit 0; fi
+          git add index.html; git commit -q -m "Deploy ${GITHUB_SHA::7}: ${MSG:-manual run}"; git push -q

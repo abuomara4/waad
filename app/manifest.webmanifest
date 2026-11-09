@@ -1,0 +1,27 @@
+{
+  "name": "وعد — نظام إدارة المنشآت",
+  "short_name": "وعد",
+  "description": "الموارد البشرية والرواتب والمالية والمبيعات والمشتريات والمخزون في نظام واحد.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#131b2e",
+  "theme_color": "#131b2e",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

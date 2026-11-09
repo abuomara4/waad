@@ -1,0 +1,42 @@
+# Waad (وعد) — bilingual HR + ERP for Saudi SMEs
+
+Owner: Abdulaziz Al-Fawzan (HR professional, Riyadh). Reply in Arabic, concise, direct, show trade-offs.
+Everything is bilingual Arabic (RTL, default) + English, must follow Saudi Labor Law, work on desktop + mobile.
+Free-tier only (Supabase free plan + GitHub). One account = one company. Platform admin sees only subscription metadata, never company data.
+
+## What this is
+A single-file vanilla-JS web app (no framework, no bundler) with a Supabase (Postgres + PostgREST + Auth) backend.
+The whole frontend is concatenated into ONE self-contained HTML file and hosted statically.
+
+## Layout
+- `app/src/*.js` + `app/src/style.css` — the source. Each module registers routes on `VIEWS['#/...']`.
+- `app/build.py` — concatenates `app/i18n/en.tsv` (as a `const EN = {...}`) + an EXPLICIT list of `src/*.js` into `app/waad-app.html`. The file list is hard-coded in build.py (not a glob) — add new src files there.
+- `app/i18n/en.tsv` — Arabic→English, one pair per `\t` line. UI is authored in Arabic; `tr()` translates each Arabic run at render time. Add entries with `echo 'arabic|english' | python3 app/i18n/add.py` (it re-sorts). `python3 app/i18n/extract.py` MUST print `0 missing`.
+- `supabase/migrations/NNNN_*.sql` — ordered DB migrations (RLS on every table; `has_role(company, roles[])` gates access).
+- `supabase/tests/run.sh` — spins a throwaway Postgres, applies all migrations + test files, must end `… 0 failed`.
+- `app/tests/e2e_app.py` — Playwright end-to-end against the dev server.
+- `devserver/start.sh app` — serves the built app on port 54321 with a mock Supabase; needs a FRESH DB each run (restart between runs).
+- `site/` — the published output dir (marketing `site/index.html`, system `site/app/index.html`). `site/build.py` wraps the app.
+- `docs/RULES.md` — Saudi Labor Law rules; any change needs a cited source.
+
+## Build / test (run before every commit)
+```
+python3 app/build.py                 # -> app/waad-app.html  (print is code-point count, not bytes)
+python3 app/i18n/extract.py          # must say "0 missing"
+bash supabase/tests/run.sh           # must say "0 failed"   (needs docker/postgres)
+```
+
+## Deploy — automated by CI (this replaces all manual steps)
+`.github/workflows/deploy.yml`: on push to `main` it runs the DB tests + i18n check + build + browser tests, then (main only) applies NEW Supabase migrations and publishes the app.
+Two repository secrets the owner adds once (Settings → Secrets and variables → Actions):
+- `SUPABASE_DB_URL` — Supabase → Project Settings → Database → connection string (URI, session pooler).
+- `WAAD_PAGES_TOKEN` — a GitHub fine-grained token with Contents: Read/Write on `abuomara4/waad` only.
+After that: edit source → build + tests green → commit → push. CI migrates Supabase and deploys. No manual SQL editor, no manual file upload.
+
+## Conventions
+- Money/legal logic = pure functions with tests. Never invent legal facts or rates; verify and cite.
+- Keep the app one self-contained file; external scripts only from allowed CDNs; inline CSS/JS.
+- Roles: owner/admin/hr/finance/accountant/storekeeper/sales/purch + employee. Modules gated by `company_subscriptions.modules`.
+
+## Live
+Hosted via GitHub Pages at `abuomara4.github.io/waad/site/app/` (Cloudflare Pages `waad-4k1.pages.dev` is currently not resolving — to revisit). Current built app SHA is in the repo's latest commit on `site/app/index.html`.
