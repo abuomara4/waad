@@ -1243,6 +1243,10 @@ with sync_playwright() as pw:
     pp.wait_for_selector('#ppage tbody tr'); ok('ظاهر الآن' in pp.inner_text('#ppage'), 'admin site: an announcement is posted and shown now')
     o.reload(); o.wait_for_selector('#ann .ann'); ok('صيانة مجدولة الليلة' in o.inner_text('#ann'), 'the system shows the announcement to company users')
     o.click('#ann .ann .x'); o.reload(); o.wait_for_selector('#nav'); o.wait_for_timeout(500); ok(o.locator('#ann .ann').count() == 0, 'a closed announcement stays closed for that user')
+    # with the production setting on, an admin without two-step verification is sent to set it up first
+    sqlx("update platform_settings set require_admin_mfa = true"); pp.reload(); pp.wait_for_selector('#pmfs')
+    ok('فعّل التحقق بخطوتين' in pp.inner_text('#app') and pp.locator('#ppage').count() == 0, 'admin site: two-step verification is required before it opens')
+    sqlx("update platform_settings set require_admin_mfa = false"); pp.reload(); pp.wait_for_selector('#ptabs')
     # someone who is not on the Waad team gets nothing from the admin site
     op = o.context.new_page(); op.goto(BASE + '/waad-admin.html'); op.wait_for_selector('.auth .card h2')
     ok('غير مفعّل في لوحة الإدارة' in op.inner_text('#app') and op.locator('#ppage').count() == 0, 'a company owner cannot open the admin site'); op.close()
@@ -1270,6 +1274,9 @@ with sync_playwright() as pw:
     pp.fill('#nform textarea', 'اتصلت بالمالك'); pp.click('#nform button'); pp.wait_for_timeout(700)
     pp.click('#cpay'); pp.wait_for_selector('#dlg select[name=plan]'); pp.select_option('#dlg select[name=plan]', index=1); modal_ok(pp); pp.wait_for_timeout(700)
     t = pp.inner_text('#ppage'); ok('اتصلت بالمالك' in t and '299' in t and 'الأساسية' in t, 'company page: a note and a payment on a plan are recorded')
+    pp.evaluate("window.__print=window.print;window.print=()=>{};0"); pp.click('[data-rc]')
+    ok(pp.evaluate("document.getElementById('printarea').innerText.includes('إيصال استلام دفعة') && document.getElementById('printarea').innerText.includes('299') && document.getElementById('printarea').innerText.includes('ليس فاتورة ضريبية')"), 'company page: a payment receipt prints with the amount')
+    pp.evaluate("window.print=window.__print;window.dispatchEvent(new Event('afterprint'))")
     ok('0511111111' in t and 'الرياض' in t and 'تجارة' in t and pp.locator('#ppage a[href^="https://wa.me/966511111111"]').count() == 1, 'company page: sign-up profile with a WhatsApp button')
     ok(sql("(select plan || '|' || (sub_ends - current_date) from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'منشأة تنتظر القبول')") == 'الأساسية|60',
        'the payment extends the subscription by the plan period after its current end')

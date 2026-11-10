@@ -3,7 +3,7 @@
 \set QUIET 1
 set client_min_messages = notice;
 -- most tests create a company and use it at once: approval of new companies (0068) is tested on its own below
-update public.platform_settings set require_approval = false;
+update public.platform_settings set require_approval = false, require_admin_mfa = false;   -- (0071 is tested on its own below)
 
 -- ---------- test helpers ----------
 create schema t;
@@ -2540,6 +2540,21 @@ select t.ok((select (usage->>'employees')::int > 0 and usage->'modules' ? 'hr' a
 select t.ok((select not (to_jsonb(x) ? 'full_name') and not (usage ? 'names') from public.platform_companies() x where company_id = :'cid'), 'usage holds counts only, no records');
 select t.err($$select public.company_usage('$$ || :'cid' || $$')$$, 'permission denied', 'the usage counter cannot be called directly');
 reset role;
+
+-- ================= ADMIN SITE REQUIRES TWO-STEP VERIFICATION (0071) =================
+update public.platform_settings set require_admin_mfa = true;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false), set_config('request.jwt.claims', '{"aal":"aal1"}', false); set role authenticated;
+select t.ok(not public.is_platform_admin() and public.platform_needs_mfa(), 'an admin without two-step verification cannot use the admin site and is asked to set it up');
+select t.err($$select * from public.platform_companies()$$, '42501|غير مصرح', 'admin functions refuse a one-step session');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false), set_config('request.jwt.claims', '{"aal":"aal2"}', false); set role authenticated;
+select t.ok(public.is_platform_admin() and not public.platform_needs_mfa(), 'with a verified second step the admin site opens');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false), set_config('request.jwt.claims', '{"aal":"aal1"}', false); set role authenticated;
+select t.ok(not public.platform_needs_mfa(), 'company users are not asked for the admin two-step setup');
+reset role;
+select set_config('request.jwt.claims', '', false);
+update public.platform_settings set require_admin_mfa = false;
 
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

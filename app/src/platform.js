@@ -97,6 +97,15 @@ function adminAuthView(msg = '') {
       await authApi.signIn(u.includes('@') ? u : adminEmail(u), f.password); return boot(); }); }
     catch (er) { showErr('#aerr', er); } };
 }
+// the admin site needs two-step verification: a team member without it sets it up here first
+function adminMfaView() {
+  $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><h2>${esc(tr('فعّل التحقق بخطوتين'))}</h2>
+    <p>${esc(tr('لوحة الإدارة تتحكم في اشتراكات كل المنشآت، فما تفتح إلا بعد تفعيل التحقق بخطوتين لحسابك.'))}</p>
+    <p class="muted small">${esc(tr('تحتاج تطبيق مصادقة في جوالك مثل Google Authenticator أو Microsoft Authenticator. بعدها كل دخول يطلب رمز من التطبيق.'))}</p>
+    <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn pri" id="pmfs">${esc(tr('ابدأ التفعيل'))}</button><button class="btn" id="plo">${esc(tr('تسجيل الخروج'))}</button></div></div></div></div>`;
+  $('#pmfs').onclick = () => mfaSetup();
+  $('#plo').onclick = async () => { await authApi.signOut(); authView(); };
+}
 function notAdminView() {
   $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><h2>${esc(tr('هذا الحساب غير مفعّل في لوحة الإدارة'))}</h2>
     <p class="muted">${esc(tr('اللوحة لفريق وعد فقط. إذا أنشأت الحساب للتو، يتفعّل لما يضيفه أدمن من «فريق وعد».'))}</p>
@@ -439,7 +448,7 @@ PV.company = async (page, id) => {
     <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الدفعات'))}</h2>
       ${tbl([{ t: 'التاريخ', h: p => `<span class="num">${esc(p.paid_on)}</span>` }, { t: 'المبلغ', r: 1, h: p => money0(p.amount) }, { t: 'الطريقة', h: p => esc(tr(PAY_M[p.method] || p.method)) },
         { t: 'المدة', h: p => p.days ? `<span class="num">${p.days}</span> ${esc(tr('يوم'))}` : '—' }, { t: 'ملاحظة', h: p => `<span data-nt>${esc(p.note || '')}</span>` },
-        { t: '', h: p => `<a href="#" data-dp="${esc(p.id)}">${esc(tr('حذف'))}</a>` }], d.payments, { empty: 'ما فيه دفعات' })}</div>
+        { t: '', h: p => `<a href="#" data-rc="${esc(p.id)}">${esc(tr('إيصال'))}</a> · <a href="#" data-dp="${esc(p.id)}">${esc(tr('حذف'))}</a>` }], d.payments, { empty: 'ما فيه دفعات' })}</div>
     <div class="card"><h2>${esc(tr('سجل الاشتراك'))}</h2>
       ${tbl([{ t: 'التاريخ', h: h => `<span class="num">${esc(String(h.at).slice(0, 16).replace('T', ' '))}</span>` }, { t: 'الحالة بعد التغيير', h: h => esc(histTxt(h)) }], d.history, { empty: 'ما فيه تغييرات' })}</div>`;
   bindCopy(page); bindQuick(page, [c], st);
@@ -449,6 +458,7 @@ PV.company = async (page, id) => {
   $('#nform', page).onsubmit = async ev => { ev.preventDefault();
     try { await db.rpc('platform_add_note', { p_company: id, p_body: ev.target.body.value }); platformView(); } catch (er) { showErr($('#nerr', page), er); } };
   $$('[data-dn]', page).forEach(a => a.onclick = async ev => { ev.preventDefault(); await db.rpc('platform_delete_note', { p_id: a.dataset.dn }); platformView(); });
+  $$('[data-rc]', page).forEach(a => a.onclick = ev => { ev.preventDefault(); const p = d.payments.find(x => x.id === a.dataset.rc); if (p) printReceipt(c, p, plans.find(x => x.id === p.plan_id)); });
   $$('[data-dp]', page).forEach(a => a.onclick = async ev => { ev.preventDefault();
     if (!(await confirmBox(tr('حذف الدفعة'), tr('تنحذف من السجل والإيرادات. مدة الاشتراك ما تتغير.'), tr('حذف')))) return;
     await db.rpc('platform_delete_payment', { p_id: a.dataset.dp }); platformView(); });
@@ -508,4 +518,26 @@ function planForm(p) {
       await db.rpc('platform_save_plan', { p: { id: p.id || null, name: f.name, price: f.price, period_days: f.period_days, max_users: f.max_users || '', modules: mods, active: f.active } });
       toast(tr('تم الحفظ')); platformView();
     } });
+}
+
+// a receipt for a payment received (print or «Save as PDF»); Arabic and English on one sheet. Not a tax invoice.
+function printReceipt(c, p, plan) {
+  const no = 'R-' + String(p.id).replace(/-/g, '').slice(0, 8).toUpperCase(), M = PAY_M[p.method] || p.method;
+  const M_EN = { transfer: 'Bank transfer', card: 'Card', cash: 'Cash', other: 'Other' }[p.method] || p.method;
+  const row = (ar, en, v) => `<tr><th>${esc(ar)}<div class="en">${esc(en)}</div></th><td>${v}</td></tr>`;
+  const w = document.createElement('div'); w.className = 'rcpt'; w.setAttribute('data-nt', '');
+  w.innerHTML = `<div class="rh"><div>${brand()}</div><div class="rt"><b>إيصال استلام دفعة</b><div class="en">Payment receipt</div><div class="num">${esc(no)}</div></div></div>
+    <table>${row('التاريخ', 'Date', `<span class="num">${esc(p.paid_on)}</span>`)}${row('استلمنا من', 'Received from', esc(c.name))}
+      ${row('المبلغ', 'Amount', `<b class="num">${money0(p.amount)}</b> ريال · SAR`)}${row('طريقة الدفع', 'Method', esc(M) + ' · ' + esc(M_EN))}
+      ${plan ? row('الباقة', 'Plan', esc(plan.name)) : ''}${p.days ? row('مدة الاشتراك', 'Period', `<span class="num">${p.days}</span> يوم · days`) : ''}
+      ${p.note ? row('ملاحظة', 'Note', esc(p.note)) : ''}</table>
+    <p class="rf">هذا إيصال استلام وليس فاتورة ضريبية.<br><span class="en">This is a receipt of payment, not a tax invoice.</span></p>
+    <p class="rf">وعد · Waad — ${esc(SITE_URL)}</p>`;
+  printWith(w, `@page{size:A5 portrait;margin:12mm}
+    .rcpt{font-family:inherit;color:#111;direction:rtl}.rcpt .en{direction:ltr;font-size:11px;color:#555}
+    .rcpt .rh{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #946a24;padding-bottom:10px;margin-bottom:14px}
+    .rcpt .rh .brand{justify-content:flex-start;margin:0}.rcpt .wlogo{height:40px}.rcpt .wl-d{display:none!important}.rcpt .wl-l{display:block!important}
+    .rcpt .rt{text-align:left}.rcpt .rt b{font-size:18px}
+    .rcpt table{width:100%;border-collapse:collapse;font-size:14px}.rcpt th,.rcpt td{border-bottom:1px solid #ddd;padding:8px 6px;text-align:start;vertical-align:top}
+    .rcpt th{width:38%;color:#444;font-weight:600}.rcpt .rf{font-size:11px;color:#666;margin-top:14px;text-align:center}`);
 }

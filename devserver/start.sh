@@ -12,6 +12,6 @@ $RUNAS $BIN/pg_ctl -D $DATA -o "-p $PORT -k /tmp" -l $DATA/log -w start >/dev/nu
 P="psql -X -q -h /tmp -p $PORT -U postgres -v ON_ERROR_STOP=1"
 $P -f "$ROOT/supabase/tests/00_supabase_shim.sql"
 for f in "$ROOT"/supabase/migrations/*.sql; do $P -f "$f"; done
-$P -c "update public.platform_settings set require_approval = false" >/dev/null   # dev/tests: new companies start at once (approval is tested on its own)
+$P -c "update public.platform_settings set require_approval = false, require_admin_mfa = false" >/dev/null   # dev/tests: new companies start at once (approval is tested on its own)
 nohup python3 "$ROOT/devserver/mock_supabase.py" $PORT $HTTP "$1" "${2:-1}" > /tmp/waad-mock.log 2>&1 & echo $! > /tmp/waad-mock.pid
 sleep 1; echo "ready: http://127.0.0.1:$HTTP"

@@ -543,6 +543,8 @@
 إيرادات نقدية أخرى	Other cash income
 إيرادات هذا الشهر	Revenue this month
 إيراني	Iranian
+إيصال	Receipt
+إيصال استلام دفعة	Payment receipt
 إيطالي	Italian
 إيقاف	Suspend
 إيقاف التحقق بخطوتين	Turn off two-step verification
@@ -553,6 +555,7 @@
 ابحث باسم أو مسمى	Search by name or title
 ابحث برقم تسلسلي لتعرف متى دخل ولمن بيع	Search a serial number to see when it came in and who bought it
 ابدأ	Start
+ابدأ التفعيل	Start setup
 ابدأ بحملة جديدة	start a new campaign
 ابدأ بمشروع جديد	start a new project
 ابن	Son
@@ -654,6 +657,7 @@
 استلام العهدة	Receive the item
 استلام بضاعة	Receive goods
 استلم البضاعة أولاً	receive the goods first
+استلمنا من	Received from
 استلمها	Received by
 استلمها أولاً	receive it first
 استهداف نية الشراء	target purchase intent
@@ -1942,6 +1946,7 @@
 بعد التسجيل اطبع الإشعار وسلّمه للعامل	After recording, print the notice and hand it to the worker
 بعد الحفظ يظهر رمز دعوة	After saving, an invitation code appears
 بعد المراجعة يعتمده المدير العام أو المدير المالي	After review, the General Manager or Finance Manager approves it
+بعدها كل دخول يطلب رمز من التطبيق	After that every sign-in asks for a code from the app
 بقالة الحي	Neighborhood Grocery
 بقدر الوقت المتأخر	for the time late
 بقيد إقفال	with a closing entry
@@ -2125,6 +2130,7 @@
 تحت التجربة	On probation
 تحت التجربة حتى	On probation until
 تحت الطلب	On order
+تحتاج تطبيق مصادقة في جوالك مثل	You need an authenticator app on your phone, such as
 تحتاج صلاحية	requires the permission
 تحتاج صلاحية المبيعات أو المخزون	requires sales or stock permission
 تحتاج صلاحية المشتريات أو المخزون	requires purchasing or stock permission
@@ -3167,6 +3173,7 @@
 طباعة ورقة العد	Print count sheet
 طريقة الاحتساب	How it is counted
 طريقة التحقيق	Investigation method
+طريقة الدفع	Payment method
 طريقة الفوترة	Billing method
 طلب	A request for
 طلب الشراء غير معتمد	The purchase request is not approved
@@ -3406,6 +3413,7 @@
 فسخ بدون مكافأة	Dismissal without award
 فعالية	Event
 فعّل	turn on
+فعّل التحقق بخطوتين	Turn on two-step verification
 فعّل التحقق بخطوتين حتى لا تكفي كلمة المرور وحدها للدخول	turn on two-step verification so a password alone cannot sign in
 فعّل خدمة الموقع في جوالك ثم أعد المحاولة	Turn on location on your phone and try again
 فعّله من الإعدادات	enable it in settings
@@ -3420,6 +3428,7 @@
 فلسطيني	Palestinian
 فللعامل الاعتراض أمام المحاكم العمالية خلال	the worker may object before the labour courts within
 فلن يستطيع الموظف الدخول حتى يُطفأ	so the employee cannot sign in until it is turned off
+فما تفتح إلا بعد تفعيل التحقق بخطوتين لحسابك	so it opens only after two-step verification is on for your account
 فني عمليات	Operations technician
 فواتير المبيعات	Sales invoices
 فواتير المشتريات	Purchase bills
@@ -3811,6 +3820,7 @@
 لوحة إدارة المنصة	Platform admin
 لوحة إدارة وعد	Waad admin
 لوحة الإدارة	Admin
+لوحة الإدارة تتحكم في اشتراكات كل المنشآت	The admin site controls every company subscription
 لوحة الإدارة لفريق وعد فقط	The admin site is for the Waad team only
 لوحة المالية	Finance dashboard
 لوحة الموارد البشرية	HR dashboard
@@ -3931,6 +3941,7 @@
 مخصص مكافأة نهاية الخدمة	End-of-service provision
 مخطط	Planned
 مخططة	Planned
+مدة الاشتراك	Subscription period
 مدة الاشتراك ما تتغير	The subscription length does not change
 مدة التأجيل بالأيام	Deferral in days
 مدة التأجيل من يوم إلى	The deferral is from one day to
@@ -4333,6 +4344,7 @@
 هجري	Hijri
 هدف	goal
 هذا أنا	This is me
+هذا إيصال استلام وليس فاتورة ضريبية	This is a receipt of payment, not a tax invoice
 هذا الأسبوع	This week
 هذا الإجراء لا يمكن التراجع عنه	This action cannot be undone
 هذا الإجراء يتطلب أحد الأدوار	this action requires one of the roles

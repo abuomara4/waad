@@ -419,7 +419,7 @@ async function boot() {
     if (mfa && mfa.enrolled && mfa.aal !== 'aal2') return mfaChallengeView();
     if (LS.get('waad.terms')) { db.rpc('accept_terms', { p_version: LS.get('waad.terms') }).catch(() => {}); LS.set('waad.terms', null); }
     if (ADMIN) {
-      if (!S.platform) return notAdminView();
+      if (!S.platform) return (await db.rpc('platform_needs_mfa').catch(() => false)) ? adminMfaView() : notAdminView();
       const me = await db.rpc('platform_admin_me').catch(() => null);
       return me && me.must_change ? changePasswordView(true) : platformView();
     }
@@ -734,7 +734,7 @@ async function mfaSetup() {
   const on = fs.find(f => f.status === 'verified');
   if (on) {
     modal('التحقق بخطوتين', `<div class="note">${esc(tr('مفعّل — يُطلب رمز من تطبيق المصادقة عند كل دخول.'))}</div><p class="muted small">${esc(tr('عند الإيقاف يكفي البريد وكلمة المرور للدخول إلى حسابك.'))}</p>`, { ok: 'إيقاف التحقق بخطوتين', onOk: async () => {
-      await authFetch('factors/' + on.id, 'DELETE'); S.mfa = { enrolled: false }; toast(tr('أُوقف التحقق بخطوتين')); route(); } });
+      await authFetch('factors/' + on.id, 'DELETE'); S.mfa = { enrolled: false }; toast(tr('أُوقف التحقق بخطوتين')); ADMIN ? boot() : route(); } });
     return;
   }
   for (const f of fs) await authFetch('factors/' + f.id, 'DELETE').catch(() => {});   // leftovers of an unfinished setup
@@ -744,7 +744,7 @@ async function mfaSetup() {
       <li>${esc(tr('امسح الرمز التالي من التطبيق، أو أدخل المفتاح يدوياً.'))}</li><li>${esc(tr('اكتب الرمز المكوّن من 6 أرقام الذي يظهر في التطبيق.'))}</li></ol>
     <div style="text-align:center" data-nt>${QR.svg(t.uri || '', 180)}<div class="small num" dir="ltr" id="mfs" style="word-break:break-all;margin-top:6px">${esc(secret)}</div></div>
     <div class="fg">${field('رمز التحقق', '<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" dir="ltr" required>')}</div>`, {
-    ok: 'تفعيل', onOk: async f => { await mfaVerify(en.id, (f.code || '').trim()); S.mfa = { enrolled: true, aal: 'aal2' }; toast(tr('فُعّل التحقق بخطوتين')); route(); } });
+    ok: 'تفعيل', onOk: async f => { await mfaVerify(en.id, (f.code || '').trim()); S.mfa = { enrolled: true, aal: 'aal2' }; toast(tr('فُعّل التحقق بخطوتين')); ADMIN ? boot() : route(); } });
 }
 // report unexpected script errors (message and place only) so they can be fixed before anyone complains
 let ERR_N = 0;

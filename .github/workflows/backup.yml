@@ -1,0 +1,29 @@
+# Every day at 05:00 Riyadh: an encrypted copy of the database, kept for 30 days as a workflow artifact.
+# Secrets: SUPABASE_DB_URL (already set) + BACKUP_PASSPHRASE (the owner's own passphrase). Restore: docs/BACKUP.md.
+name: daily backup
+on:
+  schedule: [{ cron: '0 2 * * *' }]
+  workflow_dispatch:
+concurrency: { group: backup, cancel-in-progress: false }
+jobs:
+  backup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: PostgreSQL 17 client (matches or is newer than the Supabase server)
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client-17 > /dev/null
+      - name: Dump and encrypt
+        env:
+          DB: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          PGBIN: /usr/lib/postgresql/17/bin/
+          OUT: backup
+        run: bash .github/scripts/backup.sh
+      - uses: actions/upload-artifact@v4
+        with: { name: waad-backup, path: backup/*.enc, retention-days: 30, if-no-files-found: error }
