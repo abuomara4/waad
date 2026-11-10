@@ -1245,6 +1245,24 @@ with sync_playwright() as pw:
     # someone who is not on the Waad team gets nothing from the admin site
     op = o.context.new_page(); op.goto(BASE + '/waad-admin.html'); op.wait_for_selector('.auth .card h2')
     ok('ليس من فريق وعد' in op.inner_text('#app') and op.locator('#ppage').count() == 0, 'a company owner cannot open the admin site'); op.close()
+    # the Waad team: an admin adds a member who signs in with a username, then must change the temporary password
+    go(pp, '#/team'); pp.wait_for_selector('#tadd'); pp.click('#tadd'); pp.wait_for_selector('#dlg input[name=user]')
+    pp.fill('#dlg input[name=user]', 'sara'); pp.fill('#dlg input[name=pw]', 'TempPass123'); pp.click('#mok')   # the dialog reopens with the credentials
+    pp.wait_for_selector('#dlg[open] [data-nt]'); ok('sara' in pp.inner_text('#dlg') and 'TempPass123' in pp.inner_text('#dlg'), 'admin site: a team member is added with a username and a temporary password')
+    pp.click('#mx'); pp.wait_for_timeout(500)
+    tc = b.new_context(viewport={'width': 390, 'height': 844}, locale='ar-SA'); tc.add_init_script(INIT)
+    tp = tc.new_page(); tp.errors = []; tp.on('pageerror', lambda e: tp.errors.append(str(e))); tp.goto(BASE + '/waad-admin.html')
+    tp.wait_for_selector('#af input[name=user]'); ok(tp.locator('#af input[name=email]').count() == 0, 'admin site signs in with a username, not an e-mail')
+    tp.fill('#af input[name=user]', 'Sara'); tp.fill('#af input[name=password]', 'TempPass123'); tp.click('#ab')
+    tp.wait_for_selector('#pf'); tp.fill('#pf input[name=p1]', 'SaraOwnPass9'); tp.fill('#pf input[name=p2]', 'SaraOwnPass9'); tp.click('#pb')
+    tp.wait_for_selector('.plat tbody tr'); ok('شركة وعد التجريبية' in tp.inner_text('#ppage'), 'the new member changes the temporary password and opens the admin site')
+    ok(tp.evaluate('document.documentElement.scrollWidth') <= 390, 'admin site fits a phone screen')
+    # a team account someone creates with ?setup is not an admin until it is activated
+    tp.evaluate("localStorage.removeItem('waad.session')"); tp.goto(BASE + '/waad-admin.html?setup'); tp.wait_for_selector('#af input[name=password2]')
+    tp.fill('#af input[name=user]', 'intruder'); tp.fill('#af input[name=password]', 'Intruder123'); tp.fill('#af input[name=password2]', 'Intruder123'); tp.click('#ab')
+    tp.wait_for_selector('.auth .note'); tp.fill('#af input[name=user]', 'intruder'); tp.fill('#af input[name=password]', 'Intruder123'); tp.click('#ab')
+    tp.wait_for_selector('.auth .card h2'); tp.wait_for_timeout(600); ok('ليس من فريق وعد' in tp.inner_text('#app'), 'a self-made team account gets nothing until an admin activates it')
+    ok(not tp.errors, 'no JS errors for the team member %s' % tp.errors[:2]); tc.close()
     ok(not pp.errors, 'no JS errors on the admin site %s' % pp.errors[:2]); pp.context.close()
 
     # ---------- two-step verification ----------

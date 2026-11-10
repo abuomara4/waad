@@ -2427,5 +2427,36 @@ select t.ok((select count(*) = 0 from public.my_announcements()), 'a deleted ann
 reset role;
 select t.ok(not (public.site_content() ? 'banner'), 'clearing a text brings the built-in one back');
 
+-- ================= ADMIN TEAM: username sign-in, added by an admin (0063) =================
+insert into auth.users(id, email, created_at) values ('00000000-0000-0000-0000-0000000000b1', 'sara@admin.waad.app', now());
+insert into auth.users(id, email, created_at) values ('00000000-0000-0000-0000-0000000000b2', 'old@admin.waad.app', now() - interval '1 day');
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select public.platform_add_admin('sara')$$, '42501|غير مصرح', 'a company user cannot add Waad team members');
+select t.err($$select * from public.platform_team()$$, '42501|غير مصرح', 'a company user cannot list the Waad team');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_add_admin('Sara');
+select t.err($$select public.platform_add_admin('old')$$, 'محجوز', 'an address someone registered earlier cannot be made an admin');
+select t.err($$select public.platform_add_admin('nobody')$$, 'لم يُنشأ', 'a username without an account is refused');
+select t.err($$select public.platform_add_admin('a b')$$, 'اسم المستخدم', 'usernames are latin letters and digits only');
+select t.err($$select public.platform_add_admin('sara')$$, 'مستخدم مسبقاً', 'a username is used once');
+select t.ok((select count(*) = 2 and bool_or(username = 'sara' and must_change and not is_me) from public.platform_team()), 'the team list shows the new member with a temporary password');
+select public.platform_reset_admin_password('sara', 'NewTemp123');
+select t.err($$select public.platform_reset_admin_password('sara', 'short')$$, '8 أحرف', 'team passwords are 8 characters or more');
+reset role;
+select t.ok((select encrypted_password = crypt('NewTemp123', encrypted_password) from auth.users where id = '00000000-0000-0000-0000-0000000000b1'), 'an admin resets a team member''s password');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b1', false); set role authenticated;
+select t.ok(public.is_platform_admin() and (public.platform_admin_me()->>'must_change')::boolean, 'the new member is an admin and must change the temporary password');
+select public.password_changed();
+select t.ok(not (public.platform_admin_me()->>'must_change')::boolean, 'changing the password clears the temporary flag');
+select t.err($$select public.platform_remove_admin('sara')$$, 'حسابك', 'an admin cannot remove themself');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_remove_admin('sara');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b1', false); set role authenticated;
+select t.ok(not public.is_platform_admin(), 'a removed member loses the admin site');
+reset role;
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

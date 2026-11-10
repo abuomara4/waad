@@ -3,7 +3,7 @@
    website texts, and announcements to every company. Metadata only: no company records are ever read here. */
 const SUB_ST = { trial: ['تجربة', 'wait'], active: ['مفعّلة', 'ok'], suspended: ['موقوفة', 'bad'] };
 const subState = c => c.status === 'trial' && c.trial_ends && c.trial_ends < today() ? ['انتهت التجربة', 'bad'] : SUB_ST[c.status] || [c.status, ''];
-const PTABS = [['companies', 'المنشآت'], ['system', 'أرقام النظام'], ['site', 'زوار الموقع'], ['content', 'محتوى الموقع'], ['news', 'الإعلانات']];
+const PTABS = [['companies', 'المنشآت'], ['system', 'أرقام النظام'], ['site', 'زوار الموقع'], ['content', 'محتوى الموقع'], ['news', 'الإعلانات'], ['team', 'فريق وعد']];
 const PV = {};   // tab id -> async (page) => void
 const dayAgo = n => new Date(new Date(today() + 'T12:00:00Z').getTime() - n * 864e5).toISOString().slice(0, 10);
 const pct = (a, b) => b ? Math.round(a * 100 / b) + '%' : '—';
@@ -30,16 +30,48 @@ async function platformView() {
   if (!$('#ppage')) {
     app.innerHTML = `<div class="plat"><header class="top"><div class="brand">${brand()}</div><div class="cname"><b>${esc(tr('لوحة إدارة وعد'))}</b></div><div class="sp"></div>
         <a class="btn sm" href="${SITE_URL}" target="_blank" rel="noopener">${esc(tr('الموقع'))}</a><a class="btn sm" href="${APP_URL}" target="_blank" rel="noopener">${esc(tr('النظام'))}</a>
-        <button class="btn sm" id="pmfa">${esc(tr('التحقق بخطوتين'))}</button>${langBtn('btn sm')}<button class="btn sm" id="plo">${esc(tr('تسجيل الخروج'))}</button></header>
+        <button class="btn sm" id="ppw">${esc(tr('تغيير كلمة المرور'))}</button><button class="btn sm" id="pmfa">${esc(tr('التحقق بخطوتين'))}</button>${langBtn('btn sm')}<button class="btn sm" id="plo">${esc(tr('تسجيل الخروج'))}</button></header>
       <nav class="ptabs" id="ptabs" aria-label="${esc(tr('أقسام اللوحة'))}"></nav>
       <main class="page" id="ppage"></main></div>`;
     $('#plo').onclick = async () => { await authApi.signOut(); S.platform = false; authView(); };
     $('#pmfa').onclick = () => mfaSetup();
+    $('#ppw').onclick = () => changePasswordView(false);
     $('#lg').onclick = () => setLang(LANG === 'en' ? 'ar' : 'en');
   }
   $('#ptabs').innerHTML = PTABS.map(([k, t]) => `<a href="#/${k}"${k === cur ? ' aria-current="page"' : ''}>${esc(tr(t))}</a>`).join('');
   const page = $('#ppage'); page.innerHTML = `<div class="muted">${esc(tr('جارٍ التحميل…'))}</div>`;
   try { await PV[cur](page); } catch (e) { if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+}
+// sign-in for the Waad team: a username and a password (internal address <username>@admin.waad.app, never mailed).
+// ?setup creates the very first account; it becomes an admin only once it is activated.
+function adminAuthView(msg = '') {
+  const setup = new URLSearchParams(location.search).has('setup');
+  $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card">
+    <h2>${esc(tr(setup ? 'إنشاء حساب لفريق وعد' : 'لوحة إدارة وعد'))}</h2>
+    <p class="muted small" style="margin-top:0">${esc(tr(setup ? 'الحساب ما يصير أدمن إلا بعد تفعيله.' : 'لفريق وعد فقط.'))}</p>
+    ${msg ? `<div class="note">${esc(msg)}</div>` : ''}
+    <form id="af" novalidate>${field('اسم المستخدم', '<input name="user" required dir="ltr" autocapitalize="none" autocomplete="username" spellcheck="false">')}<div style="height:10px"></div>
+      ${field('كلمة المرور', pwInput('password', setup ? 'new-password' : 'current-password'))}
+      ${setup ? `<div style="height:10px"></div>${field('تأكيد كلمة المرور', pwInput('password2', 'new-password', ''))}` : ''}
+      <div id="aerr"></div><div style="height:12px"></div><button class="btn pri full" id="ab">${esc(tr(setup ? 'إنشاء الحساب' : 'دخول'))}</button>
+      ${setup ? '' : `<p class="muted small" style="margin:10px 0 0;text-align:center">${esc(tr('نسيت كلمة المرور؟ يعيّنها لك أدمن ثاني من «فريق وعد».'))}</p>`}</form></div>
+    <p class="muted small" style="text-align:center"><a href="#" id="theme" data-theme-btn="text"></a> · ${langBtn('linkbtn')}</p>
+    <p class="muted small afoot"><a href="${SITE_URL}">${esc(tr('← الموقع الرئيسي'))}</a></p></div></div>`;
+  $('#lg').onclick = () => setLang(LANG === 'en' ? 'ar' : 'en');
+  $('#theme').onclick = e => { e.preventDefault(); toggleTheme(); }; applyTheme(curTheme());
+  $('#af').onsubmit = async e => { e.preventDefault(); const f = formData(e.target), u = (f.user || '').trim().toLowerCase();
+    try { await busy($('#ab'), async () => {
+      if (setup) {
+        if (!/^[a-z0-9._-]{3,30}$/.test(u)) throw new Error('اسم المستخدم من ٣ إلى ٣٠ حرفاً إنجليزياً أو رقماً');
+        if ((f.password || '').length < 8) throw new Error('كلمة المرور 8 أحرف على الأقل');
+        if (f.password !== f.password2) throw new Error('كلمتا المرور غير متطابقتين');
+        const r = await authApi.createStaff(adminEmail(u), f.password);
+        if (r.existed) throw new Error('اسم المستخدم محجوز، اختر اسماً آخر');
+        history.replaceState(null, '', location.pathname);
+        return adminAuthView(tr('تم إنشاء الحساب') + ': ' + u + '. ' + tr('يصير أدمن بعد التفعيل، وبعدها ادخل من هنا.'));
+      }
+      await authApi.signIn(u.includes('@') ? u : adminEmail(u), f.password); return boot(); }); }
+    catch (er) { showErr('#aerr', er); } };
 }
 function notAdminView() {
   $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><h2>${esc(tr('هذا الحساب ليس من فريق وعد'))}</h2>
@@ -232,3 +264,48 @@ function annForm(a) {
     } });
   if (a.id) $('#anndel', d).onclick = async () => { await db.rpc('platform_delete_announcement', { p_id: a.id }); d.close(); toast(tr('تم الحذف')); platformView(); };
 }
+
+/* ---------- the Waad team: who can open this site ---------- */
+const tempPw = () => { const c = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789', v = crypto.getRandomValues(new Uint32Array(10)); return [...v].map(x => c[x % c.length]).join(''); };
+const credsBox = (u, pw) => `<p>${esc(tr('أرسل له بياناته، وبيطلب منه النظام يغيّر كلمة المرور أول ما يدخل.'))}</p>
+  <div class="card" style="padding:10px 12px" dir="ltr" data-nt><div>${esc(tr('اسم المستخدم'))}: <b>${esc(u)}</b></div><div>${esc(tr('كلمة المرور المؤقتة'))}: <b>${esc(pw)}</b></div></div>
+  <p class="small muted">${esc(tr('رابط اللوحة'))}: <span dir="ltr">${esc(location.href.split('#')[0].split('?')[0])}</span></p>`;
+PV.team = async page => {
+  const rows = await db.rpc('platform_team');
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('فريق وعد'))}</h1><div class="muted">${esc(tr('كل عضو يدخل اللوحة باسم مستخدم وكلمة مرور. تضيفه بكلمة مرور مؤقتة، ويغيّرها أول ما يدخل.'))}</div></div>
+      <button class="btn pri" id="tadd">${esc(tr('إضافة عضو'))}</button></div>
+    ${tbl([{ t: 'اسم المستخدم', h: a => `<b dir="ltr">${esc(a.username || a.email)}</b>` + (a.is_me ? ` <span class="badge info">${esc(tr('أنت'))}</span>` : '') },
+      { t: 'آخر دخول', h: a => a.last_sign_in ? `<span class="num">${esc(String(a.last_sign_in).slice(0, 10))}</span>` : '—' },
+      { t: 'التحقق بخطوتين', h: a => `<span class="badge ${a.mfa ? 'ok' : 'wait'}">${esc(tr(a.mfa ? 'مفعّل' : 'غير مفعّل'))}</span>` },
+      { t: 'كلمة المرور', h: a => a.must_change ? `<span class="badge wait">${esc(tr('مؤقتة'))}</span>` : `<span class="muted small">${esc(tr('خاصة به'))}</span>` }], rows, { empty: 'ما فيه أعضاء', onRow: true })}
+    <p class="muted small">${esc(tr('اضغط على عضو لإعادة تعيين كلمة مروره أو حذفه من الفريق.'))}</p>`;
+  $('#tadd', page).onclick = () => {
+    const pw = tempPw();
+    modal(tr('إضافة عضو لفريق وعد'), `<div class="fg">${field('اسم المستخدم (إنجليزي، بدون مسافات)', '<input name="user" required dir="ltr" autocapitalize="none" spellcheck="false" placeholder="sara">')}
+        ${field('كلمة المرور المؤقتة', `<input name="pw" required dir="ltr" value="${esc(pw)}">`)}</div>`, {
+      ok: 'إضافة', onOk: async f => {
+        const u = (f.user || '').trim().toLowerCase();
+        if (!/^[a-z0-9._-]{3,30}$/.test(u)) throw new Error('اسم المستخدم من ٣ إلى ٣٠ حرفاً إنجليزياً أو رقماً');
+        if ((f.pw || '').length < 8) throw new Error('كلمة المرور 8 أحرف على الأقل');
+        const r = await authApi.createStaff(adminEmail(u), f.pw);
+        if (r.existed) throw new Error('اسم المستخدم محجوز، اختر اسماً آخر');
+        await db.rpc('platform_add_admin', { p_username: u });
+        setTimeout(() => { modal(tr('تمت إضافة العضو'), credsBox(u, f.pw)); platformView(); }, 0);
+      } });
+  };
+  bindRows(page, rows, a => {
+    if (a.is_me) return changePasswordView(false);
+    if (!a.username) return toast(tr('هذا الحساب يدخل بالبريد'));
+    const pw = tempPw();
+    const d = modal(tr('عضو الفريق') + ': ' + a.username, `<div class="fg">${field('كلمة مرور مؤقتة جديدة', `<input name="pw" required dir="ltr" value="${esc(pw)}">`)}</div>
+      <button type="button" class="btn sm" id="trm" style="margin-top:12px">${esc(tr('حذف من الفريق'))}</button>`, {
+      ok: 'إعادة تعيين كلمة المرور', onOk: async f => {
+        await db.rpc('platform_reset_admin_password', { p_username: a.username, p_password: f.pw });
+        setTimeout(() => { modal(tr('تم تعيين كلمة مرور مؤقتة'), credsBox(a.username, f.pw)); platformView(); }, 0);
+      } });
+    $('#trm', d).onclick = async () => {
+      if (!(await confirmBox(tr('حذف من الفريق'), tr('ما يقدر يدخل اللوحة بعدها.') + ' ' + a.username, tr('حذف')))) return;
+      try { await db.rpc('platform_remove_admin', { p_username: a.username }); toast(tr('تم الحذف')); } catch (e) { toast(e.message); } platformView();
+    };
+  });
+};

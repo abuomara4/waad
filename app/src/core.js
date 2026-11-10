@@ -230,6 +230,7 @@ const LOGO_D = 'data:image/webp;base64,UklGRvYgAABXRUJQVlA4WAoAAAAQAAAAFwEAcgAAQ
 const brand = () => `<div class="brand"><img class="wlogo wl-d" src="${LOGO_D}" alt="وعد Waad"><img class="wlogo wl-l" src="${LOGO_L}" alt="وعد Waad"></div>`;
 // company code can arrive in the link HR shares: …/waad/?c=1FB695
 (() => { try { const c = new URLSearchParams(location.search).get('c'); if (c && /^[A-Za-z0-9]{4,10}$/.test(c) && c.toUpperCase() !== LS.get('waad.ccode')) { LS.set('waad.ccode', c.toUpperCase()); LS.set('waad.cname', null); } } catch (e) {} })();
+const adminEmail = user => String(user).trim().toLowerCase() + '@admin.waad.app';   // Waad team accounts (admin site)
 const staffEmail = (code, empNo) => String(empNo).trim().toLowerCase() + '.' + String(code).trim().toLowerCase() + '@staff.waad.app';
 // the public website (landing page) sits one folder up from the app: site/app/ -> site/, pages.dev/app/ -> pages.dev/
 const SITE_URL = new URL('../', location.href.split('#')[0]).href;
@@ -239,7 +240,7 @@ const DEV_FILE = /waad-(app|admin)\.html$/.test(location.pathname);   // the dev
 const ADMIN_URL = DEV_FILE ? 'waad-admin.html' : new URL('../admin/', location.href.split('#')[0]).href;
 const APP_URL = DEV_FILE ? 'waad-app.html' : new URL('../app/', location.href.split('#')[0]).href;
 function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
-  if (ADMIN) tab = 'in';
+  if (ADMIN) return adminAuthView(msg);   // the admin site signs in with a username (platform.js)
   const app = $('#app'); const ccode = LS.get('waad.ccode') || '', cname = LS.get('waad.cname') || '';
   if (tab === 'staff' && ccode && !cname) {   // code from a link: resolve the company name first
     db.rpc('company_by_code', { p_code: ccode }).then(n => { if (n) { LS.set('waad.cname', n); } else { LS.set('waad.ccode', null); } authView('staff', msg); }).catch(() => { LS.set('waad.ccode', null); authView('staff', msg); });
@@ -267,10 +268,10 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
   }
   const links = tab === 'staff' ? `<a href="#" data-go="in">دخول الإدارة بالبريد</a> · <a href="#" data-go="up">حساب جديد بالبريد</a>` : `<a href="#" data-go="staff">دخول الموظفين</a> · ${tab === 'in' ? '<a href="#" data-go="up">حساب جديد بالبريد</a>' : '<a href="#" data-go="in">لديك حساب؟ دخول بالبريد</a>'}`;
   app.innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card">
-    ${ADMIN ? '<h2>لوحة إدارة وعد</h2><p class="muted small" style="margin-top:0">لفريق وعد فقط.</p>' : tab !== 'staff' ? `<h2>${tab === 'in' ? 'دخول الإدارة بالبريد' : 'حساب جديد بالبريد'}</h2>` : ''}
+    ${tab !== 'staff' ? `<h2>${tab === 'in' ? 'دخول الإدارة بالبريد' : 'حساب جديد بالبريد'}</h2>` : ''}
     ${msg ? `<div class="note">${esc(msg)}</div>` : ''}
     <form id="af" novalidate>${body}<div id="aerr"></div><div style="height:12px"></div><button class="btn pri full" id="ab">${btn}</button>${foot}</form></div>
-    ${ADMIN ? '' : `<p class="muted small" style="text-align:center">${links}</p>`}
+    <p class="muted small" style="text-align:center">${links}</p>
     <p class="muted small" style="text-align:center"><a href="#" id="theme" data-theme-btn="text"></a> · ${langBtn('linkbtn')}</p>
     <p class="muted small afoot"><a href="${SITE_URL}" id="tosite">← الموقع الرئيسي</a> · نظام وعد السحابي لإدارة المنشآت © ${new Date().getFullYear()} · <a href="#/privacy">سياسة الخصوصية</a> · <a href="#/terms">شروط الاستخدام</a></p></div></div>`;
   $('#lg').onclick = () => setLang(LANG === 'en' ? 'ar' : 'en');
@@ -312,12 +313,12 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
 /* first login with a temporary password → choose a personal one */
 function changePasswordView(forced = true) {
   $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><h2>${forced ? 'اختر كلمة مرور جديدة' : 'تغيير كلمة المرور'}</h2>
-    ${forced === 'recovery' ? '<p class="muted small">فتحت رابط استعادة كلمة المرور. اختر كلمة مرور جديدة لحسابك.</p>' : forced ? '<p class="muted small">دخلت بكلمة مرور مؤقتة من الموارد البشرية. اختر كلمة مرور خاصة بك لا يعرفها غيرك.</p>' : ''}
+    ${forced === 'recovery' ? '<p class="muted small">فتحت رابط استعادة كلمة المرور. اختر كلمة مرور جديدة لحسابك.</p>' : ADMIN && forced ? '<p class="muted small">دخلت بكلمة مرور مؤقتة. اختر كلمة مرور خاصة بك لا يعرفها غيرك.</p>' : forced ? '<p class="muted small">دخلت بكلمة مرور مؤقتة من الموارد البشرية. اختر كلمة مرور خاصة بك لا يعرفها غيرك.</p>' : ''}
     <form id="pf" novalidate>${field('كلمة المرور الجديدة (8 أحرف أو أكثر)', pwInput('p1', 'new-password', ''))}<div style="height:10px"></div>
     ${field('تأكيدها', pwInput('p2', 'new-password', ''))}<div id="perr"></div><div style="height:12px"></div>
     <button class="btn pri full" id="pb">حفظ والمتابعة</button></form>
     <p class="muted small" style="text-align:center;margin-top:10px">${forced ? '' : '<a href="#" id="bk">رجوع</a> · '}<a href="#" id="lo">تسجيل الخروج</a></p></div></div></div>`;
-  if ($('#bk')) $('#bk').onclick = e => { e.preventDefault(); shell(); route(); };
+  if ($('#bk')) $('#bk').onclick = e => { e.preventDefault(); if (ADMIN) return platformView(); shell(); route(); };
   $('#lo').onclick = async e => { e.preventDefault(); await authApi.signOut(); authView(); };
   $('#pf').onsubmit = async e => { e.preventDefault(); const f = formData(e.target);
     if (f.p1.length < 8) return showErr('#perr', 'كلمة المرور 8 أحرف على الأقل');
@@ -412,7 +413,11 @@ async function boot() {
     S.mfa = mfa; S.platform = plat;
     if (mfa && mfa.enrolled && mfa.aal !== 'aal2') return mfaChallengeView();
     if (LS.get('waad.terms')) { db.rpc('accept_terms', { p_version: LS.get('waad.terms') }).catch(() => {}); LS.set('waad.terms', null); }
-    if (ADMIN) return S.platform ? platformView() : notAdminView();
+    if (ADMIN) {
+      if (!S.platform) return notAdminView();
+      const me = await db.rpc('platform_admin_me').catch(() => null);
+      return me && me.must_change ? changePasswordView(true) : platformView();
+    }
     if (S.platform && (/^#\/platform/.test(location.hash) || !(comps || []).length)) { location.href = ADMIN_URL; return; }
     if (!(await loadContext(comps))) return onboardView();
     if (S.mustChange) return changePasswordView(true);

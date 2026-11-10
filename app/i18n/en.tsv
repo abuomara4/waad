@@ -89,6 +89,7 @@
 أردني	Jordanian
 أرسل الرمز والرابط إلى	Send the code and link to
 أرسل الطلب للموردين ثم أدخل عرض كل مورد	send the request to suppliers, then enter each supplier's offer
+أرسل له بياناته	Send them their details
 أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك	We sent a password reset link to your email
 أرسله إلى بريدي	Email it to me
 أرسله لبريدك أو انسخه	email it to yourself or copy it
@@ -211,6 +212,7 @@
 أمر شراء مباشر	Direct purchase order
 أمريكي	American
 أمين مستودع	Storekeeper
+أنت	You
 أنت خارج نطاق مواقع العمل	You are outside the work sites
 أنت عضو في هذه المنشأة مسبقاً	You are already a member of this company
 أنت معفى من تسجيل الحضور	You are exempt from attendance
@@ -403,6 +405,8 @@
 إضافة بياناتي	Add my details
 إضافة رقم المستند	Add document number
 إضافة سؤال	Add a question
+إضافة عضو	Add member
+إضافة عضو لفريق وعد	Add a Waad team member
 إضافة مؤمَّن عليه	Add insured person
 إضافة متابعة	Add follow-up
 إضافة متدربين	Add trainees
@@ -506,6 +510,7 @@
 إنشاء الدخول	Create sign-in
 إنشاء الدعوة	Create invitation
 إنشاء المنشأة	Create company
+إنشاء حساب لفريق وعد	Create a Waad team account
 إنشاء دخول	Create sign-in
 إنشاء دخول للموظف	Create employee sign-in
 إنشاء ورقة الجرد	Create count sheet
@@ -557,6 +562,7 @@
 احفظه بصيغة	save it as
 احمِ حسابك	Protect your account
 اختر	choose
+اختر اسماً آخر	pick another name
 اختر البنك أو الصندوق	Choose the bank or cash account
 اختر التاريخ	Choose the date
 اختر الصندوق أو البنك	Choose cash or bank
@@ -657,6 +663,10 @@
 اسم العميل	Customer name
 اسم القسم	Department name
 اسم المدير	manager name
+اسم المستخدم	Username
+اسم المستخدم محجوز	That username is taken
+اسم المستخدم مستخدم مسبقاً	That username is already used
+اسم المستخدم من	The username is
 اسم المستلم	Received by
 اسم المستند	Document name
 اسم المستند بالإنجليزية	Document name in English
@@ -679,6 +689,7 @@
 اضغط على أي موظف لتعديل حضوره	Tap any employee to correct their attendance
 اضغط على أي موظف لتغيير مديره المباشر أو قسمه	Click any employee to change their direct manager or department
 اضغط على أي يوم لتغييره	click any day to change it
+اضغط على عضو لإعادة تعيين كلمة مروره أو حذفه من الفريق	Click a member to reset their password or remove them from the team
 اطبع الإشعار وسلّمه للموظف	print the notice and hand it to the employee
 اطبعه من سجل الخطابات	print it from the letters log
 اطبعها للعد ثم أدخل الكميات المعدودة	print it for counting, then enter the counted quantities
@@ -1089,6 +1100,7 @@
 الحساب الرئيسي	Parent account
 الحساب الرئيسي غير موجود	Parent account not found
 الحساب غير موجود	Account not found
+الحساب ما يصير أدمن إلا بعد تفعيله	The account becomes an admin only once it is activated
 الحساب مرتبط مسبقاً	The account is already linked
 الحسابات	accounts
 الحسابات والأجهزة	accounts and devices
@@ -1539,6 +1551,7 @@
 المستحقة	payable
 المستحقة قريباً	Due soon
 المستخدم	used
+المستخدم غير موجود	User not found
 المستخدم غير موجود في المنشأة	User is not in this company
 المستخدم والمحجوز	Used and reserved
 المستخدمون	Users
@@ -1841,6 +1854,7 @@
 بدون كوكيز وبدون أي بيانات شخصية	no cookies and no personal data
 بدون مؤهل	No qualification
 بدون مركز تكلفة	No cost center
+بدون مسافات	no spaces
 بدون موافقة المنشأة	Without the company's approval
 بدون نشر جديد	without a new release
 بدون يوم إقفال	No cutoff day
@@ -2150,6 +2164,7 @@
 تصدير بيانات المنشأة	Export company data
 تصريح الحج	Hajj permit
 تصميم الواجهات	UI design
+تضيفه بكلمة مرور مؤقتة	you add them with a temporary password
 تطبيق	Apply
 تطبيق البريد	Mail app
 تطبيق الزيادة	Apply the raise
@@ -2265,6 +2280,7 @@
 تلفيات	Damages
 تلقائي	automatic
 تم	Done
+تم إنشاء الحساب	Account created
 تم الاعتماد	Approved
 تم الانضمام	Joined
 تم البت في طلب الاستقالة	The resignation has already been decided
@@ -2278,8 +2294,10 @@
 تم الصرف	Paid by bank
 تم النسخ	Copied
 تم تعيين	Assigned
+تم تعيين كلمة مرور مؤقتة	Temporary password set
 تم ربط حسابك بسجلك	Your account is now linked to your record
 تمت	Done
+تمت إضافة العضو	Member added
 تمت الآن	Done now
 تمت الترسية	Awarded
 تمت معالجة هذه التسوية	This settlement has been processed
@@ -2458,7 +2476,9 @@
 حذف الموقع	Delete site
 حذف الهدف	Delete goal
 حذف الوردية	Delete shift
+حذف من الفريق	Remove from the team
 حرفاً أو رقماً	letters or digits
+حرفاً إنجليزياً أو رقماً	English letters or digits
 حركة في الكشف وليست في الدفاتر	A statement item not in the books
 حروف إنجليزية وأرقام	Latin letters and digits
 حروف و	letters and
@@ -2537,6 +2557,7 @@
 خارج	Out
 خارج المملكة	Outside the Kingdom
 خاسرة	Lost
+خاصة به	Their own
 خالد الدوسري	Khalid Al-Dosari
 خدماته الذاتية	Self-service
 خدماتي	My services
@@ -2569,6 +2590,7 @@
 داخل مواقع العمل فقط	inside the work sites only
 داخلي	Internal
 دبلوم	Diploma
+دخلت بكلمة مرور مؤقتة	You signed in with a temporary password
 دخلت بكلمة مرور مؤقتة من الموارد البشرية	You signed in with a temporary password from HR
 دخول	Sign in
 دخول الإدارة بالبريد	Management sign-in by email
@@ -2616,6 +2638,7 @@
 رأس المال والمسحوبات	Capital and drawings
 رئيس القسم	Department head
 رئيس القسم ليس من موظفي المنشأة	The department head is not an employee of this company
+رابط اللوحة	Admin link
 رابط دخول الموظفين	Employee sign-in link
 راج كومار	Raj Kumar
 راجع إجراءات الغياب وإبلاغ الجهات	Follow the absence procedures and notify the authorities
@@ -3117,6 +3140,7 @@
 عروض الأسعار	Quotations
 عزباء	Single
 عزّز العهدة أولاً	top up the fund first
+عضو الفريق	Team member
 عطلة	holiday
 عطلة رسمية	Public holiday
 عقد العمل	Employment contract
@@ -3262,6 +3286,7 @@
 فروع أو مشاريع أو أقسام	Branches, projects or departments
 فروقات المخزون	Inventory differences
 فروقات عملة	exchange differences
+فريق وعد	Waad team
 فريقك	Your team
 فريقي	My team
 فسخ بدون مكافأة	Dismissal without award
@@ -3377,12 +3402,14 @@
 كل سنة أو سنتين	every year or two
 كل سنتين	Every two years
 كل شيء عدا ملكية المنشأة	everything except company ownership
+كل عضو يدخل اللوحة باسم مستخدم وكلمة مرور	Each member signs in with a username and password
 كل فاتورة تحفظ سعرها	each invoice keeps its own rate
 كل مسحة تزيد المعدود	each scan adds to the count
 كل وردية تستخدم وقت رمضان المحدد لها	Each shift uses its own Ramadan time
 كلمة المرور	Password
 كلمة المرور الجديدة	New password
 كلمة المرور المؤقتة	Temporary password
+كلمة مرور مؤقتة جديدة	New temporary password
 كلمتا المرور غير متطابقتين	The passwords do not match
 كم	How many
 كم ريالاً للوحدة	how many riyals per unit
@@ -3410,6 +3437,7 @@
 لا تصرف أجر هذه الساعات في المسير	Do not pay these hours in payroll
 لا تظهر هنا بيانات المنشآت نفسها	company records are never shown here
 لا تعويض إذا وافق اليوم الوطني أو يوم التأسيس أحد العيدين	no compensation when National Day or Founding Day falls on one of the Eids
+لا تقدر تحذف حسابك	You cannot remove your own account
 لا تقل الإجازة التعويضية عن ساعة ونصف عن كل ساعة عمل إضافي	Compensatory leave is at least one and a half hours per overtime hour
 لا تقل عن	not less than
 لا تكتب أرصدة العملاء	Do not enter the balances of customers
@@ -3686,13 +3714,16 @@
 مؤسسة مثال	Example Est.
 مؤشرات الأداء	Performance indicators
 مؤشرات تستحق الانتباه	Indicators worth attention
+مؤقتة	Temporary
 مؤهلة	Qualified
 ما فيه أسئلة	No questions
+ما فيه أعضاء	No members
 ما فيه إعلانات	No announcements
 ما فيه إيميل للمالك	No owner e-mail
 ما فيه زيارات في هذي الفترة	No visits in this period
 ما نُسب للعامل وأقواله ودفاعه	the charge, the worker's statement and defence
 ما نُسب للعامل ودفاعه	the charge and the worker's defence
+ما يقدر يدخل اللوحة بعدها	They will no longer be able to sign in
 ماجستير	Master's
 ماذا لو	What if
 ماليزي	Malaysian
@@ -4167,6 +4198,7 @@
 هذا البريد مسجّل مسبقاً	This email is already registered
 هذا التجديد الثالث	This is the third renewal
 هذا الحساب ليس من فريق وعد	This account is not on the Waad team
+هذا الحساب يدخل بالبريد	This account signs in by e-mail
 هذا الربع	This quarter
 هذا الشهر	This month
 هذا الطرف موقوف	This party is inactive
@@ -4228,6 +4260,8 @@
 وبحد	up to
 وبسعر الأمر	at the order price
 وبعد اعتماده يصدر قسم المشتريات أمر الشراء	once approved, purchasing issues the purchase order
+وبعدها ادخل من هنا	then sign in here
+وبيطلب منه النظام يغيّر كلمة المرور أول ما يدخل	and they will be asked to change the password at first sign-in
 وتأشيرات الخروج والعودة لغير السعوديين بعد اعتماد طلباتهم	and exit/re-entry visas for non-Saudis after their requests are approved
 وتبقى الفاتورة ظاهرة بحالة ملغاة	and the invoice stays visible as void
 وتبقى ملتزماً بأداء عملك خلالها	and you remain bound to perform your work during it
@@ -4327,6 +4361,7 @@
 ويسقط الأجر إذا ثبت عدم أداء الامتحان	and pay is lost if the exam was not sat
 ويظهر ذلك في حساب نهاية الخدمة	and this shows in the end-of-service calculation
 ويعيّن الموارد البشرية	and appoints HR
+ويغيّرها أول ما يدخل	and they change it at first sign-in
 ويقدر كل مستخدم يقفلها	and each user can close it
 ويقفل الدفاتر حتى نهاية السنة	and locks the books through the year end
 ويكون المقيّم مديره المباشر	and the reviewer is their direct manager
@@ -4398,6 +4433,7 @@
 يسقط الأجر إذا ثبت عدم أداء الامتحان	Pay is lost if the exam was not sat
 يسقط الأجر عن إجازة الاختبارات إذا ثبت أن العامل لم يؤدِّ الامتحان	exam leave pay is lost if the worker did not sit the exam
 يصدر الخطاب بعد اعتماد طلب التعريف بالراتب	The letter is issued after the salary certificate request is approved
+يصير أدمن بعد التفعيل	It becomes an admin once activated
 يطبق عليه	Applies
 يطبق عليه دوام رمضان	Ramadan hours apply
 يطلب إقرار الموظفين	employees must acknowledge
@@ -4411,6 +4447,7 @@
 يعتمدها المدير المالي أو المالك	the finance manager or owner must approve it
 يعوَّض الموظف عنها بما يعادلها قبل العطلة أو بعدها	the employee is compensated with an equal day before or after the holiday
 يعيّنه المالك أو مدير النظام	Appointed by the owner or system admin
+يعيّنها لك أدمن ثاني من	another admin sets a new one for you from
 يفتح	Opens
 يفضّل	preferably
 يفوق التوقعات	Exceeds expectations

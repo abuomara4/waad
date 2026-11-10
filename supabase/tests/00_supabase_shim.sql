@@ -27,3 +27,4 @@ create table if not exists auth.mfa_factors (id uuid primary key default gen_ran
   factor_type text not null default 'totp', status text not null default 'unverified', secret text,
   created_at timestamptz not null default now(), updated_at timestamptz not null default now());
 alter table auth.users add column if not exists last_sign_in_at timestamptz;
+alter table auth.users add column if not exists created_at timestamptz not null default now();   -- as in Supabase
