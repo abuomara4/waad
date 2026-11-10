@@ -2,6 +2,8 @@
 \set ON_ERROR_STOP 1
 \set QUIET 1
 set client_min_messages = notice;
+-- most tests create a company and use it at once: approval of new companies (0068) is tested on its own below
+update public.platform_settings set require_approval = false;
 
 -- ---------- test helpers ----------
 create schema t;
@@ -2457,6 +2459,37 @@ reset role;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b1', false); set role authenticated;
 select t.ok(not public.is_platform_admin(), 'a removed member loses the admin site');
 reset role;
+
+-- ================= NEW COMPANIES WAIT FOR APPROVAL; SUBSCRIPTION LENGTH IN DAYS (0068) =================
+update public.platform_settings set require_approval = true;
+insert into public.companies(name) values ('منشأة بانتظار القبول') returning id as cpend \gset
+select t.ok((select status = 'pending' and notified_at is null from public.company_subscriptions where company_id = :'cpend'), 'a new company waits for approval and is queued for a notification');
+select t.ok(not public.module_on(:'cpend', 'hr'), 'a waiting company has every module closed');
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select public.platform_approve('$$ || :'cpend' || $$', 'trial', 7)$$, '42501|غير مصرح', 'a company user cannot approve companies');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select t.ok((select status = 'pending' from public.platform_companies() limit 1), 'waiting companies come first in the admin list');
+select public.platform_approve(:'cpend', 'trial', 7);
+reset role;
+select t.ok((select status = 'trial' and trial_ends = current_date + 7 from public.company_subscriptions where company_id = :'cpend') and public.module_on(:'cpend', 'hr'), 'approved as a 7-day trial: open until the last day');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_approve(:'cpend', 'active', 30);
+reset role;
+select t.ok((select status = 'active' and sub_ends = current_date + 30 and trial_ends is null and plan = 'اشتراك' from public.company_subscriptions where company_id = :'cpend'), 'approved as a 30-day subscription');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_set_subscription(:'cpend', 'اشتراك', array['hr'], 'active', null, null, null, current_date - 1);
+reset role;
+select t.ok(not public.module_on(:'cpend', 'hr'), 'a subscription past its end date closes the modules');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select t.err($$select public.platform_approve('$$ || :'cpend' || $$', 'active', 0)$$, 'المدة', 'a length of zero days is refused');
+select public.platform_approve(:'cpend', 'active', null);
+select public.platform_set_settings(array['hr','finance','sales','purch','stock','proj'], 7, false);
+reset role;
+select t.ok(public.module_on(:'cpend', 'hr') and (select sub_ends is null from public.company_subscriptions where company_id = :'cpend'), 'a subscription without an end date stays open');
+insert into public.companies(name) values ('منشأة بدون قبول') returning id as cnoap \gset
+select t.ok((select status = 'trial' and trial_ends = current_date + 7 from public.company_subscriptions where company_id = :'cnoap'), 'with approval switched off a new company starts its trial at once');
+update public.platform_settings set require_approval = false;
 
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

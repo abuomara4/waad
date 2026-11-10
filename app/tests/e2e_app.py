@@ -1245,6 +1245,22 @@ with sync_playwright() as pw:
     # someone who is not on the Waad team gets nothing from the admin site
     op = o.context.new_page(); op.goto(BASE + '/waad-admin.html'); op.wait_for_selector('.auth .card h2')
     ok('غير مفعّل في لوحة الإدارة' in op.inner_text('#app') and op.locator('#ppage').count() == 0, 'a company owner cannot open the admin site'); op.close()
+    # new companies wait for approval: the owner sees a waiting screen until the admin accepts a 7-day trial
+    sqlx("update platform_settings set require_approval = true")
+    wp = new_page(b); signup(wp, 'waiting@shop.test'); wp.wait_for_selector('#cf')
+    wp.fill('#cf input[name=name]', 'منشأة تنتظر القبول'); wp.click('#cb'); wp.wait_for_selector('#pchk')
+    ok('وصلنا طلبك' in wp.inner_text('#app') and wp.locator('#nav').count() == 0, 'a new company waits for approval before using the system')
+    ok(sql("(select notified_at is null from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'منشأة تنتظر القبول')") == 'true', 'the new request is queued for the team notification')
+    go(pp, '#/companies'); pp.wait_for_selector('#ppage tbody tr'); ok('طلبات تنتظر قبولك' in pp.inner_text('#ppage'), 'admin site: waiting requests are shown first')
+    pp.locator('#ppage tbody tr', has_text='منشأة تنتظر القبول').click(); pp.wait_for_selector('#dlg input[name=days]')
+    pp.select_option('#dlg select[name=status]', 'trial'); pp.fill('#dlg input[name=days]', '7'); modal_ok(pp); pp.wait_for_timeout(600)
+    ok(sql("(select status || '|' || (trial_ends - current_date) from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'منشأة تنتظر القبول')") == 'trial|7', 'admin accepts it as a 7-day trial')
+    wp.click('#pchk'); wp.wait_for_selector('#nav'); ok(True, 'once accepted the owner gets into the system')
+    pp.locator('#ppage tbody tr', has_text='منشأة تنتظر القبول').click(); pp.wait_for_selector('#dlg input[name=ends]')
+    pp.select_option('#dlg select[name=status]', 'active'); pp.fill('#dlg input[name=days]', '30'); modal_ok(pp); pp.wait_for_timeout(600)
+    ok(sql("(select status || '|' || (sub_ends - current_date) from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'منشأة تنتظر القبول')") == 'active|30', 'admin sets a 30-day subscription')
+    ok(not wp.errors, 'no JS errors for the waiting company %s' % wp.errors[:2]); wp.context.close()
+    sqlx("update platform_settings set require_approval = false")
     # the Waad team: an admin adds a member who signs in with a username, then must change the temporary password
     go(pp, '#/team'); pp.wait_for_selector('#tadd'); pp.click('#tadd'); pp.wait_for_selector('#dlg input[name=user]')
     pp.fill('#dlg input[name=user]', 'sara'); pp.fill('#dlg input[name=pw]', 'TempPass123'); pp.click('#mok')   # the dialog reopens with the credentials

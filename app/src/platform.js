@@ -1,8 +1,11 @@
 'use strict';
 /* The admin site (site/admin/, Waad's own team only): companies and subscriptions, system numbers, website visitors,
    website texts, and announcements to every company. Metadata only: no company records are ever read here. */
-const SUB_ST = { trial: ['تجربة', 'wait'], active: ['مفعّلة', 'ok'], suspended: ['موقوفة', 'bad'] };
-const subState = c => c.status === 'trial' && c.trial_ends && c.trial_ends < today() ? ['انتهت التجربة', 'bad'] : SUB_ST[c.status] || [c.status, ''];
+const SUB_ST = { pending: ['بانتظار القبول', 'info'], trial: ['تجربة', 'wait'], active: ['مفعّلة', 'ok'], suspended: ['موقوفة', 'bad'] };
+const subState = c => c.status === 'trial' && c.trial_ends && c.trial_ends < today() ? ['انتهت التجربة', 'bad']
+  : c.status === 'active' && c.sub_ends && c.sub_ends < today() ? ['انتهى الاشتراك', 'bad'] : SUB_ST[c.status] || [c.status, ''];
+const subEnd = c => c.status === 'trial' ? c.trial_ends : c.status === 'active' ? c.sub_ends : null;
+const daysLeft = d => d ? Math.round((new Date(d + 'T12:00:00Z') - new Date(today() + 'T12:00:00Z')) / 864e5) : null;
 const PTABS = [['companies', 'المنشآت'], ['system', 'أرقام النظام'], ['site', 'زوار الموقع'], ['content', 'محتوى الموقع'], ['news', 'الإعلانات'], ['team', 'فريق وعد']];
 const PV = {};   // tab id -> async (page) => void
 const dayAgo = n => new Date(new Date(today() + 'T12:00:00Z').getTime() - n * 864e5).toISOString().slice(0, 10);
@@ -86,25 +89,28 @@ PV.companies = async page => {
   const live = rows.filter(c => subState(c)[1] !== 'bad'), q = (LS.get('waad.platq') || '').toLowerCase();
   const shown = rows.filter(c => !q || (c.name + ' ' + (c.owner_email || '') + ' ' + c.plan).toLowerCase().includes(q));
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('المنشآت والاشتراكات'))}</h1><div class="muted">${esc(tr('بيانات الاشتراك فقط — لا تظهر هنا بيانات المنشآت نفسها.'))}</div></div></div>
-    <div class="grid" style="margin-bottom:14px">${pkpi('المنشآت', rows.length)}${pkpi('مفعّلة', rows.filter(c => c.status === 'active').length)}
+    ${rows.some(c => c.status === 'pending') ? `<div class="note">${esc(tr('طلبات تنتظر قبولك'))}: <b class="num">${rows.filter(c => c.status === 'pending').length}</b> · ${esc(tr('اضغط على المنشأة لقبولها كتجربة أو اشتراك.'))}</div>` : ''}
+    <div class="grid" style="margin-bottom:14px">${pkpi('المنشآت', rows.length)}${pkpi('بانتظار القبول', rows.filter(c => c.status === 'pending').length)}${pkpi('مفعّلة', rows.filter(c => c.status === 'active').length)}
       ${pkpi('تجربة', rows.filter(c => c.status === 'trial' && subState(c)[1] !== 'bad').length)}${pkpi('مغلقة (موقوفة أو انتهت تجربتها)', rows.length - live.length)}
       ${pkpi('المستخدمون', rows.reduce((a, c) => a + (c.users || 0), 0))}</div>
     <div class="row" style="margin-bottom:10px;gap:8px;flex-wrap:wrap"><input id="pq" placeholder="${esc(tr('بحث بالاسم أو البريد أو الباقة'))}" value="${esc(q)}" style="max-width:320px">
       <div class="sp"></div><button type="button" class="btn sm" data-copymail="${esc([...new Set(shown.map(c => c.owner_email).filter(Boolean))].join(', '))}">${esc(tr('نسخ إيميلات المنشآت الظاهرة'))}</button></div>
     ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'الباقة', h: c => esc(c.plan) },
       { t: 'الأقسام', h: c => (c.modules || []).map(m => `<span class="badge">${esc(tr(MODULES[m] || m))}</span>`).join(' ') },
-      { t: 'الحالة', h: c => { const [t, k] = subState(c); return `<span class="badge ${k}">${esc(tr(t))}</span>` + (c.status === 'trial' && c.trial_ends ? ` <span class="small num">${esc(c.trial_ends)}</span>` : ''); } },
+      { t: 'الحالة', h: c => { const [t, k] = subState(c); return `<span class="badge ${k}">${esc(tr(t))}</span>`; } },
+      { t: 'ينتهي', h: c => { const e = subEnd(c), n = daysLeft(e); return e ? `<span class="num">${esc(e)}</span>` + (n >= 0 ? `<div class="small muted">${esc(tr('باقي'))} <span class="num">${n}</span> ${esc(tr('يوم'))}</div>` : '') : '—'; } },
       { t: 'المستخدمون', r: 1, h: c => `<span class="num">${c.users}${c.max_users ? ' / ' + c.max_users : ''}</span>` },
       { t: 'آخر دخول', h: c => c.last_sign_in ? `<span class="num">${esc(String(c.last_sign_in).slice(0, 10))}</span>` : '—' },
       { t: 'التسجيل', h: c => `<span class="num">${esc(String(c.created_at).slice(0, 10))}</span>` }], shown, { empty: 'لا توجد منشآت', onRow: true })}
     <div class="card" style="margin-top:16px"><h2>${esc(tr('إعدادات المنشآت الجديدة'))}</h2>
       <form id="psf" class="fg">${field('الأقسام المفتوحة عند التسجيل', modChecks(st.default_modules), 'wide')}
       ${field('مدة التجربة بالأيام (فارغ = بدون حد)', inp('days', st.default_trial_days, 'type="number" min="1" max="365"'))}
+      <label class="row small wide" style="gap:6px"><input type="checkbox" name="approval" ${st.require_approval !== false ? 'checked' : ''} style="width:auto"> ${esc(tr('المنشآت الجديدة تنتظر قبولي قبل ما تبدأ'))}</label>
       <div class="wide"><div id="pserr"></div><button class="btn pri" id="psb">${esc(tr('حفظ'))}</button></div></form></div>`;
   $('#pq', page).oninput = e => { LS.set('waad.platq', e.target.value); clearTimeout(platformView.t); platformView.t = setTimeout(platformView, 400); };
-  bindRows(page, shown, subForm); bindCopy(page);
+  bindRows(page, shown, c => c.status === 'pending' ? approveForm(c, st) : subForm(c)); bindCopy(page);
   $('#psf', page).onsubmit = async e => { e.preventDefault(); const f = e.target;
-    try { await busy($('#psb', page), async () => { await db.rpc('platform_set_settings', { p_modules: pickMods(f), p_trial_days: f.days.value ? +f.days.value : null }); toast(tr('تم الحفظ')); }); }
+    try { await busy($('#psb', page), async () => { await db.rpc('platform_set_settings', { p_modules: pickMods(f), p_trial_days: f.days.value ? +f.days.value : null, p_require_approval: f.approval.checked }); toast(tr('تم الحفظ')); }); }
     catch (er) { showErr($('#pserr', page), er); } };
 };
 const modChecks = (sel, prefix = 'm') => `<div class="row" style="gap:14px;flex-wrap:wrap">${Object.entries(MODULES).map(([k, t]) =>
@@ -114,7 +120,8 @@ function subForm(c) {
   modal(tr('اشتراك') + ': ' + c.name, `<div class="fg">${field('اسم الباقة', inp('plan', c.plan, 'maxlength="40" list="plans"') + '<datalist id="plans"><option value="الموارد البشرية"><option value="المالية"><option value="الشاملة"><option value="trial"></datalist>')}
       ${field('الحالة', `<select name="status">${Object.entries(SUB_ST).map(([k, [t]]) => opt(k, tr(t), c.status)).join('')}</select>`)}
       ${field('الأقسام المفتوحة', modChecks(c.modules), 'wide')}
-      ${field('نهاية التجربة (للحالة «تجربة»)', `<input type="date" name="trial_ends" value="${esc(c.trial_ends || '')}">`)}
+      ${field('المدة بالأيام من اليوم', '<input name="days" type="number" min="1" max="3660" placeholder="30">')}
+      ${field('أو تاريخ النهاية (فارغ = بدون نهاية)', `<input type="date" name="ends" value="${esc(subEnd(c) || '')}">`)}
       ${field('الحد الأعلى للمستخدمين (فارغ = بدون حد)', inp('max_users', c.max_users, 'type="number" min="1"'))}
       ${field('ملاحظة داخلية', inp('note', c.note), 'wide')}</div>
     <div class="card" style="margin-top:12px;padding:10px 12px"><b>${esc(tr('التواصل مع المالك'))}</b> <span class="small muted" dir="ltr">${esc(c.owner_email || '')}</span>
@@ -123,10 +130,27 @@ function subForm(c) {
     wide: true, onOk: async (f, d) => {
       const mods = pickMods($('#mform', d) || d.querySelector('form'));
       if (!mods.length) throw new Error('اختر قسماً واحداً على الأقل');
-      await db.rpc('platform_set_subscription', { p_company: c.company_id, p_plan: f.plan, p_modules: mods, p_status: f.status, p_trial_ends: f.trial_ends || null, p_max_users: f.max_users ? +f.max_users : null, p_note: f.note || null });
+      const ends = f.days ? dayAgo(-(+f.days)) : f.ends || null;
+      await db.rpc('platform_set_subscription', { p_company: c.company_id, p_plan: f.plan, p_modules: mods, p_status: f.status,
+        p_trial_ends: f.status === 'trial' ? ends : null, p_max_users: f.max_users ? +f.max_users : null, p_note: f.note || null, p_sub_ends: f.status === 'active' ? ends : null });
       toast(tr('تم الحفظ')); platformView();
     } });
   bindCopy($('#dlg'));
+}
+
+// accept a company that is waiting: as a trial or a subscription, for a number of days
+function approveForm(c, st) {
+  const d = modal(tr('قبول المنشأة') + ': ' + c.name, `<p class="muted small" style="margin-top:0" dir="ltr">${esc(c.owner_email || '')} · <span class="num">${esc(String(c.created_at).slice(0, 10))}</span></p>
+    <div class="fg">${field('القبول كـ', `<select name="status">${opt('trial', tr('تجربة'), 'trial')}${opt('active', tr('اشتراك'), '')}</select>`)}
+      ${field('المدة بالأيام (فارغ = بدون نهاية)', `<input name="days" type="number" min="1" max="3660" value="${esc(st && st.default_trial_days || 7)}">`)}</div>
+    <div class="card" style="margin-top:12px;padding:10px 12px"><b>${esc(tr('التواصل مع المالك'))}</b>
+      <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px">${mailBtns(c.owner_email, 'وعد: ' + c.name)}</div></div>`, {
+    ok: 'قبول', onOk: async f => {
+      await db.rpc('platform_approve', { p_company: c.company_id, p_status: f.status, p_days: f.days ? +f.days : null });
+      toast(tr('تم القبول')); platformView();
+    } });
+  bindCopy(d);
+  d.querySelector('[name=status]').onchange = e => { d.querySelector('[name=days]').value = e.target.value === 'trial' ? (st && st.default_trial_days || 7) : 30; };
 }
 
 /* ---------- system numbers (from the same subscription metadata) ---------- */
@@ -135,13 +159,13 @@ PV.system = async page => {
   const since = n => rows.filter(c => String(c.created_at).slice(0, 10) > dayAgo(n)).length;
   const active7 = rows.filter(c => c.last_sign_in && String(c.last_sign_in).slice(0, 10) > dayAgo(7)).length;
   const ending = rows.filter(c => c.status === 'trial' && c.trial_ends && c.trial_ends >= t0 && c.trial_ends <= dayAgo(-3)).sort((a, b) => a.trial_ends < b.trial_ends ? -1 : 1);
-  const paid = rows.filter(c => c.status === 'active').length, decided = rows.filter(c => c.status !== 'trial' || subState(c)[1] === 'bad').length;
+  const paid = rows.filter(c => c.status === 'active').length, decided = rows.filter(c => c.status !== 'pending' && (c.status !== 'trial' || subState(c)[1] === 'bad')).length;
   const quiet = rows.filter(c => subState(c)[1] !== 'bad' && (!c.last_sign_in || String(c.last_sign_in).slice(0, 10) <= dayAgo(14)));
   const days = Array.from({ length: 30 }, (_, i) => dayAgo(29 - i));
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('أرقام النظام'))}</h1><div class="muted">${esc(tr('من بيانات الاشتراك وآخر دخول فقط.'))}</div></div></div>
     <div class="grid" style="margin-bottom:14px">${pkpi('تسجيلات آخر ٧ أيام', since(7))}${pkpi('تسجيلات آخر ٣٠ يوماً', since(30))}
       ${pkpi('منشآت دخلت آخر ٧ أيام', active7, rows.length ? pct(active7, rows.length) + ' ' + tr('من المنشآت') : '')}
-      ${pkpi('نسبة التحويل إلى اشتراك', pct(paid, decided), 'من المنشآت اللي انتهت تجربتها أو اشتركت')}${pkpi('تجارب تنتهي خلال ٣ أيام', ending.length)}</div>
+      ${pkpi('نسبة التحويل إلى اشتراك', pct(paid, decided), 'من المنشآت اللي انتهت تجربتها أو اشتركت')}${pkpi('تجارب تنتهي خلال ٣ أيام', ending.length)}${pkpi('بانتظار القبول', rows.filter(c => c.status === 'pending').length)}</div>
     <div class="card" style="margin-bottom:14px"><h2>${esc(tr('التسجيلات الجديدة يومياً (آخر ٣٠ يوماً)'))}</h2>${pbars(days.map(k => ({ k, v: rows.filter(c => String(c.created_at).slice(0, 10) === k).length })), 'التسجيلات الجديدة يومياً (آخر ٣٠ يوماً)')}</div>
     <div class="g2p">
       <div class="card"><h2>${esc(tr('تجارب تنتهي قريباً'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('تواصل معهم قبل ما تنتهي التجربة.'))}</p>

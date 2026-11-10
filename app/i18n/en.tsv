@@ -228,6 +228,7 @@
 أو البنك	or the bank
 أو بدون موافقة المنشأة	or without the company's approval
 أو بعده لا يدخل مسير أكتوبر	or later is not in the October payroll
+أو تاريخ النهاية	Or end date
 أو حساباً فرعياً تحته	or a sub-account under it
 أو خسارة	or a loss
 أو رفع أجور السعوديين المحتسبين جزئياً	or raise the wages of Saudis counted partially
@@ -575,6 +576,7 @@
 اختر الموظف والمخالفة	Choose the employee and the violation
 اختر الموظفين	Choose employees
 اختر تاريخاً بعده	choose a later date
+اختر تجربة أو اشتراك	Choose trial or subscription
 اختر تفاصيل التذكرة	Choose the ticket details
 اختر حساب البنك	Choose the bank account
 اختر حساب بنك أو صندوق	Choose a bank or cash account
@@ -690,6 +692,7 @@
 اضغط على أي موظف لتعديل حضوره	Tap any employee to correct their attendance
 اضغط على أي موظف لتغيير مديره المباشر أو قسمه	Click any employee to change their direct manager or department
 اضغط على أي يوم لتغييره	click any day to change it
+اضغط على المنشأة لقبولها كتجربة أو اشتراك	Click a company to accept it as a trial or a subscription
 اضغط على عضو لإعادة تعيين كلمة مروره أو حذفه من الفريق	Click a member to reset their password or remove them from the team
 اطبع الإشعار وسلّمه للموظف	print the notice and hand it to the employee
 اطبعه من سجل الخطابات	print it from the letters log
@@ -1406,6 +1409,7 @@
 القائمة	Menu
 القابل للفوترة	Billable
 القابلة للاسترداد	refundable
+القبول كـ	Accept as
 القرار	Decision
 القروض والتمويل	Loans and financing
 القسط	Premium
@@ -1508,6 +1512,9 @@
 المخزون	Inventory
 المخزون والأصناف حسب الصلاحيات المحددة له تحت	stock and items, limited to the permissions chosen below
 المخطط	Chart
+المدة بالأيام	Length in days
+المدة بالأيام من اليوم	Length in days from today
+المدة من يوم إلى	The length is from one day to
 المدراء	Managers
 المدراء وموظفون محددون	Managers and selected employees
 المدفوع للموردين	Paid to suppliers
@@ -1637,6 +1644,7 @@
 الملف ليس بصيغة	The file is not in
 المملكه العربيه السعودي	Saudi Arabia
 المنشآت	Companies
+المنشآت الجديدة تنتظر قبولي قبل ما تبدأ	New companies wait for my approval before they start
 المنشآت والاشتراكات	Companies and subscriptions
 المنشأة	Company
 المنشأة غير موجودة	Company not found
@@ -1768,6 +1776,7 @@
 انتهت صلاحية العرض	The quotation has expired
 انتهت مهلة التظلم	The grievance period has ended
 انتهى	Ended
+انتهى الاشتراك	Subscription ended
 انتهى التحقيق في هذه المخالفة	The investigation of this case has ended
 انثى	female
 انثي	female
@@ -1806,6 +1815,7 @@
 بانتظار الإصدار	Awaiting issue
 بانتظار الاعتماد	Pending approval
 بانتظار الصرف	Awaiting payment
+بانتظار القبول	Awaiting approval
 بانتظار صرف البدل من المالية	Waiting for finance to pay the allowance
 بانتظارك منذ	Waiting for you
 بانتظاره	waiting
@@ -1859,6 +1869,7 @@
 بدون مسافات	no spaces
 بدون موافقة المنشأة	Without the company's approval
 بدون نشر جديد	without a new release
+بدون نهاية	no end
 بدون يوم إقفال	No cutoff day
 بدونها يُقبل التسجيل من أي مكان	without one, check-in is accepted from anywhere
 برازيلي	Brazilian
@@ -1899,6 +1910,7 @@
 بمبلغ	for
 بموافقة العامل يُعوَّض عن العمل الإضافي بإجازة مدفوعة بدل الأجر	with the worker's consent, overtime can be compensated with paid leave instead of pay
 بموافقة المنشأة	with the company's approval
+بنتواصل معك على إيميلك	We'll contact you by e-mail
 بند	line
 بند غير معروف	Unknown step
 بند غير موجود في الأمر	Line not in this order
@@ -2068,6 +2080,7 @@
 تحصيل شيك	Cheque collected
 تحصيلات من العملاء	Collections from customers
 تحقق	Verify
+تحقق مرة ثانية	Check again
 تحقق من الأسعار	check the prices
 تحقق من الإنترنت	check your internet connection
 تحقق من الرقم الضريبي	check the VAT number
@@ -2294,6 +2307,7 @@
 تم الحفظ	Saved
 تم الرفض	Rejected
 تم الصرف	Paid by bank
+تم القبول	Accepted
 تم النسخ	Copied
 تم تعيين	Assigned
 تم تعيين كلمة مرور مؤقتة	Temporary password set
@@ -2316,6 +2330,7 @@
 تنزيل القالب بأسماء الموظفين	Download template with employees
 تنزيل الملف	Download file
 تواصل مع الموارد البشرية	contact HR
+تواصل معنا	Contact us
 تواصل معهم قبل ما تنتهي التجربة	Contact them before the trial ends
 توجد تسويات معلقة	There are pending settlements
 توجد تسوية مفتوحة لهذا الحساب	There is an open reconciliation for this account
@@ -2860,6 +2875,7 @@
 سجّل تاريخ نهاية الخدمة في بيانات الموظف أولاً	record the end-of-service date in the employee record first
 سجّلت الحضور والانصراف لهذا اليوم	You have checked in and out for today
 سجّلت حضورك قبل لحظات	You checked in moments ago
+سجّلنا منشأتك	We registered your company
 سجّله في التأمينات	register in GOSI
 سجّلها بقيد يدوي من	record it with a manual entry from
 سحب	Revoke
@@ -2908,6 +2924,7 @@
 سند قبض	Receipt voucher
 سندات القبض والصرف	Receipts and payments
 سنضيف موظفين وأقساماً وعملاء وحملات تسويقية ومشاريع تجريبية لتجربة النظام	We'll add sample employees, departments, customers, campaigns and projects to try the system
+سنوات	years
 سنوات خدمة	years of service
 سنوي	Annual
 سواء ترتب أو لم يترتب على ذلك تعطيل عمال آخرين	whether or not it held up other workers
@@ -3077,6 +3094,7 @@
 طلبات الموظف	Employee requests
 طلبات بانتظار اعتمادك	requests awaiting your approval
 طلبات بانتظار الاعتماد	Requests awaiting approval
+طلبات تنتظر قبولك	Requests awaiting your approval
 طلبات عروض الأسعار	Requests for quotation
 طلبات معلقة	Pending requests
 طلباتي	My requests
@@ -3347,8 +3365,10 @@
 قبل	before
 قبل الحفظ	before saving
 قبل صرف المخالصة	before paying the final settlement
+قبول	Accept
 قبول التظلم وإلغاء الجزاء	Accept grievance and cancel the penalty
 قبول العميل	Customer accepted
+قبول المنشأة	Accept company
 قبول مؤجل	Deferred acceptance
 قدّم الطلب قبل	Submit the request
 قدّم تسوية بما صرفته من العهدة مع أرقام الفواتير	Submit a settlement of what you spent from the fund with the invoice numbers
@@ -4312,6 +4332,7 @@
 وصلت للموظف	Delivered to the employee
 وصلتك تأشيرة الخروج والعودة	Your exit/re-entry visa has arrived
 وصلتك تذكرة السفر	Your travel ticket has arrived
+وصلنا طلبك	We got your request
 وظيفة شاغرة جديدة	New job opening
 وعادة نهاية السنة السابقة	usually the end of the previous year
 وعد	Waad
@@ -4324,6 +4345,7 @@
 وعند الترحيل تُقيد الفروقات بمتوسط التكلفة	posting books the differences at average cost
 وعند قبوله يتحول إلى أمر بيع بضغطة	once accepted it becomes a sales order in one click
 وعيد الأضحى	and Eid al-Adha
+وفريق وعد يراجع الطلب ويفعّل لك التجربة قريباً	and the Waad team will review it and start your trial soon
 وفق جداول اللائحة النموذجية لتنظيم العمل والمواد	per the model work regulation tables and Articles
 وفقاً للمادة	under Article
 وقت الانصراف	Check-out time
@@ -4471,6 +4493,7 @@
 يمني	Yemeni
 ينتقل فريقه إلى مديره الحالي	their team moves to their current manager
 ينتهي	Ends
+ينتهي الاشتراك	Subscription ends
 ينتهي اليوم	Expires today
 ينتهي بانتهاء مدته	Ends when its term ends
 ينشأ أمر شراء للمورد	A purchase order will be created for

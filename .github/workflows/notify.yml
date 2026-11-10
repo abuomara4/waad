@@ -1,0 +1,25 @@
+# Every 10 minutes: tell the Waad team (e-mail and/or WhatsApp) about new companies waiting for approval.
+# Secrets: SUPABASE_DB_URL (already set) + the channel secrets listed in .github/scripts/notify_new_companies.py.
+name: notify new requests
+on:
+  schedule: [{ cron: '*/10 * * * *' }]
+  workflow_dispatch:
+concurrency: { group: notify, cancel-in-progress: false }
+jobs:
+  notify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Notify
+        env:
+          DB: ${{ secrets.SUPABASE_DB_URL }}
+          NOTIFY_GMAIL_USER: ${{ secrets.NOTIFY_GMAIL_USER }}
+          NOTIFY_GMAIL_APP_PASSWORD: ${{ secrets.NOTIFY_GMAIL_APP_PASSWORD }}
+          NOTIFY_EMAIL_TO: ${{ secrets.NOTIFY_EMAIL_TO }}
+          CALLMEBOT_PHONE: ${{ secrets.CALLMEBOT_PHONE }}
+          CALLMEBOT_APIKEY: ${{ secrets.CALLMEBOT_APIKEY }}
+        run: |
+          command -v psql >/dev/null || sudo apt-get install -y -qq postgresql-client > /dev/null
+          python3 .github/scripts/notify_new_companies.py

@@ -346,7 +346,7 @@ function onboardView() {
     if (f.name.length < 3) return showErr('#cerr', 'اسم المنشأة 3 أحرف على الأقل');
     if (f.vat && !/^3\d{13}3$/.test(f.vat)) return showErr('#cerr', 'الرقم الضريبي 15 رقماً يبدأ وينتهي بـ 3');
     if (f.cr && !/^\d{10}$/.test(f.cr)) return showErr('#cerr', 'السجل التجاري 10 أرقام');
-    try { await busy($('#cb'), async () => { const cid = await db.rpc('create_company', { p_name: f.name, p_vat: blank(f.vat), p_cr: blank(f.cr) }); S.cid = cid; LS.set('waad.cid', cid); await boot(); location.hash = '#/welcome'; setTimeout(() => companyCodeBox(true), 400); }); } catch (er) { showErr('#cerr', er); } };
+    try { await busy($('#cb'), async () => { const cid = await db.rpc('create_company', { p_name: f.name, p_vat: blank(f.vat), p_cr: blank(f.cr) }); S.cid = cid; LS.set('waad.cid', cid); await boot(); if (S.sub && S.sub.status === 'pending') return; location.hash = '#/welcome'; setTimeout(() => companyCodeBox(true), 400); }); } catch (er) { showErr('#cerr', er); } };
 }
 
 /* the company code employees sign in with: shown once on creation, and any time from settings / the welcome page */
@@ -423,6 +423,7 @@ async function boot() {
     if (!(comps || []).length && /@admin\.waad\.app$/i.test((S.session.user || {}).email || '')) { location.href = ADMIN_URL; return; }
     if (!(await loadContext(comps))) return onboardView();
     if (S.mustChange) return changePasswordView(true);
+    if (S.sub && S.sub.status === 'pending') return pendingView();
   } catch (e) {
     if (e.status === 401) { setSession(null); return authView('in', 'انتهت الجلسة — سجّل الدخول مجدداً'); }
     $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><div class="err">${esc(e.message)}</div><button class="btn" onclick="boot()">إعادة المحاولة</button></div></div></div>`; return;
@@ -445,7 +446,21 @@ function routeModule(h) {
   for (const [m, rs] of Object.entries(MOD_ROUTES)) if (rs.includes(r)) return m;
   return null;
 }
-const subLive = () => { const s = S.sub; return !s || (s.status !== 'suspended' && (s.status === 'active' || !s.trial_ends || s.trial_ends >= today())); };
+const subLive = () => { const s = S.sub; if (!s) return true;
+  if (s.status === 'active') return !s.sub_ends || s.sub_ends >= today();
+  if (s.status === 'trial') return !s.trial_ends || s.trial_ends >= today();
+  return false; };   // pending (waiting for Waad's approval) and suspended: closed
+// a new company waits until the Waad team accepts it (admin site → المنشآت)
+function pendingView() {
+  $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><h2>${esc(tr('وصلنا طلبك'))}</h2>
+    <p>${esc(tr('سجّلنا منشأتك'))} «<b>${esc(S.company ? S.company.name : '')}</b>»${esc(tr('، وفريق وعد يراجع الطلب ويفعّل لك التجربة قريباً. بنتواصل معك على إيميلك.'))}</p>
+    <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn pri" id="pchk">${esc(tr('تحقق مرة ثانية'))}</button>
+      <a class="btn" href="${SITE_URL}contact.html#contact" target="_blank" rel="noopener">${esc(tr('تواصل معنا'))}</a><button class="btn" id="lo">${esc(tr('تسجيل الخروج'))}</button></div></div>
+    <p class="muted small" style="text-align:center">${langBtn('linkbtn')}</p></div></div>`;
+  $('#pchk').onclick = () => boot();
+  $('#lo').onclick = async () => { await authApi.signOut(); authView(); };
+  $('#lg').onclick = () => setLang(LANG === 'en' ? 'ar' : 'en');
+}
 const modOn = m => !m || !S.sub || (subLive() && (S.sub.modules || []).includes(m));
 
 /* ===== shell & navigation ===== */
