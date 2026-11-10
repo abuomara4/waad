@@ -87,8 +87,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-
 select option,select optgroup{background:var(--surface);color:var(--ink)}
 /* password field with show/hide eye */
 .pwrap{position:relative}
-.pwrap input{padding-inline-end:42px}
-.peye{position:absolute;inset-inline-end:4px;top:4px;width:auto;min-height:32px;height:calc(100% - 8px);padding:0 8px;background:none;border:0;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center}
+.pwrap input{padding-right:42px}   /* the field is dir=ltr in both languages, so the eye sits on the physical right, past the typed text */
+.peye{position:absolute;right:4px;left:auto;top:4px;width:auto;min-height:32px;height:calc(100% - 8px);padding:0 8px;background:none;border:0;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center}
 .peye:hover{color:var(--ink)}
 .peye svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .peye .pe-slash{display:none}
