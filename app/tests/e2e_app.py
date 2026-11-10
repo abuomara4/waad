@@ -1152,16 +1152,31 @@ with sync_playwright() as pw:
     go(o, '#/trainplan'); o.wait_for_selector('#ntp'); o.click('#ntp'); o.fill('#dlg input[name=title]', 'برنامج القيادة'); o.fill('#dlg input[name=budget]', '5000'); modal_ok(o); o.wait_for_timeout(400)
     ok('برنامج القيادة' in o.inner_text('#page') and '5,000.00' in o.inner_text('#page'), 'training plan programme with budget')
 
-    # ---------- every screen fits phones and tablets (no sideways page scroll) ----------
-    wide = {}
-    for vw, vh in [(390, 844), (768, 1024)]:
+    # ---------- every screen fits phones, tablets and desktops ----------
+    # Every registered route at 5 widths: no sideways page scroll, and no element sticking out of the
+    # screen unless it sits inside its own scroll box (wide tables scroll inside their card).
+    FIT = r"""() => { const W = document.documentElement.clientWidth, bad = [];
+      for (const el of document.querySelectorAll('body *')) { const cs = getComputedStyle(el);
+        if (cs.display === 'none' || cs.visibility === 'hidden' || cs.position === 'fixed') continue;
+        const r = el.getBoundingClientRect(); if (!r.width || !r.height || (r.right <= W + 2 && r.left >= -2)) continue;
+        let p = el.parentElement, clip = false;
+        while (p && p !== document.body) { if (/auto|scroll|hidden|clip/.test(getComputedStyle(p).overflowX)) { clip = true; break; } p = p.parentElement; }
+        if (!clip) bad.push(el.tagName.toLowerCase() + (el.id ? '#' + el.id : '')); }
+      return document.scrollingElement.scrollWidth > W + 2 || bad.length ? 'scroll ' + document.scrollingElement.scrollWidth + '/' + W + ' ' + bad.slice(0, 3).join(',') : ''; }"""
+    fit_routes = sorted(set(o.evaluate("Object.keys(VIEWS)")) - {'#/letter', '#/statement', '#/welcome'}) + ['#/sales/new', '#/quotes/new', '#/docs/' + eid, '#/statement/' + cust_id]
+    wide, n_err = {}, len(o.errors)
+    for vw, vh in [(360, 740), (390, 844), (768, 1024), (1024, 768), (1440, 900)]:
         o.set_viewport_size({'width': vw, 'height': vh})
-        for h in ['#/home', '#/employees', '#/payroll', '#/crm', '#/quotes', '#/sales', '#/sales/new', '#/rfq', '#/purchases', '#/items', '#/counts', '#/grades', '#/insurance', '#/trainplan',
-                  '#/statement/' + cust_id, '#/parties/customer', '#/reports', '#/settings', '#/serials', '#/privacy']:
-            go(o, h); o.wait_for_timeout(600)
-            if o.evaluate("document.scrollingElement.scrollWidth > document.scrollingElement.clientWidth + 2"): wide.setdefault(vw, []).append(h)
+        for h in fit_routes:
+            go(o, h); o.wait_for_timeout(350)
+            why = o.evaluate(FIT)
+            if why: wide.setdefault(vw, {})[h] = why
+        go(o, '#/employees'); o.click('#ne'); o.wait_for_selector('#dlg[open]')
+        why = o.evaluate(FIT); o.click('#mx')
+        if why: wide.setdefault(vw, {})['new-employee dialog'] = why
     o.set_viewport_size({'width': 1280, 'height': 900})
-    ok(not wide, 'no sideways page scroll on phone (390px) and tablet (768px): ' + json.dumps(wide))
+    ok(len(fit_routes) > 60 and not wide, 'all %d screens fit 360/390/768/1024/1440px with no sideways scroll: ' % len(fit_routes) + json.dumps(wide, ensure_ascii=False)[:400])
+    ok(len(o.errors) == n_err, 'no script errors while opening every screen at every size: ' + '; '.join(o.errors[n_err:])[:300])
 
     # ---------- packages and the platform admin panel ----------
     pp = new_page(b); signup(pp, 'platform@waad.test'); pp.wait_for_selector('#cf')
