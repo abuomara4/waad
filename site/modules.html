@@ -136,6 +136,13 @@ button.mini{font-family:inherit;cursor:pointer;text-align:start;width:100%}
 .nw{white-space:nowrap}
 .crow{max-width:820px}.crow .r{grid-template-columns:1fr auto!important;align-items:center}.crow .rh p{font-size:18px;color:var(--ink)}
 @media(max-width:520px){.crow .r{grid-template-columns:1fr!important}.crow .btn{justify-self:start}}
+/* «send an email» opens a short menu: Gmail, Outlook, the device's mail app, or copy the address */
+.mm{position:relative;border:0;padding:0;margin:0;background:none}
+.mm summary{list-style:none}.mm summary::-webkit-details-marker{display:none}.mm summary:after{content:none!important}
+.mml{position:absolute;inset-inline-end:0;top:calc(100% + 6px);z-index:5;min-width:220px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px -16px rgba(15,23,42,.35);padding:6px;display:grid}
+.mml a,.mml button{display:block;text-align:start;padding:10px 12px;border-radius:8px;color:var(--ink);text-decoration:none;font:inherit;font-weight:600;background:none;border:0;cursor:pointer}
+.mml a:hover,.mml button:hover{background:var(--bg)}
+@media(max-width:520px){.mml{inset-inline-end:auto;inset-inline-start:0}}
 /* sections */
 section{padding:84px 0}
 .sh{max-width:680px;margin:0 0 32px}
@@ -267,6 +274,11 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
     ts.forEach(function(t,i){t.onclick=function(){pick(t)};t.onkeydown=function(e){
       var rtl=document.documentElement.dir==='rtl',k=e.key,d=(k==='ArrowDown'||k===(rtl?'ArrowLeft':'ArrowRight'))?1:(k==='ArrowUp'||k===(rtl?'ArrowRight':'ArrowLeft'))?-1:0;
       if(d){e.preventDefault();pick(ts[(i+d+ts.length)%ts.length],true)}}});}
+  // copy the e-mail address; close the e-mail menu when a choice is made or on a click elsewhere
+  [].forEach.call(document.querySelectorAll('[data-copy]'),function(b){b.onclick=function(){
+    var t=b.dataset.copy,done=function(){var o=b.innerHTML;b.textContent=document.documentElement.lang==='en'?'Copied':'تم النسخ';setTimeout(function(){b.innerHTML=o;b.closest('details').open=false},1200)};
+    if(navigator.clipboard)navigator.clipboard.writeText(t).then(done,function(){prompt('',t)});else prompt('',t)}});
+  document.addEventListener('click',function(e){[].forEach.call(document.querySelectorAll('details.mm[open]'),function(d){if(!d.contains(e.target)||e.target.closest('.mml a'))d.open=false})});
   // hero preview: three dashboards that rotate by themselves (paused on hover, off for reduced motion)
   var sh=document.getElementById('shot');
   if(sh){var sl=sh.querySelectorAll('.slide'),dt=sh.querySelectorAll('.tb button'),cur=0,tm=null;
