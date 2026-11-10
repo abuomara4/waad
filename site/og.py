@@ -13,7 +13,7 @@ img{height:84px;align-self:flex-start}h1{font-size:60px;line-height:1.25;font-we
 p{font-size:30px;color:#cbd5e1;margin-top:18px;line-height:1.6}.tags{display:flex;gap:14px;flex-wrap:wrap}
 .tags span{border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:8px 22px;font-size:24px;color:#e2e8f0}</style></head><body>
 <img src="LOGO">
-<div><h1>الرواتب والإجازات والفواتير والمخزون، في <b>نظام واحد</b></h1><p>نظام سعودي للمنشآت الصغيرة والمتوسطة. جرّبه ٧ أيام مجاناً.</p></div>
+<div><h1>منشأتك كاملة، في <b>نظام واحد</b></h1><p>نظام سعودي للمنشآت الصغيرة والمتوسطة. جرّبه ٧ أيام مجاناً.</p></div>
 <div class="tags"><span>نظام العمل</span><span>ضريبة القيمة المضافة</span><span>حماية الأجور</span><span>عربي وإنجليزي</span></div>
 </body></html>'''.replace('LOGO', logo)
 with sync_playwright() as p:
