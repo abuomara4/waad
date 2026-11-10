@@ -1049,6 +1049,7 @@
 التواجد دون مبرر في غير مكان العمل المخصص للعامل أثناء وقت الدوام	Being away from one's assigned workplace without reason during working hours
 التواريخ بالميلادي أو الهجري	Dates in Gregorian or Hijri
 التواصل	Contact
+التواصل مع المالك	Contact the owner
 التواصل والبنك	Contact and bank
 التوافق والأمان	Compliance & security
 التوريد المتوقع	Expected delivery
@@ -2150,6 +2151,7 @@
 تصريح الحج	Hajj permit
 تصميم الواجهات	UI design
 تطبيق	Apply
+تطبيق البريد	Mail app
 تطبيق الزيادة	Apply the raise
 تطبيق متجر إلكتروني	E-commerce app
 تظلم	Grievance
@@ -2274,6 +2276,7 @@
 تم الحفظ	Saved
 تم الرفض	Rejected
 تم الصرف	Paid by bank
+تم النسخ	Copied
 تم تعيين	Assigned
 تم ربط حسابك بسجلك	Your account is now linked to your record
 تمت	Done
@@ -3686,6 +3689,7 @@
 مؤهلة	Qualified
 ما فيه أسئلة	No questions
 ما فيه إعلانات	No announcements
+ما فيه إيميل للمالك	No owner e-mail
 ما فيه زيارات في هذي الفترة	No visits in this period
 ما نُسب للعامل وأقواله ودفاعه	the charge, the worker's statement and defence
 ما نُسب للعامل ودفاعه	the charge and the worker's defence
@@ -3798,6 +3802,8 @@
 مدين تذاكر سفر الموظفين	debit employee travel tickets
 مرات	times
 مراجعة قبل الترحيل	Review before posting
+مراسلة	Message
+مراسلة عبر	Message via
 مراكز التكلفة	Cost centers
 مرتجع	Return
 مرتجع مبيعات	Sales return
@@ -4076,6 +4082,8 @@
 نسبة الكسب	Win rate
 نسبة النساء	Share of women
 نسبة النطاق بين	Band percentage between
+نسخ إيميلات المنشآت الظاهرة	Copy the e-mails of the companies shown
+نسخ الإيميل	Copy e-mail
 نسخ الرسالة	Copy message
 نسخ الرمز	Copy code
 نسخ الرمز والرابط	Copy code and link

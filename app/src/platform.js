@@ -15,6 +15,14 @@ function pbars(pts, label) {
     <div class="pbx small muted"><span class="num">${esc(pts[0].k)}</span><span class="num">${esc(pts[pts.length - 1].k)}</span></div>`;
 }
 
+const gmailTo = (to, su) => 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(to) + (su ? '&su=' + encodeURIComponent(su) : '');
+const mailBtns = (to, su) => to ? `<a class="btn sm pri" href="${esc(gmailTo(to, su))}" target="_blank" rel="noopener">${esc(tr('مراسلة عبر Gmail'))}</a>
+  <a class="btn sm" href="mailto:${esc(to)}${su ? '?subject=' + encodeURIComponent(su) : ''}">${esc(tr('تطبيق البريد'))}</a>
+  <button type="button" class="btn sm" data-copymail="${esc(to)}">${esc(tr('نسخ الإيميل'))}</button>` : `<span class="muted small">${esc(tr('ما فيه إيميل للمالك'))}</span>`;
+function bindCopy(root) {
+  $$('[data-copymail]', root).forEach(b => b.onclick = async () => {
+    try { await navigator.clipboard.writeText(b.dataset.copymail); toast(tr('تم النسخ')); } catch (e) { prompt('', b.dataset.copymail); } });
+}
 async function platformView() {
   LS.set('waad.nocount', true);   // the team's own visits to the website are not counted (same browser, same site)
   const tab = (location.hash.match(/^#\/(\w+)/) || [])[1], cur = PV[tab] ? tab : 'companies';
@@ -49,7 +57,8 @@ PV.companies = async page => {
     <div class="grid" style="margin-bottom:14px">${pkpi('المنشآت', rows.length)}${pkpi('مفعّلة', rows.filter(c => c.status === 'active').length)}
       ${pkpi('تجربة', rows.filter(c => c.status === 'trial' && subState(c)[1] !== 'bad').length)}${pkpi('مغلقة (موقوفة أو انتهت تجربتها)', rows.length - live.length)}
       ${pkpi('المستخدمون', rows.reduce((a, c) => a + (c.users || 0), 0))}</div>
-    <div class="row" style="margin-bottom:10px"><input id="pq" placeholder="${esc(tr('بحث بالاسم أو البريد أو الباقة'))}" value="${esc(q)}" style="max-width:320px"></div>
+    <div class="row" style="margin-bottom:10px;gap:8px;flex-wrap:wrap"><input id="pq" placeholder="${esc(tr('بحث بالاسم أو البريد أو الباقة'))}" value="${esc(q)}" style="max-width:320px">
+      <div class="sp"></div><button type="button" class="btn sm" data-copymail="${esc([...new Set(shown.map(c => c.owner_email).filter(Boolean))].join(', '))}">${esc(tr('نسخ إيميلات المنشآت الظاهرة'))}</button></div>
     ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'الباقة', h: c => esc(c.plan) },
       { t: 'الأقسام', h: c => (c.modules || []).map(m => `<span class="badge">${esc(tr(MODULES[m] || m))}</span>`).join(' ') },
       { t: 'الحالة', h: c => { const [t, k] = subState(c); return `<span class="badge ${k}">${esc(tr(t))}</span>` + (c.status === 'trial' && c.trial_ends ? ` <span class="small num">${esc(c.trial_ends)}</span>` : ''); } },
@@ -61,7 +70,7 @@ PV.companies = async page => {
       ${field('مدة التجربة بالأيام (فارغ = بدون حد)', inp('days', st.default_trial_days, 'type="number" min="1" max="365"'))}
       <div class="wide"><div id="pserr"></div><button class="btn pri" id="psb">${esc(tr('حفظ'))}</button></div></form></div>`;
   $('#pq', page).oninput = e => { LS.set('waad.platq', e.target.value); clearTimeout(platformView.t); platformView.t = setTimeout(platformView, 400); };
-  bindRows(page, shown, subForm);
+  bindRows(page, shown, subForm); bindCopy(page);
   $('#psf', page).onsubmit = async e => { e.preventDefault(); const f = e.target;
     try { await busy($('#psb', page), async () => { await db.rpc('platform_set_settings', { p_modules: pickMods(f), p_trial_days: f.days.value ? +f.days.value : null }); toast(tr('تم الحفظ')); }); }
     catch (er) { showErr($('#pserr', page), er); } };
@@ -76,6 +85,8 @@ function subForm(c) {
       ${field('نهاية التجربة (للحالة «تجربة»)', `<input type="date" name="trial_ends" value="${esc(c.trial_ends || '')}">`)}
       ${field('الحد الأعلى للمستخدمين (فارغ = بدون حد)', inp('max_users', c.max_users, 'type="number" min="1"'))}
       ${field('ملاحظة داخلية', inp('note', c.note), 'wide')}</div>
+    <div class="card" style="margin-top:12px;padding:10px 12px"><b>${esc(tr('التواصل مع المالك'))}</b> <span class="small muted" dir="ltr">${esc(c.owner_email || '')}</span>
+      <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px">${mailBtns(c.owner_email, 'وعد: ' + c.name)}</div></div>
     <p class="muted small">${esc(tr('التغيير يظهر في سجل التدقيق الخاص بالمنشأة. إغلاق قسم لا يحذف بياناته — تعود عند فتحه.'))}</p>`, {
     wide: true, onOk: async (f, d) => {
       const mods = pickMods($('#mform', d) || d.querySelector('form'));
@@ -83,6 +94,7 @@ function subForm(c) {
       await db.rpc('platform_set_subscription', { p_company: c.company_id, p_plan: f.plan, p_modules: mods, p_status: f.status, p_trial_ends: f.trial_ends || null, p_max_users: f.max_users ? +f.max_users : null, p_note: f.note || null });
       toast(tr('تم الحفظ')); platformView();
     } });
+  bindCopy($('#dlg'));
 }
 
 /* ---------- system numbers (from the same subscription metadata) ---------- */
@@ -101,9 +113,9 @@ PV.system = async page => {
     <div class="card" style="margin-bottom:14px"><h2>${esc(tr('التسجيلات الجديدة يومياً (آخر ٣٠ يوماً)'))}</h2>${pbars(days.map(k => ({ k, v: rows.filter(c => String(c.created_at).slice(0, 10) === k).length })), 'التسجيلات الجديدة يومياً (آخر ٣٠ يوماً)')}</div>
     <div class="g2p">
       <div class="card"><h2>${esc(tr('تجارب تنتهي قريباً'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('تواصل معهم قبل ما تنتهي التجربة.'))}</p>
-        ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'نهاية التجربة', h: c => `<span class="num">${esc(c.trial_ends)}</span>` }], ending, { empty: 'لا توجد تجارب تنتهي خلال ٣ أيام' })}</div>
+        ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'نهاية التجربة', h: c => `<span class="num">${esc(c.trial_ends)}</span>` }, { t: '', h: c => c.owner_email ? `<a class="btn sm" href="${esc(gmailTo(c.owner_email, 'وعد: ' + c.name))}" target="_blank" rel="noopener">${esc(tr('مراسلة'))}</a>` : '' }], ending, { empty: 'لا توجد تجارب تنتهي خلال ٣ أيام' })}</div>
       <div class="card"><h2>${esc(tr('منشآت ما دخلت من أسبوعين'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('اشتراكها مفتوح وما أحد دخل منها من ١٤ يوماً أو أكثر.'))}</p>
-        ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'آخر دخول', h: c => c.last_sign_in ? `<span class="num">${esc(String(c.last_sign_in).slice(0, 10))}</span>` : '—' }], quiet, { empty: 'كل المنشآت نشطة' })}</div></div>`;
+        ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'آخر دخول', h: c => c.last_sign_in ? `<span class="num">${esc(String(c.last_sign_in).slice(0, 10))}</span>` : '—' }, { t: '', h: c => c.owner_email ? `<a class="btn sm" href="${esc(gmailTo(c.owner_email, 'وعد: ' + c.name))}" target="_blank" rel="noopener">${esc(tr('مراسلة'))}</a>` : '' }], quiet, { empty: 'كل المنشآت نشطة' })}</div></div>`;
 };
 
 /* ---------- website visitors (the site's own counter: daily totals only, no cookies) ---------- */
