@@ -90,8 +90,11 @@ h1 em{font-style:normal;color:var(--gold2)}
 .phero h1{margin:0 0 10px;font-size:clamp(28px,4vw,42px);line-height:1.3}.phero p{margin:0 auto;max-width:640px;color:#cbd5e1;font-size:17px}
 nav.links a[aria-current=page]{color:#fff;box-shadow:inset 0 -2px 0 var(--gold2)}
 .more{text-align:center;margin-top:28px}
-.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:860px;margin:0 auto}
-.chips span{border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:8px 18px;color:#e2e8f0;font-size:15px}
+.minis{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:12px;max-width:860px;margin:0 auto}
+.mini{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);color:#e2e8f0;text-decoration:none;font-weight:600;font-size:15px;transition:border-color .2s,background .2s}
+.mini:hover{border-color:rgba(214,173,94,.5);background:rgba(255,255,255,.07)}
+.mini .ic{flex:none;width:38px;height:38px;margin:0;border-radius:10px}.mini .ic svg{width:20px;height:20px}
+@media(max-width:760px){.minis{grid-template-columns:1fr 1fr;gap:10px}.mini{padding:12px;font-size:14px;gap:10px}.mini .ic{width:34px;height:34px}}
 /* sections */
 section{padding:84px 0}
 .sh{max-width:720px;margin:0 auto 44px;text-align:center}
@@ -263,7 +266,14 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
   <div class="wrap">
     <div class="sh"><div class="eyebrow"><span class="ar">مبني للسعودية</span><span class="en">BUILT FOR SAUDI</span></div>
       <h2><span class="ar">الأنظمة السعودية مدمجة، لا مضافة</span><span class="en">Saudi rules built in, not bolted on</span></h2></div>
-    <div class="chips"><span><span class="ar">نظام العمل</span><span class="en">Labor Law</span></span><span><span class="ar">نطاقات والتوطين</span><span class="en">Nitaqat &amp; Saudization</span></span><span><span class="ar">ضريبة القيمة المضافة</span><span class="en">VAT</span></span><span><span class="ar">التأمينات الاجتماعية</span><span class="en">GOSI</span></span><span><span class="ar">حماية الأجور</span><span class="en">Wage protection</span></span><span><span class="ar">التأمين الطبي</span><span class="en">Medical insurance</span></span></div>
+    <div class="minis">
+      <a class="mini" href="trust.html#saudi"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4zM8 9h8M8 13h8M8 17h5"/></svg></span><span class="ar">نظام العمل</span><span class="en">Labor Law</span></a>
+      <a class="mini" href="trust.html#saudi"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="ar">نطاقات والتوطين</span><span class="en">Nitaqat &amp; Saudization</span></a>
+      <a class="mini" href="trust.html#saudi"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg></span><span class="ar">ضريبة القيمة المضافة</span><span class="en">VAT</span></a>
+      <a class="mini" href="trust.html#saudi"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-6 9 6M5 10v9h14v-9"/></svg></span><span class="ar">التأمينات الاجتماعية</span><span class="en">GOSI</span></a>
+      <a class="mini" href="trust.html#saudi"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v10H4zM8 12h.01M16 12h.01"/><circle cx="12" cy="12" r="2"/></svg></span><span class="ar">حماية الأجور</span><span class="en">Wage protection</span></a>
+      <a class="mini" href="trust.html#saudi"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></span><span class="ar">التأمين الطبي</span><span class="en">Medical insurance</span></a>
+    </div>
     <div class="more"><a class="btn ghost" href="trust.html"><span class="ar">التوافق والأمان ←</span><span class="en">Compliance &amp; security →</span></a></div>
   </div>
 </section>
