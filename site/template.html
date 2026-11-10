@@ -56,7 +56,13 @@ h1 em{font-style:normal;color:var(--gold2)}
 .trust svg{width:18px;height:18px;color:var(--gold2)}
 /* product preview */
 .shot{background:linear-gradient(180deg,#1f2b44,#172238);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:16px;box-shadow:0 30px 60px -20px rgba(0,0,0,.55)}
-.shot .tb{display:flex;gap:6px;margin-bottom:12px}.shot .tb i{width:10px;height:10px;border-radius:50%;background:#334155}
+.shot .tb{display:flex;gap:6px;margin-bottom:12px}
+.shot .tb button{width:10px;height:10px;padding:0;border:0;border-radius:999px;background:#334155;cursor:pointer;transition:width .3s,background .3s}
+.shot .tb button.on{width:24px;background:var(--gold2)}
+.slides{display:grid}.slide{grid-area:1/1;opacity:0;transform:translateY(8px);transition:opacity .6s,transform .6s;pointer-events:none}
+.slide.on{opacity:1;transform:none;pointer-events:auto}
+.slide .st{color:#e2e8f0;font-size:13px;font-weight:700;margin-bottom:10px}
+.k .dn{color:#e0b45e;font-size:12px}
 .kp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .k{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px}
 .k small{color:#94a3b8;font-size:12px;display:block}.k b{font-size:20px;color:#fff;font-variant-numeric:tabular-nums}
@@ -147,19 +153,54 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/></svg><span class="ar">يعمل على الجوال</span><span class="en">Works on mobile</span></span>
       </div>
     </div>
-    <div class="shot" aria-hidden="true">
-      <div class="tb"><i></i><i></i><i></i></div>
+    <div class="shot" id="shot" aria-hidden="true">
+      <div class="tb"><button type="button" tabindex="-1" class="on"></button><button type="button" tabindex="-1"></button><button type="button" tabindex="-1"></button></div>
+      <div class="slides">
+      <div class="slide on" data-i="0">
+        <div class="st"><span class="ar">الموارد البشرية</span><span class="en">Human resources</span></div>
       <div class="kp">
         <div class="k"><small><span class="ar">الموظفون النشطون</span><span class="en">Active employees</span></small><b>48</b></div>
         <div class="k"><small><span class="ar">نسبة التوطين</span><span class="en">Saudization</span></small><b>36%</b> <span class="up">▲</span></div>
         <div class="k"><small><span class="ar">مسير الشهر</span><span class="en">This month's payroll</span></small><b>412,500</b></div>
-        <div class="k"><small><span class="ar">مبيعات الشهر</span><span class="en">Sales this month</span></small><b>1.2M</b> <span class="up">▲</span></div>
+        <div class="k"><small><span class="ar">في إجازة اليوم</span><span class="en">On leave today</span></small><b>3</b></div>
       </div>
       <div class="rows">
         <div><span class="ar">آخر الطلبات</span><span class="en">Latest requests</span><span></span></div>
         <div><span><span class="ar">إجازة سنوية — ٥ أيام</span><span class="en">Annual leave — 5 days</span></span><span class="tag w"><span class="ar">بانتظار الاعتماد</span><span class="en">Pending</span></span></div>
-        <div><span><span class="ar">فاتورة ضريبية INV-1042</span><span class="en">Tax invoice INV-1042</span></span><span class="tag ok"><span class="ar">مرحّلة</span><span class="en">Posted</span></span></div>
-        <div><span><span class="ar">أمر شراء PO-311</span><span class="en">Purchase order PO-311</span></span><span class="tag ok"><span class="ar">مستلم</span><span class="en">Received</span></span></div>
+        <div><span><span class="ar">تجديد إقامة — بعد ١٢ يوماً</span><span class="en">Iqama renewal — in 12 days</span></span><span class="tag w"><span class="ar">تنبيه</span><span class="en">Reminder</span></span></div>
+        <div><span><span class="ar">عقد موظف جديد — المبيعات</span><span class="en">New hire contract — Sales</span></span><span class="tag ok"><span class="ar">موقّع</span><span class="en">Signed</span></span></div>
+      </div>
+      </div>
+      <div class="slide" data-i="1">
+        <div class="st"><span class="ar">المالية والمبيعات</span><span class="en">Finance & sales</span></div>
+      <div class="kp">
+        <div class="k"><small><span class="ar">مبيعات الشهر</span><span class="en">Sales this month</span></small><b>1.2M</b> <span class="up">▲</span></div>
+        <div class="k"><small><span class="ar">ضريبة القيمة المضافة المستحقة</span><span class="en">VAT payable</span></small><b>156,300</b></div>
+        <div class="k"><small><span class="ar">ذمم العملاء</span><span class="en">Receivables</span></small><b>284,900</b></div>
+        <div class="k"><small><span class="ar">النقد والبنوك</span><span class="en">Cash & banks</span></small><b>2.4M</b> <span class="up">▲</span></div>
+      </div>
+      <div class="rows">
+        <div><span class="ar">آخر الحركات</span><span class="en">Latest activity</span><span></span></div>
+        <div><span><span class="ar">فاتورة ضريبية INV-1043</span><span class="en">Tax invoice INV-1043</span></span><span class="tag ok"><span class="ar">مرحّلة</span><span class="en">Posted</span></span></div>
+        <div><span><span class="ar">سند قبض RC-208</span><span class="en">Receipt RC-208</span></span><span class="tag ok"><span class="ar">محصّل</span><span class="en">Collected</span></span></div>
+        <div><span><span class="ar">فاتورة INV-1037 — شركة الأفق</span><span class="en">Invoice INV-1037 — Al Ofoq</span></span><span class="tag w"><span class="ar">مستحقة</span><span class="en">Due</span></span></div>
+      </div>
+      </div>
+      <div class="slide" data-i="2">
+        <div class="st"><span class="ar">المخزون والمشتريات</span><span class="en">Inventory & purchasing</span></div>
+      <div class="kp">
+        <div class="k"><small><span class="ar">أصناف في المخزون</span><span class="en">Items in stock</span></small><b>1,284</b></div>
+        <div class="k"><small><span class="ar">قيمة المخزون</span><span class="en">Stock value</span></small><b>865,200</b></div>
+        <div class="k"><small><span class="ar">تحت حد الطلب</span><span class="en">Below reorder level</span></small><b>7</b> <span class="dn">▼</span></div>
+        <div class="k"><small><span class="ar">أوامر شراء مفتوحة</span><span class="en">Open purchase orders</span></small><b>5</b></div>
+      </div>
+      <div class="rows">
+        <div><span class="ar">آخر الحركات</span><span class="en">Latest activity</span><span></span></div>
+        <div><span><span class="ar">أمر شراء PO-312</span><span class="en">Purchase order PO-312</span></span><span class="tag ok"><span class="ar">معتمد</span><span class="en">Approved</span></span></div>
+        <div><span><span class="ar">استلام بضاعة GRN-77</span><span class="en">Goods receipt GRN-77</span></span><span class="tag ok"><span class="ar">مستلم</span><span class="en">Received</span></span></div>
+        <div><span><span class="ar">جرد المستودع الرئيسي</span><span class="en">Main warehouse count</span></span><span class="tag w"><span class="ar">قيد التنفيذ</span><span class="en">In progress</span></span></div>
+      </div>
+      </div>
       </div>
     </div>
   </div>
@@ -311,6 +352,14 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
   document.getElementById('lg').onclick=function(){var l=d.lang==='en'?'ar':'en';d.lang=l;d.dir=l==='en'?'ltr':'rtl';try{localStorage.setItem('waad.lang',JSON.stringify(l))}catch(e){}};
   var nl=document.getElementById('nl');document.getElementById('mn').onclick=function(){nl.classList.toggle('open')};
   nl.addEventListener('click',function(e){if(e.target.closest('a'))nl.classList.remove('open')});
+  // hero preview: three dashboards that rotate by themselves (paused on hover, off for reduced motion)
+  var sh=document.getElementById('shot');
+  if(sh){var sl=sh.querySelectorAll('.slide'),dt=sh.querySelectorAll('.tb button'),cur=0,tm=null;
+    var show=function(i){cur=(i+sl.length)%sl.length;for(var j=0;j<sl.length;j++){sl[j].classList.toggle('on',j===cur);dt[j].classList.toggle('on',j===cur)}};
+    var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var go=function(){if(!still&&!tm)tm=setInterval(function(){if(!document.hidden)show(cur+1)},4500)},stop=function(){clearInterval(tm);tm=null};
+    for(var j=0;j<dt.length;j++)(function(j){dt[j].onclick=function(){show(j);stop();go()}})(j);
+    sh.addEventListener('mouseenter',stop);sh.addEventListener('mouseleave',go);go();}
 })();
 </script>
 </body>
