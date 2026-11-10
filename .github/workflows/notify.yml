@@ -4,6 +4,8 @@ name: notify new requests
 on:
   schedule: [{ cron: '*/10 * * * *' }]
   workflow_dispatch:
+    inputs:
+      test: { description: 'Send one test message only', type: boolean, default: false }
 concurrency: { group: notify, cancel-in-progress: false }
 jobs:
   notify:
@@ -15,6 +17,7 @@ jobs:
       - name: Notify
         env:
           DB: ${{ secrets.SUPABASE_DB_URL }}
+          NOTIFY_TEST: ${{ inputs.test }}
           NOTIFY_GMAIL_USER: ${{ secrets.NOTIFY_GMAIL_USER }}
           NOTIFY_GMAIL_APP_PASSWORD: ${{ secrets.NOTIFY_GMAIL_APP_PASSWORD }}
           NOTIFY_EMAIL_TO: ${{ secrets.NOTIFY_EMAIL_TO }}

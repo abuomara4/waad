@@ -8,13 +8,14 @@ from email.mime.text import MIMEText
 
 ADMIN = 'https://abuomara4.github.io/waad/site/admin/'
 db = re.sub(r'\s', '', os.environ.get('DB', ''))
-if not db.startswith(('postgres://', 'postgresql://')):
+if os.environ.get('NOTIFY_TEST') != 'true' and not db.startswith(('postgres://', 'postgresql://')):
     print('::error::SUPABASE_DB_URL is missing or not a connection URI'); sys.exit(1)
 
 def psql(q):
     return subprocess.run(['psql', '-X', '-q', '-At', '-v', 'ON_ERROR_STOP=1', '-d', db, '-c', q], check=True, capture_output=True, text=True).stdout.strip()
 
-rows = json.loads(psql("""select coalesce(json_agg(x), '[]') from (
+TEST = os.environ.get('NOTIFY_TEST') == 'true'   # «Run workflow» with test = true: one test message, nothing read or marked
+rows = [{'company_id': None, 'name': 'رسالة تجربة من وعد', 'email': 'test@example.com', 'at': 'الآن'}] if TEST else json.loads(psql("""select coalesce(json_agg(x), '[]') from (
   select s.company_id, c.name, to_char(c.created_at at time zone 'Asia/Riyadh', 'YYYY-MM-DD HH24:MI') as at,
          (select u.email from public.members m join auth.users u on u.id = m.user_id where m.company_id = c.id and m.role = 'owner' limit 1) as email
     from public.company_subscriptions s join public.companies c on c.id = s.company_id
@@ -47,6 +48,8 @@ if phone and key:
     except Exception as e:
         print('::warning::WhatsApp not sent:', type(e).__name__)
 
+if TEST:
+    print('test message sent by %s' % (' + '.join(sent) or 'nothing — check the secrets')); sys.exit(0 if sent else 1)
 if not sent:
     print('::warning::%d new request(s) but no notification channel worked — set the secrets (see this file)' % len(rows)); sys.exit(0)
 ids = ','.join("'%s'" % r['company_id'] for r in rows)
