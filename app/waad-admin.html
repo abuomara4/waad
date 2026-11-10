@@ -760,6 +760,8 @@ async function boot() {
       return me && me.must_change ? changePasswordView(true) : platformView();
     }
     if (S.platform && (/^#\/platform/.test(location.hash) || !(comps || []).length)) { location.href = ADMIN_URL; return; }
+    // a Waad team account (username sign-in) never gets a company: it belongs on the admin site
+    if (!(comps || []).length && /@admin\.waad\.app$/i.test((S.session.user || {}).email || '')) { location.href = ADMIN_URL; return; }
     if (!(await loadContext(comps))) return onboardView();
     if (S.mustChange) return changePasswordView(true);
   } catch (e) {
