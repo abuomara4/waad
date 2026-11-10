@@ -6,6 +6,7 @@ import re, os
 D = os.path.dirname(os.path.abspath(__file__))
 BASE = 'https://abuomara4.github.io/waad/site/'
 core = open(os.path.join(D, '..', 'app', 'src', 'core.js'), encoding='utf-8').read()
+SB = re.search(r"url: '([^']+)', key: '([^']+)'", core)   # CFG in core.js
 logo = {n: re.search(n + r" = '(data:image/webp;base64,[^']+)'", core).group(1) for n in ('LOGO_D', 'LOGO_L')}
 fav = re.search(r'<link rel="icon" type="image/png" href="(data:image/png;base64,[^"]+)"', open(os.path.join(D, '..', 'app', 'build.py'), encoding='utf-8').read()).group(1)
 layout = open(os.path.join(D, 'layout.html'), encoding='utf-8').read()
@@ -26,7 +27,7 @@ for page, out, title, desc in PAGES:
     body = open(os.path.join(D, 'pages', page + '.html'), encoding='utf-8').read()
     url = BASE if out == 'index.html' else BASE + out
     t = (layout.replace('__BODY__', body).replace('__TITLE__', title).replace('__DESC__', desc)
-               .replace('__URL__', url).replace('__PAGE__', page))
+               .replace('__URL__', url).replace('__PAGE__', page).replace('__SB_URL__', SB.group(1)).replace('__SB_KEY__', SB.group(2)))
     assert not re.search(r'__[A-Z]+__', t), out   # every placeholder filled
     open(os.path.join(D, out), 'w', encoding='utf-8').write(t)
     print('built site/%s' % out, len(t.encode()), 'bytes')
@@ -36,5 +37,5 @@ for page, out, title, desc in PAGES:
 # in Google Search Console instead. The system (app/) carries its own noindex.
 urls = ''.join('  <url><loc>%s</loc></url>\n' % (BASE if out == 'index.html' else BASE + out) for _, out, _, _ in PAGES)  # no lastmod: it would change on every build
 open(os.path.join(D, 'sitemap.xml'), 'w', encoding='utf-8').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + urls + '</urlset>\n')
-open(os.path.join(D, 'robots.txt'), 'w', encoding='utf-8').write('User-agent: *\nDisallow: /app/\nSitemap: %ssitemap.xml\n' % BASE)
+open(os.path.join(D, 'robots.txt'), 'w', encoding='utf-8').write('User-agent: *\nDisallow: /app/\nDisallow: /admin/\nSitemap: %ssitemap.xml\n' % BASE)
 print('built site/sitemap.xml + site/robots.txt')

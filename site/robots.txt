@@ -1,3 +1,4 @@
 User-agent: *
 Disallow: /app/
+Disallow: /admin/
 Sitemap: https://abuomara4.github.io/waad/site/sitemap.xml

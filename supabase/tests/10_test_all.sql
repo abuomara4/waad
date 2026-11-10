@@ -2100,7 +2100,7 @@ select t.err($$select * from public.code_lookups$$, 'permission denied', 'anon c
 select t.err($$select public.riyadh_today()$$, 'permission denied', 'anon cannot call helper functions');
 reset role;
 select t.ok((select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'
-  and has_function_privilege('anon', p.oid, 'execute') and p.proname not in ('company_by_code', 'ping')) = 0, 'anon can call only company_by_code and the health check');
+  and has_function_privilege('anon', p.oid, 'execute') and p.proname not in ('company_by_code', 'ping', 'site_hit', 'site_content')) = 0, 'anon can call only company_by_code, the health check, and the website counter/texts');
 select t.ok(has_function_privilege('authenticated', 'public.riyadh_today()', 'execute'), 'signed-in users keep helper functions');
 delete from public.code_lookups;
 select set_config('request.headers', '{"cf-connecting-ip":"203.0.113.7"}', false);
@@ -2380,6 +2380,52 @@ reset role;
 -- ================= AUDIT =================
 select t.ok((select count(*) from public.audit_log where company_id = :'cid' and entity = 'employees') >= 6, 'employee changes audited');
 select t.err($$delete from public.audit_log$$, 'append-only', 'audit log is append-only');
+
+-- ================= ADMIN SITE: website counter, website texts, announcements (0062) =================
+select set_config('request.jwt.claim.sub', '', false); set role anon;
+select public.site_hit('home', 'whatsapp', 'mobile', 'ar', 'visit');
+select public.site_hit('home', 'whatsapp', 'mobile', 'ar', 'view');
+select public.site_hit('home', 'whatsapp', 'mobile', 'ar', 'cta');
+select public.site_hit('home', 'evil.example', 'fridge', 'fr', 'view');
+select public.site_hit('../app', 'direct', 'mobile', 'ar', 'view');
+select t.err($$select * from public.site_stats$$, 'permission denied', 'anon cannot read the visitor counts');
+select t.err($$select * from public.platform_site_stats(30)$$, 'permission denied|42501', 'anon cannot open the website stats');
+select t.ok(public.site_content() = '{}'::jsonb, 'website texts start empty (the built-in text shows)');
+select t.err($$select public.platform_set_site_content('banner', '{"on":true,"ar":"x"}')$$, 'permission denied|42501', 'anon cannot change website texts');
+select t.err($$select * from public.my_announcements()$$, 'permission denied', 'anon cannot read announcements');
+reset role;
+select t.ok((select views = 2 and visits = 1 and cta = 1 from public.site_stats where page = 'home' and source = 'whatsapp' and device = 'mobile'), 'a visit, a view and a trial click are counted in one daily row');
+select t.ok((select views = 1 from public.site_stats where page = 'home' and source = 'other' and device = 'desktop' and lang = 'ar'), 'unknown source/device/language fold into safe values');
+select t.ok(not exists(select 1 from public.site_stats where page not in ('home','modules','trust','contact')), 'unknown pages are not counted');
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select * from public.platform_site_stats(30)$$, '42501|غير مصرح', 'a company user cannot open the website stats');
+select t.err($$select public.platform_save_announcement(null, 'x', null, 'info', null, null)$$, '42501|غير مصرح', 'a company user cannot post announcements');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select t.ok((select sum(views) = 3 from public.platform_site_stats(30)), 'platform admin reads the website stats');
+select public.platform_set_site_content('contact', '{"phone":"966500000001","email":"hello@waad.test"}');
+select public.platform_set_site_content('banner', '{"on":true,"ar":"عرض خاص","en":"Special offer"}');
+select t.err($$select public.platform_set_site_content('contact', '{"phone":"0500","email":"x"}')$$, 'غير صحيح', 'a wrong phone or e-mail is refused');
+select t.err($$select public.platform_set_site_content('faq', '{"q":"x"}')$$, 'غير معروف', 'the FAQ must be a list');
+select t.err($$select public.platform_set_site_content('script', '{}')$$, 'غير معروف', 'only known website texts can be set');
+select public.platform_save_announcement(null, 'صيانة الليلة', 'Maintenance tonight', 'warn', current_date, current_date + 1) as ann \gset
+select public.platform_save_announcement(null, 'إعلان قديم', null, 'info', current_date - 10, current_date - 5);
+select t.err($$select public.platform_save_announcement(null, 'x', null, 'info', current_date, current_date - 1)$$, 'قبل البداية', 'an announcement cannot end before it starts');
+reset role;
+select set_config('request.jwt.claim.sub', '', false); set role anon;
+select t.ok(public.site_content()->'contact'->>'phone' = '966500000001' and public.site_content()->'banner'->>'en' = 'Special offer', 'the website reads the texts the admin saved');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.ok((select count(*) = 1 and bool_and(body_en = 'Maintenance tonight') from public.my_announcements()), 'every signed-in user sees the current announcement only');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_delete_announcement(:'ann');
+select public.platform_set_site_content('banner', null);
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.ok((select count(*) = 0 from public.my_announcements()), 'a deleted announcement disappears');
+reset role;
+select t.ok(not (public.site_content() ? 'banner'), 'clearing a text brings the built-in one back');
 
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

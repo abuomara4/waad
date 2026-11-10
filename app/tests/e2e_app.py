@@ -1187,10 +1187,11 @@ with sync_playwright() as pw:
     ok(len(fit_routes) > 60 and not wide, 'all %d screens fit 360/390/768/1024/1440px with no sideways scroll: ' % len(fit_routes) + json.dumps(wide, ensure_ascii=False)[:400])
     ok(len(o.errors) == n_err, 'no script errors while opening every screen at every size: ' + '; '.join(o.errors[n_err:])[:300])
 
-    # ---------- packages and the platform admin panel ----------
+    # ---------- packages and the admin site (a separate page: waad-admin.html, published as site/admin/) ----------
     pp = new_page(b); signup(pp, 'platform@waad.test'); pp.wait_for_selector('#cf')
     sqlx("insert into platform_admins(user_id) select id from auth.users where email='platform@waad.test'")
-    pp.reload(); pp.wait_for_selector('.plat tbody tr')
+    pp.reload(); pp.wait_for_url(re.compile(r'waad-admin\.html'), timeout=8000); pp.wait_for_selector('.plat tbody tr')
+    ok(True, 'the system sends a platform admin with no company to the admin site')
     ok('شركة وعد التجريبية' in pp.inner_text('#ppage') and 'gm@waad.test' in pp.inner_text('#ppage'), 'platform panel lists companies with the owner e-mail')
     ok('محمد العتيبي' not in pp.inner_text('#app'), 'platform panel shows no company records')
     pp.locator('#ppage tbody tr', has_text='شركة وعد التجريبية').click(); pp.wait_for_selector('#dlg input[name=m_sales]')
@@ -1201,7 +1202,50 @@ with sync_playwright() as pw:
     go(o, '#/settings'); o.wait_for_timeout(600); ok('الموارد والمالية' in o.inner_text('#page'), 'owner sees the package in settings')
     pp.locator('#ppage tbody tr', has_text='شركة وعد التجريبية').click(); pp.wait_for_selector('#dlg input[name=m_sales]'); pp.check('#dlg input[name=m_sales]'); modal_ok(pp); pp.wait_for_timeout(500)
     o.reload(); o.wait_for_selector('#nav'); ok('فواتير المبيعات' in o.inner_text('#nav'), 'reopened module is back with its data')
-    ok(not pp.errors, 'no JS errors on the platform panel %s' % pp.errors[:2]); pp.context.close()
+    # system numbers
+    go(pp, '#/system'); pp.wait_for_selector('#ppage .pbars')
+    ok('نسبة التحويل إلى اشتراك' in pp.inner_text('#ppage') and 'محمد العتيبي' not in pp.inner_text('#app'), 'admin site: system numbers from subscription data only')
+    # website visitors: the public site's counter (signed out) feeds the admin site
+    def anon_rpc(fn, body):
+        req = urllib.request.Request(BASE + '/rest/v1/rpc/' + fn, data=json.dumps(body).encode(), headers={'Content-Type': 'application/json', 'apikey': 'test-publishable-key'})
+        return urllib.request.urlopen(req).read()
+    for k in ('visit', 'view', 'cta'): anon_rpc('site_hit', {'p_page': 'home', 'p_source': 'whatsapp', 'p_device': 'mobile', 'p_lang': 'ar', 'p_kind': k})
+    go(pp, '#/site'); pp.wait_for_selector('#ppage .pbars')
+    t = pp.inner_text('#ppage'); ok('واتساب' in t and 'جوال' in t and '100%' in t, 'admin site: website visits by source and device, with the trial-click rate')
+    # website texts
+    go(pp, '#/content'); pp.wait_for_selector('#fcon')
+    pp.fill('#fcon input[name=phone]', '0500000001'); pp.fill('#fcon input[name=email]', 'hello@waad.test'); pp.click('#fcon button.pri'); pp.wait_for_timeout(700)
+    pp.wait_for_selector('#fban'); pp.check('#fban input[name=on]'); pp.fill('#fban input[name=ar]', 'عرض خاص للمنشآت الجديدة'); pp.fill('#fban input[name=en]', 'Special offer for new companies')
+    pp.click('#fban button.pri'); pp.wait_for_timeout(700)
+    pp.wait_for_selector('#faqadd'); pp.click('#faqadd'); pp.fill('.fqi:last-child input[name=qa]', 'هل فيه دعم فني؟'); pp.fill('.fqi:last-child textarea[name=aa]', 'إيه، على الواتساب.')
+    pp.click('#ffaq button.pri'); pp.wait_for_timeout(700)
+    sc = json.loads(sql("public.site_content()"))
+    ok(sc.get('contact', {}).get('phone') == '966500000001' and sc.get('banner', {}).get('on') and sc.get('faq', [{}])[-1].get('qa') == 'هل فيه دعم فني؟', 'admin site: contact details, notice bar and FAQ saved')
+    # the public website shows them and counts its own visit (Supabase calls are sent to the local emulator)
+    sp = b.new_context(viewport={'width': 390, 'height': 844}, locale='ar-SA').new_page(); sp.errors = []; sp.on('pageerror', lambda e: sp.errors.append(str(e)))
+    sp.route(re.compile(r'https://static\.cloudflareinsights\.com/.*|https://fonts\.(googleapis|gstatic)\.com/.*'), lambda r: r.abort())
+    def to_mock(r):
+        u = urllib.parse.urlparse(r.request.url); h = dict(r.request.headers); h['apikey'] = 'test-publishable-key'
+        r.fulfill(response=r.fetch(url=BASE + u.path + ('?' + u.query if u.query else ''), headers=h))
+    sp.route(re.compile(r'https://[a-z0-9]+\.supabase\.co/.*'), to_mock)
+    before = int(sql("coalesce((select sum(visits) from site_stats where page='contact'),0)"))
+    sp.goto('file://' + os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'site', 'contact.html')) + '?utm_source=whatsapp')
+    sp.wait_for_selector('.topnote'); sp.wait_for_timeout(500)
+    ok('عرض خاص للمنشآت الجديدة' in sp.inner_text('.topnote') and '050 000 0001' in sp.inner_text('#contact') and 'wa.me/966500000001' in sp.get_attribute('[data-c=wa]', 'href')
+       and 'hello@waad.test' in sp.get_attribute('[data-c=mail]', 'href'), 'website shows the contact details and notice bar set in the admin site')
+    ok(sp.locator('.faq details').count() >= 1 and 'هل فيه دعم فني؟' in sp.inner_text('.faq'), 'website shows the FAQ set in the admin site')
+    ok(int(sql("coalesce((select sum(visits) from site_stats where page='contact' and source='whatsapp'),0)")) == before + 1, 'website counts a visit with its source (no cookie)')
+    ok(not sp.errors, 'no JS errors on the website %s' % sp.errors[:2]); sp.context.close()
+    # announcements: posted in the admin site, shown above every screen of the system until closed
+    go(pp, '#/news'); pp.wait_for_selector('#annadd'); pp.click('#annadd'); pp.wait_for_selector('#dlg textarea[name=body_ar]')
+    pp.fill('#dlg textarea[name=body_ar]', 'صيانة مجدولة الليلة الساعة ١٢'); pp.fill('#dlg textarea[name=body_en]', 'Scheduled maintenance tonight at 12'); modal_ok(pp)
+    pp.wait_for_selector('#ppage tbody tr'); ok('ظاهر الآن' in pp.inner_text('#ppage'), 'admin site: an announcement is posted and shown now')
+    o.reload(); o.wait_for_selector('#ann .ann'); ok('صيانة مجدولة الليلة' in o.inner_text('#ann'), 'the system shows the announcement to company users')
+    o.click('#ann .ann .x'); o.reload(); o.wait_for_selector('#nav'); o.wait_for_timeout(500); ok(o.locator('#ann .ann').count() == 0, 'a closed announcement stays closed for that user')
+    # someone who is not on the Waad team gets nothing from the admin site
+    op = o.context.new_page(); op.goto(BASE + '/waad-admin.html'); op.wait_for_selector('.auth .card h2')
+    ok('ليس من فريق وعد' in op.inner_text('#app') and op.locator('#ppage').count() == 0, 'a company owner cannot open the admin site'); op.close()
+    ok(not pp.errors, 'no JS errors on the admin site %s' % pp.errors[:2]); pp.context.close()
 
     # ---------- two-step verification ----------
     import hmac, hashlib, struct, base64 as b64, time as tm

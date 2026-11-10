@@ -39,7 +39,7 @@ function trWalk(n) {
 let trObs = null;
 function applyLang() {
   const h = document.documentElement; h.lang = LANG; h.dir = LANG === 'en' ? 'ltr' : 'rtl';
-  document.title = LANG === 'en' ? 'Waad — HR and finance' : 'وعد — الموارد البشرية والمالية';
+  document.title = ADMIN ? (LANG === 'en' ? 'Waad — admin' : 'وعد — لوحة الإدارة') : LANG === 'en' ? 'Waad — HR and finance' : 'وعد — الموارد البشرية والمالية';
   if (trObs) { trObs.disconnect(); trObs = null; }
   if (LANG !== 'en') return;
   trWalk(document.body);
@@ -233,7 +233,13 @@ const brand = () => `<div class="brand"><img class="wlogo wl-d" src="${LOGO_D}" 
 const staffEmail = (code, empNo) => String(empNo).trim().toLowerCase() + '.' + String(code).trim().toLowerCase() + '@staff.waad.app';
 // the public website (landing page) sits one folder up from the app: site/app/ -> site/, pages.dev/app/ -> pages.dev/
 const SITE_URL = new URL('../', location.href.split('#')[0]).href;
+// the admin site (site/admin/) is a separate build of the same code (build.py sets ADMIN_SITE): Waad's own team only
+const ADMIN = typeof ADMIN_SITE !== 'undefined';
+const DEV_FILE = /waad-(app|admin)\.html$/.test(location.pathname);   // the dev server serves the two builds side by side
+const ADMIN_URL = DEV_FILE ? 'waad-admin.html' : new URL('../admin/', location.href.split('#')[0]).href;
+const APP_URL = DEV_FILE ? 'waad-app.html' : new URL('../app/', location.href.split('#')[0]).href;
 function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
+  if (ADMIN) tab = 'in';
   const app = $('#app'); const ccode = LS.get('waad.ccode') || '', cname = LS.get('waad.cname') || '';
   if (tab === 'staff' && ccode && !cname) {   // code from a link: resolve the company name first
     db.rpc('company_by_code', { p_code: ccode }).then(n => { if (n) { LS.set('waad.cname', n); } else { LS.set('waad.ccode', null); } authView('staff', msg); }).catch(() => { LS.set('waad.ccode', null); authView('staff', msg); });
@@ -261,10 +267,10 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
   }
   const links = tab === 'staff' ? `<a href="#" data-go="in">دخول الإدارة بالبريد</a> · <a href="#" data-go="up">حساب جديد بالبريد</a>` : `<a href="#" data-go="staff">دخول الموظفين</a> · ${tab === 'in' ? '<a href="#" data-go="up">حساب جديد بالبريد</a>' : '<a href="#" data-go="in">لديك حساب؟ دخول بالبريد</a>'}`;
   app.innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card">
-    ${tab !== 'staff' ? `<h2>${tab === 'in' ? 'دخول الإدارة بالبريد' : 'حساب جديد بالبريد'}</h2>` : ''}
+    ${ADMIN ? '<h2>لوحة إدارة وعد</h2><p class="muted small" style="margin-top:0">لفريق وعد فقط.</p>' : tab !== 'staff' ? `<h2>${tab === 'in' ? 'دخول الإدارة بالبريد' : 'حساب جديد بالبريد'}</h2>` : ''}
     ${msg ? `<div class="note">${esc(msg)}</div>` : ''}
     <form id="af" novalidate>${body}<div id="aerr"></div><div style="height:12px"></div><button class="btn pri full" id="ab">${btn}</button>${foot}</form></div>
-    <p class="muted small" style="text-align:center">${links}</p>
+    ${ADMIN ? '' : `<p class="muted small" style="text-align:center">${links}</p>`}
     <p class="muted small" style="text-align:center"><a href="#" id="theme" data-theme-btn="text"></a> · ${langBtn('linkbtn')}</p>
     <p class="muted small afoot"><a href="${SITE_URL}" id="tosite">← الموقع الرئيسي</a> · نظام وعد السحابي لإدارة المنشآت © ${new Date().getFullYear()} · <a href="#/privacy">سياسة الخصوصية</a> · <a href="#/terms">شروط الاستخدام</a></p></div></div>`;
   $('#lg').onclick = () => setLang(LANG === 'en' ? 'ar' : 'en');
@@ -406,7 +412,8 @@ async function boot() {
     S.mfa = mfa; S.platform = plat;
     if (mfa && mfa.enrolled && mfa.aal !== 'aal2') return mfaChallengeView();
     if (LS.get('waad.terms')) { db.rpc('accept_terms', { p_version: LS.get('waad.terms') }).catch(() => {}); LS.set('waad.terms', null); }
-    if (S.platform && (/^#\/platform/.test(location.hash) || !(comps || []).length)) return platformView();
+    if (ADMIN) return S.platform ? platformView() : notAdminView();
+    if (S.platform && (/^#\/platform/.test(location.hash) || !(comps || []).length)) { location.href = ADMIN_URL; return; }
     if (!(await loadContext(comps))) return onboardView();
     if (S.mustChange) return changePasswordView(true);
   } catch (e) {
@@ -517,12 +524,12 @@ function shell() {
           <button type="button" class="mi" id="lg" role="menuitem" data-nt lang="${LANG === 'en' ? 'ar' : 'en'}"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-5.5-3.5-9s1-6.5 3.5-9z"/></svg><span>${LANG === 'en' ? 'العربية' : 'English'}</span></button><button type="button" class="mi" id="th" role="menuitem" data-theme-btn="menu"></button>
           <button type="button" class="mi" id="pw" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11V8a4 4 0 1 1 8 0v3M5 11h14v10H5zM12 15v2"/></svg><span>تغيير كلمة المرور</span></button>
           <button type="button" class="mi" id="mfa" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6zM9 12l2 2 4-4"/></svg><span>التحقق بخطوتين</span></button>
-          ${S.platform ? '<a class="mi" href="#/platform" id="plat" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v6H4zM4 14h7v6H4zM15 14h5v6h-5z"/></svg><span>لوحة إدارة المنصة</span></a>' : ''}
+          ${S.platform ? '<a class="mi" href="' + ADMIN_URL + '" id="plat" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v6H4zM4 14h7v6H4zM15 14h5v6h-5z"/></svg><span>لوحة إدارة المنصة</span></a>' : ''}
           <a class="mi" href="#/privacy" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM9 12h7M9 16h7"/></svg><span>الخصوصية والشروط</span></a>
           <button type="button" class="mi out" id="lo" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg><span>تسجيل الخروج</span></button>
         </div><div class="bpanel" id="bpanel" hidden></div></div></header>
       <div class="scrim" id="scrim"></div>
-      <main class="page" id="page"></main></div></div>`;
+      <div id="ann"></div><main class="page" id="page"></main></div></div>`;
   drawNav();
   $('#mb').onclick = () => $('#side').classList.toggle('open');
   $('#scrim').onclick = () => $('#side').classList.remove('open');
@@ -539,7 +546,15 @@ function shell() {
   document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && $('#umenu')) { umSet(false); $('#bpanel').hidden = true; } });
   $('#lo').onclick = async () => { await authApi.signOut(); authView(); };
   if (multi) $('#cs').onchange = async e => { S.cid = e.target.value; LS.set('waad.cid', S.cid); await loadContext(); shell(); location.hash = '#/home'; route(); };
-  refreshCounts();
+  refreshCounts(); drawAnn();
+}
+// announcements from Waad (admin site → «الإعلانات»): shown above every screen until the user closes them
+async function drawAnn() {
+  const box = $('#ann'); if (!box) return;
+  const seen = LS.get('waad.annseen') || [], rows = (await db.rpc('my_announcements').catch(() => [])).filter(a => !seen.includes(a.id));
+  box.innerHTML = rows.map(a => `<div class="ann${a.level === 'warn' ? ' warn' : ''}" role="status"><span data-nt>${esc(LANG === 'en' && a.body_en ? a.body_en : a.body_ar)}</span>
+    <button type="button" class="x" data-ann="${esc(a.id)}" aria-label="إغلاق">×</button></div>`).join('');
+  $$('[data-ann]', box).forEach(b => b.onclick = () => { LS.set('waad.annseen', [...seen, b.dataset.ann].slice(-50)); b.parentElement.remove(); });
 }
 const NI = { home: 'M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z', chart: 'M4 20V11M10 20V5M16 20v-7M21 20H3', clock: 'M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0-18zM12 7v5l3 2',
   doc: 'M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6', user: 'M12 12a4 4 0 1 0 0-8a4 4 0 0 0 0 8zM4 21c0-4 4-6 8-6s8 2 8 6', users: 'M9 11a4 4 0 1 0 0-8a4 4 0 0 0 0 8zM2 21c0-3.5 3-5.5 7-5.5s7 2 7 5.5M16 3.5a4 4 0 0 1 0 7.5M18 15.5c2.4.6 4 2.3 4 5.5',
@@ -621,8 +636,8 @@ async function route() {
   try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); }
   catch (e) { if (e.status === 401 && !S.session) return authView('in', 'انتهت الجلسة — سجّل الدخول مجدداً'); if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div>`; }
 }
-window.addEventListener('hashchange', () => /(^#|&)(access_token|error_code)=/.test(location.hash) ? boot() : !S.session && legalHash() ? legalView(legalHash()) : S.platform && /^#\/platform/.test(location.hash) ? platformView() : S.platform && !$('#page') ? boot() : route());
-window.addEventListener('hashchange', () => { if (Date.now() - BELL_AT > 60000) drawBell(); });
+window.addEventListener('hashchange', () => /(^#|&)(access_token|error_code)=/.test(location.hash) ? boot() : !S.session && legalHash() ? legalView(legalHash()) : ADMIN ? (S.platform && $('#ppage') ? platformView() : null) : S.platform && /^#\/platform/.test(location.hash) ? (location.href = ADMIN_URL) : S.platform && !$('#page') ? boot() : route());
+window.addEventListener('hashchange', () => { if (!ADMIN && Date.now() - BELL_AT > 60000) drawBell(); });
 
 /* ===== shared look-ups ===== */
 const cache = {};

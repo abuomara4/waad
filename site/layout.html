@@ -33,7 +33,8 @@
 :root{--navy:#131b2e;--navy2:#1c2a45;--ink:#0f172a;--muted:#5b6b82;--line:#e2e8f0;--bg:#f6f8fc;--card:#fff;--gold:#946a24;--gold2:#d6ad5e;--blue:#2563eb;--ok:#0d9488;--r:16px}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-section[id]{scroll-margin-top:72px}  /* menu links land below the sticky header */
+section[id]{scroll-margin-top:72px}
+.topnote{background:var(--gold);color:#fff;text-align:center;padding:8px 0;font-size:14px;font-weight:500}  /* menu links land below the sticky header */
 body{margin:0;font-family:"IBM Plex Sans Arabic",system-ui,Tahoma,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
 html[lang=en] .ar,html[lang=ar] .en{display:none!important}
 a{color:inherit}
@@ -268,6 +269,47 @@ __BODY__</main>
     var go=function(){if(!still&&!tm)tm=setInterval(function(){if(!document.hidden)show(cur+1)},4500)},stop=function(){clearInterval(tm);tm=null};
     for(var j=0;j<dt.length;j++)(function(j){dt[j].onclick=function(){show(j);stop();go()}})(j);
     sh.addEventListener('mouseenter',stop);sh.addEventListener('mouseleave',go);go();}
+})();
+</script>
+<script>
+/* Waad's own counter (shown in the admin site): daily totals per page, source, device and language. No cookie, no IP,
+   no visitor id. The admin's own browser is skipped. Then the texts changed from the admin site, if any. */
+(function(){
+  var SB='__SB_URL__',SK='__SB_KEY__',d=document.documentElement,page=document.body.dataset.page;
+  var rpc=function(n,b,ka){return fetch(SB+'/rest/v1/rpc/'+n,{method:'POST',keepalive:!!ka,headers:{apikey:SK,'Content-Type':'application/json'},body:JSON.stringify(b||{})})};
+  var ls=function(k){try{return localStorage.getItem(k)}catch(e){return null}},ss=function(k,v){try{if(v===undefined)return sessionStorage.getItem(k);sessionStorage.setItem(k,v)}catch(e){return null}};
+  var kind=function(h){h=(h||'').toLowerCase();return !h?'direct':/whatsapp|^wa\.me|^wa$/.test(h)?'whatsapp':/google\./.test(h)||h==='google'?'google':/bing\./.test(h)||h==='bing'?'bing':
+    /(^|\.)(t\.co|x\.com|twitter\.com)$/.test(h)||h==='x'||h==='twitter'?'x':/linkedin|lnkd/.test(h)?'linkedin':/instagram/.test(h)?'instagram':/snapchat/.test(h)?'snapchat':
+    /tiktok/.test(h)?'tiktok':/facebook|fb\.com|^fb$/.test(h)?'facebook':'other'};
+  if(!ls('waad.nocount')){
+    var ref='';try{ref=new URL(document.referrer).hostname}catch(e){}
+    var q=new URLSearchParams(location.search),tag=q.get('utm_source')||q.get('src'),first=!ss('waad.vsrc');
+    var src=first||tag?(tag?kind(tag):ref===location.hostname?'direct':kind(ref)):ss('waad.vsrc');
+    if(first)ss('waad.vsrc',src);
+    var w=Math.min(screen.width,screen.height),coarse=window.matchMedia&&matchMedia('(pointer:coarse)').matches;
+    var dev=coarse&&w<600?'mobile':coarse?'tablet':'desktop';
+    var hit=function(k,ka){return rpc('site_hit',{p_page:page,p_source:src,p_device:dev,p_lang:d.lang==='en'?'en':'ar',p_kind:k},ka).catch(function(){})};
+    hit(first?'visit':'view');
+    document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href*="start=signup"]');if(a)hit('cta',true)});
+  }
+  rpc('site_content').then(function(r){return r.ok?r.json():null}).then(function(c){
+    if(!c)return;
+    var set=function(el,ar,en){el.innerHTML='<span class="ar"></span><span class="en"></span>';el.firstChild.textContent=ar||'';el.lastChild.textContent=en||ar||''};
+    var b=c.banner;
+    if(b&&b.on&&b.ar){var n=document.createElement('div');n.className='topnote';n.setAttribute('role','note');var w=document.createElement('div');w.className='wrap';set(w,b.ar,b.en);n.appendChild(w);document.body.insertBefore(n,document.body.firstChild)}
+    var k=c.contact;
+    if(k&&/^9665\d{8}$/.test(k.phone||'')){var loc='0'+k.phone.slice(3),show=loc.slice(0,3)+' '+loc.slice(3,6)+' '+loc.slice(6);
+      [].forEach.call(document.querySelectorAll('[data-c=phone]'),function(e){e.textContent=show});
+      [].forEach.call(document.querySelectorAll('[data-c=wa]'),function(e){e.href=e.href.replace(/wa\.me\/\d+/,'wa.me/'+k.phone)});
+      [].forEach.call(document.querySelectorAll('[data-c=tel]'),function(e){e.href='tel:+'+k.phone})}
+    if(k&&k.email){var old=(document.querySelector('[data-copy]')||{dataset:{}}).dataset.copy;
+      [].forEach.call(document.querySelectorAll('[data-c=email]'),function(e){e.textContent=k.email});
+      if(old)[].forEach.call(document.querySelectorAll('[data-c=mail]'),function(e){e.href=e.href.split(old).join(encodeURIComponent(k.email).replace('%40','@'))});
+      [].forEach.call(document.querySelectorAll('[data-copy]'),function(e){e.dataset.copy=k.email})}
+    var f=document.querySelector('.faq');
+    if(f&&c.faq&&c.faq.length){f.innerHTML='';c.faq.forEach(function(x){var dt=document.createElement('details'),s=document.createElement('summary'),p=document.createElement('p');
+      set(s,x.qa,x.qe);set(p,x.aa,x.ae);dt.appendChild(s);dt.appendChild(p);f.appendChild(dt)})}
+  }).catch(function(){});
 })();
 </script>
 <!-- visitor counts: Cloudflare Web Analytics (no cookies, no personal data). Website only, never in the system (app/). -->

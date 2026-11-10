@@ -301,3 +301,16 @@ tr.hl td{background:var(--waitbg)}
 .plat .top{position:sticky;top:0;z-index:5}
 .plat .page{max-width:1200px;margin:0 auto}
 @media (max-width:600px){.kcol{flex-basis:78vw}}
+/* admin site: section tabs, daily bars, two-column cards, FAQ editor */
+.ptabs{display:flex;gap:4px;overflow-x:auto;padding:8px 16px;border-bottom:1px solid var(--line);background:var(--surface);scrollbar-width:none}
+.ptabs a{white-space:nowrap;padding:7px 14px;border-radius:8px;color:var(--muted);font-weight:500}
+.ptabs a[aria-current]{background:var(--soft);color:var(--accent);font-weight:600}
+.pbars{display:flex;align-items:flex-end;gap:2px;height:120px;padding-top:6px}
+.pb{flex:1;height:100%;display:flex;align-items:flex-end;min-width:0}.pb i{display:block;width:100%;background:var(--accent);border-radius:3px 3px 0 0;opacity:.85}
+.pbx{display:flex;justify-content:space-between;margin-top:4px}
+.g2p{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px;margin-bottom:14px}
+.fqi{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+/* announcements from Waad inside the system */
+.ann{display:flex;align-items:center;gap:10px;margin:12px 16px 0;padding:9px 12px;border-radius:8px;background:var(--soft);border:1px solid var(--line);font-size:14px}
+.ann span{flex:1}.ann.warn{border-color:var(--bad)}
+.ann .x{border:0;background:none;font-size:20px;line-height:1;color:var(--muted);cursor:pointer;padding:0 4px}

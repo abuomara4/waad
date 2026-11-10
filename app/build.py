@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Inline src/* into one self-contained waad-app.html (open it directly in a browser, or host it anywhere static)."""
 import os
+import re
 import json
 D = os.path.dirname(os.path.abspath(__file__)); r = lambda f: open(os.path.join(D, 'src', f), encoding='utf-8').read()
 EN = {}
@@ -69,3 +70,14 @@ boot();
 '''
 open(os.path.join(D, 'waad-app.html'), 'w', encoding='utf-8').write(html)
 print('built', len(html), 'bytes')
+
+# the admin site (site/admin/): the same page shell with only the sign-in, the shared helpers and the admin screens.
+# It is not installable (no manifest / service worker) and never indexed.
+start, end = html.index('<script>\n' + EN_JS), html.index('applyLang();\nboot();')
+admin = html[:start] + '<script>\nconst ADMIN_SITE = true;\n' + EN_JS + '\n' + r('core.js') + '\n' + r('legal.js') + '\n' + r('platform.js') + '\n' + html[end:]
+admin = re.sub(r'<link rel="manifest"[^>]*>\n?|<link rel="apple-touch-icon"[^>]*>\n?|<meta name="(apple-mobile-web-app-capable|apple-mobile-web-app-title|mobile-web-app-capable)"[^>]*>\n?', '', admin)
+admin = re.sub(r"<script>if\('serviceWorker'.*?</script>\n", '', admin, flags=re.S)
+admin = admin.replace('<title>وعد — الموارد البشرية والمالية</title>', '<title>وعد — لوحة الإدارة</title>')
+assert 'serviceWorker' not in admin and 'ADMIN_SITE' in admin and 'manifest' not in admin
+open(os.path.join(D, 'waad-admin.html'), 'w', encoding='utf-8').write(admin)
+print('built admin', len(admin), 'bytes')
