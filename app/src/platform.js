@@ -36,6 +36,8 @@ function pbars(pts, label) {
     <div class="pbx small muted"><span class="num">${esc(pts[0].k)}</span><span class="num">${esc(pts[pts.length - 1].k)}</span></div>`;
 }
 
+const waTo = p => p ? 'https://wa.me/966' + String(p).replace(/^0/, '') : '';
+const phoneBtns = p => p ? `<a class="btn sm pri" href="${esc(waTo(p))}" target="_blank" rel="noopener">${esc(tr('واتساب'))}</a> <a class="btn sm" href="tel:+966${esc(String(p).replace(/^0/, ''))}">${esc(tr('اتصال'))}</a>` : '';
 const gmailTo = (to, su) => 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(to) + (su ? '&su=' + encodeURIComponent(su) : '');
 const mailBtns = (to, su) => to ? `<a class="btn sm pri" href="${esc(gmailTo(to, su))}" target="_blank" rel="noopener">${esc(tr('مراسلة عبر Gmail'))}</a>
   <a class="btn sm" href="mailto:${esc(to)}${su ? '?subject=' + encodeURIComponent(su) : ''}">${esc(tr('تطبيق البريد'))}</a>
@@ -119,7 +121,8 @@ PV.companies = async page => {
     <div class="row" style="margin-bottom:10px;gap:8px;flex-wrap:wrap"><input id="pq" placeholder="${esc(tr('بحث بالاسم أو البريد أو الباقة'))}" value="${esc(q)}" style="max-width:320px">
       <div class="sp"></div><button type="button" class="btn sm" data-copymail="${esc([...new Set(shown.map(c => c.owner_email).filter(Boolean))].join(', '))}">${esc(tr('نسخ إيميلات المنشآت الظاهرة'))}</button></div>
     ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'الباقة', h: c => esc(c.plan) },
-      { t: 'الأقسام', h: c => (c.modules || []).map(m => `<span class="badge">${esc(tr(MODULES[m] || m))}</span>`).join(' ') },
+      { t: 'المدينة', h: c => esc(c.city || '—') + (c.size_band ? `<div class="small muted">${esc(tr(SIZE_B[c.size_band] || c.size_band))}</div>` : '') },
+      { t: 'يستخدم', h: c => { const u = c.usage || {}; return `<span class="num">${u.employees || 0}</span> ${esc(tr('موظف'))}<div class="small muted">${(u.modules || []).map(m => esc(tr(MODULES[m] || m))).join('، ') || '—'}</div>`; } },
       { t: 'الحالة', h: c => { const [t, k] = subState(c); return `<span class="badge ${k}">${esc(tr(t))}</span>`; } },
       { t: 'ينتهي', h: c => { const e = subEnd(c), n = daysLeft(e); return e ? `<span class="num">${esc(e)}</span>` + (n >= 0 ? `<div class="small muted">${esc(tr('باقي'))} <span class="num">${n}</span> ${esc(tr('يوم'))}</div>` : '') : '—'; } },
       { t: 'المستخدمون', r: 1, h: c => `<span class="num">${c.users}${c.max_users ? ' / ' + c.max_users : ''}</span>` },
@@ -178,6 +181,12 @@ function approveForm(c, st) {
 }
 
 /* ---------- system numbers (from the same subscription metadata) ---------- */
+// how many companies per value (city, size, activity, source), largest first
+function countBy(rows, key, names) {
+  const m = {}; rows.forEach(c => { const k = c[key] || ''; m[k] = (m[k] || 0) + 1; });
+  return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, n]) => [k ? tr(names ? names[k] || k : k) : tr('غير محدد'), n]);
+}
+const countCard = (title, list) => `<div class="card"><h2>${esc(tr(title))}</h2>${tbl([{ t: '', h: ([k]) => esc(k) }, { t: 'المنشآت', r: 1, h: ([, n]) => n }], list, { empty: 'ما فيه بيانات' })}</div>`;
 PV.system = async page => {
   const rows = await db.rpc('platform_companies'), t0 = today();
   const since = n => rows.filter(c => String(c.created_at).slice(0, 10) > dayAgo(n)).length;
@@ -195,7 +204,10 @@ PV.system = async page => {
       <div class="card"><h2>${esc(tr('تجارب تنتهي قريباً'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('تواصل معهم قبل ما تنتهي التجربة.'))}</p>
         ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'نهاية التجربة', h: c => `<span class="num">${esc(c.trial_ends)}</span>` }, { t: '', h: c => c.owner_email ? `<a class="btn sm" href="${esc(gmailTo(c.owner_email, 'وعد: ' + c.name))}" target="_blank" rel="noopener">${esc(tr('مراسلة'))}</a>` : '' }], ending, { empty: 'لا توجد تجارب تنتهي خلال ٣ أيام' })}</div>
       <div class="card"><h2>${esc(tr('منشآت ما دخلت من أسبوعين'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('اشتراكها مفتوح وما أحد دخل منها من ١٤ يوماً أو أكثر.'))}</p>
-        ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'آخر دخول', h: c => c.last_sign_in ? `<span class="num">${esc(String(c.last_sign_in).slice(0, 10))}</span>` : '—' }, { t: '', h: c => c.owner_email ? `<a class="btn sm" href="${esc(gmailTo(c.owner_email, 'وعد: ' + c.name))}" target="_blank" rel="noopener">${esc(tr('مراسلة'))}</a>` : '' }], quiet, { empty: 'كل المنشآت نشطة' })}</div></div>`;
+        ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'آخر دخول', h: c => c.last_sign_in ? `<span class="num">${esc(String(c.last_sign_in).slice(0, 10))}</span>` : '—' }, { t: '', h: c => c.owner_email ? `<a class="btn sm" href="${esc(gmailTo(c.owner_email, 'وعد: ' + c.name))}" target="_blank" rel="noopener">${esc(tr('مراسلة'))}</a>` : '' }], quiet, { empty: 'كل المنشآت نشطة' })}</div></div>
+    <h2 style="margin:18px 0 10px">${esc(tr('مين عملاؤك'))}</h2>
+    <div class="g2p">${countCard('حسب المدينة', countBy(rows, 'city'))}${countCard('حسب عدد الموظفين', countBy(rows, 'size_band', SIZE_B))}
+      ${countCard('حسب النشاط', countBy(rows, 'industry', INDUSTRY))}${countCard('من وين عرفوا عن وعد', countBy(rows, 'heard_from', HEARD))}</div>`;
 };
 
 /* ---------- website visitors (the site's own counter: daily totals only, no cookies) ---------- */
@@ -407,8 +419,18 @@ PV.company = async (page, id) => {
         <dt>${esc(tr('المستخدمون'))}</dt><dd class="num">${c.users}${c.max_users ? ' / ' + c.max_users : ''}</dd>
         <dt>${esc(tr('آخر دخول'))}</dt><dd class="num">${c.last_sign_in ? esc(String(c.last_sign_in).slice(0, 10)) : '—'}</dd>
         <dt>${esc(tr('التسجيل'))}</dt><dd class="num">${esc(String(c.created_at).slice(0, 10))}</dd>
-        <dt>${esc(tr('مجموع المدفوع'))}</dt><dd><span class="num">${money0(paid)}</span> ${esc(tr('ريال'))}</dd></dl></div>
-      <div class="card"><h2>${esc(tr('التواصل مع المالك'))}</h2><div class="row" style="gap:8px;flex-wrap:wrap">${mailBtns(c.owner_email, 'وعد: ' + c.name)}</div>
+        <dt>${esc(tr('مجموع المدفوع'))}</dt><dd><span class="num">${money0(paid)}</span> ${esc(tr('ريال'))}</dd></dl>
+        <h2 style="margin-top:18px">${esc(tr('عن المنشأة'))}</h2><dl class="pdl">
+        <dt>${esc(tr('جوال المالك'))}</dt><dd>${c.owner_phone ? `<span class="num" dir="ltr">${esc(c.owner_phone)}</span>` : '—'}</dd>
+        <dt>${esc(tr('المدينة'))}</dt><dd>${esc(c.city || '—')}</dd>
+        <dt>${esc(tr('عدد الموظفين'))}</dt><dd>${esc(c.size_band ? tr(SIZE_B[c.size_band] || c.size_band) : '—')}</dd>
+        <dt>${esc(tr('النشاط'))}</dt><dd>${esc(c.industry ? tr(INDUSTRY[c.industry] || c.industry) : '—')}</dd>
+        <dt>${esc(tr('عرف عن وعد من'))}</dt><dd>${esc(c.heard_from ? tr(HEARD[c.heard_from] || c.heard_from) : '—')}</dd></dl>
+        <h2 style="margin-top:18px">${esc(tr('الاستخدام'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('أعداد وتواريخ فقط، بدون أي بيانات من داخل المنشأة.'))}</p><dl class="pdl">
+        <dt>${esc(tr('الموظفون المسجّلون'))}</dt><dd class="num">${(c.usage || {}).employees || 0}</dd>
+        <dt>${esc(tr('أقسام فيها بيانات'))}</dt><dd>${((c.usage || {}).modules || []).map(m => `<span class="badge ok">${esc(tr(MODULES[m] || m))}</span>`).join(' ') || '—'}</dd>
+        <dt>${esc(tr('آخر نشاط'))}</dt><dd class="num">${(c.usage || {}).last_activity ? esc(String(c.usage.last_activity).slice(0, 16).replace('T', ' ')) : '—'}</dd></dl></div>
+      <div class="card"><h2>${esc(tr('التواصل مع المالك'))}</h2><div class="row" style="gap:8px;flex-wrap:wrap">${phoneBtns(c.owner_phone)}${mailBtns(c.owner_email, 'وعد: ' + c.name)}</div>
         <h2 style="margin-top:18px">${esc(tr('ملاحظات الفريق'))}</h2>
         <form id="nform" class="row" style="gap:8px;align-items:flex-start"><textarea name="body" rows="2" maxlength="1000" placeholder="${esc(tr('مثلاً: اتصلت بالمالك، يبي باقة أكبر'))}" style="flex:1"></textarea><button class="btn pri">${esc(tr('إضافة'))}</button></form>
         <div id="nerr"></div>

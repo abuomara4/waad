@@ -17,13 +17,14 @@ def psql(q):
 TEST = os.environ.get('NOTIFY_TEST') == 'true'   # «Run workflow» with test = true: one test message, nothing read or marked
 rows = [{'company_id': None, 'name': 'رسالة تجربة من وعد', 'email': 'test@example.com', 'at': 'الآن'}] if TEST else json.loads(psql("""select coalesce(json_agg(x), '[]') from (
   select s.company_id, c.name, to_char(c.created_at at time zone 'Asia/Riyadh', 'YYYY-MM-DD HH24:MI') as at,
-         (select u.email from public.members m join auth.users u on u.id = m.user_id where m.company_id = c.id and m.role = 'owner' limit 1) as email
+         (select u.email from public.members m join auth.users u on u.id = m.user_id where m.company_id = c.id and m.role = 'owner' limit 1) as email,
+         c.owner_phone as phone, c.city, c.size_band as size
     from public.company_subscriptions s join public.companies c on c.id = s.company_id
    where s.status = 'pending' and s.notified_at is null order by c.created_at limit 20) x"""))
 if not rows:
     print('no new requests'); sys.exit(0)
 
-lines = ['• %s — %s — %s' % (r['name'], r['email'] or '—', r['at']) for r in rows]
+lines = ['• %s — %s — %s' % (r['name'], ' · '.join(x for x in (r['email'], r.get('phone'), r.get('city'), r.get('size') and r['size'] + ' موظف') if x) or '—', r['at']) for r in rows]
 title = 'وعد: %d طلب تجربة جديد' % len(rows) if len(rows) > 1 else 'وعد: طلب تجربة جديد'
 body = title + '\n\n' + '\n'.join(lines) + '\n\nللقبول افتح لوحة الإدارة ← المنشآت:\n' + ADMIN
 sent = []

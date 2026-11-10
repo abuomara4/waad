@@ -59,7 +59,7 @@ with sync_playwright() as pw:
     ok('8 أحرف' in o.inner_text('#aerr'), 'signup validates password length')
     o.fill('input[name=password]', PW); o.fill('input[name=password2]', PW); o.check('input[name=agree]'); o.click('#ab')
     o.wait_for_selector('#cf'); ok(True, 'new user lands on onboarding')
-    o.fill('#cf input[name=name]', 'شركة وعد التجريبية'); o.fill('#cf input[name=vat]', '123'); o.click('#cb')
+    o.fill('#cf input[name=name]', 'شركة وعد التجريبية'); o.fill('#cf input[name=vat]', '123'); o.fill('#cf input[name=owner_phone]', '0500000000'); o.fill('#cf input[name=city]', 'الرياض'); o.select_option('#cf select[name=size_band]', '11-50'); o.select_option('#cf select[name=industry]', 'trade'); o.click('#cb')
     ok('الرقم الضريبي' in o.inner_text('#cerr'), 'company VAT number validated')
     o.fill('#cf input[name=vat]', '300000000000003'); o.click('#cb')
     o.wait_for_selector('text=جهّز منشأتك'); ok(True, 'company created → welcome checklist')
@@ -1100,7 +1100,7 @@ with sync_playwright() as pw:
     lp.fill('#af input[name=email]', 'terms@waad.test'); lp.fill('#af input[name=password]', PW); lp.fill('#af input[name=password2]', PW); lp.click('#ab'); lp.wait_for_timeout(500)
     ok('وافق على شروط الاستخدام' in lp.inner_text('#aerr'), 'sign-up requires accepting the terms and privacy policy')
     lp.check('#af input[name=agree]'); lp.click('#ab'); lp.wait_for_selector('#app .card'); lp.wait_for_timeout(1200)
-    ok(sql("select count(*) from terms_acceptance t join auth.users u on u.id = t.user_id where u.email='terms@waad.test' and version='2026-10'") == '1', 'acceptance of terms version 2026-10 recorded for the new account')
+    ok(sql("select count(*) from terms_acceptance t join auth.users u on u.id = t.user_id where u.email='terms@waad.test' and version='2026-11'") == '1', 'acceptance of terms version 2026-11 recorded for the new account')
     ok(not lp.errors, 'no JS errors on legal pages and sign-up %s' % lp.errors[:2]); lp.context.close()
 
 
@@ -1249,7 +1249,7 @@ with sync_playwright() as pw:
     # new companies wait for approval: the owner sees a waiting screen until the admin accepts a 7-day trial
     sqlx("update platform_settings set require_approval = true")
     wp = new_page(b); signup(wp, 'waiting@shop.test'); wp.wait_for_selector('#cf')
-    wp.fill('#cf input[name=name]', 'منشأة تنتظر القبول'); wp.click('#cb'); wp.wait_for_selector('#pchk')
+    wp.fill('#cf input[name=name]', 'منشأة تنتظر القبول'); wp.fill('#cf input[name=owner_phone]', '0511111111'); wp.fill('#cf input[name=city]', 'الرياض'); wp.select_option('#cf select[name=size_band]', '11-50'); wp.select_option('#cf select[name=industry]', 'trade'); wp.click('#cb'); wp.wait_for_selector('#pchk')
     ok('وصلنا طلبك' in wp.inner_text('#app') and wp.locator('#nav').count() == 0, 'a new company waits for approval before using the system')
     ok(sql("(select notified_at is null from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'منشأة تنتظر القبول')") == 'true', 'the new request is queued for the team notification')
     go(pp, '#/companies'); pp.wait_for_selector('#ppage tbody tr'); ok('طلبات تنتظر قبولك' in pp.inner_text('#ppage'), 'admin site: waiting requests are shown first')
@@ -1270,10 +1270,12 @@ with sync_playwright() as pw:
     pp.fill('#nform textarea', 'اتصلت بالمالك'); pp.click('#nform button'); pp.wait_for_timeout(700)
     pp.click('#cpay'); pp.wait_for_selector('#dlg select[name=plan]'); pp.select_option('#dlg select[name=plan]', index=1); modal_ok(pp); pp.wait_for_timeout(700)
     t = pp.inner_text('#ppage'); ok('اتصلت بالمالك' in t and '299' in t and 'الأساسية' in t, 'company page: a note and a payment on a plan are recorded')
+    ok('0511111111' in t and 'الرياض' in t and 'تجارة' in t and pp.locator('#ppage a[href^="https://wa.me/966511111111"]').count() == 1, 'company page: sign-up profile with a WhatsApp button')
     ok(sql("(select plan || '|' || (sub_ends - current_date) from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'منشأة تنتظر القبول')") == 'الأساسية|60',
        'the payment extends the subscription by the plan period after its current end')
     pp.click('[data-q=extend][data-d="7"]'); pp.wait_for_timeout(700)
     ok(sql("(select sub_ends - current_date from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'منشأة تنتظر القبول')") == '67', 'quick action: +7 days')
+    go(pp, '#/system'); pp.wait_for_selector('#ppage .pbars'); ok('حسب المدينة' in pp.inner_text('#ppage') and 'الرياض' in pp.inner_text('#ppage'), 'system numbers: companies by city, size, activity and source')
     go(pp, '#/billing'); pp.wait_for_selector('#ppage .pbars'); ok('299' in pp.inner_text('#ppage'), 'revenue page counts the payment')
     sqlx("update platform_settings set require_approval = false")
     # the Waad team: an admin adds a member who signs in with a username, then must change the temporary password

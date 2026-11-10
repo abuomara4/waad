@@ -12,9 +12,11 @@
 آخر موعد للرد	Reply by
 آخر موعد للرد بعد تاريخ الطلب	The reply date must be after the request date
 آخر موعد للعودة	Return deadline
+آخر نشاط	Last activity
 آخر يوم	Last day
 آخر يوم عمل	Last working day
 آلات	machines
+أبها	Abha
 أثاث	furniture
 أجر الساعة	hourly wage
 أجر الساعة الإضافية	Overtime hourly pay
@@ -158,6 +160,7 @@
 أضف وردية افتراضية قبل تفعيل الحضور	Add a default shift before enabling attendance
 أطفئ خيار	Turn off the
 أعد للموظف	refund the employee
+أعداد وتواريخ فقط	Counts and dates only
 أعزب	Single
 أعضاء الفريق	Team members
 أعط درجة لكل هدف قبل الإرسال	Score every goal before sending
@@ -183,6 +186,7 @@
 أقساط على الأقل	installments at minimum
 أقسام اللوحة	Admin sections
 أقسام بلا رئيس	Departments without a head
+أقسام فيها بيانات	Modules with data
 أقسامها مقفلة الحين	their modules are closed now
 أقفل السنوات بالترتيب	Close years in order
 أقل سعر للبند ولإجمالي العرض	lowest price per line and per offer total
@@ -594,6 +598,7 @@
 اختر حساب مصروف لكل بند	Choose an expense account for each line
 اختر صلاحية واحدة على الأقل	Choose at least one role
 اختر صنفاً أو حساب مصروف صالحاً	Choose an item or a valid expense account
+اختر عدد الموظفين	Choose the number of employees
 اختر عميلاً أو اكتب اسم الجهة	Choose a customer or type the organisation name
 اختر قسماً واحداً على الأقل	Choose at least one module
 اختر كلمة مرور جديدة	Choose a new password
@@ -604,6 +609,7 @@
 اختر مستودعين مختلفين	Choose two different warehouses
 اختر ملفاً	Choose a file
 اختر موظفاً واحداً على الأقل	Choose at least one employee
+اختر نشاط المنشأة	Choose the company activity
 اختر نوع التأشيرة	Choose the visa type
 اختر وردية واحدة على الأقل	Choose at least one shift
 اختر يوم عمل واحداً على الأقل	Choose at least one working day
@@ -763,11 +769,13 @@
 اكتب السبب	Enter the reason
 اكتب الغرض في الملاحظات	state the purpose in the notes
 اكتب المبلغ	Write the amount
+اكتب المدينة	Write the city
 اكتب الملاحظة	Write the note
 اكتب الوقت الذي نسيت بصمته	Enter the time you forgot to punch
 اكتب بريدك أولاً	Type your email first
 اكتب بيان القيد	Write the entry description
 اكتب بيانات العقد الساري فقط	fill in the current contract only
+اكتب جوال المالك بالشكل	Write the owner mobile as
 اكتب ردك	Write your reply
 اكتب رقم التأشيرة	Enter the visa number
 اكتب رقم الجوال بالشكل	Write the mobile number as
@@ -816,6 +824,7 @@
 الأجر والبدلات حتى يُحفظ السبب في سجل الرواتب	Wage and allowances, so the reason is kept in the salary history
 الأجهزة	Devices
 الأحد	Sunday
+الأحساء	Al-Ahsa
 الأخرى	other
 الأخضر	Green
 الأخضر المنخفض ثم المتوسط ثم المرتفع ثم البلاتيني	low green, then mid, then high, then platinum
@@ -923,6 +932,7 @@
 الاستحقاق	Due
 الاستحقاق القادم	Next entitlement
 الاستحقاق القادم في	next entitlement on
+الاستخدام	Usage
 الاستقطاعات	Deductions
 الاستقطاعات تشمل حصة الموظف في التأمينات	Deductions include the employee's GOSI share
 الاستلام	Received
@@ -964,6 +974,7 @@
 الانصراف	Check-out
 الانقطاع عن العمل دون سبب مشروع مدة تزيد على خمسة عشر يوماً متصلة خلال السنة العقدية الواحدة	Abandoning work without a legitimate reason for more than fifteen consecutive days in one contract year
 الايبان	IBAN
+الباحة	Al-Baha
 الباركود	Barcode
 الباركود مستخدم لصنف آخر	The barcode is used by another item
 الباركود من	The barcode is
@@ -1096,6 +1107,7 @@
 الثالثة	third
 الثانية	second
 الثلاثاء	Tuesday
+الجبيل	Jubail
 الجداول	Tables
 الجديدة	new
 الجرد	Stock counts
@@ -1145,6 +1157,7 @@
 الحملة التسويقية	Marketing campaign
 الحملة غير موجودة	Campaign not found
 الحي	District
+الخبر	Khobar
 الخدمة والتعامل	Service
 الخروج	Out
 الخروج أو الدخول من غير المكان المخصص لذلك	Entering or leaving through other than the designated entrance
@@ -1174,6 +1187,7 @@
 الدقائق المحوّلة	Minutes to convert
 الدقائق المحوّلة لا تُصرف في المسير	converted minutes are not paid in payroll
 الدقائق المحوّلة من الإضافي المعتمد	Converted minutes come from approved overtime
+الدمام	Dammam
 الدور	Role
 الدورات والحضور والشهادات	Courses, attendance and certificates
 الدورة	Course
@@ -1239,6 +1253,7 @@
 الرواتب والأجور	Salaries and wages
 الرواتب والبدلات لا تُعدَّل من هنا	Wages and allowances are not changed here
 الرواتب والمزايا والسلف	Payroll, benefits and advances
+الرياض	Riyadh
 الريال هو العملة الأساسية	The riyal is the base currency
 الزواج	marriage
 الزوج	Husband
@@ -1325,6 +1340,7 @@
 الصورة كبيرة جداً	The image is too large
 الضريبة	VAT
 الضريبة تُسترد فقط إذا كانت الفاتورة ضريبية وفيها الرقم الضريبي للمورد	VAT is reclaimable only on a tax invoice showing the supplier VAT number
+الطائف	Taif
 الطرف	Party
 الطرف غير صالح	Invalid party
 الطرف غير موجود	Party not found
@@ -1337,6 +1353,7 @@
 الطلب ليس مفتوحاً	The request is not open
 الطلبات التي تنتظر قرارك	Requests awaiting your decision
 الطلبات وقسائم الراتب وملفه	requests, payslips and own profile
+الظهران	Dhahran
 العائد	Return
 العائد على الإنفاق	Return on spend
 العامل	Worker
@@ -1444,6 +1461,7 @@
 القسم الجديد يُنشأ تلقائياً	a new department is created automatically
 القسم غير موجود	Department not found
 القسم يُكتب باسمه	Write the department by its name
+القطيف	Qatif
 القناة	Channel
 القوائم المالية	Financial statements
 القوة القاهرة	Force majeure
@@ -1556,6 +1574,7 @@
 المدير المختار يتبع هذا الموظف في الهيكل	the chosen manager reports to this employee
 المدين	Debit
 المدينة	City
+المدينة المنورة	Madinah
 المرافق والاتصالات	Utilities and telecom
 المرافقين	Dependents
 المرة	Time
@@ -1702,6 +1721,7 @@
 الموظف وعائلته	employee and family
 الموظفون	Employees
 الموظفون المحددون	Selected employees
+الموظفون المسجّلون	Registered employees
 الموظفون المنتهية خدمتهم أو قريباً	Employees whose service ended or ends soon
 الموظفون حسب القسم	Employees by department
 الموظفون على رأس العمل	Active employees
@@ -1723,6 +1743,7 @@
 النسبة المستحقة	Entitled share
 النسبة بعد التغيير	Ratio after the change
 النسبة حتى	Percentage up to
+النشاط	Activity
 النص	Text
 النص الأصلي	Original text
 النص بالإنجليزي	Text in English
@@ -1882,6 +1903,7 @@
 بدلات أخرى	Other allowances
 بدون	None
 بدون أجر	Unpaid
+بدون أي بيانات من داخل المنشأة	without any data from inside the company
 بدون إقفال	No cutoff
 بدون المرفقات	without attachments
 بدون انصراف	No check-out
@@ -1906,6 +1928,7 @@
 برنامج البريد برسالة جاهزة إلى	your mail app with a ready message to
 برنامج جديد	New programme
 بريد	E-mail
+بريدة	Buraydah
 بريطاني	British
 بضاعة مستلمة لم تصل فاتورتها	Goods received not invoiced
 بطاقة	Card
@@ -2075,6 +2098,7 @@
 تبدأ الإجازة من تاريخ الواقعة أو بعده	The leave starts on or after the event date
 تبدأ من تاريخ الوفاة ولا تقل عن	Starts on the date of death and is not less than
 تبقى ملتزماً بالعمل خلال هذه المدة	You remain bound to work during this period
+تبوك	Tabuk
 تتبدل كل	Rotate every
 تتبع الصلاحية	Track expiry
 تتجاوز	Exceeds
@@ -2084,6 +2108,7 @@
 تجارب تنتهي خلال	Trials ending within
 تجارب تنتهي قريباً	Trials ending soon
 تجارب شغّالة	Active trials
+تجارة	Trade
 تجاوز المهلة	past the deadline
 تجاوز حد الائتمان	Credit limit exceeded
 تجاوز حد الائتمان للعميل	Customer credit limit exceeded
@@ -2274,6 +2299,7 @@
 تعليق	Comment
 تعليق المقيّم	Reviewer comment
 تعليقك	Your comment
+تعليم وتدريب	Education & training
 تعمد الخلوة مع الجنس الآخر في أماكن العمل	Deliberate seclusion with the opposite sex at the workplace
 تعود التذكرة إلى رصيد الموظف	The ticket returns to the employee's balance
 تعود الكميات إلى المتبقي للتسليم في أمر البيع	Quantities return to the order's remaining-to-deliver
@@ -2309,6 +2335,7 @@
 تقرير التأمينات الاجتماعية	GOSI contributions report
 تقرير طبي بتاريخ الولادة	Medical report with the delivery date
 تقرير طبي معتمد	Approved medical report
+تقنية	Technology
 تقنية المعلومات	IT
 تقويم الإجازات	Leave calendar
 تقييم	Review of
@@ -2387,6 +2414,7 @@
 توظيف غير سعوديين	Hire non-Saudis
 توقيع الجزاء	Impose penalty
 تونسي	Tunisian
+تويتر	Twitter
 تيك توك	TikTok
 تُتخطى مرحلته	the step is skipped
 تُحتسب	Counted as
@@ -2436,7 +2464,9 @@
 جارية	In progress
 جارٍ	Active
 جارٍ التحميل	Loading
+جازان	Jazan
 جاهز للاستيراد	ready to import
+جدة	Jeddah
 جدول الاختبارات المعتمد من الجهة التعليمية	Exam timetable approved by the educational institution
 جدول المخالفات والجزاءات	Violations and penalties table
 جدول الورديات	Shift roster
@@ -2463,10 +2493,12 @@
 جواز سفر	passport
 جوال	mobile
 جوال الطوارئ	Emergency phone
+جوال المالك	Owner mobile
 جوال الواتساب والاتصال	Mobile for WhatsApp and calls
 جُدد العقد	Contract renewed
 جُدد العقد ثلاث مرات أو بلغت مدته أربع سنوات	The contract was renewed three times or reached four years
 جُدّد	Renewed
+حائل	Hail
 حاسب محمول	Laptop
 حاضر	Present
 حاضرون	Present
@@ -2565,7 +2597,10 @@
 حسب العقد	per contract
 حسب القسم	By department
 حسب المادة	Under Article
+حسب المدينة	By city
+حسب النشاط	By activity
 حسب تاريخ أول تسجيل	By first registration date
+حسب عدد الموظفين	By number of employees
 حسم	Deduct
 حسم أجر	Deduct the wage of
 حسم التأخير يكون بقدر الوقت الذي لم يُعمل فيه فقط	Lateness is deducted only for the time not worked
@@ -2581,6 +2616,7 @@
 حضور اليوم	Today's attendance
 حضوري	My attendance
 حضورية	In-person
+حفر الباطن	Hafar Al-Batin
 حفظ	Save
 حفظ الأسئلة	Save questions
 حفظ التعديل	Save change
@@ -2619,6 +2655,7 @@
 خاسرة	Lost
 خاصة به	Their own
 خالد الدوسري	Khalid Al-Dosari
+خدمات	Services
 خدماته الذاتية	Self-service
 خدماتي	My services
 خدمة	Service
@@ -2639,6 +2676,7 @@
 خطاباتي	My letters
 خطة التدريب السنوية	Annual training plan
 خلال	within
+خميس مشيط	Khamis Mushait
 خيار	The option
 خيار غير معروف	Unknown option
 د	min
@@ -2951,6 +2989,7 @@
 سعوديه	saudi
 سعوديون لا يُحتسبون كاملاً	Saudis not counted in full
 سقف العهدة	Fund ceiling
+سكاكا	Sakaka
 سكن	Housing
 سلف الموظفين	Employee advances
 سلفة	Advance
@@ -3054,6 +3093,7 @@
 صافي الضريبة المستحقة	Net VAT due
 صافي المرتجعات	net of returns
 صالح حتى	Valid until
+صحة	Health
 صحتي	Sehhaty
 صحيحة	are correct
 صحّحها بقيد يدوي بدل الإلغاء	correct them with a manual entry instead of undoing
@@ -3068,6 +3108,7 @@
 صدر قرار في هذه المخالفة	A decision was already issued in this case
 صدر من نظام وعد	Issued by Waad
 صدرت	Issued
+صديق أو معارف	A friend or contact
 صرف	Payment
 صرف العهدة	Hand over the fund
 صرف رواتب	Salary payment
@@ -3092,6 +3133,7 @@
 صلاحية غير معروفة	Unknown role
 صلاحية مالية	finance permissions
 صلة القرابة	Relationship
+صناعة	Manufacturing
 صندوق صغير لموظف يصرف منه المصروفات النثرية	A small fund an employee spends incidental expenses from
 صنف	Item
 صنف أو حساب مصروف	Item or expense account
@@ -3205,6 +3247,8 @@
 عرض كمراحل	Show as stages
 عرض مورد	Supplier offer
 عرض وظيفي	Offer
+عرعر	Arar
+عرف عن وعد من	Heard about Waad from
 عروض الأسعار	Quotations
 عزباء	Single
 عزّز العهدة أولاً	top up the fund first
@@ -3245,6 +3289,7 @@
 عميل جديد محتمل	new prospective customer
 عميل حالي	Existing customer
 عميلاً	a customer
+عن المنشأة	About the company
 عن بُعد	Remote
 عند	at
 عند الإيقاف يكفي البريد وكلمة المرور للدخول إلى حسابك	When turned off, e-mail and password alone sign in to your account
@@ -3258,6 +3303,7 @@
 عنوان العميل	Customer address
 عنوان الفرصة	Opportunity title
 عنوان المهمة	Task title
+عنيزة	Unaizah
 عهد لم تُسلَّم	Items not returned
 عهدة	items
 عهدة بقيمة	items worth
@@ -3792,6 +3838,7 @@
 ما فيه إعلانات	No announcements
 ما فيه إيميل للمالك	No owner e-mail
 ما فيه باقات	No plans
+ما فيه بيانات	No data
 ما فيه تغييرات	No changes
 ما فيه دفعات	No payments
 ما فيه زيارات في هذي الفترة	No visits in this period
@@ -3995,6 +4042,7 @@
 مصنع الديار	Al-Diyar Factory
 مصنفة حسب الحساب المقابل	classified by the counter-account
 مطابقة ثلاثية	Three-way match
+مطاعم وأغذية	Restaurants & food
 مطالبة مصروفات	Expense claim
 مطبوعات	Print
 مطلق	Divorced
@@ -4015,6 +4063,7 @@
 معدل الدوران في الفترة	Turnover in the period
 معدّل من اللوحة	Changed from admin
 معرض	Exhibition
+معرض أو فعالية	An exhibition or event
 معفى	Exempt
 معكوس	Reversed
 معلومة	Info
@@ -4042,6 +4091,7 @@
 مقارنة العروض	Offer comparison
 مقارنة مع	compared with
 مقاس الورقة	Paper size
+مقاولات	Contracting
 مقبول	Accepted
 مقبولة بانتهاء مدة تأجيل القبول	Accepted at the end of the deferral
 مقبولة حكماً لمضي	Deemed accepted after
@@ -4054,6 +4104,7 @@
 مكافأة نهاية الخدمة	End-of-service award
 مكافأة نهاية الخدمة والمخالصة	End-of-service award and settlement
 مكان الموظف في الهيكل	Position in the chart
+مكة المكرمة	Makkah
 مكتمل	Completed
 مكتملة	Completed
 مكرر	Duplicate
@@ -4115,6 +4166,8 @@
 من منصة صحة	from the Seha platform
 من نظام العمل	of the Labor Law
 من وين جاؤوا	Where they came from
+من وين عرفت عن وعد	How did you hear about Waad
+من وين عرفوا عن وعد	How they heard about Waad
 من يرفع طلب الشراء	Who raises purchase requests
 من يرى الهيكل التنظيمي	Who sees the organisation chart
 من يعتمد كل نوع طلب وبأي ترتيب	Who approves each request type and in what order
@@ -4161,6 +4214,7 @@
 موظف في الملف الواحد	employees per file
 موظفون بلا تغطية سارية	Employees without active cover
 موظفون رواتبهم خارج حدود درجتهم	Employees paid outside their grade range
+موظفين	employees
 موعد المقابلة	Interview time
 موقع	site
 موقع العمل	Work site
@@ -4173,10 +4227,12 @@
 ميجابايت	MB
 ميجابايت للملف	MB per file
 ميزان المراجعة	Trial balance
+مين عملاؤك	Who your customers are
 مُدخلة بتاريخ	Entered as of
 مُستلمة	Returned
 مُسحت البيانات التجريبية	Sample data cleared
 نأمل تجهيز متطلبات التجديد والتواصل مع الموارد البشرية	Please prepare the renewal requirements and contact HR
+نجران	Najran
 نحفظ الأرقام والتواريخ فقط بدون صور المستندات	we keep numbers and dates only, no scans
 نزّل القالب	Download the template
 نزّل القالب واملأ سطراً لكل اسم	Download the template and fill one row per name
@@ -4210,6 +4266,7 @@
 نسيان بصمة	Forgotten fingerprint
 نسيت كلمة المرور	Forgot your password
 نسيتها	Forgot it
+نشاط المنشأة	Company activity
 نشط	Active
 نشطة	Active
 نص حر	free text
@@ -4522,6 +4579,7 @@
 يرفعها الموظف من	Raised by the employee from
 يزيد بنفس النسبة	Raised by the same percentage
 يساوي المبلغ إن تُرك فارغاً	equals the amount if left empty
+يستخدم	Uses
 يستعيد كلمة المرور من	and recovers the password from
 يسجّل بنفس البريد ثم يُدخل الرمز	They sign up with the same email, then enter the code
 يسجّل حضوره فيه فقط	checks in there only
@@ -4562,6 +4620,7 @@
 يمكنك مسحها لتبدأ بإدخال بياناتك الحقيقية	you can clear it to start entering your real data
 يملأ منشأتك بموظفين وعملاء وحملات ومشاريع تجريبية لتجربة النظام كاملاً	Fills your company with sample employees, customers, campaigns and projects to try the full system
 يمني	Yemeni
+ينبع	Yanbu
 ينتقل فريقه إلى مديره الحالي	their team moves to their current manager
 ينتهي	Ends
 ينتهي الاشتراك	Subscription ends

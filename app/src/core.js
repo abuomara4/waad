@@ -338,6 +338,7 @@ function onboardView() {
         ${field('اسم المنشأة', inp('name', '', 'required'), 'wide')}
         ${field('الرقم الضريبي (اختياري)', inp('vat', '', 'dir="ltr" inputmode="numeric" placeholder="3XXXXXXXXXXXXX3"'))}
         ${field('السجل التجاري (اختياري)', inp('cr', '', 'dir="ltr" inputmode="numeric"'))}
+        ${profileFields()}
         <div class="wide"><div id="cerr"></div><button class="btn pri" id="cb">إنشاء المنشأة</button></div>
       </form><p class="muted small">ستكون مالك المنشأة، ويُنشأ دليل الحسابات تلقائياً.</p></div>
     <p class="muted small" style="text-align:center">${esc(S.session.user.email)} · <a href="#" id="lo">تسجيل الخروج</a></p></div></div>`;
@@ -348,7 +349,9 @@ function onboardView() {
     if (f.name.length < 3) return showErr('#cerr', 'اسم المنشأة 3 أحرف على الأقل');
     if (f.vat && !/^3\d{13}3$/.test(f.vat)) return showErr('#cerr', 'الرقم الضريبي 15 رقماً يبدأ وينتهي بـ 3');
     if (f.cr && !/^\d{10}$/.test(f.cr)) return showErr('#cerr', 'السجل التجاري 10 أرقام');
-    try { await busy($('#cb'), async () => { const cid = await db.rpc('create_company', { p_name: f.name, p_vat: blank(f.vat), p_cr: blank(f.cr) }); S.cid = cid; LS.set('waad.cid', cid); await boot(); if (S.sub && S.sub.status === 'pending') return; location.hash = '#/welcome'; setTimeout(() => companyCodeBox(true), 400); }); } catch (er) { showErr('#cerr', er); } };
+    try { await busy($('#cb'), async () => { const pe = profileErr(f); if (pe) throw new Error(pe);
+      const cid = await db.rpc('create_company', { p_name: f.name, p_vat: blank(f.vat), p_cr: blank(f.cr) }); S.cid = cid; LS.set('waad.cid', cid);
+      await db.upd('companies', { id: 'eq.' + cid }, profileRow(f)); await boot(); if (S.sub && S.sub.status === 'pending') return; location.hash = '#/welcome'; setTimeout(() => companyCodeBox(true), 400); }); } catch (er) { showErr('#cerr', er); } };
 }
 
 /* the company code employees sign in with: shown once on creation, and any time from settings / the welcome page */
@@ -434,6 +437,23 @@ async function boot() {
 }
 
 /* ===== packages: which modules this company's subscription opens (the database enforces the same rule) ===== */
+// about the company, asked at sign-up and editable in settings (seen by the Waad team)
+const SIZE_B = { '1-10': '١–١٠ موظفين', '11-50': '١١–٥٠ موظف', '51-200': '٥١–٢٠٠ موظف', '200+': 'أكثر من ٢٠٠ موظف' };
+const INDUSTRY = { trade: 'تجارة', contracting: 'مقاولات', services: 'خدمات', food: 'مطاعم وأغذية', industry: 'صناعة', health: 'صحة', education: 'تعليم وتدريب', tech: 'تقنية', other: 'أخرى' };
+const HEARD = { whatsapp: 'واتساب', google: 'قوقل', friend: 'صديق أو معارف', x: 'إكس (تويتر)', linkedin: 'لينكدإن', instagram: 'إنستقرام', snapchat: 'سناب شات', tiktok: 'تيك توك', event: 'معرض أو فعالية', other: 'أخرى' };
+const SA_CITIES = ['الرياض', 'جدة', 'مكة المكرمة', 'المدينة المنورة', 'الدمام', 'الخبر', 'الظهران', 'الأحساء', 'القطيف', 'الجبيل', 'الطائف', 'تبوك', 'بريدة', 'عنيزة', 'حائل', 'أبها', 'خميس مشيط', 'جازان', 'نجران', 'الباحة', 'سكاكا', 'عرعر', 'ينبع', 'حفر الباطن'];
+const selOpts = (map, v, blankTxt) => (blankTxt ? `<option value="">${esc(tr(blankTxt))}</option>` : '') + Object.entries(map).map(([k, t]) => opt(k, tr(t), v)).join('');
+function profileFields(co = {}, withCity = true) {
+  return `${field('جوال المالك', inp('owner_phone', co.owner_phone, 'dir="ltr" inputmode="numeric" maxlength="10" placeholder="05XXXXXXXX" required'))}
+    ${withCity ? field('المدينة', inp('city', co.city, 'list="sacities" required') + `<datalist id="sacities">${SA_CITIES.map(c => `<option value="${esc(c)}">`).join('')}</datalist>`) : ''}
+    ${field('عدد الموظفين', `<select name="size_band" required>${selOpts(SIZE_B, co.size_band, 'اختر')}</select>`)}
+    ${field('نشاط المنشأة', `<select name="industry" required>${selOpts(INDUSTRY, co.industry, 'اختر')}</select>`)}
+    ${field('من وين عرفت عن وعد؟', `<select name="heard_from">${selOpts(HEARD, co.heard_from, 'اختر (اختياري)')}</select>`)}`;
+}
+const profileErr = (f, needCity = true) => !/^05\d{8}$/.test((f.owner_phone || '').replace(/\s/g, '')) ? 'اكتب جوال المالك بالشكل 05XXXXXXXX'
+  : (needCity && !(f.city || '').trim()) ? 'اكتب المدينة' : !f.size_band ? 'اختر عدد الموظفين' : !f.industry ? 'اختر نشاط المنشأة' : '';
+const profileRow = f => Object.assign({ owner_phone: (f.owner_phone || '').replace(/\s/g, ''), size_band: f.size_band || null, industry: f.industry || null, heard_from: f.heard_from || null },
+  'city' in f ? { city: (f.city || '').trim() || null } : {});
 const MODULES = { hr: 'الموارد البشرية', finance: 'المالية والمحاسبة', sales: 'المبيعات', purch: 'المشتريات', stock: 'المخزون', proj: 'المشاريع' };
 const MOD_ROUTES = {
   hr: ['hrdash', 'employees', 'grades', 'insurance', 'trainplan', 'docs', 'att', 'attendance', 'roster', 'policies', 'leavecal', 'penalties', 'payroll', 'payslips', 'eos', 'nitaqat', 'travel', 'workflows', 'clearance', 'reviews', 'recruit', 'training', 'hrreports', 'org', 'letter', 'path', 'profile', 'requests'],

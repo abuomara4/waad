@@ -2526,5 +2526,20 @@ select t.ok((select sum(amount) = 598 from public.platform_payments_list(current
 select t.err($$select public.platform_quick('$$ || :'cbill' || $$', 'explode')$$, 'غير معروف', 'unknown quick actions are refused');
 reset role;
 
+-- ================= COMPANY PROFILE AND USAGE COUNTS FOR THE ADMIN SITE (0070) =================
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+update public.companies set owner_phone = '0554003226', city = 'الرياض', size_band = '11-50', industry = 'trade', heard_from = 'whatsapp' where id = :'cid';
+select t.err($$update public.companies set owner_phone = '12345' where id = '$$ || :'cid' || $$'$$, 'check', 'the owner mobile must be a Saudi mobile (05XXXXXXXX)');
+select t.err($$update public.companies set size_band = 'huge' where id = '$$ || :'cid' || $$'$$, 'check', 'company size is one of the fixed ranges');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select t.ok((select owner_phone = '0554003226' and city = 'الرياض' and size_band = '11-50' and industry = 'trade' and heard_from = 'whatsapp'
+   from public.platform_companies() where company_id = :'cid'), 'the admin site sees the profile the owner gave');
+select t.ok((select (usage->>'employees')::int > 0 and usage->'modules' ? 'hr' and usage->>'last_activity' is not null
+   from public.platform_companies() where company_id = :'cid'), 'the admin site sees usage counts: employees, modules in use, last activity');
+select t.ok((select not (to_jsonb(x) ? 'full_name') and not (usage ? 'names') from public.platform_companies() x where company_id = :'cid'), 'usage holds counts only, no records');
+select t.err($$select public.company_usage('$$ || :'cid' || $$')$$, 'permission denied', 'the usage counter cannot be called directly');
+reset role;
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary
