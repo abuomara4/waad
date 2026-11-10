@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>وعد — نظام إدارة المنشآت | Waad ERP</title>
-<meta name="description" content="وعد: نظام سعودي واحد للموارد البشرية والرواتب والمالية والمبيعات والمشتريات والمخزون، بالعربية والإنجليزية، متوافق مع نظام العمل وضريبة القيمة المضافة.">
+<title>وعد | نظام لإدارة المنشآت السعودية</title>
+<meta name="description" content="نظام سعودي للمنشآت الصغيرة والمتوسطة: الموظفين والرواتب وحماية الأجور والحسابات والفواتير الضريبية والمشتريات والمخزون، بالعربي والإنجليزي.">
 <meta name="theme-color" content="#131b2e">
-<meta property="og:title" content="وعد — نظام إدارة المنشآت | Waad ERP">
-<meta property="og:description" content="وعد: نظام سعودي واحد للموارد البشرية والرواتب والمالية والمبيعات والمشتريات والمخزون، بالعربية والإنجليزية، متوافق مع نظام العمل وضريبة القيمة المضافة.">
+<meta property="og:title" content="وعد | نظام لإدارة المنشآت السعودية">
+<meta property="og:description" content="نظام سعودي للمنشآت الصغيرة والمتوسطة: الموظفين والرواتب وحماية الأجور والحسابات والفواتير الضريبية والمشتريات والمخزون، بالعربي والإنجليزي.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://abuomara4.github.io/waad/site/">
 <meta property="og:site_name" content="وعد Waad">
 <meta property="og:locale" content="ar_SA"><meta property="og:locale:alternate" content="en_US">
 <meta property="og:image" content="https://abuomara4.github.io/waad/site/og.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="وعد — منشأتك كلها في نظام واحد">
+<meta property="og:image:alt" content="وعد: الرواتب والإجازات والفواتير والمخزون في نظام واحد">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://abuomara4.github.io/waad/site/og.png">
 <link rel="canonical" href="https://abuomara4.github.io/waad/site/">
@@ -55,7 +55,7 @@ nav.links a:hover{color:#fff}
 .mlogin{display:none!important}
 .menu{display:none;background:transparent;border:0;color:#fff;font-size:26px;cursor:pointer;padding:4px 8px}
 /* hero */
-.hero{background:radial-gradient(1200px 500px at 85% -10%,rgba(184,137,58,.22),transparent 60%),radial-gradient(900px 500px at 0% 110%,rgba(37,99,235,.25),transparent 60%),var(--navy);color:#fff;padding:84px 0 96px;overflow:hidden}
+.hero{background:var(--navy);color:#fff;padding:84px 0 96px;overflow:hidden}
 .hero-g{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
 .pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#e2e8f0;border-radius:999px;padding:6px 14px;font-size:13px;font-weight:500}
 .pill b{width:8px;height:8px;border-radius:50%;background:var(--gold2);display:inline-block}
@@ -86,33 +86,44 @@ h1 em{font-style:normal;color:var(--gold2)}
 .tag{border-radius:999px;padding:1px 10px;font-size:11px;font-weight:600}
 .tag.ok{background:rgba(63,195,146,.15);color:#3fc392}.tag.w{background:rgba(224,180,94,.15);color:#e0b45e}
 /* inner-page header */
-.phero{background:radial-gradient(900px 360px at 85% -20%,rgba(184,137,58,.2),transparent 60%),var(--navy);color:#fff;padding:64px 0 56px;text-align:center}
-.phero h1{margin:0 0 10px;font-size:clamp(28px,4vw,42px);line-height:1.3}.phero p{margin:0 auto;max-width:640px;color:#cbd5e1;font-size:17px}
+.phero{background:var(--navy);color:#fff;padding:56px 0 48px;border-bottom:3px solid var(--gold)}
+.phero h1{margin:0 0 10px;font-size:clamp(28px,4vw,42px);line-height:1.3}.phero p{margin:0;max-width:640px;color:#cbd5e1;font-size:17px}
 nav.links a[aria-current=page]{color:#fff;box-shadow:inset 0 -2px 0 var(--gold2)}
-.more{text-align:center;margin-top:28px}
-.minis{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:12px;max-width:860px;margin:0 auto}
+.more{margin:24px 0 0}.more a{color:var(--gold);font-weight:700;text-decoration:none;border-bottom:1px solid currentColor}.dark .more a{color:var(--gold2)}
+.minis{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:12px;max-width:860px;margin:0}
 .mini{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);color:#e2e8f0;text-decoration:none;font-weight:600;font-size:15px;transition:border-color .2s,background .2s}
 button.mini{font-family:inherit;cursor:pointer;text-align:start;width:100%}
 .mini:hover,.mini[aria-expanded=true]{border-color:rgba(214,173,94,.55);background:rgba(255,255,255,.07)}
 .mini[aria-expanded=true]{box-shadow:inset 0 0 0 1px rgba(214,173,94,.55)}
-.sdet{max-width:860px;margin:14px auto 0}
+.sdet{max-width:860px;margin:14px 0 0}
 .sd[hidden]{display:none}
 .sd{display:flex;gap:16px;align-items:flex-start;padding:20px;border-radius:14px;background:rgba(214,173,94,.08);border:1px solid rgba(214,173,94,.35);animation:sdin .25s ease}
 .sd .ic{flex:none;margin:0}.sd h3{margin:0 0 6px;font-size:18px;color:#fff}.sd p{margin:0;color:#cbd5e1;line-height:1.8}
-.shint{text-align:center;color:#94a3b8;font-size:14px;margin:4px 0 0}.sdet .sd:not([hidden])~.shint{display:none}
+.shint{color:#94a3b8;font-size:14px;margin:4px 0 0}.sdet .sd:not([hidden])~.shint{display:none}
 @keyframes sdin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .mini .ic{flex:none;width:38px;height:38px;margin:0;border-radius:10px}.mini .ic svg{width:20px;height:20px}
 @media(max-width:760px){.minis{grid-template-columns:1fr 1fr;gap:10px}.mini{padding:12px;font-size:14px;gap:10px}.mini .ic{width:34px;height:34px}}
+/* rows: name on one side, details on the other, thin lines between */
+.rows2 .r{display:grid;grid-template-columns:minmax(200px,1fr) 1.6fr;gap:12px 32px;padding:22px 0;border-top:1px solid var(--line)}
+.rows2 .r:last-child{border-bottom:1px solid var(--line)}
+.rows2 h3{margin:0 0 4px;font-size:19px}.rows2 p{margin:0;color:var(--muted)}
+.rows2 ul{margin:0;padding:0;list-style:none;display:grid;gap:6px;align-content:start}
+.rows2 li{position:relative;padding-inline-start:18px;color:#334155}
+.rows2 li:before{content:"";position:absolute;inset-inline-start:2px;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.rows2 .r:not(:has(ul)){grid-template-columns:1fr}
+.rows2.compact{display:grid;grid-template-columns:1fr 1fr;column-gap:48px}
+.rows2.compact .r{padding:18px 0}.rows2.compact .r:nth-last-child(2){border-bottom:1px solid var(--line)}
+.dark .rows2 .r{border-color:rgba(255,255,255,.12)}.dark .rows2 h3{color:#fff}.dark .rows2 p{color:#cbd5e1}
+@media(max-width:760px){.rows2 .r{grid-template-columns:1fr;padding:18px 0}.rows2.compact{grid-template-columns:1fr}.rows2.compact .r:nth-last-child(2){border-bottom:0}}
 /* sections */
 section{padding:84px 0}
-.sh{max-width:720px;margin:0 auto 44px;text-align:center}
+.sh{max-width:680px;margin:0 0 32px}
 .eyebrow{color:var(--gold);font-weight:700;font-size:14px;letter-spacing:.5px}
 h2{font-size:clamp(26px,3.6vw,38px);line-height:1.3;margin:8px 0 12px}
 .sh p{color:var(--muted);font-size:17px;margin:0}
 .grid{display:grid;gap:18px}
 .g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px;transition:box-shadow .2s,transform .2s}
-.card:hover{box-shadow:0 18px 40px -18px rgba(15,23,42,.18);transform:translateY(-2px)}
 .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:#eef3ff;color:var(--blue);margin-bottom:14px}
 .ic svg{width:24px;height:24px}
 .card h3{margin:0 0 8px;font-size:20px}
@@ -126,7 +137,9 @@ h2{font-size:clamp(26px,3.6vw,38px);line-height:1.3;margin:8px 0 12px}
 .dark .card{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.09)}
 .dark .card p,.dark .card li{color:#cbd5e1}
 .dark .ic{background:rgba(184,137,58,.15);color:var(--gold2)}
-.steps{counter-reset:s;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s;display:grid;gap:14px;max-width:720px}
+.steps li{counter-increment:s;display:flex;gap:14px;align-items:baseline;font-size:17px;color:#334155}
+.steps li:before{content:counter(s) ".";font-weight:700;color:var(--gold);min-width:22px}
 .step{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:26px;position:relative}
 .step:before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;margin-bottom:12px}
 .step h3{margin:0 0 6px;font-size:19px}.step p{margin:0;color:var(--muted)}
@@ -144,11 +157,11 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
 .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
 .foot img{height:32px}
 .foot nav{display:flex;gap:20px;flex-wrap:wrap}.foot a{text-decoration:none}.foot a:hover{color:#fff}
-@media(max-width:960px){.hero-g{grid-template-columns:1fr}.shot{max-width:520px;width:100%;margin-inline:auto}.g3,.steps{grid-template-columns:1fr 1fr}}
+@media(max-width:960px){.hero-g{grid-template-columns:1fr}.shot{max-width:520px;width:100%;margin-inline:auto}.g3{grid-template-columns:1fr 1fr}}
 @media(max-width:760px){nav.links{display:none}.menu{display:block}.hide-m{display:none}
   nav.links.open .mlogin{display:inline-flex!important;color:#fff}
   nav.links.open{display:flex;flex-direction:column;position:absolute;top:68px;inset-inline:0;background:var(--navy);padding:16px 20px;gap:14px;border-bottom:1px solid rgba(255,255,255,.08)}
-  .g3,.g2,.steps{grid-template-columns:1fr}.hero{padding:56px 0 64px}section{padding:60px 0}.band{padding:30px}}
+  .g3,.g2{grid-template-columns:1fr}.hero{padding:56px 0 64px}section{padding:60px 0}.band{padding:30px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -174,19 +187,13 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
 <div class="hero">
   <div class="wrap hero-g">
     <div>
-      <span class="pill"><b></b><span class="ar">إطلاق تجريبي — متاح الآن</span><span class="en">Early access — available now</span></span>
-      <h1><span class="ar">منشأتك كلها في <em>نظام واحد</em></span><span class="en">Your whole business in <em>one system</em></span></h1>
-      <p class="lead"><span class="ar">الموارد البشرية والرواتب والمالية والمبيعات والمشتريات والمخزون — مبني للسوق السعودي، متوافق مع نظام العمل وضريبة القيمة المضافة، بالعربية والإنجليزية على كل الأجهزة.</span><span class="en">HR, payroll, finance, sales, purchasing and inventory — built for Saudi Arabia, aligned with the Labor Law and VAT, in Arabic and English on every device.</span></p>
+      <h1><span class="ar">الرواتب والإجازات والفواتير والمخزون، في <em>نظام واحد</em></span><span class="en">Payroll, leave, invoices and stock, in <em>one system</em></span></h1>
+      <p class="lead"><span class="ar">وعد نظام سعودي للمنشآت الصغيرة والمتوسطة. تدير فيه موظفينك ورواتبهم وحساباتك ومبيعاتك ومشترياتك ومخزونك، بالعربي أو الإنجليزي، من الجوال أو الكمبيوتر.</span><span class="en">Waad is a Saudi system for small and mid-sized companies. Run your staff, payroll, accounts, sales, purchasing and stock in Arabic or English, on a phone or a computer.</span></p>
       <div class="cta">
-        <a class="btn gold" href="app/?start=signup"><span class="ar">ابدأ تجربتك المجانية</span><span class="en">Start your free trial</span></a>
-        <a class="btn ghost" href="#overview"><span class="ar">اكتشف الأقسام</span><span class="en">Explore the modules</span></a>
+        <a class="btn gold" href="app/?start=signup"><span class="ar">جرّبه ٧ أيام مجاناً</span><span class="en">Try it free for 7 days</span></a>
+        <a class="btn ghost" href="#overview"><span class="ar">شوف الأقسام</span><span class="en">See the modules</span></a>
       </div>
-      <p class="note7"><span class="ar">٧ أيام مجاناً · بدون بطاقة دفع</span><span class="en">7 days free · no payment card</span></p>
-      <div class="trust">
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg><span class="ar">بيانات كل منشأة معزولة تماماً</span><span class="en">Each company's data fully isolated</span></span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l4 4L19 6"/></svg><span class="ar">عربي وإنجليزي</span><span class="en">Arabic &amp; English</span></span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/></svg><span class="ar">يعمل على الجوال</span><span class="en">Works on mobile</span></span>
-      </div>
+      <p class="note7"><span class="ar">بدون بطاقة دفع.</span><span class="en">No payment card needed.</span></p>
     </div>
     <div class="shot" id="shot" aria-hidden="true">
       <div class="tb"><button type="button" tabindex="-1" class="on"></button><button type="button" tabindex="-1"></button><button type="button" tabindex="-1"></button></div>
@@ -201,9 +208,9 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
       </div>
       <div class="rows">
         <div><span class="ar">آخر الطلبات</span><span class="en">Latest requests</span><span></span></div>
-        <div><span><span class="ar">إجازة سنوية — ٥ أيام</span><span class="en">Annual leave — 5 days</span></span><span class="tag w"><span class="ar">بانتظار الاعتماد</span><span class="en">Pending</span></span></div>
-        <div><span><span class="ar">تجديد إقامة — بعد ١٢ يوماً</span><span class="en">Iqama renewal — in 12 days</span></span><span class="tag w"><span class="ar">تنبيه</span><span class="en">Reminder</span></span></div>
-        <div><span><span class="ar">عقد موظف جديد — المبيعات</span><span class="en">New hire contract — Sales</span></span><span class="tag ok"><span class="ar">موقّع</span><span class="en">Signed</span></span></div>
+        <div><span><span class="ar">إجازة سنوية، ٥ أيام</span><span class="en">Annual leave, 5 days</span></span><span class="tag w"><span class="ar">بانتظار الاعتماد</span><span class="en">Pending</span></span></div>
+        <div><span><span class="ar">تجديد إقامة بعد ١٢ يوم</span><span class="en">Iqama renewal in 12 days</span></span><span class="tag w"><span class="ar">تنبيه</span><span class="en">Reminder</span></span></div>
+        <div><span><span class="ar">عقد موظف جديد (المبيعات)</span><span class="en">New hire contract (Sales)</span></span><span class="tag ok"><span class="ar">موقّع</span><span class="en">Signed</span></span></div>
       </div>
       </div>
       <div class="slide" data-i="1">
@@ -218,7 +225,7 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
         <div><span class="ar">آخر الحركات</span><span class="en">Latest activity</span><span></span></div>
         <div><span><span class="ar">فاتورة ضريبية INV-1043</span><span class="en">Tax invoice INV-1043</span></span><span class="tag ok"><span class="ar">مرحّلة</span><span class="en">Posted</span></span></div>
         <div><span><span class="ar">سند قبض RC-208</span><span class="en">Receipt RC-208</span></span><span class="tag ok"><span class="ar">محصّل</span><span class="en">Collected</span></span></div>
-        <div><span><span class="ar">فاتورة INV-1037 — شركة الأفق</span><span class="en">Invoice INV-1037 — Al Ofoq</span></span><span class="tag w"><span class="ar">مستحقة</span><span class="en">Due</span></span></div>
+        <div><span><span class="ar">فاتورة INV-1037 (شركة الأفق)</span><span class="en">Invoice INV-1037 (Al Ofoq)</span></span><span class="tag w"><span class="ar">مستحقة</span><span class="en">Due</span></span></div>
       </div>
       </div>
       <div class="slide" data-i="2">
@@ -243,79 +250,63 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
 
 <section id="overview">
   <div class="wrap">
-    <div class="sh"><div class="eyebrow"><span class="ar">الأقسام</span><span class="en">MODULES</span></div>
-      <h2><span class="ar">كل ما تحتاجه منشأتك، مترابط</span><span class="en">Everything your company runs on, connected</span></h2>
-      <p><span class="ar">ابدأ بقسم واحد وأضف البقية متى احتجت. الأقسام تتكلم مع بعض: الرواتب تُرحَّل للمحاسبة، والمبيعات تُخصم من المخزون تلقائياً.</span><span class="en">Start with one module and add the rest when you need them. They talk to each other: payroll posts to the ledger, sales draw down stock automatically.</span></p></div>
-    <div class="grid g3">
-      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M17 11a3 3 0 100-6M22 21c0-3-2-5-5-5"/></svg></div>
-        <h3><span class="ar">الموارد البشرية</span><span class="en">Human resources</span></h3>
-        <p><span class="ar">من التوظيف إلى إخلاء الطرف، وكل ما بينهما.</span><span class="en">From hiring to clearance, and everything in between.</span></p></div>
-      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/></svg></div>
-        <h3><span class="ar">الرواتب</span><span class="en">Payroll</span></h3>
-        <p><span class="ar">مسير شهري دقيق يعتمده المالك ويُرحَّل للمحاسبة.</span><span class="en">An accurate monthly run, approved by the owner and posted to the books.</span></p></div>
-      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg></div>
-        <h3><span class="ar">المالية والمحاسبة</span><span class="en">Finance &amp; accounting</span></h3>
-        <p><span class="ar">قيد مزدوج كامل وتقارير جاهزة.</span><span class="en">Full double-entry with ready-made reports.</span></p></div>
-      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h2l2.5 11h11L21 7H7"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg></div>
-        <h3><span class="ar">المبيعات والعملاء</span><span class="en">Sales &amp; CRM</span></h3>
-        <p><span class="ar">من أول فرصة إلى التحصيل.</span><span class="en">From first lead to collected cash.</span></p></div>
-      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H5v14h14v-4M14 3h7v7M21 3l-9 9"/></svg></div>
-        <h3><span class="ar">المشتريات</span><span class="en">Purchasing</span></h3>
-        <p><span class="ar">اشترِ بأفضل سعر من أفضل مورد.</span><span class="en">Buy at the best price from the best supplier.</span></p></div>
-      <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v8"/></svg></div>
-        <h3><span class="ar">المخزون</span><span class="en">Inventory</span></h3>
-        <p><span class="ar">اعرف ما عندك وأين هو، لحظة بلحظة.</span><span class="en">Know what you have and where, in real time.</span></p></div>
+    <div class="sh"><h2><span class="ar">ستة أقسام، تشتغل مع بعض</span><span class="en">Six modules that work together</span></h2>
+      <p><span class="ar">تقدر تبدأ بالموارد البشرية لحالها وتضيف الباقي وقت ما تحتاج. ولما تعتمد المسير، ينزل قيده في الحسابات. ولما تبيع، ينقص المخزون بنفسه.</span><span class="en">You can start with HR alone and add the rest when you need it. Approve payroll and the entry lands in the books. Make a sale and the stock goes down by itself.</span></p></div>
+    <div class="rows2 compact">
+      <div class="r"><div class="rh"><h3><span class="ar">الموارد البشرية</span><span class="en">HR</span></h3><p><span class="ar">كل شي عن الموظف، من أول يوم لين إخلاء الطرف.</span><span class="en">Everything about an employee, from day one to clearance.</span></p></div></div>
+      <div class="r"><div class="rh"><h3><span class="ar">الرواتب</span><span class="en">Payroll</span></h3><p><span class="ar">تحسب المسير، يعتمده المالك، وينزل في الحسابات.</span><span class="en">Run payroll, the owner approves it, and it lands in the books.</span></p></div></div>
+      <div class="r"><div class="rh"><h3><span class="ar">المالية والمحاسبة</span><span class="en">Finance & accounting</span></h3><p><span class="ar">قيد مزدوج، والتقارير جاهزة وقت ما تحتاجها.</span><span class="en">Double-entry books, with reports ready when you need them.</span></p></div></div>
+      <div class="r"><div class="rh"><h3><span class="ar">المبيعات والعملاء</span><span class="en">Sales & customers</span></h3><p><span class="ar">من أول تواصل مع العميل لين يسدّد.</span><span class="en">From the first contact with a customer until they pay.</span></p></div></div>
+      <div class="r"><div class="rh"><h3><span class="ar">المشتريات</span><span class="en">Purchasing</span></h3><p><span class="ar">تطلب، تقارن الأسعار، تعتمد، وتستلم.</span><span class="en">Request, compare prices, approve, receive.</span></p></div></div>
+      <div class="r"><div class="rh"><h3><span class="ar">المخزون</span><span class="en">Inventory</span></h3><p><span class="ar">كم عندك من كل صنف، وفي أي مستودع.</span><span class="en">How much of each item you have, and in which warehouse.</span></p></div></div>
     </div>
-    <div class="more"><a class="btn line" href="modules.html"><span class="ar">تفاصيل كل الأقسام ←</span><span class="en">See every module →</span></a></div>
+    <p class="more"><a href="modules.html"><span class="ar">تفاصيل كل قسم ←</span><span class="en">Details of each module →</span></a></p>
   </div>
 </section>
 
 <section class="dark" id="saudi-short">
   <div class="wrap">
-    <div class="sh"><div class="eyebrow"><span class="ar">مبني للسعودية</span><span class="en">BUILT FOR SAUDI</span></div>
-      <h2><span class="ar">الأنظمة السعودية مدمجة، لا مضافة</span><span class="en">Saudi rules built in, not bolted on</span></h2></div>
+    <div class="sh"><h2><span class="ar">الأنظمة السعودية محسوبة من البداية</span><span class="en">Saudi rules, calculated from the start</span></h2>
+      <p><span class="ar">ما تحتاج تراجع مادة في نظام العمل، ولا تحسب نسبة التأمينات بيدك. اضغط على أي واحد وشوف وش يسوي وعد.</span><span class="en">No need to look up an article of the Labor Law or work out GOSI by hand. Tap any of them to see what Waad does.</span></p></div>
     <div class="minis">
       <button type="button" class="mini" data-i="0" aria-expanded="false" aria-controls="sdet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4zM8 9h8M8 13h8M8 17h5"/></svg></span><span class="ar">نظام العمل</span><span class="en">Labor Law</span></button>
-      <button type="button" class="mini" data-i="1" aria-expanded="false" aria-controls="sdet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="ar">نطاقات والتوطين</span><span class="en">Nitaqat &amp; Saudization</span></button>
+      <button type="button" class="mini" data-i="1" aria-expanded="false" aria-controls="sdet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="ar">نطاقات والتوطين</span><span class="en">Nitaqat & Saudization</span></button>
       <button type="button" class="mini" data-i="2" aria-expanded="false" aria-controls="sdet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg></span><span class="ar">ضريبة القيمة المضافة</span><span class="en">VAT</span></button>
       <button type="button" class="mini" data-i="3" aria-expanded="false" aria-controls="sdet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-6 9 6M5 10v9h14v-9"/></svg></span><span class="ar">التأمينات الاجتماعية</span><span class="en">GOSI</span></button>
       <button type="button" class="mini" data-i="4" aria-expanded="false" aria-controls="sdet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v10H4zM8 12h.01M16 12h.01"/><circle cx="12" cy="12" r="2"/></svg></span><span class="ar">حماية الأجور</span><span class="en">Wage protection</span></button>
       <button type="button" class="mini" data-i="5" aria-expanded="false" aria-controls="sdet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></span><span class="ar">التأمين الطبي</span><span class="en">Medical insurance</span></button>
     </div>
     <div class="sdet" id="sdet" aria-live="polite">
-      <div class="sd" data-i="0" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4zM8 9h8M8 13h8M8 17h5"/></svg></span><div><h3><span class="ar">نظام العمل</span><span class="en">Labor Law</span></h3><p><span class="ar">الإجازات ومكافأة نهاية الخدمة والعمل الإضافي ولائحة المخالفات والجزاءات وفق مواد النظام.</span><span class="en">Leave, end-of-service, overtime and the disciplinary schedule calculated per the articles of the law.</span></p></div></div>
-      <div class="sd" data-i="1" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><h3><span class="ar">نطاقات والتوطين</span><span class="en">Nitaqat &amp; Saudization</span></h3><p><span class="ar">تقدير نسبة التوطين ونطاق المنشأة، وكم موظفاً سعودياً تحتاج للانتقال للنطاق التالي.</span><span class="en">Estimate your Saudization rate and band, and how many Saudi hires you need for the next band.</span></p></div></div>
-      <div class="sd" data-i="2" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg></span><div><h3><span class="ar">ضريبة القيمة المضافة</span><span class="en">VAT</span></h3><p><span class="ar">فواتير ضريبية برمز QR، وملخص ضريبة المدخلات والمخرجات، والعنوان الوطني في كل فاتورة.</span><span class="en">Tax invoices with a QR code, input/output VAT summary, and the national address on every invoice.</span></p></div></div>
-      <div class="sd" data-i="3" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-6 9 6M5 10v9h14v-9"/></svg></span><div><h3><span class="ar">التأمينات الاجتماعية</span><span class="en">GOSI</span></h3><p><span class="ar">حساب اشتراكات الموظف وصاحب العمل على الأجر الخاضع، بحسب نظام المشتركين الجدد والقدامى.</span><span class="en">Employee and employer contributions on the insurable wage, under both the new and legacy schemes.</span></p></div></div>
-      <div class="sd" data-i="4" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v10H4zM8 12h.01M16 12h.01"/><circle cx="12" cy="12" r="2"/></svg></span><div><h3><span class="ar">حماية الأجور</span><span class="en">Wage protection</span></h3><p><span class="ar">ملف الرواتب جاهز للرفع، مع التحقق من الهويات والآيبان والصافي قبل التنزيل.</span><span class="en">A payroll file ready to upload, with IDs, IBANs and net pay checked before download.</span></p></div></div>
-      <div class="sd" data-i="5" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></span><div><h3><span class="ar">التأمين الطبي</span><span class="en">Medical insurance</span></h3><p><span class="ar">الوثائق والمؤمَّن عليهم وتابعوهم، مع تنبيه بمن لا يملك تغطية سارية وبالوثائق القريبة من الانتهاء.</span><span class="en">Policies, insured staff and dependants, with alerts for uninsured employees and policies about to expire.</span></p></div></div>
-      <p class="shint"><span class="ar">اضغط على أي نظام لتعرف كيف يطبّقه وعد.</span><span class="en">Tap any rule to see how Waad applies it.</span></p>
+      <div class="sd" data-i="0" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4zM8 9h8M8 13h8M8 17h5"/></svg></span><div><h3><span class="ar">نظام العمل</span><span class="en">Labor Law</span></h3><p><span class="ar">يحسب الإجازات ومكافأة نهاية الخدمة والعمل الإضافي حسب مواد النظام، ويمشي على لائحة المخالفات والجزاءات خطوة بخطوة، ومنها حق الموظف في التظلم.</span><span class="en">Calculates leave, end-of-service pay and overtime by the articles of the law, and follows the disciplinary regulation step by step, including the employee's right to appeal.</span></p></div></div>
+      <div class="sd" data-i="1" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><h3><span class="ar">نطاقات والتوطين</span><span class="en">Nitaqat & Saudization</span></h3><p><span class="ar">يحسب نسبة التوطين ويقدّر نطاق منشأتك، ويقول لك كم سعودي تحتاج توظّف عشان تنتقل للنطاق اللي بعده.</span><span class="en">Works out your Saudization rate and estimated band, and tells you how many Saudis you need to hire to move up a band.</span></p></div></div>
+      <div class="sd" data-i="2" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg></span><div><h3><span class="ar">ضريبة القيمة المضافة</span><span class="en">VAT</span></h3><p><span class="ar">فواتير ضريبية فيها رمز QR والعنوان الوطني، وملخص لضريبة المدخلات والمخرجات يساعدك وقت الإقرار.</span><span class="en">Tax invoices with a QR code and the national address, plus an input/output VAT summary for your return.</span></p></div></div>
+      <div class="sd" data-i="3" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-6 9 6M5 10v9h14v-9"/></svg></span><div><h3><span class="ar">التأمينات الاجتماعية</span><span class="en">GOSI</span></h3><p><span class="ar">يحسب حصة الموظف وحصة المنشأة من الأجر الخاضع، ويفرّق بين المشترك الجديد والقديم.</span><span class="en">Calculates the employee's and the employer's share on the contributory wage, and tells new and existing subscribers apart.</span></p></div></div>
+      <div class="sd" data-i="4" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v10H4zM8 12h.01M16 12h.01"/><circle cx="12" cy="12" r="2"/></svg></span><div><h3><span class="ar">حماية الأجور</span><span class="en">Wage protection</span></h3><p><span class="ar">يجهّز ملف الرواتب للرفع، ويتأكد قبلها من الهويات والآيبانات وصافي راتب كل موظف.</span><span class="en">Prepares the payroll file for upload, after checking IDs, IBANs and each employee's net pay.</span></p></div></div>
+      <div class="sd" data-i="5" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></span><div><h3><span class="ar">التأمين الطبي</span><span class="en">Medical insurance</span></h3><p><span class="ar">تسجّل الوثيقة والموظفين وتابعيهم، وينبّهك عن أي موظف بدون تغطية وعن الوثائق اللي قرّبت تنتهي.</span><span class="en">Record the policy, employees and dependants. It flags anyone without cover and policies about to expire.</span></p></div></div>
     </div>
-    <div class="more"><a class="btn ghost" href="trust.html"><span class="ar">التوافق والأمان ←</span><span class="en">Compliance &amp; security →</span></a></div>
+    <p class="more"><a href="trust.html"><span class="ar">التوافق والأمان ←</span><span class="en">Compliance & security →</span></a></p>
   </div>
 </section>
 
-<section style="padding-top:0">
+<section>
   <div class="wrap">
-    <div class="sh"><div class="eyebrow"><span class="ar">البداية</span><span class="en">GETTING STARTED</span></div>
-      <h2><span class="ar">جاهز خلال دقائق</span><span class="en">Up and running in minutes</span></h2></div>
-    <div class="steps">
-      <div class="step"><h3><span class="ar">سجّل منشأتك</span><span class="en">Register your company</span></h3><p><span class="ar">ببريدك وكلمة مرور، وتصير مالك المنشأة مباشرة.</span><span class="en">With your e-mail and a password — you become the owner straight away.</span></p></div>
-      <div class="step"><h3><span class="ar">أضف فريقك</span><span class="en">Add your team</span></h3><p><span class="ar">أدخل الموظفين يدوياً أو استوردهم من Excel، وحدّد صلاحية كل شخص.</span><span class="en">Enter employees or import them from Excel, and set each person's access.</span></p></div>
-      <div class="step"><h3><span class="ar">ابدأ العمل</span><span class="en">Get to work</span></h3><p><span class="ar">يدخل الموظفون برمز المنشأة ورقمهم الوظيفي من أي جهاز.</span><span class="en">Staff sign in with the company code and their employee number from any device.</span></p></div>
-    </div>
+    <div class="sh"><h2><span class="ar">كيف تبدأ</span><span class="en">How to start</span></h2></div>
+    <ol class="steps">
+      <li><span class="ar">سجّل بإيميلك. أول حساب يصير مالك المنشأة.</span><span class="en">Sign up with your email. The first account becomes the company owner.</span></li>
+      <li><span class="ar">أضف موظفينك واحد واحد، أو ارفعهم من ملف Excel، وحدد وش يشوف كل واحد.</span><span class="en">Add your staff one by one or upload them from Excel, and choose what each person can see.</span></li>
+      <li><span class="ar">الموظفين يدخلون برمز المنشأة ورقمهم الوظيفي، من جوالاتهم.</span><span class="en">Employees sign in with the company code and their employee number, from their phones.</span></li>
+    </ol>
   </div>
 </section>
 
-<section style="padding-top:0">
+<section>
   <div class="wrap">
     <div class="band">
-      <div><h2><span class="ar">جرّب وعد ٧ أيام مجاناً</span><span class="en">Try Waad free for 7 days</span></h2><p><span class="ar">التسجيل يأخذ دقيقة وبدون بطاقة دفع، وفيه بيانات تجريبية جاهزة تضيفها بضغطة زر.</span><span class="en">Sign-up takes a minute with no payment card, and ready-made sample data is one click away.</span></p></div>
-      <div class="cta"><a class="btn gold" href="app/?start=signup"><span class="ar">ابدأ التجربة</span><span class="en">Start the trial</span></a><a class="btn ghost" href="app/"><span class="ar">لدي حساب — دخول</span><span class="en">I have an account — sign in</span></a></div>
+      <div><h2><span class="ar">جرّب وعد ٧ أيام مجاناً</span><span class="en">Try Waad free for 7 days</span></h2><p><span class="ar">ما نطلب بطاقة دفع. وإذا ما عندك بيانات جاهزة، أضف بيانات تجريبية من الإعدادات وجرّب كل شي.</span><span class="en">No payment card. If you don’t have data ready, add sample data from Settings and try everything.</span></p></div>
+      <div class="cta"><a class="btn gold" href="app/?start=signup"><span class="ar">ابدأ التجربة</span><span class="en">Start the trial</span></a><a class="btn ghost" href="app/"><span class="ar">عندي حساب</span><span class="en">I have an account</span></a></div>
     </div>
   </div>
 </section>
-
 </main>
 
 <footer>
