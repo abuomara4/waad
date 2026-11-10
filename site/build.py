@@ -30,3 +30,11 @@ for page, out, title, desc in PAGES:
     assert not re.search(r'__[A-Z]+__', t), out   # every placeholder filled
     open(os.path.join(D, out), 'w', encoding='utf-8').write(t)
     print('built site/%s' % out, len(t.encode()), 'bytes')
+
+# search engines: one sitemap of the public pages (canonical GitHub Pages URLs). robots.txt only takes effect where
+# site/ is the domain root (Cloudflare Pages); on github.io the root belongs to another repo, so submit the sitemap
+# in Google Search Console instead. The system (app/) carries its own noindex.
+urls = ''.join('  <url><loc>%s</loc></url>\n' % (BASE if out == 'index.html' else BASE + out) for _, out, _, _ in PAGES)  # no lastmod: it would change on every build
+open(os.path.join(D, 'sitemap.xml'), 'w', encoding='utf-8').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + urls + '</urlset>\n')
+open(os.path.join(D, 'robots.txt'), 'w', encoding='utf-8').write('User-agent: *\nDisallow: /app/\nSitemap: %ssitemap.xml\n' % BASE)
+print('built site/sitemap.xml + site/robots.txt')
