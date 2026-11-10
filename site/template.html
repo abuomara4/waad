@@ -31,6 +31,7 @@
 :root{--navy:#131b2e;--navy2:#1c2a45;--ink:#0f172a;--muted:#5b6b82;--line:#e2e8f0;--bg:#f6f8fc;--card:#fff;--gold:#b8893a;--gold2:#d6ad5e;--blue:#2563eb;--ok:#0d9488;--r:16px}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
+section[id]{scroll-margin-top:72px}  /* menu links land below the sticky header */
 body{margin:0;font-family:"IBM Plex Sans Arabic",system-ui,Tahoma,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
 html[lang=en] .ar,html[lang=ar] .en{display:none!important}
 a{color:inherit}
@@ -115,9 +116,8 @@ details[open] summary:after{content:"−"}
 details p{margin:0 0 16px;color:var(--muted)}
 .band{background:linear-gradient(120deg,var(--navy),var(--navy2));color:#fff;border-radius:24px;padding:48px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
 .band h2{margin:0 0 6px}.band p{margin:0;color:#cbd5e1}
-.contact{margin-top:14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;color:#cbd5e1;font-size:14px}
-.contact a{display:inline-flex;align-items:center;gap:6px;color:#fff;text-decoration:none;font-weight:600}.contact a:hover{color:var(--gold2)}
-.contact svg{width:18px;height:18px;color:var(--gold2)}
+.cgrid{max-width:760px;margin:0 auto}.ccard{display:flex;flex-direction:column;align-items:flex-start;text-decoration:none;color:inherit}
+.ccard p{margin:2px 0 18px;color:var(--muted);font-size:17px}.ccard .ic svg{width:24px;height:24px}.ccard .btn{margin-top:auto}
 footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
 .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
 .foot img{height:32px}
@@ -139,6 +139,7 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
       <a href="#saudi"><span class="ar">التوافق السعودي</span><span class="en">Saudi compliance</span></a>
       <a href="#security"><span class="ar">الأمان</span><span class="en">Security</span></a>
       <a href="#faq"><span class="ar">الأسئلة</span><span class="en">FAQ</span></a>
+      <a href="#contact"><span class="ar">تواصل معنا</span><span class="en">Contact</span></a>
       <a class="btn gold mlogin" href="app/"><span class="ar">دخول النظام</span><span class="en">Sign in</span></a>
     </nav>
     <div class="sp"></div>
@@ -338,11 +339,24 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
 <section style="padding-top:0">
   <div class="wrap">
     <div class="band">
-      <div><h2><span class="ar">جرّب وعد مع منشأتك اليوم</span><span class="en">Try Waad with your company today</span></h2><p><span class="ar">التسجيل مجاني ويأخذ دقيقة.</span><span class="en">Sign-up is free and takes a minute.</span></p>
-        <div class="contact" id="contact"><span class="ar">عندك سؤال؟ تواصل معنا:</span><span class="en">Questions? Reach us:</span>
-          <a href="https://wa.me/966554003226" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.7-5A8.5 8.5 0 1 1 8 19.4L3 21z"/><path d="M9 9.5c.3 1.8 2.7 4.2 4.5 4.5l1.2-1.2 2 1-.5 1.6c-3.4.4-7.6-3.8-7.2-7.2L10.6 7.7l1 2z"/></svg><span class="ar">واتساب</span><span class="en">WhatsApp</span> <bdi dir="ltr">055 400 3226</bdi></a>
-          <a href="mailto:waad.erp@gmail.com"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg><bdi dir="ltr">waad.erp@gmail.com</bdi></a></div></div>
+      <div><h2><span class="ar">جرّب وعد مع منشأتك اليوم</span><span class="en">Try Waad with your company today</span></h2><p><span class="ar">التسجيل مجاني ويأخذ دقيقة.</span><span class="en">Sign-up is free and takes a minute.</span></p></div>
       <div class="cta"><a class="btn gold" href="app/?start=signup"><span class="ar">ابدأ الآن</span><span class="en">Get started</span></a><a class="btn ghost" href="app/"><span class="ar">لدي حساب — دخول</span><span class="en">I have an account — sign in</span></a></div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" style="padding-top:0">
+  <div class="wrap">
+    <div class="sh"><div class="eyebrow"><span class="ar">تواصل معنا</span><span class="en">CONTACT</span></div>
+      <h2><span class="ar">عندك سؤال؟ نحن هنا</span><span class="en">Have a question? We're here</span></h2>
+      <p><span class="ar">اسألنا عن النظام، أو اطلب مساعدة في تجهيز منشأتك.</span><span class="en">Ask about the system, or get help setting up your company.</span></p></div>
+    <div class="grid g2 cgrid">
+      <a class="card ccard" href="https://wa.me/966554003226?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%B9%D9%86%D8%AF%D9%8A%20%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D9%86%D8%B8%D8%A7%D9%85%20%D9%88%D8%B9%D8%AF" target="_blank" rel="noopener"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.7-5A8.5 8.5 0 1 1 8 19.4L3 21z"/><path d="M9 9.5c.3 1.8 2.7 4.2 4.5 4.5l1.2-1.2 2 1-.5 1.6c-3.4.4-7.6-3.8-7.2-7.2L10.6 7.7l1 2z"/></svg></div>
+        <h3><span class="ar">واتساب</span><span class="en">WhatsApp</span></h3><p><bdi dir="ltr">055 400 3226</bdi></p>
+        <span class="btn gold"><span class="ar">راسلنا على واتساب</span><span class="en">Message us on WhatsApp</span></span></a>
+      <a class="card ccard" href="mailto:waad.erp@gmail.com?subject=%D8%A7%D8%B3%D8%AA%D9%81%D8%B3%D8%A7%D8%B1%20%D8%B9%D9%86%20%D9%86%D8%B8%D8%A7%D9%85%20%D9%88%D8%B9%D8%AF"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></div>
+        <h3><span class="ar">البريد الإلكتروني</span><span class="en">Email</span></h3><p><bdi dir="ltr">waad.erp@gmail.com</bdi></p>
+        <span class="btn line"><span class="ar">أرسل بريداً</span><span class="en">Send an email</span></span></a>
     </div>
   </div>
 </section>
