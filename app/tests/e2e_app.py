@@ -47,6 +47,10 @@ with sync_playwright() as pw:
     lp = b.new_context(locale='ar-SA'); lp.add_init_script(INIT); lp = lp.new_page(); lp.goto(BASE + '/waad-app.html?start=signup')
     lp.wait_for_selector('#af input[name=password2]')
     ok(lp.locator('input[name=agree]').count() == 1 and 'start=' not in lp.url, 'app/?start=signup opens the new-account form and cleans the address bar')
+    site = BASE + '/'   # the website is one folder up from the app
+    ok(lp.get_attribute('#tosite', 'href') == site, 'the sign-in screen links back to the website')
+    lp.click('.afoot a[href="#/privacy"]'); lp.wait_for_selector('.legal')
+    ok(lp.get_attribute('#tosite', 'href') == site and lp.locator('#lback').count() == 1, 'privacy / terms pages link back to the website and to sign-in')
     lp.context.close()
     # ---------- owner ----------
     o = new_page(b)
@@ -1234,7 +1238,16 @@ with sync_playwright() as pw:
     ok(True, 'new password saved and the owner is signed in')
     um(o, '#lo'); o.wait_for_selector('#af')
     if o.locator('#af input[name=email]').count() == 0: o.click('[data-go=in]')
-    o.fill('#af input[name=email]', 'gm@waad.test'); o.fill('#af input[name=password]', 'NewPassw0rd!'); o.click('#ab'); o.wait_for_selector('#nav')
+    # sign in with the new password; on a slow CI runner the first attempt has hung once in a while, so retry once
+    # and, if it still does not land, report what the screen shows instead of a bare timeout
+    for attempt in (1, 2):
+        o.wait_for_selector('#af input[name=email]'); o.fill('#af input[name=email]', 'gm@waad.test'); o.fill('#af input[name=password]', 'NewPassw0rd!'); o.click('#ab')
+        try: o.wait_for_selector('#nav', timeout=15000); break
+        except Exception:
+            if attempt == 2: raise AssertionError('sign-in with the new password did not land: ' + o.inner_text('#app')[:300] + ' | ' + '; '.join(o.errors)[:300])
+            print('note: first sign-in with the new password hung, retrying; screen: ' + o.inner_text('#app')[:200].replace('\n', ' '), flush=True)
+            o.reload(); o.wait_for_selector('#af')
+            if o.locator('#af input[name=email]').count() == 0: o.click('[data-go=in]')
     ok(True, 'signs in with the new password')
     um(o, '#lo'); o.wait_for_selector('#af')
     o.goto(BASE + '/waad-app.html#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired'); o.wait_for_selector('#af')

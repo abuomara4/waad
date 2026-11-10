@@ -231,6 +231,8 @@ const brand = () => `<div class="brand"><img class="wlogo wl-d" src="${LOGO_D}" 
 // company code can arrive in the link HR shares: …/waad/?c=1FB695
 (() => { try { const c = new URLSearchParams(location.search).get('c'); if (c && /^[A-Za-z0-9]{4,10}$/.test(c) && c.toUpperCase() !== LS.get('waad.ccode')) { LS.set('waad.ccode', c.toUpperCase()); LS.set('waad.cname', null); } } catch (e) {} })();
 const staffEmail = (code, empNo) => String(empNo).trim().toLowerCase() + '.' + String(code).trim().toLowerCase() + '@staff.waad.app';
+// the public website (landing page) sits one folder up from the app: site/app/ -> site/, pages.dev/app/ -> pages.dev/
+const SITE_URL = new URL('../', location.href.split('#')[0]).href;
 function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
   const app = $('#app'); const ccode = LS.get('waad.ccode') || '', cname = LS.get('waad.cname') || '';
   if (tab === 'staff' && ccode && !cname) {   // code from a link: resolve the company name first
@@ -264,7 +266,7 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
     <form id="af" novalidate>${body}<div id="aerr"></div><div style="height:12px"></div><button class="btn pri full" id="ab">${btn}</button>${foot}</form></div>
     <p class="muted small" style="text-align:center">${links}</p>
     <p class="muted small" style="text-align:center"><a href="#" id="theme" data-theme-btn="text"></a> · ${langBtn('linkbtn')}</p>
-    <p class="muted small afoot">نظام وعد السحابي لإدارة المنشآت © ${new Date().getFullYear()} · <a href="#/privacy">سياسة الخصوصية</a> · <a href="#/terms">شروط الاستخدام</a></p></div></div>`;
+    <p class="muted small afoot"><a href="${SITE_URL}" id="tosite">← الموقع الرئيسي</a> · نظام وعد السحابي لإدارة المنشآت © ${new Date().getFullYear()} · <a href="#/privacy">سياسة الخصوصية</a> · <a href="#/terms">شروط الاستخدام</a></p></div></div>`;
   $('#lg').onclick = () => setLang(LANG === 'en' ? 'ar' : 'en');
   $$('[data-go]', app).forEach(a => a.onclick = e => { e.preventDefault(); authView(a.dataset.go); });
   $('#theme').onclick = e => { e.preventDefault(); toggleTheme(); }; applyTheme(curTheme());

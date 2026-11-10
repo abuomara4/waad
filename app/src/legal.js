@@ -57,7 +57,7 @@ function legalHtml(kind) {
 // signed out: a standalone page; signed in: a normal screen
 function legalView(kind) {
   $('#app').innerHTML = `<div class="auth"><div class="abox" style="max-width:760px">${brand()}<div class="card">${legalHtml(kind)}</div>
-    <p class="muted small" style="text-align:center"><a href="#" id="lback">${esc(tr('العودة إلى الدخول'))}</a> · ${langBtn('linkbtn')}</p></div></div>`;
+    <p class="muted small" style="text-align:center"><a href="${SITE_URL}" id="tosite">${esc(tr('← الموقع الرئيسي'))}</a> · <a href="#" id="lback">${esc(tr('العودة إلى الدخول'))}</a> · ${langBtn('linkbtn')}</p></div></div>`;
   $('#lback').onclick = e => { e.preventDefault(); history.replaceState(null, '', location.pathname + location.search); authView(); };
   $('#lg').onclick = () => { setLang(LANG === 'en' ? 'ar' : 'en'); };
 }
