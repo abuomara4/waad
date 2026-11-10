@@ -16,7 +16,7 @@ The whole frontend is concatenated into ONE self-contained HTML file and hosted 
 - `supabase/tests/run.sh` — spins a throwaway Postgres, applies all migrations + test files, must end `… 0 failed`.
 - `app/tests/e2e_app.py` — Playwright end-to-end against the dev server.
 - `devserver/start.sh app` — serves the built app on port 54321 with a mock Supabase; needs a FRESH DB each run (restart between runs).
-- `site/` — the published output dir. Website = 4 pages built by `python3 site/build.py` from `site/layout.html` (shared head/header/footer/script) + `site/pages/{home,modules,trust,contact}.html` → `site/index.html`, `modules.html`, `trust.html`, `contact.html`. Edit the layout/pages, never the built files. System = `site/app/index.html` (copied from the app build by CI). Share image `site/og.png` from `site/og.py`.
+- `site/` — the published output dir. Website = 4 pages built by `python3 site/build.py` from `site/layout.html` (shared head/header/footer/script) + `site/pages/{home,modules,trust,contact}.html` → `site/index.html`, `modules.html`, `trust.html`, `contact.html`. Edit the layout/pages, never the built files. System = `site/app/index.html` (copied from the app build by CI). Share image `site/og.png` from `site/og.py`. Module screenshots `site/img/*.webp` (AR+EN, sample data only) from `site/screens.py` — run it on a fresh `devserver/start.sh app` after UI changes.
 - `docs/RULES.md` — Saudi Labor Law rules; any change needs a cited source.
 
 ## Build / test (run before every commit)
