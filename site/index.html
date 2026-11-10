@@ -106,7 +106,7 @@ button.mini{font-family:inherit;cursor:pointer;text-align:start;width:100%}
 /* rows: name on one side, details on the other, thin lines between */
 .rows2 .r{display:grid;grid-template-columns:minmax(200px,1fr) 1.6fr;gap:12px 32px;padding:22px 0;border-top:1px solid var(--line)}
 .rows2 .r:last-child{border-bottom:1px solid var(--line)}
-.rows2 h3{margin:0 0 4px;font-size:19px}.rows2 p{margin:0;color:var(--muted)}
+.rows2 h3,.rows2 h2{margin:0 0 4px;font-size:19px;line-height:1.5}.rows2 p{margin:0;color:var(--muted)}
 .rows2 ul{margin:0;padding:0;list-style:none;display:grid;gap:6px;align-content:start}
 .rows2 li{position:relative;padding-inline-start:18px;color:#334155}
 .rows2 li:before{content:"";position:absolute;inset-inline-start:2px;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--gold)}
@@ -132,6 +132,10 @@ button.mini{font-family:inherit;cursor:pointer;text-align:start;width:100%}
   .mtl{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.mtl::-webkit-scrollbar{display:none}
   .mt{width:auto;flex:none;white-space:nowrap;padding:10px 14px;font-size:15px;border-color:var(--line);background:#fff}
   .mps{padding:24px;min-height:0}.mp h3{font-size:22px}.mp ul{grid-template-columns:1fr}}
+.faq{max-width:820px}
+.nw{white-space:nowrap}
+.crow{max-width:820px}.crow .r{grid-template-columns:1fr auto!important;align-items:center}.crow .rh p{font-size:18px;color:var(--ink)}
+@media(max-width:520px){.crow .r{grid-template-columns:1fr!important}.crow .btn{justify-self:start}}
 /* sections */
 section{padding:84px 0}
 .sh{max-width:680px;margin:0 0 32px}
@@ -168,7 +172,7 @@ details[open] summary:after{content:"−"}
 details p{margin:0 0 16px;color:var(--muted)}
 .band{background:linear-gradient(120deg,var(--navy),var(--navy2));color:#fff;border-radius:24px;padding:48px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
 .band h2{margin:0 0 6px}.band p{margin:0;color:#cbd5e1}
-.cgrid{max-width:760px;margin:0 auto}.ccard{display:flex;flex-direction:column;align-items:flex-start;text-decoration:none;color:inherit}
+.ccard{display:flex;flex-direction:column;align-items:flex-start;text-decoration:none;color:inherit}
 .ccard p{margin:2px 0 18px;color:var(--muted);font-size:17px}.ccard .ic svg{width:24px;height:24px}.ccard .btn{margin-top:auto}
 footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
 .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
@@ -204,8 +208,8 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
 <div class="hero">
   <div class="wrap hero-g">
     <div>
-      <h1><span class="ar">الرواتب والإجازات والفواتير والمخزون، في <em>نظام واحد</em></span><span class="en">Payroll, leave, invoices and stock, in <em>one system</em></span></h1>
-      <p class="lead"><span class="ar">وعد نظام سعودي للمنشآت الصغيرة والمتوسطة. تدير فيه موظفينك ورواتبهم وحساباتك ومبيعاتك ومشترياتك ومخزونك، بالعربي أو الإنجليزي، من الجوال أو الكمبيوتر.</span><span class="en">Waad is a Saudi system for small and mid-sized companies. Run your staff, payroll, accounts, sales, purchasing and stock in Arabic or English, on a phone or a computer.</span></p>
+      <h1><span class="ar">الرواتب والإجازات والفواتير والمخزون، <span class="nw">في <em>نظام واحد</em></span></span><span class="en">Payroll, leave, invoices and stock, <span class="nw">in <em>one system</em></span></span></h1>
+      <p class="lead"><span class="ar">وعد نظام سعودي للمنشآت الصغيرة والمتوسطة. تدير فيه الموظفين والرواتب والحسابات والمبيعات والمشتريات والمخزون، بالعربي أو الإنجليزي، من الجوال أو الكمبيوتر.</span><span class="en">Waad is a Saudi system for small and mid-sized companies. Run your staff, payroll, accounts, sales, purchasing and stock in Arabic or English, on a phone or a computer.</span></p>
       <div class="cta">
         <a class="btn gold" href="app/?start=signup"><span class="ar">جرّبه ٧ أيام مجاناً</span><span class="en">Try it free for 7 days</span></a>
         <a class="btn ghost" href="#overview"><span class="ar">شوف الأقسام</span><span class="en">See the modules</span></a>
@@ -320,13 +324,13 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
     <div class="sh"><h2><span class="ar">كيف تبدأ</span><span class="en">How to start</span></h2></div>
     <ol class="steps">
       <li><span class="ar">سجّل بإيميلك. أول حساب يصير مالك المنشأة.</span><span class="en">Sign up with your email. The first account becomes the company owner.</span></li>
-      <li><span class="ar">أضف موظفينك واحد واحد، أو ارفعهم من ملف Excel، وحدد وش يشوف كل واحد.</span><span class="en">Add your staff one by one or upload them from Excel, and choose what each person can see.</span></li>
-      <li><span class="ar">الموظفين يدخلون برمز المنشأة ورقمهم الوظيفي، من جوالاتهم.</span><span class="en">Employees sign in with the company code and their employee number, from their phones.</span></li>
+      <li><span class="ar">أضف الموظفين واحد واحد، أو ارفعهم من ملف Excel، وحدد وش يشوف كل واحد منهم.</span><span class="en">Add your staff one by one or upload them from Excel, and choose what each person can see.</span></li>
+      <li><span class="ar">وبعدها يدخل كل موظف برمز المنشأة ورقمه الوظيفي، من جواله.</span><span class="en">Then each employee signs in with the company code and their employee number, from their phone.</span></li>
     </ol>
   </div>
 </section>
 
-<section>
+<section style="padding-top:0">
   <div class="wrap">
     <div class="band">
       <div><h2><span class="ar">جرّب وعد ٧ أيام مجاناً</span><span class="en">Try Waad free for 7 days</span></h2><p><span class="ar">ما نطلب بطاقة دفع. وإذا ما عندك بيانات جاهزة، أضف بيانات تجريبية من الإعدادات وجرّب كل شي.</span><span class="en">No payment card. If you don’t have data ready, add sample data from Settings and try everything.</span></p></div>

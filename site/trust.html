@@ -106,7 +106,7 @@ button.mini{font-family:inherit;cursor:pointer;text-align:start;width:100%}
 /* rows: name on one side, details on the other, thin lines between */
 .rows2 .r{display:grid;grid-template-columns:minmax(200px,1fr) 1.6fr;gap:12px 32px;padding:22px 0;border-top:1px solid var(--line)}
 .rows2 .r:last-child{border-bottom:1px solid var(--line)}
-.rows2 h3{margin:0 0 4px;font-size:19px}.rows2 p{margin:0;color:var(--muted)}
+.rows2 h3,.rows2 h2{margin:0 0 4px;font-size:19px;line-height:1.5}.rows2 p{margin:0;color:var(--muted)}
 .rows2 ul{margin:0;padding:0;list-style:none;display:grid;gap:6px;align-content:start}
 .rows2 li{position:relative;padding-inline-start:18px;color:#334155}
 .rows2 li:before{content:"";position:absolute;inset-inline-start:2px;top:.7em;width:6px;height:6px;border-radius:50%;background:var(--gold)}
@@ -132,6 +132,10 @@ button.mini{font-family:inherit;cursor:pointer;text-align:start;width:100%}
   .mtl{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.mtl::-webkit-scrollbar{display:none}
   .mt{width:auto;flex:none;white-space:nowrap;padding:10px 14px;font-size:15px;border-color:var(--line);background:#fff}
   .mps{padding:24px;min-height:0}.mp h3{font-size:22px}.mp ul{grid-template-columns:1fr}}
+.faq{max-width:820px}
+.nw{white-space:nowrap}
+.crow{max-width:820px}.crow .r{grid-template-columns:1fr auto!important;align-items:center}.crow .rh p{font-size:18px;color:var(--ink)}
+@media(max-width:520px){.crow .r{grid-template-columns:1fr!important}.crow .btn{justify-self:start}}
 /* sections */
 section{padding:84px 0}
 .sh{max-width:680px;margin:0 0 32px}
@@ -168,7 +172,7 @@ details[open] summary:after{content:"−"}
 details p{margin:0 0 16px;color:var(--muted)}
 .band{background:linear-gradient(120deg,var(--navy),var(--navy2));color:#fff;border-radius:24px;padding:48px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
 .band h2{margin:0 0 6px}.band p{margin:0;color:#cbd5e1}
-.cgrid{max-width:760px;margin:0 auto}.ccard{display:flex;flex-direction:column;align-items:flex-start;text-decoration:none;color:inherit}
+.ccard{display:flex;flex-direction:column;align-items:flex-start;text-decoration:none;color:inherit}
 .ccard p{margin:2px 0 18px;color:var(--muted);font-size:17px}.ccard .ic svg{width:24px;height:24px}.ccard .btn{margin-top:auto}
 footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
 .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
