@@ -92,7 +92,15 @@ nav.links a[aria-current=page]{color:#fff;box-shadow:inset 0 -2px 0 var(--gold2)
 .more{text-align:center;margin-top:28px}
 .minis{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:12px;max-width:860px;margin:0 auto}
 .mini{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);color:#e2e8f0;text-decoration:none;font-weight:600;font-size:15px;transition:border-color .2s,background .2s}
-.mini:hover{border-color:rgba(214,173,94,.5);background:rgba(255,255,255,.07)}
+button.mini{font-family:inherit;cursor:pointer;text-align:start;width:100%}
+.mini:hover,.mini[aria-expanded=true]{border-color:rgba(214,173,94,.55);background:rgba(255,255,255,.07)}
+.mini[aria-expanded=true]{box-shadow:inset 0 0 0 1px rgba(214,173,94,.55)}
+.sdet{max-width:860px;margin:14px auto 0}
+.sd[hidden]{display:none}
+.sd{display:flex;gap:16px;align-items:flex-start;padding:20px;border-radius:14px;background:rgba(214,173,94,.08);border:1px solid rgba(214,173,94,.35);animation:sdin .25s ease}
+.sd .ic{flex:none;margin:0}.sd h3{margin:0 0 6px;font-size:18px;color:#fff}.sd p{margin:0;color:#cbd5e1;line-height:1.8}
+.shint{text-align:center;color:#94a3b8;font-size:14px;margin:4px 0 0}.sdet .sd:not([hidden])~.shint{display:none}
+@keyframes sdin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .mini .ic{flex:none;width:38px;height:38px;margin:0;border-radius:10px}.mini .ic svg{width:20px;height:20px}
 @media(max-width:760px){.minis{grid-template-columns:1fr 1fr;gap:10px}.mini{padding:12px;font-size:14px;gap:10px}.mini .ic{width:34px;height:34px}}
 /* sections */
@@ -186,6 +194,13 @@ __BODY__</main>
   document.getElementById('lg').onclick=function(){var l=d.lang==='en'?'ar':'en';d.lang=l;d.dir=l==='en'?'ltr':'rtl';try{localStorage.setItem('waad.lang',JSON.stringify(l))}catch(e){}};
   var nl=document.getElementById('nl');document.getElementById('mn').onclick=function(){nl.classList.toggle('open')};
   nl.addEventListener('click',function(e){if(e.target.closest('a'))nl.classList.remove('open')});
+  // home «built for Saudi»: each tile opens its details below the grid; tapping it again closes them
+  [].forEach.call(document.querySelectorAll('.minis .mini'),function(b){b.onclick=function(){
+    var open=b.getAttribute('aria-expanded')!=='true';
+    [].forEach.call(document.querySelectorAll('.minis .mini'),function(x){x.setAttribute('aria-expanded','false')});
+    [].forEach.call(document.querySelectorAll('#sdet .sd'),function(x){x.hidden=!(open&&x.dataset.i===b.dataset.i)});
+    if(open){b.setAttribute('aria-expanded','true');var d=document.querySelector('#sdet .sd[data-i="'+b.dataset.i+'"]'),r=d.getBoundingClientRect();if(r.bottom>innerHeight)d.scrollIntoView({block:'nearest',behavior:'smooth'})}
+  }});
   // hero preview: three dashboards that rotate by themselves (paused on hover, off for reduced motion)
   var sh=document.getElementById('shot');
   if(sh){var sl=sh.querySelectorAll('.slide'),dt=sh.querySelectorAll('.tb button'),cur=0,tm=null;

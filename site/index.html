@@ -92,7 +92,15 @@ nav.links a[aria-current=page]{color:#fff;box-shadow:inset 0 -2px 0 var(--gold2)
 .more{text-align:center;margin-top:28px}
 .minis{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:12px;max-width:860px;margin:0 auto}
 .mini{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);color:#e2e8f0;text-decoration:none;font-weight:600;font-size:15px;transition:border-color .2s,background .2s}
-.mini:hover{border-color:rgba(214,173,94,.5);background:rgba(255,255,255,.07)}
+button.mini{font-family:inherit;cursor:pointer;text-align:start;width:100%}
+.mini:hover,.mini[aria-expanded=true]{border-color:rgba(214,173,94,.55);background:rgba(255,255,255,.07)}
+.mini[aria-expanded=true]{box-shadow:inset 0 0 0 1px rgba(214,173,94,.55)}
+.sdet{max-width:860px;margin:14px auto 0}
+.sd[hidden]{display:none}
+.sd{display:flex;gap:16px;align-items:flex-start;padding:20px;border-radius:14px;background:rgba(214,173,94,.08);border:1px solid rgba(214,173,94,.35);animation:sdin .25s ease}
+.sd .ic{flex:none;margin:0}.sd h3{margin:0 0 6px;font-size:18px;color:#fff}.sd p{margin:0;color:#cbd5e1;line-height:1.8}
+.shint{text-align:center;color:#94a3b8;font-size:14px;margin:4px 0 0}.sdet .sd:not([hidden])~.shint{display:none}
+@keyframes sdin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .mini .ic{flex:none;width:38px;height:38px;margin:0;border-radius:10px}.mini .ic svg{width:20px;height:20px}
 @media(max-width:760px){.minis{grid-template-columns:1fr 1fr;gap:10px}.mini{padding:12px;font-size:14px;gap:10px}.mini .ic{width:34px;height:34px}}
 /* sections */
@@ -267,12 +275,21 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
     <div class="sh"><div class="eyebrow"><span class="ar">مبني للسعودية</span><span class="en">BUILT FOR SAUDI</span></div>
       <h2><span class="ar">الأنظمة السعودية مدمجة، لا مضافة</span><span class="en">Saudi rules built in, not bolted on</span></h2></div>
     <div class="minis">
-      <a class="mini" href="trust.html#saudi"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4zM8 9h8M8 13h8M8 17h5"/></svg></span><span class="ar">نظام العمل</span><span class="en">Labor Law</span></a>
-      <a class="mini" href="trust.html#saudi"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="ar">نطاقات والتوطين</span><span class="en">Nitaqat &amp; Saudization</span></a>
-      <a class="mini" href="trust.html#saudi"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg></span><span class="ar">ضريبة القيمة المضافة</span><span class="en">VAT</span></a>
-      <a class="mini" href="trust.html#saudi"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-6 9 6M5 10v9h14v-9"/></svg></span><span class="ar">التأمينات الاجتماعية</span><span class="en">GOSI</span></a>
-      <a class="mini" href="trust.html#saudi"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v10H4zM8 12h.01M16 12h.01"/><circle cx="12" cy="12" r="2"/></svg></span><span class="ar">حماية الأجور</span><span class="en">Wage protection</span></a>
-      <a class="mini" href="trust.html#saudi"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></span><span class="ar">التأمين الطبي</span><span class="en">Medical insurance</span></a>
+      <button type="button" class="mini" data-i="0" aria-expanded="false" aria-controls="sdet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4zM8 9h8M8 13h8M8 17h5"/></svg></span><span class="ar">نظام العمل</span><span class="en">Labor Law</span></button>
+      <button type="button" class="mini" data-i="1" aria-expanded="false" aria-controls="sdet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="ar">نطاقات والتوطين</span><span class="en">Nitaqat &amp; Saudization</span></button>
+      <button type="button" class="mini" data-i="2" aria-expanded="false" aria-controls="sdet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg></span><span class="ar">ضريبة القيمة المضافة</span><span class="en">VAT</span></button>
+      <button type="button" class="mini" data-i="3" aria-expanded="false" aria-controls="sdet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-6 9 6M5 10v9h14v-9"/></svg></span><span class="ar">التأمينات الاجتماعية</span><span class="en">GOSI</span></button>
+      <button type="button" class="mini" data-i="4" aria-expanded="false" aria-controls="sdet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v10H4zM8 12h.01M16 12h.01"/><circle cx="12" cy="12" r="2"/></svg></span><span class="ar">حماية الأجور</span><span class="en">Wage protection</span></button>
+      <button type="button" class="mini" data-i="5" aria-expanded="false" aria-controls="sdet"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></span><span class="ar">التأمين الطبي</span><span class="en">Medical insurance</span></button>
+    </div>
+    <div class="sdet" id="sdet" aria-live="polite">
+      <div class="sd" data-i="0" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4zM8 9h8M8 13h8M8 17h5"/></svg></span><div><h3><span class="ar">نظام العمل</span><span class="en">Labor Law</span></h3><p><span class="ar">الإجازات ومكافأة نهاية الخدمة والعمل الإضافي ولائحة المخالفات والجزاءات وفق مواد النظام.</span><span class="en">Leave, end-of-service, overtime and the disciplinary schedule calculated per the articles of the law.</span></p></div></div>
+      <div class="sd" data-i="1" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><h3><span class="ar">نطاقات والتوطين</span><span class="en">Nitaqat &amp; Saudization</span></h3><p><span class="ar">تقدير نسبة التوطين ونطاق المنشأة، وكم موظفاً سعودياً تحتاج للانتقال للنطاق التالي.</span><span class="en">Estimate your Saudization rate and band, and how many Saudi hires you need for the next band.</span></p></div></div>
+      <div class="sd" data-i="2" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg></span><div><h3><span class="ar">ضريبة القيمة المضافة</span><span class="en">VAT</span></h3><p><span class="ar">فواتير ضريبية برمز QR، وملخص ضريبة المدخلات والمخرجات، والعنوان الوطني في كل فاتورة.</span><span class="en">Tax invoices with a QR code, input/output VAT summary, and the national address on every invoice.</span></p></div></div>
+      <div class="sd" data-i="3" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10l9-6 9 6M5 10v9h14v-9"/></svg></span><div><h3><span class="ar">التأمينات الاجتماعية</span><span class="en">GOSI</span></h3><p><span class="ar">حساب اشتراكات الموظف وصاحب العمل على الأجر الخاضع، بحسب نظام المشتركين الجدد والقدامى.</span><span class="en">Employee and employer contributions on the insurable wage, under both the new and legacy schemes.</span></p></div></div>
+      <div class="sd" data-i="4" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v10H4zM8 12h.01M16 12h.01"/><circle cx="12" cy="12" r="2"/></svg></span><div><h3><span class="ar">حماية الأجور</span><span class="en">Wage protection</span></h3><p><span class="ar">ملف الرواتب جاهز للرفع، مع التحقق من الهويات والآيبان والصافي قبل التنزيل.</span><span class="en">A payroll file ready to upload, with IDs, IBANs and net pay checked before download.</span></p></div></div>
+      <div class="sd" data-i="5" hidden><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></span><div><h3><span class="ar">التأمين الطبي</span><span class="en">Medical insurance</span></h3><p><span class="ar">الوثائق والمؤمَّن عليهم وتابعوهم، مع تنبيه بمن لا يملك تغطية سارية وبالوثائق القريبة من الانتهاء.</span><span class="en">Policies, insured staff and dependants, with alerts for uninsured employees and policies about to expire.</span></p></div></div>
+      <p class="shint"><span class="ar">اضغط على أي نظام لتعرف كيف يطبّقه وعد.</span><span class="en">Tap any rule to see how Waad applies it.</span></p>
     </div>
     <div class="more"><a class="btn ghost" href="trust.html"><span class="ar">التوافق والأمان ←</span><span class="en">Compliance &amp; security →</span></a></div>
   </div>
@@ -322,6 +339,13 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
   document.getElementById('lg').onclick=function(){var l=d.lang==='en'?'ar':'en';d.lang=l;d.dir=l==='en'?'ltr':'rtl';try{localStorage.setItem('waad.lang',JSON.stringify(l))}catch(e){}};
   var nl=document.getElementById('nl');document.getElementById('mn').onclick=function(){nl.classList.toggle('open')};
   nl.addEventListener('click',function(e){if(e.target.closest('a'))nl.classList.remove('open')});
+  // home «built for Saudi»: each tile opens its details below the grid; tapping it again closes them
+  [].forEach.call(document.querySelectorAll('.minis .mini'),function(b){b.onclick=function(){
+    var open=b.getAttribute('aria-expanded')!=='true';
+    [].forEach.call(document.querySelectorAll('.minis .mini'),function(x){x.setAttribute('aria-expanded','false')});
+    [].forEach.call(document.querySelectorAll('#sdet .sd'),function(x){x.hidden=!(open&&x.dataset.i===b.dataset.i)});
+    if(open){b.setAttribute('aria-expanded','true');var d=document.querySelector('#sdet .sd[data-i="'+b.dataset.i+'"]'),r=d.getBoundingClientRect();if(r.bottom>innerHeight)d.scrollIntoView({block:'nearest',behavior:'smooth'})}
+  }});
   // hero preview: three dashboards that rotate by themselves (paused on hover, off for reduced motion)
   var sh=document.getElementById('shot');
   if(sh){var sl=sh.querySelectorAll('.slide'),dt=sh.querySelectorAll('.tb button'),cur=0,tm=null;
