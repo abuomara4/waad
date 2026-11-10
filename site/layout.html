@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>__TITLE__</title>
+<meta name="description" content="__DESC__">
+<meta name="theme-color" content="#131b2e">
+<meta property="og:title" content="__TITLE__">
+<meta property="og:description" content="__DESC__">
+<meta property="og:type" content="website">
+<meta property="og:url" content="__URL__">
+<meta property="og:site_name" content="وعد Waad">
+<meta property="og:locale" content="ar_SA"><meta property="og:locale:alternate" content="en_US">
+<meta property="og:image" content="https://abuomara4.github.io/waad/site/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="وعد — منشأتك كلها في نظام واحد">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://abuomara4.github.io/waad/site/og.png">
+<link rel="canonical" href="__URL__">
+<link rel="icon" href="__LOGO_L__">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+/* Supabase e-mail links (password reset, confirmations) that land here are forwarded to the system untouched */
+(function(){var h=location.hash||'',q=location.search||'';if(/(access_token|refresh_token|error_code|type=recovery|type=signup)/.test(h+q)){location.replace('app/'+q+h);}})();
+/* the site used to be one page: send old #section links to their new page */
+(function(){var m={'#modules':'modules.html','#saudi':'trust.html#saudi','#security':'trust.html#security','#faq':'contact.html#faq','#contact':'contact.html#contact'};var p=location.pathname;if(/(\/|index\.html)$/.test(p)&&m[location.hash])location.replace(m[location.hash]);})();
+/* remember the visitor's language and share it with the system (same storage key) */
+(function(){var l='ar';try{l=JSON.parse(localStorage.getItem('waad.lang'))||'ar'}catch(e){}if(!/^(ar|en)$/.test(l))l=(navigator.language||'').slice(0,2)==='en'?'en':'ar';document.documentElement.lang=l;document.documentElement.dir=l==='en'?'ltr':'rtl';})();
+</script>
+<style>
+:root{--navy:#131b2e;--navy2:#1c2a45;--ink:#0f172a;--muted:#5b6b82;--line:#e2e8f0;--bg:#f6f8fc;--card:#fff;--gold:#b8893a;--gold2:#d6ad5e;--blue:#2563eb;--ok:#0d9488;--r:16px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+section[id]{scroll-margin-top:72px}  /* menu links land below the sticky header */
+body{margin:0;font-family:"IBM Plex Sans Arabic",system-ui,Tahoma,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
+html[lang=en] .ar,html[lang=ar] .en{display:none!important}
+a{color:inherit}
+.wrap{max-width:1140px;margin:0 auto;padding:0 20px}
+/* header */
+header{position:sticky;top:0;z-index:20;background:rgba(19,27,46,.92);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid rgba(255,255,255,.08)}
+.bar{display:flex;align-items:center;gap:16px;height:68px}
+.brand img{height:38px;display:block}
+nav.links{display:flex;gap:22px;margin-inline-start:12px}
+nav.links a{color:#cbd5e1;text-decoration:none;font-size:15px;font-weight:500}
+nav.links a:hover{color:#fff}
+.sp{flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;padding:11px 20px;font-weight:600;font-size:15px;text-decoration:none;border:1px solid transparent;cursor:pointer;font-family:inherit;white-space:nowrap;transition:transform .15s,background .15s}
+.btn:active{transform:scale(.98)}
+.btn.gold{background:var(--gold);color:#fff}.btn.gold:hover{background:#a67a30}
+.btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.28)}.btn.ghost:hover{background:rgba(255,255,255,.08)}
+.btn.line{background:#fff;color:var(--navy);border-color:var(--line)}.btn.line:hover{border-color:#94a3b8}
+.lang{background:transparent;border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:10px;padding:8px 12px;font-family:inherit;font-weight:600;cursor:pointer}
+.mlogin{display:none!important}
+.menu{display:none;background:transparent;border:0;color:#fff;font-size:26px;cursor:pointer;padding:4px 8px}
+/* hero */
+.hero{background:radial-gradient(1200px 500px at 85% -10%,rgba(184,137,58,.22),transparent 60%),radial-gradient(900px 500px at 0% 110%,rgba(37,99,235,.25),transparent 60%),var(--navy);color:#fff;padding:84px 0 96px;overflow:hidden}
+.hero-g{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#e2e8f0;border-radius:999px;padding:6px 14px;font-size:13px;font-weight:500}
+.pill b{width:8px;height:8px;border-radius:50%;background:var(--gold2);display:inline-block}
+h1{font-size:clamp(32px,5vw,52px);line-height:1.25;margin:18px 0 16px;font-weight:700;letter-spacing:-.5px}
+h1 em{font-style:normal;color:var(--gold2)}
+.lead{font-size:clamp(16px,2vw,19px);color:#cbd5e1;max-width:620px;margin:0 0 30px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.trust{display:flex;gap:22px;flex-wrap:wrap;margin-top:34px;color:#94a3b8;font-size:14px}
+.trust span{display:inline-flex;align-items:center;gap:7px}
+.trust svg{width:18px;height:18px;color:var(--gold2)}
+/* product preview */
+.shot{background:linear-gradient(180deg,#1f2b44,#172238);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:16px;box-shadow:0 30px 60px -20px rgba(0,0,0,.55)}
+.shot .tb{display:flex;gap:6px;margin-bottom:12px}
+.shot .tb button{width:10px;height:10px;padding:0;border:0;border-radius:999px;background:#334155;cursor:pointer;transition:width .3s,background .3s}
+.shot .tb button.on{width:24px;background:var(--gold2)}
+.slides{display:grid}.slide{grid-area:1/1;opacity:0;transform:translateY(8px);transition:opacity .6s,transform .6s;pointer-events:none}
+.slide.on{opacity:1;transform:none;pointer-events:auto}
+.slide .st{color:#e2e8f0;font-size:13px;font-weight:700;margin-bottom:10px}
+.k .dn{color:#e0b45e;font-size:12px}
+.kp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.k{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px}
+.k small{color:#94a3b8;font-size:12px;display:block}.k b{font-size:20px;color:#fff;font-variant-numeric:tabular-nums}
+.k .up{color:#3fc392;font-size:12px}
+.rows{margin-top:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden}
+.rows div{display:flex;justify-content:space-between;padding:10px 12px;font-size:13px;color:#cbd5e1;border-top:1px solid rgba(255,255,255,.06)}
+.rows div:first-child{border-top:0;color:#94a3b8;font-size:12px}
+.tag{border-radius:999px;padding:1px 10px;font-size:11px;font-weight:600}
+.tag.ok{background:rgba(63,195,146,.15);color:#3fc392}.tag.w{background:rgba(224,180,94,.15);color:#e0b45e}
+/* inner-page header */
+.phero{background:radial-gradient(900px 360px at 85% -20%,rgba(184,137,58,.2),transparent 60%),var(--navy);color:#fff;padding:64px 0 56px;text-align:center}
+.phero h1{margin:0 0 10px;font-size:clamp(28px,4vw,42px);line-height:1.3}.phero p{margin:0 auto;max-width:640px;color:#cbd5e1;font-size:17px}
+nav.links a[aria-current=page]{color:#fff;box-shadow:inset 0 -2px 0 var(--gold2)}
+.more{text-align:center;margin-top:28px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:860px;margin:0 auto}
+.chips span{border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:8px 18px;color:#e2e8f0;font-size:15px}
+/* sections */
+section{padding:84px 0}
+.sh{max-width:720px;margin:0 auto 44px;text-align:center}
+.eyebrow{color:var(--gold);font-weight:700;font-size:14px;letter-spacing:.5px}
+h2{font-size:clamp(26px,3.6vw,38px);line-height:1.3;margin:8px 0 12px}
+.sh p{color:var(--muted);font-size:17px;margin:0}
+.grid{display:grid;gap:18px}
+.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:26px;transition:box-shadow .2s,transform .2s}
+.card:hover{box-shadow:0 18px 40px -18px rgba(15,23,42,.18);transform:translateY(-2px)}
+.ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:#eef3ff;color:var(--blue);margin-bottom:14px}
+.ic svg{width:24px;height:24px}
+.card h3{margin:0 0 8px;font-size:20px}
+.card p{margin:0 0 12px;color:var(--muted)}
+.card ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.card li{position:relative;padding-inline-start:22px;color:#334155;font-size:15px}
+.card li:before{content:"";position:absolute;inset-inline-start:2px;top:.62em;width:8px;height:8px;border-radius:50%;background:var(--gold)}
+.dark{background:var(--navy);color:#fff}
+.dark .sh p{color:#94a3b8}
+.dark .card{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.09)}
+.dark .card p,.dark .card li{color:#cbd5e1}
+.dark .ic{background:rgba(184,137,58,.15);color:var(--gold2)}
+.steps{counter-reset:s;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.step{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:26px;position:relative}
+.step:before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;margin-bottom:12px}
+.step h3{margin:0 0 6px;font-size:19px}.step p{margin:0;color:var(--muted)}
+details{background:#fff;border:1px solid var(--line);border-radius:14px;padding:4px 20px;margin-bottom:12px}
+summary{cursor:pointer;font-weight:600;font-size:17px;padding:14px 0;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"+";color:var(--gold);font-size:22px;line-height:1}
+details[open] summary:after{content:"−"}
+details p{margin:0 0 16px;color:var(--muted)}
+.band{background:linear-gradient(120deg,var(--navy),var(--navy2));color:#fff;border-radius:24px;padding:48px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.band h2{margin:0 0 6px}.band p{margin:0;color:#cbd5e1}
+.cgrid{max-width:760px;margin:0 auto}.ccard{display:flex;flex-direction:column;align-items:flex-start;text-decoration:none;color:inherit}
+.ccard p{margin:2px 0 18px;color:var(--muted);font-size:17px}.ccard .ic svg{width:24px;height:24px}.ccard .btn{margin-top:auto}
+footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.foot img{height:32px}
+.foot nav{display:flex;gap:20px;flex-wrap:wrap}.foot a{text-decoration:none}.foot a:hover{color:#fff}
+@media(max-width:960px){.hero-g{grid-template-columns:1fr}.shot{max-width:520px;width:100%;margin-inline:auto}.g3,.steps{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){nav.links{display:none}.menu{display:block}.hide-m{display:none}
+  nav.links.open .mlogin{display:inline-flex!important;color:#fff}
+  nav.links.open{display:flex;flex-direction:column;position:absolute;top:68px;inset-inline:0;background:var(--navy);padding:16px 20px;gap:14px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .g3,.g2,.steps{grid-template-columns:1fr}.hero{padding:56px 0 64px}section{padding:60px 0}.band{padding:30px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body data-page="__PAGE__">
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="./" aria-label="وعد"><img src="__LOGO_D__" alt="وعد Waad"></a>
+    <nav class="links" id="nl">
+      <a href="modules.html" data-page="modules"><span class="ar">الأقسام</span><span class="en">Modules</span></a>
+      <a href="trust.html" data-page="trust"><span class="ar">التوافق والأمان</span><span class="en">Compliance &amp; security</span></a>
+      <a href="contact.html#faq" data-page="faq"><span class="ar">الأسئلة</span><span class="en">FAQ</span></a>
+      <a href="contact.html#contact" data-page="contact"><span class="ar">تواصل معنا</span><span class="en">Contact</span></a>
+      <a class="btn gold mlogin" href="app/"><span class="ar">دخول النظام</span><span class="en">Sign in</span></a>
+    </nav>
+    <div class="sp"></div>
+    <button class="lang" id="lg" type="button"><span class="ar">EN</span><span class="en">عربي</span></button>
+    <a class="btn gold hide-m" href="app/"><span class="ar">دخول النظام</span><span class="en">Sign in</span></a>
+    <button class="menu" id="mn" type="button" aria-label="menu">☰</button>
+  </div>
+</header>
+
+<main id="top">
+__BODY__</main>
+
+<footer>
+  <div class="wrap foot">
+    <img src="__LOGO_D__" alt="وعد Waad">
+    <nav>
+      <a href="app/"><span class="ar">دخول النظام</span><span class="en">Sign in</span></a>
+      <a href="app/#/privacy"><span class="ar">سياسة الخصوصية</span><span class="en">Privacy policy</span></a>
+      <a href="app/#/terms"><span class="ar">الشروط والأحكام</span><span class="en">Terms</span></a>
+      <a href="contact.html#contact"><span class="ar">تواصل معنا</span><span class="en">Contact us</span></a>
+    </nav>
+    <div>© <span id="yr"></span> <span class="ar">وعد</span><span class="en">Waad</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var d=document.documentElement;
+  document.getElementById('yr').textContent=new Date().getFullYear();
+  var cur=document.body.dataset.page;[].forEach.call(document.querySelectorAll('#nl [data-page]'),function(a){if(a.dataset.page===cur)a.setAttribute('aria-current','page')});
+  document.getElementById('lg').onclick=function(){var l=d.lang==='en'?'ar':'en';d.lang=l;d.dir=l==='en'?'ltr':'rtl';try{localStorage.setItem('waad.lang',JSON.stringify(l))}catch(e){}};
+  var nl=document.getElementById('nl');document.getElementById('mn').onclick=function(){nl.classList.toggle('open')};
+  nl.addEventListener('click',function(e){if(e.target.closest('a'))nl.classList.remove('open')});
+  // hero preview: three dashboards that rotate by themselves (paused on hover, off for reduced motion)
+  var sh=document.getElementById('shot');
+  if(sh){var sl=sh.querySelectorAll('.slide'),dt=sh.querySelectorAll('.tb button'),cur=0,tm=null;
+    var show=function(i){cur=(i+sl.length)%sl.length;for(var j=0;j<sl.length;j++){sl[j].classList.toggle('on',j===cur);dt[j].classList.toggle('on',j===cur)}};
+    var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var go=function(){if(!still&&!tm)tm=setInterval(function(){if(!document.hidden)show(cur+1)},4500)},stop=function(){clearInterval(tm);tm=null};
+    for(var j=0;j<dt.length;j++)(function(j){dt[j].onclick=function(){show(j);stop();go()}})(j);
+    sh.addEventListener('mouseenter',stop);sh.addEventListener('mouseleave',go);go();}
+})();
+</script>
+</body>
+</html>
