@@ -2491,5 +2491,40 @@ insert into public.companies(name) values ('منشأة بدون قبول') retur
 select t.ok((select status = 'trial' and trial_ends = current_date + 7 from public.company_subscriptions where company_id = :'cnoap'), 'with approval switched off a new company starts its trial at once');
 update public.platform_settings set require_approval = false;
 
+-- ================= ADMIN: PLANS, PAYMENTS, NOTES, QUICK ACTIONS, HISTORY (0069) =================
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select * from public.platform_plans_list()$$, '42501|غير مصرح', 'a company user cannot see Waad price plans');
+select t.err($$select public.platform_add_payment('$$ || :'cid' || $$', 100, null, 'transfer', null, 30, null)$$, '42501|غير مصرح', 'a company user cannot record payments');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_save_plan('{"name":"الأساسية","price":299,"period_days":30,"modules":["hr"],"max_users":10}') as plan1 \gset
+select t.err($$select public.platform_save_plan('{"name":"الأساسية","price":1}')$$, 'مستخدم مسبقاً', 'plan names are unique');
+reset role;
+insert into public.companies(name) values ('منشأة الفوترة') returning id as cbill \gset
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_add_payment(:'cbill', 299, current_date, 'transfer', :'plan1', null, 'تحويل بنكي');
+reset role;
+select t.ok((select status = 'active' and sub_ends = current_date + 29 and plan = 'الأساسية' and modules = array['hr'] and max_users = 10 from public.company_subscriptions where company_id = :'cbill'),
+  'a payment on a plan activates the subscription for the plan period with its modules and user cap');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_add_payment(:'cbill', 299, current_date, 'card', :'plan1', null, null);
+reset role;
+select t.ok((select sub_ends = current_date + 59 from public.company_subscriptions where company_id = :'cbill'), 'a renewal before the end adds the period after the current end');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_quick(:'cbill', 'extend', 10);
+select public.platform_quick(:'cbill', 'suspend');
+reset role;
+select t.ok((select status = 'suspended' and sub_ends = current_date + 69 from public.company_subscriptions where company_id = :'cbill') and not public.module_on(:'cbill', 'hr'), 'quick actions: extend 10 days, then suspend closes the company');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_quick(:'cbill', 'resume');
+select public.platform_add_note(:'cbill', 'اتصلت بالمالك، يبي باقة أكبر');
+select t.ok((select status = 'active' from public.platform_companies() where company_id = :'cbill'), 'resume brings the subscription back');
+select t.ok((select jsonb_array_length(d->'payments') = 2 and jsonb_array_length(d->'notes') = 1 and d->'notes'->0->>'by' = 'platform@waad.test'
+   and jsonb_array_length(d->'history') >= 3 and d->'history'->0->>'status' = 'active' and d->'company'->>'name' = 'منشأة الفوترة' from (select public.platform_company(:'cbill') d) x),
+  'the company page brings payments, notes (with who wrote them) and the subscription history');
+select t.ok((select sum(amount) = 598 from public.platform_payments_list(current_date - 1, current_date + 1) where company_id = :'cbill'), 'payments are listed by date for the revenue view');
+select t.err($$select public.platform_quick('$$ || :'cbill' || $$', 'explode')$$, 'غير معروف', 'unknown quick actions are refused');
+reset role;
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

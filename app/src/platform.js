@@ -6,8 +6,26 @@ const subState = c => c.status === 'trial' && c.trial_ends && c.trial_ends < tod
   : c.status === 'active' && c.sub_ends && c.sub_ends < today() ? ['انتهى الاشتراك', 'bad'] : SUB_ST[c.status] || [c.status, ''];
 const subEnd = c => c.status === 'trial' ? c.trial_ends : c.status === 'active' ? c.sub_ends : null;
 const daysLeft = d => d ? Math.round((new Date(d + 'T12:00:00Z') - new Date(today() + 'T12:00:00Z')) / 864e5) : null;
-const PTABS = [['companies', 'المنشآت'], ['system', 'أرقام النظام'], ['site', 'زوار الموقع'], ['content', 'محتوى الموقع'], ['news', 'الإعلانات'], ['team', 'فريق وعد']];
-const PV = {};   // tab id -> async (page) => void
+const PTABS = [['home', 'الرئيسية'], ['companies', 'المنشآت'], ['billing', 'الإيرادات والباقات'], ['system', 'أرقام النظام'], ['site', 'زوار الموقع'], ['content', 'محتوى الموقع'], ['news', 'الإعلانات'], ['team', 'فريق وعد']];
+const PV = {};   // tab id -> async (page, arg) => void   (#/company/<id> opens one company)
+const money0 = n => Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+const MONTH0 = () => today().slice(0, 8) + '01';
+const PAY_M = { transfer: 'تحويل بنكي', card: 'بطاقة', cash: 'نقداً', other: 'أخرى' };
+// quick actions on a company (list, home and company page); each re-draws the current screen
+async function quickAct(c, act, days, st) {
+  if (act === 'approve') { await db.rpc('platform_approve', { p_company: c.company_id, p_status: 'trial', p_days: (st && st.default_trial_days) || 7 }); toast(tr('تم القبول')); }
+  else if (act === 'suspend') { if (!(await confirmBox(tr('إيقاف المنشأة'), tr('تنقفل كل الأقسام لين تعيد تفعيلها، وبياناتها ما تنحذف.') + ' ' + c.name, tr('إيقاف')))) return; await db.rpc('platform_quick', { p_company: c.company_id, p_action: 'suspend' }); toast(tr('تم الإيقاف')); }
+  else { await db.rpc('platform_quick', { p_company: c.company_id, p_action: act, p_days: days || null }); toast(tr('تم الحفظ')); }
+  platformView();
+}
+const quickBtns = c => { const b = (a, t, d) => `<button type="button" class="btn sm" data-q="${a}" data-d="${d || ''}" data-c="${esc(c.company_id)}">${esc(tr(t))}</button>`;
+  return c.status === 'pending' ? b('approve', 'قبول تجربة') : c.status === 'suspended' ? b('resume', 'إعادة تفعيل')
+    : b('extend', '+٧ أيام', 7) + ' ' + b('extend', '+٣٠ يوم', 30); };
+function bindQuick(root, rows, st) {
+  $$('[data-q]', root).forEach(btn => btn.onclick = async ev => { ev.stopPropagation();
+    const c = rows.find(x => x.company_id === btn.dataset.c); if (!c) return;
+    try { await quickAct(c, btn.dataset.q, +btn.dataset.d || null, st); } catch (e) { toast(e.message); } });
+}
 const dayAgo = n => new Date(new Date(today() + 'T12:00:00Z').getTime() - n * 864e5).toISOString().slice(0, 10);
 const pct = (a, b) => b ? Math.round(a * 100 / b) + '%' : '—';
 const pkpi = (label, v, sub = '') => `<div class="card kpi"><div class="muted small">${esc(tr(label))}</div><div class="v num">${v}</div>${sub ? `<div class="small muted">${esc(tr(sub))}</div>` : ''}</div>`;
@@ -28,22 +46,23 @@ function bindCopy(root) {
 }
 async function platformView() {
   LS.set('waad.nocount', true);   // the team's own visits to the website are not counted (same browser, same site)
-  const tab = (location.hash.match(/^#\/(\w+)/) || [])[1], cur = PV[tab] ? tab : 'companies';
+  const m = location.hash.match(/^#\/(\w+)(?:\/([\w-]+))?/) || [], tab = m[1], arg = m[2], cur = PV[tab] ? tab : 'home', nav = cur === 'company' ? 'companies' : cur;
   const app = $('#app');
   if (!$('#ppage')) {
     app.innerHTML = `<div class="plat"><header class="top"><div class="brand">${brand()}</div><div class="cname"><b>${esc(tr('لوحة إدارة وعد'))}</b></div><div class="sp"></div>
         <a class="btn sm" href="${SITE_URL}" target="_blank" rel="noopener">${esc(tr('الموقع'))}</a><a class="btn sm" href="${APP_URL}" target="_blank" rel="noopener">${esc(tr('النظام'))}</a>
-        <button class="btn sm" id="ppw">${esc(tr('تغيير كلمة المرور'))}</button><button class="btn sm" id="pmfa">${esc(tr('التحقق بخطوتين'))}</button>${langBtn('btn sm')}<button class="btn sm" id="plo">${esc(tr('تسجيل الخروج'))}</button></header>
+        <button class="btn sm" id="pth" data-theme-btn="icon"></button><button class="btn sm" id="ppw">${esc(tr('تغيير كلمة المرور'))}</button><button class="btn sm" id="pmfa">${esc(tr('التحقق بخطوتين'))}</button>${langBtn('btn sm')}<button class="btn sm" id="plo">${esc(tr('تسجيل الخروج'))}</button></header>
       <nav class="ptabs" id="ptabs" aria-label="${esc(tr('أقسام اللوحة'))}"></nav>
       <main class="page" id="ppage"></main></div>`;
     $('#plo').onclick = async () => { await authApi.signOut(); S.platform = false; authView(); };
     $('#pmfa').onclick = () => mfaSetup();
     $('#ppw').onclick = () => changePasswordView(false);
+    $('#pth').onclick = toggleTheme; applyTheme(curTheme());
     $('#lg').onclick = () => setLang(LANG === 'en' ? 'ar' : 'en');
   }
-  $('#ptabs').innerHTML = PTABS.map(([k, t]) => `<a href="#/${k}"${k === cur ? ' aria-current="page"' : ''}>${esc(tr(t))}</a>`).join('');
+  $('#ptabs').innerHTML = PTABS.map(([k, t]) => `<a href="#/${k}"${k === nav ? ' aria-current="page"' : ''}>${esc(tr(t))}</a>`).join('');
   const page = $('#ppage'); page.innerHTML = `<div class="muted">${esc(tr('جارٍ التحميل…'))}</div>`;
-  try { await PV[cur](page); } catch (e) { if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+  try { await PV[cur](page, arg); } catch (e) { if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div>`; }
 }
 // sign-in for the Waad team: a username and a password (internal address <username>@admin.waad.app, never mailed).
 // ?setup creates the very first account; it becomes an admin only once it is activated.
@@ -87,12 +106,16 @@ function notAdminView() {
 PV.companies = async page => {
   const [rows, st] = await Promise.all([db.rpc('platform_companies'), db.rpc('platform_get_settings')]);
   const live = rows.filter(c => subState(c)[1] !== 'bad'), q = (LS.get('waad.platq') || '').toLowerCase();
-  const shown = rows.filter(c => !q || (c.name + ' ' + (c.owner_email || '') + ' ' + c.plan).toLowerCase().includes(q));
+  const BUCKET = { all: ['الكل', () => true], pending: ['بانتظار القبول', c => c.status === 'pending'], trial: ['تجربة', c => c.status === 'trial' && subState(c)[1] !== 'bad'],
+    active: ['مشتركة', c => c.status === 'active' && subState(c)[1] !== 'bad'], ended: ['منتهية', c => subState(c)[1] === 'bad' && c.status !== 'suspended'], suspended: ['موقوفة', c => c.status === 'suspended'] };
+  const fk = BUCKET[LS.get('waad.platf')] ? LS.get('waad.platf') : 'all';
+  const shown = rows.filter(BUCKET[fk][1]).filter(c => !q || (c.name + ' ' + (c.owner_email || '') + ' ' + c.plan).toLowerCase().includes(q));
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('المنشآت والاشتراكات'))}</h1><div class="muted">${esc(tr('بيانات الاشتراك فقط — لا تظهر هنا بيانات المنشآت نفسها.'))}</div></div></div>
     ${rows.some(c => c.status === 'pending') ? `<div class="note">${esc(tr('طلبات تنتظر قبولك'))}: <b class="num">${rows.filter(c => c.status === 'pending').length}</b> · ${esc(tr('اضغط على المنشأة لقبولها كتجربة أو اشتراك.'))}</div>` : ''}
     <div class="grid" style="margin-bottom:14px">${pkpi('المنشآت', rows.length)}${pkpi('بانتظار القبول', rows.filter(c => c.status === 'pending').length)}${pkpi('مفعّلة', rows.filter(c => c.status === 'active').length)}
       ${pkpi('تجربة', rows.filter(c => c.status === 'trial' && subState(c)[1] !== 'bad').length)}${pkpi('مغلقة (موقوفة أو انتهت تجربتها)', rows.length - live.length)}
       ${pkpi('المستخدمون', rows.reduce((a, c) => a + (c.users || 0), 0))}</div>
+    <div class="ptabs pfil" role="tablist">${Object.entries(BUCKET).map(([k, [t, f]]) => `<a href="#" data-f="${k}"${k === fk ? ' aria-current="page"' : ''}>${esc(tr(t))} <span class="num">${rows.filter(f).length}</span></a>`).join('')}</div>
     <div class="row" style="margin-bottom:10px;gap:8px;flex-wrap:wrap"><input id="pq" placeholder="${esc(tr('بحث بالاسم أو البريد أو الباقة'))}" value="${esc(q)}" style="max-width:320px">
       <div class="sp"></div><button type="button" class="btn sm" data-copymail="${esc([...new Set(shown.map(c => c.owner_email).filter(Boolean))].join(', '))}">${esc(tr('نسخ إيميلات المنشآت الظاهرة'))}</button></div>
     ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'الباقة', h: c => esc(c.plan) },
@@ -101,14 +124,15 @@ PV.companies = async page => {
       { t: 'ينتهي', h: c => { const e = subEnd(c), n = daysLeft(e); return e ? `<span class="num">${esc(e)}</span>` + (n >= 0 ? `<div class="small muted">${esc(tr('باقي'))} <span class="num">${n}</span> ${esc(tr('يوم'))}</div>` : '') : '—'; } },
       { t: 'المستخدمون', r: 1, h: c => `<span class="num">${c.users}${c.max_users ? ' / ' + c.max_users : ''}</span>` },
       { t: 'آخر دخول', h: c => c.last_sign_in ? `<span class="num">${esc(String(c.last_sign_in).slice(0, 10))}</span>` : '—' },
-      { t: 'التسجيل', h: c => `<span class="num">${esc(String(c.created_at).slice(0, 10))}</span>` }], shown, { empty: 'لا توجد منشآت', onRow: true })}
+      { t: 'التسجيل', h: c => `<span class="num">${esc(String(c.created_at).slice(0, 10))}</span>` }, { t: '', h: c => `<div class="row" style="gap:4px;flex-wrap:nowrap">${quickBtns(c)}</div>` }], shown, { empty: 'لا توجد منشآت', onRow: true })}
     <div class="card" style="margin-top:16px"><h2>${esc(tr('إعدادات المنشآت الجديدة'))}</h2>
       <form id="psf" class="fg">${field('الأقسام المفتوحة عند التسجيل', modChecks(st.default_modules), 'wide')}
       ${field('مدة التجربة بالأيام (فارغ = بدون حد)', inp('days', st.default_trial_days, 'type="number" min="1" max="365"'))}
       <label class="row small wide" style="gap:6px"><input type="checkbox" name="approval" ${st.require_approval !== false ? 'checked' : ''} style="width:auto"> ${esc(tr('المنشآت الجديدة تنتظر قبولي قبل ما تبدأ'))}</label>
       <div class="wide"><div id="pserr"></div><button class="btn pri" id="psb">${esc(tr('حفظ'))}</button></div></form></div>`;
   $('#pq', page).oninput = e => { LS.set('waad.platq', e.target.value); clearTimeout(platformView.t); platformView.t = setTimeout(platformView, 400); };
-  bindRows(page, shown, c => c.status === 'pending' ? approveForm(c, st) : subForm(c)); bindCopy(page);
+  bindRows(page, shown, c => { location.hash = '#/company/' + c.company_id; }); bindCopy(page); bindQuick(page, shown, st);
+  $$('[data-f]', page).forEach(a => a.onclick = e => { e.preventDefault(); LS.set('waad.platf', a.dataset.f); platformView(); });
   $('#psf', page).onsubmit = async e => { e.preventDefault(); const f = e.target;
     try { await busy($('#psb', page), async () => { await db.rpc('platform_set_settings', { p_modules: pickMods(f), p_trial_days: f.days.value ? +f.days.value : null, p_require_approval: f.approval.checked }); toast(tr('تم الحفظ')); }); }
     catch (er) { showErr($('#pserr', page), er); } };
@@ -333,3 +357,133 @@ PV.team = async page => {
     };
   });
 };
+
+/* ---------- home: what needs the team today ---------- */
+PV.home = async page => {
+  const [rows, st, visits, pays] = await Promise.all([db.rpc('platform_companies'), db.rpc('platform_get_settings'),
+    db.rpc('platform_site_stats', { p_days: 7 }).catch(() => []), db.rpc('platform_payments_list', { p_from: MONTH0(), p_to: today() }).catch(() => [])]);
+  const t0 = today(), pending = rows.filter(c => c.status === 'pending');
+  const trialEnd = rows.filter(c => c.status === 'trial' && c.trial_ends && c.trial_ends >= t0 && c.trial_ends <= dayAgo(-3));
+  const subEnd7 = rows.filter(c => c.status === 'active' && c.sub_ends && c.sub_ends >= t0 && c.sub_ends <= dayAgo(-7));
+  const ended = rows.filter(c => subState(c)[1] === 'bad' && c.status !== 'suspended');
+  const sum = (a, k) => a.reduce((x, r) => x + (+r[k] || 0), 0);
+  const list = (title, sub, items, cols) => `<div class="card"><h2>${esc(tr(title))} <span class="badge${items.length ? ' info' : ''} num">${items.length}</span></h2>
+    ${sub ? `<p class="muted small" style="margin-top:0">${esc(tr(sub))}</p>` : ''}${tbl(cols, items, { empty: 'ما فيه شي', onRow: true })}</div>`;
+  const nameCol = { t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` };
+  const endCol = { t: 'ينتهي', h: c => `<span class="num">${esc(subEnd(c) || '')}</span>` }, actCol = { t: '', h: c => `<div class="row" style="gap:4px">${quickBtns(c)}</div>` };
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('الرئيسية'))}</h1><div class="muted">${esc(tr('اللي يحتاج منك اليوم، وأهم الأرقام.'))}</div></div></div>
+    <div class="grid" style="margin-bottom:14px">${pkpi('بانتظار القبول', pending.length)}${pkpi('منشآت مشتركة', rows.filter(c => c.status === 'active' && subState(c)[1] !== 'bad').length)}
+      ${pkpi('تجارب شغّالة', rows.filter(c => c.status === 'trial' && subState(c)[1] !== 'bad').length)}${pkpi('إيرادات هذا الشهر', money0(sum(pays, 'amount')), 'ريال')}
+      ${pkpi('زيارات الموقع (٧ أيام)', sum(visits, 'visits'))}${pkpi('ضغطات «جرّبه» (٧ أيام)', sum(visits, 'cta'))}</div>
+    <div class="g2p">
+      ${list('طلبات تنتظر قبولك', 'اقبلها كتجربة بضغطة، أو افتح المنشأة لتختار اشتراك ومدة.', pending, [nameCol, { t: 'التسجيل', h: c => `<span class="num">${esc(String(c.created_at).slice(0, 10))}</span>` }, actCol])}
+      ${list('تجارب تنتهي خلال ٣ أيام', 'تواصل معهم قبل ما تنتهي.', trialEnd, [nameCol, endCol, actCol])}
+      ${list('اشتراكات تنتهي خلال ٧ أيام', 'ذكّرهم بالتجديد.', subEnd7, [nameCol, endCol, actCol])}
+      ${list('انتهت ولم تُجدَّد', 'أقسامها مقفلة الحين.', ended, [nameCol, endCol, actCol])}</div>`;
+  const all = [...pending, ...trialEnd, ...subEnd7, ...ended];
+  $$('.g2p .card', page).forEach((card, i) => bindRows(card, [pending, trialEnd, subEnd7, ended][i], c => { location.hash = '#/company/' + c.company_id; }));
+  bindQuick(page, all, st);
+};
+
+/* ---------- one company: subscription, quick actions, payments, notes, history ---------- */
+PV.company = async (page, id) => {
+  const [d, st, plans] = await Promise.all([db.rpc('platform_company', { p_company: id }), db.rpc('platform_get_settings'), db.rpc('platform_plans_list')]);
+  const c = d.company; if (!c) { page.innerHTML = `<div class="err">${esc(tr('المنشأة غير موجودة'))}</div>`; return; }
+  const [stt, stk] = subState(c), e = subEnd(c), n = daysLeft(e), paid = d.payments.reduce((a, p) => a + (+p.amount || 0), 0);
+  const plan = plans.find(p => p.id === d.plan_id);
+  const histTxt = h => [h.status && tr((SUB_ST[h.status] || [h.status])[0]), h.plan && h.plan !== 'trial' ? h.plan : '', h.trial_ends && tr('التجربة حتى') + ' ' + h.trial_ends, h.sub_ends && tr('الاشتراك حتى') + ' ' + h.sub_ends].filter(Boolean).join(' · ');
+  page.innerHTML = `<div class="head"><div><a href="#/companies" class="small">← ${esc(tr('المنشآت'))}</a><h1>${esc(c.name)} <span class="badge ${stk}">${esc(tr(stt))}</span></h1>
+      <div class="muted small" dir="ltr">${esc(c.owner_email || '')}</div></div></div>
+    <div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:14px">
+      ${c.status === 'pending' ? `<button class="btn pri" id="capp">${esc(tr('قبول…'))}</button>` : ''}
+      <button class="btn pri" id="cpay">${esc(tr('تسجيل دفعة'))}</button><button class="btn" id="csub">${esc(tr('تعديل الاشتراك'))}</button>
+      ${c.status === 'trial' || c.status === 'active' ? `<button class="btn" data-q="extend" data-d="7" data-c="${esc(id)}">${esc(tr('+٧ أيام'))}</button><button class="btn" data-q="extend" data-d="30" data-c="${esc(id)}">${esc(tr('+٣٠ يوم'))}</button>` : ''}
+      ${c.status === 'suspended' ? `<button class="btn" data-q="resume" data-c="${esc(id)}">${esc(tr('إعادة تفعيل'))}</button>` : c.status !== 'pending' ? `<button class="btn" data-q="suspend" data-c="${esc(id)}">${esc(tr('إيقاف'))}</button>` : ''}</div>
+    <div class="g2p">
+      <div class="card"><h2>${esc(tr('الاشتراك'))}</h2><dl class="pdl">
+        <dt>${esc(tr('الباقة'))}</dt><dd>${esc(plan ? plan.name : c.plan)}${plan ? ` · <span class="num">${money0(plan.price)}</span> ${esc(tr('ريال'))} / <span class="num">${plan.period_days}</span> ${esc(tr('يوم'))}` : ''}</dd>
+        <dt>${esc(tr('ينتهي'))}</dt><dd>${e ? `<span class="num">${esc(e)}</span>` + (n >= 0 ? ` · ${esc(tr('باقي'))} <span class="num">${n}</span> ${esc(tr('يوم'))}` : ` · ${esc(tr('انتهى'))}`) : esc(tr('بدون نهاية'))}</dd>
+        <dt>${esc(tr('الأقسام'))}</dt><dd>${(c.modules || []).map(m => `<span class="badge">${esc(tr(MODULES[m] || m))}</span>`).join(' ')}</dd>
+        <dt>${esc(tr('المستخدمون'))}</dt><dd class="num">${c.users}${c.max_users ? ' / ' + c.max_users : ''}</dd>
+        <dt>${esc(tr('آخر دخول'))}</dt><dd class="num">${c.last_sign_in ? esc(String(c.last_sign_in).slice(0, 10)) : '—'}</dd>
+        <dt>${esc(tr('التسجيل'))}</dt><dd class="num">${esc(String(c.created_at).slice(0, 10))}</dd>
+        <dt>${esc(tr('مجموع المدفوع'))}</dt><dd><span class="num">${money0(paid)}</span> ${esc(tr('ريال'))}</dd></dl></div>
+      <div class="card"><h2>${esc(tr('التواصل مع المالك'))}</h2><div class="row" style="gap:8px;flex-wrap:wrap">${mailBtns(c.owner_email, 'وعد: ' + c.name)}</div>
+        <h2 style="margin-top:18px">${esc(tr('ملاحظات الفريق'))}</h2>
+        <form id="nform" class="row" style="gap:8px;align-items:flex-start"><textarea name="body" rows="2" maxlength="1000" placeholder="${esc(tr('مثلاً: اتصلت بالمالك، يبي باقة أكبر'))}" style="flex:1"></textarea><button class="btn pri">${esc(tr('إضافة'))}</button></form>
+        <div id="nerr"></div>
+        ${d.notes.length ? d.notes.map(x => `<div class="pnote"><div data-nt>${esc(x.body)}</div><div class="small muted"><span dir="ltr">${esc(x.by || '')}</span> · <span class="num">${esc(String(x.at).slice(0, 16).replace('T', ' '))}</span>
+          <a href="#" data-dn="${esc(x.id)}">${esc(tr('حذف'))}</a></div></div>`).join('') : `<p class="muted small">${esc(tr('ما فيه ملاحظات.'))}</p>`}</div></div>
+    <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الدفعات'))}</h2>
+      ${tbl([{ t: 'التاريخ', h: p => `<span class="num">${esc(p.paid_on)}</span>` }, { t: 'المبلغ', r: 1, h: p => money0(p.amount) }, { t: 'الطريقة', h: p => esc(tr(PAY_M[p.method] || p.method)) },
+        { t: 'المدة', h: p => p.days ? `<span class="num">${p.days}</span> ${esc(tr('يوم'))}` : '—' }, { t: 'ملاحظة', h: p => `<span data-nt>${esc(p.note || '')}</span>` },
+        { t: '', h: p => `<a href="#" data-dp="${esc(p.id)}">${esc(tr('حذف'))}</a>` }], d.payments, { empty: 'ما فيه دفعات' })}</div>
+    <div class="card"><h2>${esc(tr('سجل الاشتراك'))}</h2>
+      ${tbl([{ t: 'التاريخ', h: h => `<span class="num">${esc(String(h.at).slice(0, 16).replace('T', ' '))}</span>` }, { t: 'الحالة بعد التغيير', h: h => esc(histTxt(h)) }], d.history, { empty: 'ما فيه تغييرات' })}</div>`;
+  bindCopy(page); bindQuick(page, [c], st);
+  if ($('#capp', page)) $('#capp', page).onclick = () => approveForm(c, st);
+  $('#csub', page).onclick = () => subForm(c);
+  $('#cpay', page).onclick = () => platPayForm(c, plans);
+  $('#nform', page).onsubmit = async ev => { ev.preventDefault();
+    try { await db.rpc('platform_add_note', { p_company: id, p_body: ev.target.body.value }); platformView(); } catch (er) { showErr($('#nerr', page), er); } };
+  $$('[data-dn]', page).forEach(a => a.onclick = async ev => { ev.preventDefault(); await db.rpc('platform_delete_note', { p_id: a.dataset.dn }); platformView(); });
+  $$('[data-dp]', page).forEach(a => a.onclick = async ev => { ev.preventDefault();
+    if (!(await confirmBox(tr('حذف الدفعة'), tr('تنحذف من السجل والإيرادات. مدة الاشتراك ما تتغير.'), tr('حذف')))) return;
+    await db.rpc('platform_delete_payment', { p_id: a.dataset.dp }); platformView(); });
+};
+// record a payment; choosing a plan fills the amount and its period, and the subscription is extended by it
+function platPayForm(c, plans) {
+  const act = plans.filter(p => p.active);
+  const d = modal(tr('تسجيل دفعة') + ': ' + c.name, `<div class="fg">
+      ${field('الباقة', `<select name="plan"><option value="">${esc(tr('بدون باقة'))}</option>${act.map(p => opt(p.id, p.name + ' · ' + money0(p.price), '')).join('')}</select>`)}
+      ${field('المبلغ (ريال)', '<input name="amount" type="number" min="0.01" step="0.01" required>')}
+      ${field('تاريخ الدفع', `<input name="paid_on" type="date" value="${today()}">`)}
+      ${field('الطريقة', `<select name="method">${Object.entries(PAY_M).map(([k, t]) => opt(k, tr(t), 'transfer')).join('')}</select>`)}
+      ${field('يمدّد الاشتراك بالأيام (فارغ = ما يمدّد)', '<input name="days" type="number" min="1" max="3660">')}
+      ${field('ملاحظة', '<input name="note" maxlength="300">', 'wide')}</div>
+    <p class="muted small">${esc(tr('إذا حددت مدة أو باقة، يصير الاشتراك «مفعّل» وتنضاف المدة بعد تاريخ نهايته الحالي.'))}</p>`, {
+    onOk: async f => {
+      await db.rpc('platform_add_payment', { p_company: c.company_id, p_amount: +f.amount, p_paid_on: f.paid_on || null, p_method: f.method,
+        p_plan: f.plan || null, p_days: f.days ? +f.days : null, p_note: f.note || null });
+      toast(tr('تم تسجيل الدفعة')); platformView();
+    } });
+  d.querySelector('[name=plan]').onchange = e => { const p = act.find(x => x.id === e.target.value); if (p) { d.querySelector('[name=amount]').value = p.price; d.querySelector('[name=days]').value = p.period_days; } };
+}
+
+/* ---------- revenue and price plans ---------- */
+PV.billing = async page => {
+  const y0 = today().slice(0, 4) + '-01-01', from = dayAgo(365).slice(0, 8) + '01';
+  const [plans, pays, rows] = await Promise.all([db.rpc('platform_plans_list'), db.rpc('platform_payments_list', { p_from: from, p_to: today() }), db.rpc('platform_companies')]);
+  const m0 = MONTH0(), lm = new Date(new Date(m0 + 'T12:00:00Z').getTime() - 20 * 864e5).toISOString().slice(0, 8) + '01';
+  const sumIf = f => pays.filter(f).reduce((a, p) => a + (+p.amount || 0), 0);
+  const months = Array.from({ length: 12 }, (_, i) => { const d = new Date(m0 + 'T12:00:00Z'); d.setUTCMonth(d.getUTCMonth() - 11 + i); return d.toISOString().slice(0, 7); });
+  const paying = rows.filter(c => c.status === 'active' && subState(c)[1] !== 'bad').length;
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('الإيرادات والباقات'))}</h1><div class="muted">${esc(tr('سجّل كل دفعة من صفحة المنشأة، وتنحسب هنا.'))}</div></div>
+      <button class="btn pri" id="padd">${esc(tr('باقة جديدة'))}</button></div>
+    <div class="grid" style="margin-bottom:14px">${pkpi('هذا الشهر', money0(sumIf(p => p.paid_on >= m0)), 'ريال')}${pkpi('الشهر الماضي', money0(sumIf(p => p.paid_on >= lm && p.paid_on < m0)), 'ريال')}
+      ${pkpi('هذي السنة', money0(sumIf(p => p.paid_on >= y0)), 'ريال')}${pkpi('منشآت مشتركة', paying)}</div>
+    <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الإيرادات شهرياً (آخر ١٢ شهر)'))}</h2>${pbars(months.map(k => ({ k, v: Math.round(sumIf(p => p.paid_on.slice(0, 7) === k)) })), 'الإيرادات شهرياً (آخر ١٢ شهر)')}</div>
+    <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الباقات والأسعار'))}</h2>
+      ${tbl([{ t: 'الباقة', h: p => `<b>${esc(p.name)}</b>` + (p.active ? '' : ` <span class="badge">${esc(tr('موقوفة'))}</span>`) }, { t: 'السعر', r: 1, h: p => money0(p.price) },
+        { t: 'المدة', h: p => `<span class="num">${p.period_days}</span> ${esc(tr('يوم'))}` }, { t: 'الأقسام', h: p => p.modules.map(m => `<span class="badge">${esc(tr(MODULES[m] || m))}</span>`).join(' ') },
+        { t: 'المستخدمون', r: 1, h: p => p.max_users || '—' }], plans, { empty: 'ما فيه باقات. أضف أول باقة.', onRow: true })}</div>
+    <div class="card"><h2>${esc(tr('آخر الدفعات'))}</h2>
+      ${tbl([{ t: 'التاريخ', h: p => `<span class="num">${esc(p.paid_on)}</span>` }, { t: 'المنشأة', h: p => esc(p.company) }, { t: 'المبلغ', r: 1, h: p => money0(p.amount) },
+        { t: 'الباقة', h: p => esc(p.plan || '—') }, { t: 'الطريقة', h: p => esc(tr(PAY_M[p.method] || p.method)) }], pays.slice(0, 50), { empty: 'ما فيه دفعات', onRow: true })}</div>`;
+  $('#padd', page).onclick = () => planForm({});
+  const cards = $$('.card', page);
+  bindRows(cards[2], plans, planForm);
+  bindRows(cards[3], pays.slice(0, 50), p => { location.hash = '#/company/' + p.company_id; });
+};
+function planForm(p) {
+  modal(p.id ? tr('تعديل الباقة') : tr('باقة جديدة'), `<div class="fg">${field('اسم الباقة', inp('name', p.name, 'maxlength="40" required'))}
+      ${field('السعر (ريال)', inp('price', p.price, 'type="number" min="0" step="0.01" required'))}${field('المدة بالأيام', inp('period_days', p.period_days || 30, 'type="number" min="1" max="3660"'))}
+      ${field('الحد الأعلى للمستخدمين (فارغ = بدون حد)', inp('max_users', p.max_users, 'type="number" min="1"'))}
+      ${field('الأقسام', modChecks(p.modules || Object.keys(MODULES)), 'wide')}
+      <label class="row small wide" style="gap:6px"><input type="checkbox" name="active" ${p.active === false ? '' : 'checked'} style="width:auto"> ${esc(tr('متاحة للاختيار'))}</label></div>`, {
+    wide: true, onOk: async (f, d) => {
+      const mods = pickMods($('#mform', d)); if (!mods.length) throw new Error('اختر قسماً واحداً على الأقل');
+      await db.rpc('platform_save_plan', { p: { id: p.id || null, name: f.name, price: f.price, period_days: f.period_days, max_users: f.max_users || '', modules: mods, active: f.active } });
+      toast(tr('تم الحفظ')); platformView();
+    } });
+}
