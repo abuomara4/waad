@@ -719,11 +719,17 @@ async function authFromLink() {
   catch (e) { setSession(null); return { error: 'الرابط غير صالح — اطلب رابطاً جديداً' }; }
   return { type: p.get('type') };
 }
+// the landing page links to app/?start=signup (new company) or ?start=signin (owner/admin e-mail login)
+function startTab() {
+  const q = new URLSearchParams(location.search), t = { signup: 'up', signin: 'in' }[q.get('start')];
+  if (q.has('start')) { q.delete('start'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash); }
+  return t;
+}
 async function boot() {
   const link = await authFromLink();
   if (link && link.error) return authView('in', link.error);
   if (link && link.type === 'recovery') return changePasswordView('recovery');
-  if (!S.session) return legalHash() ? legalView(legalHash()) : authView();
+  if (!S.session) return legalHash() ? legalView(legalHash()) : authView(startTab());
   try {
     // startup calls that do not depend on each other go out together (each round trip to the server costs ~0.2 s)
     const [mfa, plat, comps] = await Promise.all([db.rpc('mfa_state').catch(() => null), db.rpc('is_platform_admin').catch(() => false), db.rpc('my_companies').catch(e => { if (e.status === 401) throw e; return null; })]);

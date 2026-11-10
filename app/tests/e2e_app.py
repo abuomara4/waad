@@ -43,6 +43,11 @@ def go(p, h): p.evaluate(f"location.hash='{h}'"); p.wait_for_timeout(350)
 
 with sync_playwright() as pw:
     b = pw.chromium.launch(executable_path=CHROME)
+    # ---------- the landing page's «start free» link opens account creation directly ----------
+    lp = b.new_context(locale='ar-SA'); lp.add_init_script(INIT); lp = lp.new_page(); lp.goto(BASE + '/waad-app.html?start=signup')
+    lp.wait_for_selector('#af input[name=password2]')
+    ok(lp.locator('input[name=agree]').count() == 1 and 'start=' not in lp.url, 'app/?start=signup opens the new-account form and cleans the address bar')
+    lp.context.close()
     # ---------- owner ----------
     o = new_page(b)
     expect(o.locator('#af')).to_be_visible()
