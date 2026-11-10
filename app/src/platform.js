@@ -74,9 +74,9 @@ function adminAuthView(msg = '') {
     catch (er) { showErr('#aerr', er); } };
 }
 function notAdminView() {
-  $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><h2>${esc(tr('هذا الحساب ليس من فريق وعد'))}</h2>
-    <p class="muted">${esc(tr('لوحة الإدارة لفريق وعد فقط. لإدارة منشأتك ادخل النظام.'))}</p>
-    <div class="row" style="gap:8px"><a class="btn pri" href="${APP_URL}">${esc(tr('فتح النظام'))}</a><button class="btn" id="plo">${esc(tr('تسجيل الخروج'))}</button></div></div></div></div>`;
+  $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><h2>${esc(tr('هذا الحساب غير مفعّل في لوحة الإدارة'))}</h2>
+    <p class="muted">${esc(tr('اللوحة لفريق وعد فقط. إذا أنشأت الحساب للتو، يتفعّل لما يضيفه أدمن من «فريق وعد».'))}</p>
+    <div class="row" style="gap:8px"><button class="btn" id="plo">${esc(tr('تسجيل الخروج'))}</button></div></div></div></div>`;
   $('#plo').onclick = async () => { await authApi.signOut(); authView(); };
 }
 

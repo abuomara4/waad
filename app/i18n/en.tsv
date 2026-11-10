@@ -348,6 +348,7 @@
 إدخال عرض مورد	Enter a supplier offer
 إدخال يدوي	Manual entry
 إذا أرسلت لك الموارد البشرية رمز دعوة	If HR sent you an invitation code
+إذا أنشأت الحساب للتو	If you just created the account
 إذا استمر الطرفان بعد نهايته يتحوّل إلى غير محدد المدة	if both parties continue after its end, it becomes indefinite
 إذا استمر الطرفان بعد نهايته يتحوّل العقد إلى غير محدد المدة	if both parties continue after its end, the contract becomes indefinite
 إذا استمر العمل بعد انتهاء العقد عُدّ متجدداً لمدة مماثلة	If work continues after the contract ends, it is renewed for the same term
@@ -1449,6 +1450,7 @@
 الكمية لا تكون سالبة	Quantity cannot be negative
 اللغة	Language
 اللوحة	plate
+اللوحة لفريق وعد فقط	The admin site is for the Waad team only
 المأخوذ والمحجوز	Taken and booked
 المؤشر	Indicator
 المؤمَّن عليه	Insured person
@@ -4197,6 +4199,7 @@
 هذا البريد قبل الدعوة مسبقاً	This email has already accepted the invitation
 هذا البريد مسجّل مسبقاً	This email is already registered
 هذا التجديد الثالث	This is the third renewal
+هذا الحساب غير مفعّل في لوحة الإدارة	This account is not activated for the admin site
 هذا الحساب ليس من فريق وعد	This account is not on the Waad team
 هذا الحساب يدخل بالبريد	This account signs in by e-mail
 هذا الربع	This quarter
@@ -4399,6 +4402,7 @@
 يتبعه مباشرة	Direct reports
 يتجاوز الحد السنوي للعمل الإضافي	Exceeds the annual overtime limit of
 يتجدد تلقائياً للمدة المتفق عليها	Renews automatically for the agreed term
+يتفعّل لما يضيفه أدمن من	it is activated once an admin adds it from
 يجب أن تكون معرّفة	they must already exist
 يجب أن يساوي الرصيد المطابق رصيد الكشف	the cleared balance must equal the statement balance
 يجب أن يكون أكبر من صفر	must be greater than zero
