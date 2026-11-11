@@ -129,6 +129,14 @@ const db = {
 };
 // ZATCA Phase 2: a company linked to Fatoora sends its sales documents from the server (function «zatca», chain order).
 // The app only asks it to start: right after a sales invoice / credit / debit note is posted, and when a finance user opens it.
+// a Supabase Edge Function, called with the user's own login (the function asks the database what they may do)
+async function fnCall(name, body) {
+  const r = await fetch(CFG.url + '/functions/v1/' + name, { method: 'POST', headers: { apikey: CFG.key, Authorization: 'Bearer ' + (S.session ? S.session.access_token : ''), 'Content-Type': 'application/json' },
+    body: JSON.stringify(body) }).catch(e => { throw new ApiError(arMsg(e.message), 0); });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || j.error) throw new ApiError(j.error || j.message || ('HTTP ' + r.status), r.status);
+  return j;
+}
 let zatcaTimer = null;
 function zatcaKick() {
   clearTimeout(zatcaTimer);

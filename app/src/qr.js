@@ -57,4 +57,5 @@ const QR = (() => {
 })();
 /* ISO-8601 UTC timestamp of the invoice (seconds precision, as ZATCA examples) */
 const zatcaTime = d => new Date(d).toISOString().replace(/\.\d{3}Z$/, 'Z');
-const zatcaQr = (doc, px) => { const c = S.company || {}; if (!c.vat_no) return ''; return QR.svg(QR.zatca({ seller: c.name, vat: c.vat_no, time: zatcaTime(doc.created_at || doc.date), total: doc.total, tax: doc.vat }), px); };
+// Phase 2: once the document is signed for Fatoora, its 9-field QR (or ZATCA's stamped one) replaces the phase-1 code
+const zatcaQr = (doc, px) => { const c = S.company || {}; if (doc._zqr) return QR.svg(doc._zqr, Math.max(px, 150)); if (!c.vat_no) return ''; return QR.svg(QR.zatca({ seller: c.name, vat: c.vat_no, time: zatcaTime(doc.created_at || doc.date), total: doc.total, tax: doc.vat }), px); };

@@ -1,4 +1,14 @@
 'use strict';
+// ZATCA reasons for a 0% line (XML Implementation Standard, VAT exemption reason codes): [code, Arabic label, English text sent to ZATCA]
+const VATEX = [['VATEX-SA-32', 'تصدير سلع', 'Export of goods'], ['VATEX-SA-33', 'تصدير خدمات', 'Export of services'],
+  ['VATEX-SA-34-1', 'النقل الدولي للسلع', 'The international transport of Goods'], ['VATEX-SA-34-2', 'النقل الدولي للركاب', 'International transport of passengers'],
+  ['VATEX-SA-34-3', 'خدمات مرتبطة بنقل الركاب الدولي', 'Services directly connected and incidental to a Supply of international passenger transport'],
+  ['VATEX-SA-34-4', 'توريد وسائل النقل المؤهلة', 'Supply of a qualifying means of transport'], ['VATEX-SA-34-5', 'خدمات مرتبطة بنقل السلع والركاب', 'Any services relating to Goods or passenger transportation'],
+  ['VATEX-SA-35', 'الأدوية والمعدات الطبية', 'Medicines and medical equipment'], ['VATEX-SA-36', 'المعادن المؤهلة', 'Qualifying metals'],
+  ['VATEX-SA-EDU', 'التعليم الخاص للمواطنين', 'Private education to citizen'], ['VATEX-SA-HEA', 'الرعاية الصحية الخاصة للمواطنين', 'Private healthcare to citizen'],
+  ['VATEX-SA-MLTRY', 'توريد السلع العسكرية المؤهلة', 'Supply of qualified military goods'],
+  ['VATEX-SA-29', 'خدمات مالية (معفاة)', 'Financial services mentioned in Article 29 of the VAT Regulations'], ['VATEX-SA-29-7', 'تأمين على الحياة (معفى)', 'Life insurance services mentioned in Article 29 of the VAT Regulations'],
+  ['VATEX-SA-30', 'توريد عقار (معفى)', 'Real estate transactions mentioned in Article 30 of the VAT Regulations']];
 /* ===== inventory: items, warehouses, transfers, stock counts, expiry, reorder ===== */
 async function whList(force) { if (force || !cache.wh) cache.wh = await db.get('warehouses', Object.assign(C(), { order: 'is_default.desc,code' })); return cache.wh; }
 const whName = w => w ? ((LANG === 'en' && w.name_en) || w.name) : '—';
@@ -26,7 +36,8 @@ VIEWS['#/items'] = async page => {
   const form = it => modal(it ? 'تعديل صنف' : 'صنف جديد', `<div class="fg">${field('الرمز', inp('code', it ? it.code : 'IT-' + String(items.length + 1).padStart(3, '0'), 'dir="ltr"'))}${field('الاسم', inp('name', it && it.name))}${enF('name_en', it && it.name_en)}
       ${field('النوع', `<select name="type" ${it ? 'disabled' : ''}>${opt('stock', 'مخزني', it && it.type)}${opt('service', 'خدمة', it && it.type)}</select>`)}${field('الوحدة', inp('unit', it && it.unit))}${field('التصنيف', inp('category', it && it.category, 'list="icats"') + `<datalist id="icats">${[...new Set(items.map(i => i.category).filter(Boolean))].map(c => `<option value="${esc(c)}">`).join('')}</datalist>`)}${field('الباركود', inp('barcode', it && it.barcode, 'dir="ltr" maxlength="32"'))}
       ${field('سعر البيع', inp('sale_price', it ? it.sale_price : '', 'type="number" step="0.01" min="0"'))}${field('سعر الشراء الافتراضي', inp('purchase_price', it && it.purchase_price, 'type="number" step="0.01" min="0"'))}
-      ${field('ضريبة القيمة المضافة', `<select name="vat_rate">${opt(15, '15%', it ? +it.vat_rate : 15)}${opt(0, tr('0% (صفرية أو معفاة)'), it ? +it.vat_rate : 15)}</select>`)}${it ? field('الحالة', `<label class="row" style="gap:6px"><input type="checkbox" name="active" ${it.active !== false ? 'checked' : ''}> ${esc(tr('نشط — يظهر في الفواتير والأوامر الجديدة'))}</label>`) : ''}
+      ${field('ضريبة القيمة المضافة', `<select name="vat_rate">${opt(15, '15%', it ? +it.vat_rate : 15)}${opt(0, tr('0% (صفرية أو معفاة)'), it ? +it.vat_rate : 15)}</select>`)}
+      ${field('سبب الصفر أو الإعفاء (زاتكا)', `<select name="vat_exempt_code"><option value="">—</option>${VATEX.map(([c, l]) => opt(c, c.replace('VATEX-SA-', '') + ' — ' + tr(l), it && it.vat_exempt_code)).join('')}</select>`, 'vatex')}${it ? field('الحالة', `<label class="row" style="gap:6px"><input type="checkbox" name="active" ${it.active !== false ? 'checked' : ''}> ${esc(tr('نشط — يظهر في الفواتير والأوامر الجديدة'))}</label>`) : ''}
       ${field('حد إعادة الطلب', inp('reorder_level', it ? it.reorder_level : 0, 'type="number" min="0" step="0.001"'))}${field('كمية إعادة الطلب', inp('reorder_qty', it ? it.reorder_qty : 0, 'type="number" min="0" step="0.001"'))}
       ${field('تتبع الصلاحية', `<select name="track_expiry">${opt('false', tr('لا'), String(!!(it && it.track_expiry)))}${opt('true', tr('نعم — دفعات وتواريخ انتهاء'), String(!!(it && it.track_expiry)))}</select>`)}
       ${field('الأرقام التسلسلية', `<select name="track_serial" ${it && st[it.id] ? 'disabled' : ''}>${opt('false', tr('لا'), String(!!(it && it.track_serial)))}${opt('true', tr('نعم — رقم لكل قطعة'), String(!!(it && it.track_serial)))}</select>`)}
@@ -35,12 +46,16 @@ VIEWS['#/items'] = async page => {
       <p class="muted small">${esc(tr('عند تتبع الصلاحية يُطلب تاريخ الانتهاء عند الاستلام، ويُصرف الأقرب انتهاءً أولاً.'))}</p>`, {
     onOk: async f => { if (!f.code || f.name.length < 2) throw new Error('أدخل الرمز والاسم');
       const row = { code: f.code, name: f.name, name_en: blank((f.name_en || '').trim()), unit: blank(f.unit), sale_price: +f.sale_price || 0, reorder_level: +f.reorder_level || 0, reorder_qty: +f.reorder_qty || 0, track_expiry: f.track_expiry === 'true',
-        category: blank(f.category), barcode: blank(f.barcode), purchase_price: f.purchase_price === '' ? null : +f.purchase_price, vat_rate: +f.vat_rate };
+        category: blank(f.category), barcode: blank(f.barcode), purchase_price: f.purchase_price === '' ? null : +f.purchase_price, vat_rate: +f.vat_rate,
+        vat_exempt_code: +f.vat_rate === 0 ? blank(f.vat_exempt_code) : null, vat_exempt_reason: +f.vat_rate === 0 && f.vat_exempt_code ? (VATEX.find(x => x[0] === f.vat_exempt_code) || [])[2] || null : null };
+      if (row.vat_rate === 0 && !row.vat_exempt_code && S.zatcaOn) throw new Error('اختر سبب الصفر أو الإعفاء — فاتورة زاتكا تطلبه');
       if (f.track_serial !== undefined) row.track_serial = f.track_serial === 'true';
       if (it) row.active = !!f.active;
       if (it) await db.upd('items', { id: 'eq.' + it.id }, row); else await db.ins('items', Object.assign(row, { company_id: S.cid, type: f.type })); toast('تم الحفظ'); route(); }
   });
-  const form0 = form, formU = it => { const d = form0(it); if (it) itemUnits(it, d); return d; };
+  const form0 = form, formU = it => { const d = form0(it); if (it) itemUnits(it, d);
+    const vr = d.querySelector('[name=vat_rate]'), vx = d.querySelector('[name=vat_exempt_code]'), show = () => { vx.closest('div').style.display = vr.value === '0' ? '' : 'none'; };
+    vr.addEventListener('change', show); show(); return d; };
   if ($('#ni', page)) $('#ni', page).onclick = () => formU(null);
   if ($('#iim', page)) $('#iim', page).onclick = itemImport;
   if (can('items')) bindRows(page, items, formU);

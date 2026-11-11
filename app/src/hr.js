@@ -684,6 +684,32 @@ function inviteBox(i) {
 
 /* ===== company settings & finance permissions ===== */
 const FPERMS = { dash: 'لوحة المالية', sales: 'المبيعات والعملاء', purch: 'المشتريات والموردون', stock: 'عرض المخزون', stockadj: 'تسوية المخزون', items: 'إدارة الأصناف', void: 'الإلغاء والإشعارات الدائنة', je: 'عرض القيود', jepost: 'ترحيل القيود اليدوية', ledger: 'دفتر الأستاذ', reports: 'القوائم المالية', vat: 'إقرار الضريبة', coa: 'دليل الحسابات', payroll: 'قيود الرواتب', settings: 'إعدادات المالية' };
+// «الربط مع فاتورة» (ZATCA Phase 2): the owner / an admin pastes the OTP from the Fatoora portal; the server does the rest
+async function zatcaCard(el) {
+  const co = S.company || {}, [z] = await db.get('zatca_settings', { company_id: 'eq.' + S.cid }).catch(() => []);
+  const docs = z && z.enabled ? await db.get('zatca_docs', { company_id: 'eq.' + S.cid, select: 'status', limit: 5000 }).catch(() => []) : [];
+  const cnt = st => docs.filter(d => d.status === st).length, envN = { simulation: 'بيئة المحاكاة (تجريبي)', production: 'الإنتاج (فعلي)', sandbox: 'بيئة المطوّرين' };
+  const missing = [!/^3\d{13}3$/.test(co.vat_no || '') && tr('الرقم الضريبي (15 رقماً يبدأ وينتهي بـ 3)'), !(co.street && co.bld_no && co.district && co.city && co.postal_code) && tr('العنوان الوطني كاملاً')].filter(Boolean);
+  el.innerHTML = `<h2>${esc(tr('الربط مع فاتورة (زاتكا — المرحلة الثانية)'))}</h2>
+    ${z && z.enabled ? `<p><span class="badge ok">${esc(tr('مربوطة'))}</span> ${esc(tr(envN[z.env] || z.env))}${z.onboarded_at ? ' · ' + esc(tr('منذ')) + ' ' + fdate(String(z.onboarded_at).slice(0, 10)) : ''} · ${esc(tr('آخر تسلسل'))} <span class="num">${z.icv}</span></p>
+      <p class="small">${esc(tr('أُبلغت أو اعتُمدت'))} <b class="num">${cnt('reported') + cnt('cleared') + cnt('warning')}</b> · ${esc(tr('بانتظار الإرسال'))} <b class="num">${cnt('pending') + cnt('error')}</b> · ${esc(tr('مرفوضة'))} <b class="num">${cnt('rejected')}</b></p>
+      <p class="muted small">${esc(tr('كل فاتورة مبيعات وإشعار دائن أو مدين يُرسل تلقائياً بعد ترحيله. الفاتورة الضريبية (لعميل له رقم ضريبي) تُعتمد قبل تسليمها، والمبسطة تُبلَّغ خلال 24 ساعة. لا تُلغى الفواتير بعد الربط؛ التصحيح بإشعار دائن.'))}</p>`
+    : `<p class="muted small">${esc(tr('اربط منشأتك ببوابة «فاتورة» لتُرسل فواتير المبيعات إلى زاتكا تلقائياً كما تشترط المرحلة الثانية من الفوترة الإلكترونية.'))}</p>
+      <ol class="small" style="margin:0 0 8px;padding-inline-start:18px"><li>${esc(tr('ادخل بوابة فاتورة fatoora.zatca.gov.sa بحساب المنشأة.'))}</li><li>${esc(tr('اختر «تسجيل وحدة حلول فوترة إلكترونية جديدة» واطلب رمز OTP (صالح لمدة قصيرة).'))}</li><li>${esc(tr('الصق الرمز هنا واضغط «ربط». نُكمل الباقي: الشهادة واختبارات الامتثال الستة وشهادة الإنتاج.'))}</li></ol>`}
+    ${missing.length ? `<p class="small" style="color:var(--gold)">${esc(tr('أكمل أولاً في «بيانات المنشأة»'))}: ${missing.map(esc).join('، ')}</p>` : ''}
+    ${z && z.last_error ? `<p class="small" style="color:var(--bad)" data-nt>${esc(tr('آخر محاولة'))}: ${esc(z.last_error)}</p>` : ''}
+    <form id="zf" class="fg" style="margin-top:8px">${field('البيئة', `<select name="env">${opt('simulation', tr('بيئة المحاكاة (تجريبي)'), z && z.env)}${opt('production', tr('الإنتاج (فعلي)'), z && z.env)}</select>`)}
+      ${field('رمز OTP من بوابة فاتورة', '<input name="otp" inputmode="numeric" pattern="\\d{6}" maxlength="6" dir="ltr" placeholder="123456" required>')}
+      <div class="wide"><div id="zerr"></div><button class="btn ${z && z.enabled ? '' : 'pri'}" id="zb" ${missing.length ? 'disabled' : ''}>${esc(tr(z && z.enabled ? 'إعادة الربط (تجديد الشهادة أو الانتقال للإنتاج)' : 'ربط'))}</button>
+      <p class="muted small">${esc(tr('قد يستغرق الربط دقيقة. بعد الربط لا تُلغى فواتير المبيعات، وتُصحّح بإشعار دائن.'))} ${esc(tr('فواتير بيئة المحاكاة للتجربة ولا يُعتدّ بها؛ للربط الفعلي اختر «الإنتاج».'))}</p></div></form>`;
+  $('#zf', el).onsubmit = async e => { e.preventDefault(); const f = formData(e.target);
+    try { await busy($('#zb', el), async () => {
+      if (!/^\d{6}$/.test((f.otp || '').trim())) throw new Error('رمز OTP من 6 أرقام');
+      await fnCall('zatca', { action: 'onboard', company: S.cid, env: f.env, otp: f.otp.trim() });
+      S.zatcaOn = true; toast(tr('تم الربط مع فاتورة')); route(); }); }
+    catch (er) { showErr($('#zerr', el), er); }
+  };
+}
 VIEWS['#/settings'] = async page => {
   const co = S.company; const admin = has('owner', 'admin');
   const fp = can('settings') ? await db.get('finance_permissions', { company_id: 'eq.' + S.cid }) : [];
@@ -703,6 +729,7 @@ VIEWS['#/settings'] = async page => {
      <div id="lgerr"></div><p class="muted small">يظهر أعلى الخطابات المطبوعة. يفضّل PNG بخلفية شفافة؛ نصغّر الصورة تلقائياً.</p></div>` : ''}
    ${admin && S.sub ? `<div class="card"><h2>${esc(tr('الاشتراك'))}</h2><p>${esc(tr('الباقة'))}: <b>${esc(S.sub.plan)}</b> · <span class="badge ${subState(S.sub)[1]}">${esc(tr(subState(S.sub)[0]))}</span>${S.sub.status === 'trial' && S.sub.trial_ends ? ` · ${esc(tr('تنتهي التجربة'))} <span class="num">${esc(S.sub.trial_ends)}</span>` : ''}${S.sub.status === 'active' && S.sub.sub_ends ? ` · ${esc(tr('ينتهي الاشتراك'))} <span class="num">${esc(S.sub.sub_ends)}</span>` : ''}${S.sub.max_users ? ` · ${esc(tr('الحد الأعلى للمستخدمين'))} <span class="num">${S.sub.max_users}</span>` : ''}</p>
      <p>${Object.entries(MODULES).map(([k, t]) => `<span class="badge ${modOn(k) ? 'ok' : ''}">${modOn(k) ? '✓' : '✕'} ${esc(tr(t))}</span>`).join(' ')}</p><p class="muted small">${esc(tr('لتغيير الباقة أو فتح قسم تواصل مع إدارة وعد.'))}</p></div>` : ''}
+   ${admin && (modOn('finance') || modOn('sales')) ? '<div class="card" id="zcard"></div>' : ''}
    ${admin && seeded ? `<div class="card"><h2>${esc(tr('بيانات تجريبية'))}</h2>
      ${seeded
        ? `<p class="muted small">${esc(tr('منشأتك تحتوي بيانات تجريبية. يمكنك مسحها لتبدأ بإدخال بياناتك الحقيقية.'))}</p><button type="button" class="btn danger" id="democlear">${esc(tr('مسح البيانات التجريبية'))}</button>`
@@ -720,6 +747,7 @@ VIEWS['#/settings'] = async page => {
   const setLogo = async v => { try { await db.upd('companies', { id: 'eq.' + S.cid }, { logo: v }); await loadContext(); toast('تم الحفظ'); route(); } catch (er) { showErr($('#lgerr', page), er); } };
   if ($('#lgf', page)) $('#lgf', page).onchange = async ev => { const f = ev.target.files[0]; if (!f) return; try { await setLogo(await imgToLogo(f)); } catch (er) { showErr($('#lgerr', page), er); } };
   if ($('#lgd', page)) $('#lgd', page).onclick = () => setLogo(null);
+  if ($('#zcard', page)) zatcaCard($('#zcard', page));
   if ($('#ccb', page)) $('#ccb', page).onclick = () => companyCodeBox(false);
   ['exx', 'exj'].forEach(k => { const b = $('#' + k, page); if (b) b.onclick = async () => { try { await busy(b, () => exportCompany(k === 'exj')); } catch (er) { showErr($('#exerr', page), er); } }; });
   if ($('#cibn', page)) $('#cibn', page).oninput = e => { $('#cibk', page).textContent = ibanBank(e.target.value); };

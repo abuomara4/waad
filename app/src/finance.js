@@ -231,21 +231,28 @@ async function docView(page, key, id) {
   if (!doc) throw new Error('الفاتورة غير موجودة');
   const [[party], pays, cns] = await Promise.all([db.get('parties', { id: 'eq.' + doc.party_id }), db.get('payments', { [D.payKey + '_id']: 'eq.' + id, order: 'date' }), db.get('credit_notes', { doc_id: 'eq.' + id, order: 'date' })]);
   const im = {}; items.forEach(i => im[i.id] = i); const am = {}; acc.forEach(a => am[a.code] = a.name);
+  // ZATCA Phase 2: the document's place in the Fatoora chain (status, QR) and, for a debit note, the invoice it adds to
+  const zm = {}; if (key === 'sales') (await db.get('zatca_docs', { doc_id: 'in.(' + [id, ...cns.map(c => c.id)].join(',') + ')', select: 'doc_id,icv,status,last_error,qr,sent_at,inv_type' }).catch(() => [])).forEach(z => { zm[z.doc_id] = z; });
+  doc._zqr = zm[id] && zm[id].qr; cns.forEach(c => { c._zqr = zm[c.id] && zm[c.id].qr; });
+  const [ref] = doc.ref_id ? await db.get('sales_invoices', { id: 'eq.' + doc.ref_id, select: 'id,no' }).catch(() => []) : [], isDn = doc.doc_type === 'debit';
   const paid = pays.reduce((a, p) => a + n0(p.amount), 0) + cns.reduce((a, c) => a + n0(c.total), 0), rem = r2(n0(doc.total) - paid);
   const wmm = await whMap(), whTxt = Object.keys(wmm).length > 1 && doc.warehouse_id ? ' · ' + esc(whName(wmm[doc.warehouse_id])) : '';
   const fxRem = doc.currency ? r2(n0(doc.fx_total) * rem / n0(doc.total)) : 0, fxTxt = doc.currency ? `<p>${esc(tr('العملة'))} <b>${esc(doc.currency)}</b> · ${esc(tr('سعر الصرف'))} <span class="num">${+doc.fx_rate}</span> · ${esc(tr('الإجمالي'))} <b class="num">${money(doc.fx_total)} ${esc(doc.currency)}</b> · ${esc(tr('المتبقي'))} <b class="num">${money(fxRem)} ${esc(doc.currency)}</b></p>` : '';
   const ccTxt = doc.cost_center_id ? ' · ' + esc(ccName((await ccList()).find(c => c.id === doc.cost_center_id))) : '';
   const co = S.company, [so] = doc.order_id ? await db.get(key === 'sales' ? 'sales_orders' : 'purchase_orders', { id: 'eq.' + doc.order_id, select: 'id,no' }) : [];
-  page.innerHTML = `<div class="head"><div><a href="#/${key}" class="small">← ${D.t}</a><h1>${D.one} <span class="num">${esc(doc.no)}</span> ${badge(doc.status)}</h1><div class="muted">${esc(party ? party.name : '')} · ${fdate(doc.date)}${doc.supplier_ref ? ' · رقم المورد ' + esc(doc.supplier_ref) : ''}${whTxt}${ccTxt}${so ? ` · ${key === 'sales' ? 'أمر البيع' : 'أمر الشراء'} <a href="#/${key === 'sales' ? 'orders' : 'porders'}/${so.id}" class="num">${esc(so.no)}</a>` : ''}</div></div>
-    <div class="row">${doc.status === 'posted' && rem > 0.001 ? `<button class="btn pri" id="pay">${key === 'sales' ? 'تسجيل قبض' : 'تسجيل صرف'}</button>` : ''}${doc.status === 'posted' && rem > 0.001 && !doc.currency ? '<button class="btn" id="chq">شيك</button>' : ''}${doc.status === 'posted' && can('void') && !doc.is_opening ? `<button class="btn" id="cn">${key === 'sales' ? 'إشعار دائن' : 'مرتجع'}</button>` : ''}${doc.status === 'posted' && can('void') && paid === 0 && !doc.is_opening ? '<button class="btn danger" id="vd">إلغاء الفاتورة</button>' : ''}${doc.is_opening ? '' : '<button class="btn" id="dprint">طباعة</button>'}</div></div>
+  page.innerHTML = `<div class="head"><div><a href="#/${key}" class="small">← ${D.t}</a><h1>${isDn ? esc(tr('إشعار مدين')) : D.one} <span class="num">${esc(doc.no)}</span> ${badge(doc.status)}</h1><div class="muted">${esc(party ? party.name : '')} · ${fdate(doc.date)}${ref ? ` · ${esc(tr('على الفاتورة'))} <a href="#/sales/${ref.id}" class="num">${esc(ref.no)}</a>` : ''}${doc.reason ? ' · ' + esc(doc.reason) : ''}${doc.supplier_ref ? ' · رقم المورد ' + esc(doc.supplier_ref) : ''}${whTxt}${ccTxt}${so ? ` · ${key === 'sales' ? 'أمر البيع' : 'أمر الشراء'} <a href="#/${key === 'sales' ? 'orders' : 'porders'}/${so.id}" class="num">${esc(so.no)}</a>` : ''}</div></div>
+    <div class="row">${doc.status === 'posted' && rem > 0.001 ? `<button class="btn pri" id="pay">${key === 'sales' ? 'تسجيل قبض' : 'تسجيل صرف'}</button>` : ''}${doc.status === 'posted' && rem > 0.001 && !doc.currency ? '<button class="btn" id="chq">شيك</button>' : ''}${doc.status === 'posted' && can('void') && !doc.is_opening ? `<button class="btn" id="cn">${key === 'sales' ? 'إشعار دائن' : 'مرتجع'}</button>` : ''}${key === 'sales' && doc.status === 'posted' && !doc.is_opening && !isDn && can('sales') ? `<button class="btn" id="dn">${esc(tr('إشعار مدين'))}</button>` : ''}${doc.status === 'posted' && can('void') && paid === 0 && !doc.is_opening && !zm[id] ? '<button class="btn danger" id="vd">إلغاء الفاتورة</button>' : ''}${doc.is_opening ? '' : '<button class="btn" id="dprint">طباعة</button>'}</div></div>
+    ${zm[id] ? zatcaBox(zm[id]) : ''}
     <div class="card" id="dcard">${doc.is_opening ? `<p><span class="badge info">${esc(tr('رصيد افتتاحي'))}</span></p>` : ''}${key === 'sales' && !doc.is_opening ? `<div class="row" style="justify-content:space-between;align-items:flex-start"><div class="ph-dup"><b>${esc(co.name)}</b><div class="small muted">${co.vat_no ? 'الرقم الضريبي ' + esc(co.vat_no) : 'لا يوجد رقم ضريبي مسجّل'}</div></div><div style="text-align:end"><b>فاتورة ضريبية${party && party.vat_no ? '' : ' مبسطة'}</b><div class="small muted">${esc(party ? party.name : '')}${party && party.vat_no ? ' · ' + esc(party.vat_no) : ''}</div></div>${co.vat_no ? `<div class="dqr" title="رمز الفاتورة الإلكترونية (زاتكا)">${zatcaQr(doc, 96)}</div>` : ''}</div>${co.vat_no ? '' : '<p class="small" style="color:var(--gold)">لن يظهر رمز QR للفاتورة الإلكترونية حتى يُسجّل الرقم الضريبي للمنشأة في الإعدادات.</p>'}<div style="height:12px"></div>` : ''}
     ${tbl([{ t: 'البند', h: l => esc(l.item_id ? (im[l.item_id] || {}).name : l.account_code + ' — ' + (am[l.account_code] || '')) }, { t: 'الكمية', r: 1, h: l => +l.qty }, { t: 'السعر', r: 1, h: l => money(l.unit_price) }, { t: 'الضريبة', r: 1, h: l => l.vat_rate + '%' }, { t: 'المبلغ', r: 1, h: l => money(l.amount) }], lines,
       { foot: `<td colspan="4">الإجمالي قبل الضريبة / الضريبة / الإجمالي</td><td class="r num">${money(doc.subtotal)} / ${money(doc.vat)} / <b>${money(doc.total)}</b></td>` })}
     ${fxTxt}<p>المسدد والمرتجع: <b class="num">${money(paid)}</b> · ${rem < -0.001 ? 'رصيد دائن للطرف: <b class="num ok">' + money(-rem) + '</b>' : 'المتبقي: <b class="num">' + money(rem) + '</b>'} · الاستحقاق ${fdate(doc.due_date)}</p>${doc.note ? `<p class="muted">${esc(doc.note)}</p>` : ''}</div>
     ${pays.length ? '<h2>السندات</h2>' + tbl([{ t: 'الرقم', h: p => `<span class="num">${esc(p.no)}</span>` }, { t: 'التاريخ', h: p => fdate(p.date) }, { t: 'المبلغ', r: 1, h: p => money(p.amount) }], pays) : ''}
-    ${cns.length ? '<div style="height:12px"></div><h2>الإشعارات</h2>' + tbl([{ t: 'الرقم', h: c => `<span class="num">${esc(c.no)}</span>` }, { t: 'التاريخ', h: c => fdate(c.date) }, { t: 'السبب', k: 'reason' }, { t: 'المبلغ', r: 1, h: c => money(c.total) }, ...(key === 'sales' ? [{ t: '', h: c => `<button class="btn sm" data-cnp="${c.id}">طباعة</button>` }] : [])], cns) : ''}`;
-  if ($('#dprint', page)) $('#dprint', page).onclick = () => { const w = document.createElement('div'); w.innerHTML = invoiceSheet({ key, doc, lines, party, im, am, paid }); printWith(w.firstElementChild, '@page{size:A4 portrait;margin:12mm}'); };
+    ${cns.length ? '<div style="height:12px"></div><h2>الإشعارات</h2>' + tbl([{ t: 'الرقم', h: c => `<span class="num">${esc(c.no)}</span>` }, { t: 'التاريخ', h: c => fdate(c.date) }, { t: 'السبب', k: 'reason' }, { t: 'المبلغ', r: 1, h: c => money(c.total) }, ...(Object.keys(zm).length ? [{ t: 'زاتكا', h: c => zm[c.id] ? zatcaBadge(zm[c.id].status) : '—' }] : []), ...(key === 'sales' ? [{ t: '', h: c => `<button class="btn sm" data-cnp="${c.id}">طباعة</button>` }] : [])], cns) : ''}`;
+  if ($('#dprint', page)) $('#dprint', page).onclick = () => { const w = document.createElement('div'); w.innerHTML = invoiceSheet({ key, doc, lines, party, im, am, paid, ref }); printWith(w.firstElementChild, '@page{size:A4 portrait;margin:12mm}'); };
   page.querySelectorAll('[data-cnp]').forEach(bt => bt.onclick = async e => { e.stopPropagation(); const cn = cns.find(c => c.id === bt.dataset.cnp), cl = await db.get('credit_note_lines', { note_id: 'eq.' + cn.id, order: 'id' }); const w = document.createElement('div'); w.innerHTML = invoiceSheet({ key, doc, lines: cl, party, im, am, cn }); printWith(w.firstElementChild, '@page{size:A4 portrait;margin:12mm}'); });
+  if ($('#zrs', page)) $('#zrs', page).onclick = () => { zatcaKick(); toast(tr('جارٍ الإرسال إلى زاتكا…')); setTimeout(route, 6000); };
+  if ($('#dn', page)) $('#dn', page).onclick = () => debitNoteForm(doc, items);
   if ($('#pay', page)) $('#pay', page).onclick = () => doc.currency ? fxPaymentForm({ key, doc, rem }) : paymentForm({ dir: D.payDir, party: doc.party_id, doc: id, amount: rem });
   if ($('#chq', page)) $('#chq', page).onclick = () => chequeForm({ dir: D.payDir, party: doc.party_id, doc: id, amount: rem });
   if ($('#vd', page)) $('#vd', page).onclick = () => modal('إلغاء الفاتورة', field('سبب الإلغاء', '<textarea name="r" rows="2" required></textarea>') + '<p class="muted small">يُعكس القيد وحركة المخزون، وتبقى الفاتورة ظاهرة بحالة ملغاة.</p>', { ok: 'إلغاء الفاتورة', onOk: async f => { await db.rpc(D.void, { p_id: id, p_reason: f.r }); toast('أُلغيت الفاتورة'); route(); } });
@@ -256,6 +263,36 @@ async function docView(page, key, id) {
         await db.rpc('post_credit_note_cc', { p_company: S.cid, p_doc: { kind: D.cnKind, doc: id, date: f.d, reason: f.reason, lines: ls } }); toast('رُحّل الإشعار'); route(); }
     });
   };
+}
+
+/* ===== ZATCA Phase 2 on a sales document: status in the Fatoora chain, resend, debit note ===== */
+const ZST = { pending: ['بانتظار الإرسال إلى زاتكا', 'wait'], reported: ['أُبلغت زاتكا', 'ok'], cleared: ['اعتمدتها زاتكا', 'ok'], warning: ['قبلتها زاتكا مع ملاحظات', 'wait'],
+  rejected: ['رفضتها زاتكا', 'bad'], error: ['تعذّر الإرسال — ستُعاد المحاولة', 'wait'] };
+const zatcaBadge = st => `<span class="badge ${(ZST[st] || ['', ''])[1]}">${esc(tr((ZST[st] || [st])[0]))}</span>`;
+function zatcaBox(z) {
+  const again = ['pending', 'error'].includes(z.status);
+  return `<div class="card zbox" style="margin-bottom:12px"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap">
+      <div>${esc(tr('فاتورة (زاتكا)'))}: ${zatcaBadge(z.status)} <span class="small muted">${esc(tr(z.inv_type === 'standard' ? 'ضريبية — تُعتمد قبل تسليمها للعميل' : 'مبسطة — تُبلَّغ خلال 24 ساعة'))} · ${esc(tr('التسلسل'))} <span class="num">${z.icv}</span>${z.sent_at ? ' · ' + fdate(String(z.sent_at).slice(0, 10)) : ''}</span></div>
+      ${again ? `<button class="btn sm" id="zrs">${esc(tr('إعادة الإرسال الآن'))}</button>` : ''}</div>
+    ${z.last_error ? `<p class="small" style="margin:6px 0 0;color:var(${z.status === 'rejected' ? '--bad' : '--gold'})" data-nt>${esc(z.last_error)}</p>` : ''}
+    ${z.status === 'rejected' ? `<p class="small muted" style="margin:6px 0 0">${esc(tr('المستند المرفوض لا يُعدّل: أصدر إشعاراً دائناً عليه ثم فاتورة صحيحة جديدة.'))}</p>` : ''}
+    ${z.inv_type === 'standard' && z.status === 'pending' ? `<p class="small muted" style="margin:6px 0 0">${esc(tr('لا تسلّم الفاتورة الضريبية للعميل قبل اعتماد زاتكا.'))}</p>` : ''}</div>`;
+}
+// a debit note: an extra amount on this invoice (price difference, extra service…) — posted as its own document, chained to ZATCA
+function debitNoteForm(doc, items) {
+  const its = items.filter(i => i.active !== false), row = i => `<tr><td><select name="it${i}"><option value="">—</option>${its.map(x => opt(x.id, (x.code ? x.code + ' — ' : '') + x.name)).join('')}</select></td>
+    <td><input name="q${i}" type="number" min="0" step="0.001" value="${i ? '' : 1}"></td><td><input name="p${i}" type="number" min="0" step="0.01"></td></tr>`;
+  modal(tr('إشعار مدين على الفاتورة') + ' ' + doc.no, `<div class="fg">${field('التاريخ', `<input type="date" name="d" value="${today()}" min="${doc.date}" max="${today()}">`)}
+      ${field('السبب', '<input name="reason" required maxlength="300" placeholder="' + esc(tr('مثل: فرق سعر، خدمة إضافية')) + '">', 'wide')}</div>
+    <div class="tw"><table class="lines"><thead><tr><th>${esc(tr('البند'))}</th><th>${esc(tr('الكمية'))}</th><th>${esc(tr('السعر'))}</th></tr></thead><tbody>${[0, 1, 2].map(row).join('')}</tbody></table></div>
+    <p class="muted small">${esc(tr('يُرحّل كمستند مستقل على نفس العميل ويُضاف لرصيده، ويُرسل إلى زاتكا مرتبطاً بالفاتورة الأصلية.'))}</p>`, {
+    wide: true, ok: 'ترحيل الإشعار', onOk: async f => {
+      const lines = [0, 1, 2].map(i => ({ item: f['it' + i], qty: +f['q' + i], price: +f['p' + i] })).filter(l => l.item && l.qty > 0 && l.price > 0);
+      if (!lines.length) throw new Error('أدخل بنداً واحداً على الأقل بكمية وسعر');
+      if ((f.reason || '').trim().length < 3) throw new Error('اكتب سبب الإشعار');
+      const nid = await db.rpc('post_debit_note', { p_company: S.cid, p_doc: { ref: doc.id, date: f.d, reason: f.reason.trim(), lines } });
+      toast(tr('رُحّل الإشعار المدين')); location.hash = '#/sales/' + nid;
+    } });
 }
 
 /* ===== payments ===== */

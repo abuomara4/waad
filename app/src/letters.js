@@ -85,13 +85,14 @@ async function imgToLogo(file) {
 
 /* bilingual tax invoice / purchase bill printout: Arabic and English side by side whatever the interface language
    (a tax invoice must be in Arabic; the English is alongside) */
-function invoiceSheet({ key, doc, lines, party, im, am, paid, cn }) {
+function invoiceSheet({ key, doc, lines, party, im, am, paid, cn, ref }) {
   const c = S.company || {}, sale = key === 'sales', b2b = !!(party && party.vat_no), src = doc;
   if (cn) { doc = Object.assign({}, cn, { due_date: null, status: 'posted' }); paid = 0; }
   const enOf = s => { const t = trTo(s); return t !== s ? t : ''; };
   const two = (ar, en) => `<div>${esc(ar)}</div>${en && en !== ar ? `<div class="iv-en" dir="ltr">${esc(en)}</div>` : ''}`;
   const L = (ar, en) => `<div>${ar}</div><div class="iv-en" dir="ltr">${en}</div>`;
-  const title = cn ? (b2b ? ['إشعار دائن للفاتورة الضريبية', 'Tax Invoice Credit Note'] : ['إشعار دائن للفاتورة الضريبية المبسطة', 'Simplified Tax Invoice Credit Note'])
+  const dn = !cn && doc.doc_type === 'debit';
+  const title = dn ? (b2b ? ['إشعار مدين للفاتورة الضريبية', 'Tax Invoice Debit Note'] : ['إشعار مدين للفاتورة الضريبية المبسطة', 'Simplified Tax Invoice Debit Note']) : cn ? (b2b ? ['إشعار دائن للفاتورة الضريبية', 'Tax Invoice Credit Note'] : ['إشعار دائن للفاتورة الضريبية المبسطة', 'Simplified Tax Invoice Credit Note'])
     : sale ? (b2b ? ['فاتورة ضريبية', 'Tax Invoice'] : ['فاتورة ضريبية مبسطة', 'Simplified Tax Invoice']) : ['فاتورة مشتريات', 'Purchase Bill'];
   const qr = sale ? zatcaQr(doc, 118) : '';
   const nm = l => { if (l.item_id) { const it = im[l.item_id] || {}; return [it.name || '', it.name_en || enOf(it.name || '')]; } const a = am[l.account_code] || ''; return [l.account_code + ' — ' + a, l.account_code + ' — ' + enOf(a)]; };
@@ -102,9 +103,10 @@ function invoiceSheet({ key, doc, lines, party, im, am, paid, cn }) {
       <div class="ph-ids">${c.vat_no ? 'الرقم الضريبي VAT No. <span class="num">' + esc(c.vat_no) + '</span>' : ''}${c.cr_no ? ' · س.ت C.R. <span class="num">' + esc(c.cr_no) + '</span>' : ''}</div>${addrLine(c) || c.address ? `<div class="ph-ids">${esc(addrLine(c) || c.address)}</div>` : ''}</div></div>
       <div class="iv-title">${L(title[0], title[1])}</div></div>
     <table class="iv-meta"><tbody>
-      <tr><td>${cn ? L('رقم الإشعار', 'Credit note No.') : L('رقم الفاتورة', 'Invoice No.')}</td><td class="num">${esc(doc.no)}</td><td>${L('تاريخ الإصدار', 'Issue date')}</td><td class="num">${esc(fdate(doc.date))}${sale && doc.created_at ? ' <span class="small">' + esc(new Date(doc.created_at).toTimeString().slice(0, 5)) + '</span>' : ''}</td></tr>
+      <tr><td>${cn ? L('رقم الإشعار', 'Credit note No.') : dn ? L('رقم الإشعار', 'Debit note No.') : L('رقم الفاتورة', 'Invoice No.')}</td><td class="num">${esc(doc.no)}</td><td>${L('تاريخ الإصدار', 'Issue date')}</td><td class="num">${esc(fdate(doc.date))}${sale && doc.created_at ? ' <span class="small">' + esc(new Date(doc.created_at).toTimeString().slice(0, 5)) + '</span>' : ''}</td></tr>
       <tr><td>${L(sale ? 'العميل' : 'المورد', sale ? 'Customer' : 'Supplier')}</td><td>${two(party ? party.name : '', party ? (party.name_en || enOf(party.name)) : '')}</td>${cn ? `<td>${L('الفاتورة الأصلية', 'Original invoice')}</td><td class="num">${esc(src.no)} · ${esc(fdate(src.date))}</td>` : `<td>${L('تاريخ الاستحقاق', 'Due date')}</td><td class="num">${esc(fdate(doc.due_date))}</td>`}</tr>
       ${cn ? `<tr><td>${L('سبب الإصدار', 'Reason')}</td><td colspan="3">${esc(cn.reason)}</td></tr>` : ''}
+      ${dn ? `<tr><td>${L('الفاتورة الأصلية', 'Original invoice')}</td><td class="num">${esc(ref ? ref.no : '')}</td><td>${L('سبب الإصدار', 'Reason')}</td><td>${esc(doc.reason || '')}</td></tr>` : ''}
       ${party && party.vat_no ? `<tr><td>${L(sale ? 'الرقم الضريبي للعميل' : 'الرقم الضريبي للمورد', sale ? "Buyer's VAT No." : "Supplier's VAT No.")}</td><td class="num">${esc(party.vat_no)}</td><td>${L('السجل التجاري', 'C.R. No.')}</td><td class="num">${esc(party.cr_no || '—')}</td></tr>` : ''}
       ${party && addrLine(party) ? `<tr><td>${L(sale ? 'عنوان العميل' : 'عنوان المورد', sale ? "Buyer's address" : "Supplier's address")}</td><td colspan="3">${esc(addrLine(party))}${party.country && party.country !== 'SA' ? ' — <span class="num">' + esc(party.country) + '</span>' : ''}</td></tr>` : ''}
       ${doc.supplier_ref ? `<tr><td>${L('رقم فاتورة المورد', "Supplier's ref.")}</td><td class="num" colspan="3">${esc(doc.supplier_ref)}</td></tr>` : ''}
