@@ -255,6 +255,7 @@
 أو ما يرفع الرصيد إلى ضعف الحد	or what brings stock to twice the level
 أو مبلغ ثابت يضاف للأساسي	Or a fixed amount added to basic
 أوافق على	I agree to the
+أوافق على حفظ بيانات منشأتي وموظفيها وعملائها لدى مزوّد سحابي خارج المملكة	I agree that the data of my company, its employees and customers is stored with a cloud provider outside the Kingdom
 أوامر البيع	Sales orders
 أوامر الشراء	Purchase orders
 أوزبكي	Uzbek
@@ -721,7 +722,9 @@
 اشتراك سنوي	Annual subscription
 اشتراك سنوي موسّع	Extended annual subscription
 اشتراكات تنتهي خلال	Subscriptions ending within
+اشتراكك	Your subscription
 اشتراكها مفتوح وما أحد دخل منها من	Subscription is open and nobody has signed in for
+اشترك الآن	Subscribe now
 اضغط إرسال فيها	press Send there
 اضغط على أي موظف لتعديل حضوره	Tap any employee to correct their attendance
 اضغط على أي موظف لتغيير مديره المباشر أو قسمه	Click any employee to change their direct manager or department
@@ -1827,7 +1830,9 @@
 الوفاة	death
 الوقت	Time
 الولادة	birth
+اليابان	Japan
 اليوم	Today
+اليوم آخر يوم	today is the last day
 اليوم التالي لنهاية العقد الحالي	the day after the current contract ends
 اليوم الوطني	National Day
 اليوم الوطني ويوم التأسيس	National Day and Founding Day
@@ -1845,6 +1850,7 @@
 انتهت التجربة	Trial ended
 انتهت الجلسة	Session expired
 انتهت المهلة	Deadline passed
+انتهت تجربتك المجانية	Your free trial has ended
 انتهت خدمتك	Your employment has ended
 انتهت خدمته	service ended
 انتهت صلاحية الرابط أو استُخدم من قبل	The link has expired or was already used
@@ -1852,6 +1858,7 @@
 انتهت مهلة التظلم	The grievance period has ended
 انتهت ولم تُجدَّد	Ended, not renewed
 انتهى	Ended
+انتهى اشتراكك	Your subscription has ended
 انتهى الاشتراك	Subscription ended
 انتهى التحقيق في هذه المخالفة	The investigation of this case has ended
 انثى	female
@@ -1873,6 +1880,8 @@
 باركود أو رمز الصنف ثم	Barcode or item code, then
 باقة جديدة	New plan
 باقي	remaining
+باقي يوم واحد	1 day left
+باقي يومان	2 days left
 باكستاني	Pakistani
 بالإضافة إلى حسم أجر مدة التأخر	plus deducting the wage for the lateness
 بالإضافة إلى حسم أجر مدة الغياب	plus deducting the wage for the absence
@@ -2155,6 +2164,7 @@
 تجديد عقد الصيانة	Maintenance contract renewal
 تجديدات	Renewals
 تجربة	Trial
+تجربتك المجانية	Your free trial
 تجهيز فرع جديد	New branch fit-out
 تحت التجربة	On probation
 تحت التجربة حتى	On probation until
@@ -2511,6 +2521,7 @@
 جدول المخالفات والجزاءات	Violations and penalties table
 جدول الورديات	Shift roster
 جديدة	new
+جدّد الاشتراك	Renew
 جذب عملاء جدد للخدمة الجديدة	Attract new customers for the new service
 جرد	Count
 جرد الأنظمة الحالية	Inventory of current systems
@@ -3586,6 +3597,7 @@
 كلمتا المرور غير متطابقتين	The passwords do not match
 كم	How many
 كم ريالاً للوحدة	how many riyals per unit
+كما في	as described in
 كما في تاريخ	As at
 كمبيوتر	Computer
 كمية أو تكلفة الصنف	Quantity or cost of item
@@ -4439,6 +4451,7 @@
 هوية مقيم	resident ID
 هوية وطنية	national ID
 و	and
+وأتحمّل إبلاغهم بذلك	and I will inform them of this
 وأعلى	maximum
 وأهم الأرقام	and the key numbers
 وإذا فيه رسالة خطأ اكتبها	and if there is an error message, write it
@@ -4453,6 +4466,7 @@
 واضغط	and press
 وافق العامل على الإجازة التعويضية بدل أجر العمل الإضافي	The worker agreed to compensatory leave instead of overtime pay
 وافق العامل كتابياً على تخفيض الأجر	The worker agreed in writing to the wage reduction
+وافق على حفظ البيانات خارج المملكة لإكمال إنشاء المنشأة	Agree to storing the data outside the Kingdom to finish creating the company
 وافق على شروط الاستخدام وسياسة الخصوصية لإنشاء الحساب	Accept the Terms of Use and Privacy Policy to create the account
 واقتطاع التلفيات كذلك	and so do damage deductions
 واكتب الرمز الظاهر لحساب وعد	and type the code shown for the Waad account
@@ -4724,6 +4738,8 @@
 يوم التعويض	Compensation day
 يوم بأجر جزئي	days with partial pay
 يوم من العطلة في يوم الراحة الأسبوعية	holiday day(s) on the weekly rest day
+يوم واحد	1 day
+يومان	2 days
 يوماً	days
 يوماً أو أكثر	days or more
 يوماً إذا أنهاه الموظف	days if the employee ends it

@@ -322,3 +322,6 @@ tr.hl td{background:var(--waitbg)}
 /* a table wider than the screen: hint + soft shadow on both edges */
 .xsh{font-size:12px;color:var(--muted);margin:0 2px 4px}
 .tw.xs{box-shadow:inset 14px 0 12px -12px rgba(0,0,0,.45),inset -14px 0 12px -12px rgba(0,0,0,.45)}
+/* the owner's trial / subscription countdown */
+.subbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 16px 0;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--soft2);font-size:14px}
+.subbar>span{flex:1;min-width:200px}.subbar .num{white-space:nowrap}.subbar.warn{border-color:var(--warn,#d97706);background:rgba(217,119,6,.10)}.subbar.bad{border-color:var(--bad);background:rgba(220,38,38,.08)}

@@ -14,7 +14,7 @@ with sync_playwright() as p:
     o = ctx.new_page(); errs = []; o.on('pageerror', lambda e: errs.append(str(e)))
     o.goto(BASE + '/waad-app.html?start=signup')
     o.fill('input[name=email]', 'owner@demo.test'); o.fill('input[name=password]', PW); o.fill('input[name=password2]', PW); o.check('input[name=agree]'); o.click('#ab')
-    o.wait_for_selector('#cf'); o.fill('#cf input[name=name]', 'مؤسسة الريادة للتجارة'); o.fill('#cf input[name=owner_phone]', '0500000000'); o.fill('#cf input[name=city]', 'الرياض'); o.select_option('#cf select[name=size_band]', '11-50'); o.select_option('#cf select[name=industry]', 'trade');  o.fill('#cf input[name=vat]', '300000000000003'); o.click('#cb')
+    o.wait_for_selector('#cf'); o.fill('#cf input[name=name]', 'مؤسسة الريادة للتجارة'); o.fill('#cf input[name=owner_phone]', '0500000000'); o.fill('#cf input[name=city]', 'الرياض'); o.select_option('#cf select[name=size_band]', '11-50'); o.select_option('#cf select[name=industry]', 'trade'); o.check('#cf input[name=xfer]');  o.fill('#cf input[name=vat]', '300000000000003'); o.click('#cb')
     o.wait_for_selector('#ccok'); o.check('#ccok'); o.click('#mok'); o.wait_for_selector('#dlg', state='hidden')
     res = o.evaluate("""async () => {
       const c = S.cid, out = {};

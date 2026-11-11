@@ -39,21 +39,14 @@ async function leaveBalance() {
 }
 
 /* ===== first-run checklist for a new owner ===== */
-// sample data: employees, customers, campaigns and projects to try everything; removable from settings
-const demoSeedDialog = (after = null) => modal(tr('إضافة بيانات تجريبية'),
-  `<p>${esc(tr('سنضيف موظفين وأقساماً وعملاء وحملات تسويقية ومشاريع تجريبية لتجربة النظام. يمكنك مسحها لاحقاً بضغطة من الإعدادات.'))}</p>`,
-  { ok: 'إضافة', onOk: async () => { await db.rpc('demo_seed', { p_company: S.cid }); cache.emps = null; toast(tr('أُضيفت البيانات التجريبية')); if (after) location.hash = after; route(); } });
 VIEWS['#/welcome'] = async page => {
-  const noEmps = has('owner', 'admin') && !(await db.get('employees', { company_id: 'eq.' + S.cid, select: 'id', limit: 1 }).catch(() => [{}])).length;
   page.innerHTML = `<div class="head"><div><h1>جهّز منشأتك</h1><div class="muted">ثلاث خطوات وتبدأ</div></div></div>
-   ${noEmps ? `<div class="card" style="border-color:var(--accent)"><h2>${esc(tr('تبي تجرّب قبل؟'))}</h2><p class="muted">${esc(tr('أضف بيانات تجريبية (موظفين وعملاء وفواتير ومشاريع) وجرّب كل شي بدون بياناتك الحقيقية. تمسحها بضغطة من الإعدادات لما تبدأ فعلياً.'))}</p>
-     <button class="btn pri" id="wdemo">${esc(tr('جرّب ببيانات تجريبية'))}</button></div>` : ''}
+
    <div class="card"><h2>1. أضف نفسك كموظف</h2><p class="muted">ليظهر لك نظام الطلبات وقسائم الراتب، ويُعرف أنك المدير العام في مسارات الاعتماد.</p>
    ${S.emp ? '<div class="badge ok">تم</div>' : `<button class="btn pri" id="me">إضافة بياناتي</button>`}</div>
    <div class="card"><h2>2. أضف الموظفين</h2><p class="muted">أضف سجلات الموظفين ورواتبهم ومديريهم المباشرين.</p><a class="btn" href="#/employees">الموظفون</a></div>
    <div class="card"><h2>3. أعطِ فريقك الدخول</h2><p class="muted">الموظف: افتح سجله من «الموظفون» واضغط «إنشاء دخول للموظف» — يدخل برمز المنشأة <b class="num">${esc(S.company.code)}</b> ثم رقمه الوظيفي وكلمة مرور مؤقتة. الإدارة بالبريد: من «المستخدمون والدعوات».</p><a class="btn" href="#/employees">الموظفون</a> <a class="btn" href="#/users">المستخدمون والدعوات</a><div style="margin-top:8px"><button class="btn sm" id="ccw">إرسال رمز المنشأة لبريدي</button></div></div>`;
   if ($('#me', page)) $('#me', page).onclick = () => employeeForm(null, { linkMe: true });
-  if ($('#wdemo', page)) $('#wdemo', page).onclick = () => demoSeedDialog('#/home');
   $('#ccw', page).onclick = () => companyCodeBox(false);
 };
 
@@ -710,12 +703,12 @@ VIEWS['#/settings'] = async page => {
      <div id="lgerr"></div><p class="muted small">يظهر أعلى الخطابات المطبوعة. يفضّل PNG بخلفية شفافة؛ نصغّر الصورة تلقائياً.</p></div>` : ''}
    ${admin && S.sub ? `<div class="card"><h2>${esc(tr('الاشتراك'))}</h2><p>${esc(tr('الباقة'))}: <b>${esc(S.sub.plan)}</b> · <span class="badge ${subState(S.sub)[1]}">${esc(tr(subState(S.sub)[0]))}</span>${S.sub.status === 'trial' && S.sub.trial_ends ? ` · ${esc(tr('تنتهي التجربة'))} <span class="num">${esc(S.sub.trial_ends)}</span>` : ''}${S.sub.status === 'active' && S.sub.sub_ends ? ` · ${esc(tr('ينتهي الاشتراك'))} <span class="num">${esc(S.sub.sub_ends)}</span>` : ''}${S.sub.max_users ? ` · ${esc(tr('الحد الأعلى للمستخدمين'))} <span class="num">${S.sub.max_users}</span>` : ''}</p>
      <p>${Object.entries(MODULES).map(([k, t]) => `<span class="badge ${modOn(k) ? 'ok' : ''}">${modOn(k) ? '✓' : '✕'} ${esc(tr(t))}</span>`).join(' ')}</p><p class="muted small">${esc(tr('لتغيير الباقة أو فتح قسم تواصل مع إدارة وعد.'))}</p></div>` : ''}
-   ${admin ? `<div class="card"><h2>${esc(tr('بيانات تجريبية'))}</h2>
+   ${admin && seeded ? `<div class="card"><h2>${esc(tr('بيانات تجريبية'))}</h2>
      ${seeded
        ? `<p class="muted small">${esc(tr('منشأتك تحتوي بيانات تجريبية. يمكنك مسحها لتبدأ بإدخال بياناتك الحقيقية.'))}</p><button type="button" class="btn danger" id="democlear">${esc(tr('مسح البيانات التجريبية'))}</button>`
        : hasEmps
          ? `<p class="muted small">${esc(tr('تُضاف البيانات التجريبية فقط لمنشأة جديدة بلا موظفين، لحماية بياناتك الحقيقية.'))}</p>`
-         : `<p class="muted small">${esc(tr('يملأ منشأتك بموظفين وعملاء وحملات ومشاريع تجريبية لتجربة النظام كاملاً، ويمكنك مسحها لاحقاً بضغطة.'))}</p><button type="button" class="btn pri" id="demoseed">${esc(tr('إضافة بيانات تجريبية'))}</button>`}
+         : ''}
      <div id="demoerr"></div></div>` : ''}
    ${has('owner') ? `<div class="card"><h2>${esc(tr('تصدير بيانات المنشأة'))}</h2><p class="muted small">${esc(tr('نسخة كاملة من كل بيانات منشأتك لحفظها لديك أو نقلها. للمالك فقط، ويُسجَّل كل تصدير في سجل التدقيق.'))}</p>
      <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn" id="exx">${esc(tr('ملف Excel (بدون المرفقات)'))}</button><button type="button" class="btn" id="exj">${esc(tr('ملف JSON كامل (مع المرفقات)'))}</button></div><div id="exerr"></div></div>` : ''}
@@ -730,7 +723,6 @@ VIEWS['#/settings'] = async page => {
   if ($('#ccb', page)) $('#ccb', page).onclick = () => companyCodeBox(false);
   ['exx', 'exj'].forEach(k => { const b = $('#' + k, page); if (b) b.onclick = async () => { try { await busy(b, () => exportCompany(k === 'exj')); } catch (er) { showErr($('#exerr', page), er); } }; });
   if ($('#cibn', page)) $('#cibn', page).oninput = e => { $('#cibk', page).textContent = ibanBank(e.target.value); };
-  if ($('#demoseed', page)) $('#demoseed', page).onclick = () => demoSeedDialog();
   if ($('#democlear', page)) $('#democlear', page).onclick = () => modal(tr('مسح البيانات التجريبية'),
     `<p>${esc(tr('سيُحذف كل ما في أقسام الموظفين والعملاء والحملات والمشاريع. هذا الإجراء لا يمكن التراجع عنه.'))}</p>`,
     { ok: 'مسح', onOk: async () => { await db.rpc('demo_clear', { p_company: S.cid }); cache.emps = null; toast(tr('مُسحت البيانات التجريبية')); route(); } });

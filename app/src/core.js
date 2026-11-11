@@ -339,6 +339,7 @@ function onboardView() {
         ${field('الرقم الضريبي (اختياري)', inp('vat', '', 'dir="ltr" inputmode="numeric" placeholder="3XXXXXXXXXXXXX3"'))}
         ${field('السجل التجاري (اختياري)', inp('cr', '', 'dir="ltr" inputmode="numeric"'))}
         ${profileFields()}
+        <label class="row small wide" style="gap:6px;align-items:flex-start"><input type="checkbox" name="xfer" style="width:auto;margin-top:4px"> <span>${esc(tr('أوافق على حفظ بيانات منشأتي وموظفيها وعملائها لدى مزوّد سحابي خارج المملكة (اليابان)، وأتحمّل إبلاغهم بذلك، كما في'))} <a href="#/privacy">${esc(tr('سياسة الخصوصية'))}</a>.</span></label>
         <div class="wide"><div id="cerr"></div><button class="btn pri" id="cb">إنشاء المنشأة</button></div>
       </form><p class="muted small">ستكون مالك المنشأة، ويُنشأ دليل الحسابات تلقائياً.</p></div>
     <p class="muted small" style="text-align:center">${esc(S.session.user.email)} · <a href="#" id="lo">تسجيل الخروج</a></p></div></div>`;
@@ -350,8 +351,9 @@ function onboardView() {
     if (f.vat && !/^3\d{13}3$/.test(f.vat)) return showErr('#cerr', 'الرقم الضريبي 15 رقماً يبدأ وينتهي بـ 3');
     if (f.cr && !/^\d{10}$/.test(f.cr)) return showErr('#cerr', 'السجل التجاري 10 أرقام');
     try { await busy($('#cb'), async () => { const pe = profileErr(f); if (pe) throw new Error(pe);
+      if (!f.xfer) throw new Error('وافق على حفظ البيانات خارج المملكة لإكمال إنشاء المنشأة');
       const cid = await db.rpc('create_company', { p_name: f.name, p_vat: blank(f.vat), p_cr: blank(f.cr) }); S.cid = cid; LS.set('waad.cid', cid);
-      await db.upd('companies', { id: 'eq.' + cid }, Object.assign(profileRow(f), (f.name_en || '').trim() ? { name_en: f.name_en.trim() } : {})); await boot(); if (S.sub && S.sub.status === 'pending') return; location.hash = '#/welcome'; setTimeout(() => companyCodeBox(true), 400); }); } catch (er) { showErr('#cerr', er); } };
+      await db.upd('companies', { id: 'eq.' + cid }, Object.assign(profileRow(f), { xfer_consent_at: new Date().toISOString() }, (f.name_en || '').trim() ? { name_en: f.name_en.trim() } : {})); await boot(); if (S.sub && S.sub.status === 'pending') return; location.hash = '#/welcome'; setTimeout(() => companyCodeBox(true), 400); }); } catch (er) { showErr('#cerr', er); } };
 }
 
 /* the company code employees sign in with: shown once on creation, and any time from settings / the welcome page */
@@ -577,7 +579,7 @@ function shell() {
           <button type="button" class="mi out" id="lo" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg><span>تسجيل الخروج</span></button>
         </div><div class="bpanel" id="bpanel" hidden></div></div></header>
       <div class="scrim" id="scrim"></div>
-      <div id="ann"></div><main class="page" id="page"></main></div></div>`;
+      <div id="subbar"></div><div id="ann"></div><main class="page" id="page"></main></div></div>`;
   drawNav();
   $('#mb').onclick = () => $('#side').classList.toggle('open');
   $('#scrim').onclick = () => $('#side').classList.remove('open');
@@ -594,7 +596,22 @@ function shell() {
   document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && $('#umenu')) { umSet(false); $('#bpanel').hidden = true; } });
   $('#lo').onclick = async () => { await authApi.signOut(); authView(); };
   if (multi) $('#cs').onchange = async e => { S.cid = e.target.value; LS.set('waad.cid', S.cid); await loadContext(); shell(); location.hash = '#/home'; route(); };
-  refreshCounts(); drawAnn();
+  refreshCounts(); drawAnn(); drawSubBar();
+}
+// Arabic day counts: يوم واحد / يومان / 3–10 أيام / 11+ يوماً
+const daysAr = n => n === 0 ? 'اليوم آخر يوم' : n === 1 ? 'باقي يوم واحد' : n === 2 ? 'باقي يومان' : n <= 10 ? `باقي ${n} أيام` : `باقي ${n} يوماً`;
+// the owner sees how long the trial or the subscription has left, counting down every day
+function drawSubBar() {
+  const box = $('#subbar'), s = S.sub; if (!box) return;
+  if (!s || !has('owner', 'admin') || !['trial', 'active'].includes(s.status)) { box.innerHTML = ''; return; }
+  const end = s.status === 'trial' ? s.trial_ends : s.sub_ends; if (!end) { box.innerHTML = ''; return; }
+  const n = Math.round((new Date(end + 'T12:00:00Z') - new Date(today() + 'T12:00:00Z')) / 864e5), trial = s.status === 'trial';
+  const what = trial ? tr('تجربتك المجانية') : tr('اشتراكك'), link = SITE_URL + 'contact.html#contact';
+  const msg = n < 0 ? (trial ? tr('انتهت تجربتك المجانية') : tr('انتهى اشتراكك')) + ` (<span class="num">${esc(end)}</span>)`
+    : `${esc(what)}: <b>${esc(tr(daysAr(n)))}</b> · ${esc(tr('تنتهي'))} <span class="num">${esc(end)}</span>`;
+  const act = trial ? tr('اشترك الآن') : tr('جدّد الاشتراك');
+  box.innerHTML = `<div class="subbar ${n < 0 ? 'bad' : n <= 3 ? 'warn' : ''}" role="status"><span>${msg}</span>
+    ${trial || n <= 30 ? `<a class="btn sm${n <= 3 ? ' pri' : ''}" href="${link}" target="_blank" rel="noopener">${esc(act)}</a>` : ''}</div>`;
 }
 // announcements from Waad (admin site → «الإعلانات»): shown above every screen until the user closes them
 async function drawAnn() {
