@@ -2591,7 +2591,7 @@ select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1
 select public.platform_add_note(:'cid', 'كلمته بالواتساب عن الباقة', 'whatsapp', current_date - 2);
 select public.platform_add_note(:'cid', 'زرناه في مكتبه', 'meeting', null);
 select t.err($$select public.platform_add_note('$$ || :'cid' || $$', 'x', 'fax', null)$$, 'غير معروف', 'only known contact types are accepted');
-select t.err($$select public.platform_add_note('$$ || :'cid' || $$', 'x', 'call', current_date + 1)$$, 'المستقبل', 'a contact cannot be dated in the future');
+select t.err($$select public.platform_add_note('$$ || :'cid' || $$', 'x', 'call', (now() at time zone 'Asia/Riyadh')::date + 1)$$, 'المستقبل', 'a contact cannot be dated in the future');
 select t.ok((select d->'notes'->0->>'channel' = 'meeting' and d->'notes'->1->>'channel' = 'whatsapp' and d->'notes'->1->>'on' = (current_date - 2)::text
    from (select public.platform_company(:'cid') d) x), 'the contact log shows each entry with its type and date, newest first');
 reset role;
