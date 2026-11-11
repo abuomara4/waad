@@ -1,4 +1,5 @@
-# Every 10 minutes: tell the Waad team (e-mail and/or WhatsApp) about new companies waiting for approval.
+# Every 10 minutes: tell the Waad team (e-mail and/or WhatsApp) about new companies waiting for approval, and resend
+# documents waiting for ZATCA (Fatoora) — .github/scripts/zatca_retry.ts.
 # Secrets: SUPABASE_DB_URL (already set) + the channel secrets listed in .github/scripts/notify_new_companies.py.
 name: notify new requests
 on:
@@ -10,7 +11,7 @@ concurrency: { group: notify, cancel-in-progress: false }
 jobs:
   notify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 8
     environment: production
     steps:
       - uses: actions/checkout@v4
@@ -26,3 +27,12 @@ jobs:
         run: |
           command -v psql >/dev/null || sudo apt-get install -y -qq postgresql-client > /dev/null
           python3 .github/scripts/notify_new_companies.py
+      # ZATCA: send what waits (failed sends, or nobody opened the app) — simplified invoices must reach ZATCA within 24 hours
+      - uses: denoland/setup-deno@v2
+        if: always()
+        with: { deno-version: v2.x }
+      - name: ZATCA retry
+        if: always() && !inputs.test
+        env:
+          DB: ${{ secrets.SUPABASE_DB_URL }}
+        run: timeout 240 deno run --allow-net --allow-env --allow-read --allow-sys .github/scripts/zatca_retry.ts

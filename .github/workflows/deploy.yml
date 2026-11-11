@@ -27,7 +27,7 @@ jobs:
       - uses: denoland/setup-deno@v2
         with: { deno-version: v2.x }
       - name: ZATCA e-invoice tests (XML, hash, signature, QR)
-        run: deno test --allow-read supabase/functions/_shared/ && deno check supabase/functions/zatca/index.ts
+        run: deno test --allow-read supabase/functions/_shared/ && deno check supabase/functions/zatca/index.ts .github/scripts/zatca_retry.ts
       - name: Every Arabic text has an English translation
         run: python3 app/i18n/extract.py 2> i18n.log; cat i18n.log; grep -q ' 0 missing' i18n.log
       - name: Build the app

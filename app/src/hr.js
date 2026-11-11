@@ -697,6 +697,7 @@ async function zatcaCard(el) {
     : `<p class="muted small">${esc(tr('اربط منشأتك ببوابة «فاتورة» لتُرسل فواتير المبيعات إلى زاتكا تلقائياً كما تشترط المرحلة الثانية من الفوترة الإلكترونية.'))}</p>
       <ol class="small" style="margin:0 0 8px;padding-inline-start:18px"><li>${esc(tr('ادخل بوابة فاتورة fatoora.zatca.gov.sa بحساب المنشأة.'))}</li><li>${esc(tr('اختر «تسجيل وحدة حلول فوترة إلكترونية جديدة» واطلب رمز OTP (صالح لمدة قصيرة).'))}</li><li>${esc(tr('الصق الرمز هنا واضغط «ربط». نُكمل الباقي: الشهادة واختبارات الامتثال الستة وشهادة الإنتاج.'))}</li></ol>`}
     ${missing.length ? `<p class="small" style="color:var(--gold)">${esc(tr('أكمل أولاً في «بيانات المنشأة»'))}: ${missing.map(esc).join('، ')}</p>` : ''}
+    ${!co.cr_no ? `<p class="small muted">${esc(tr('يُفضّل إضافة السجل التجاري في «بيانات المنشأة»: زاتكا تقبل الفاتورة بدونه لكن مع ملاحظة.'))}</p>` : ''}
     ${z && z.last_error ? `<p class="small" style="color:var(--bad)" data-nt>${esc(tr('آخر محاولة'))}: ${esc(z.last_error)}</p>` : ''}
     <form id="zf" class="fg" style="margin-top:8px">${field('البيئة', `<select name="env">${opt('simulation', tr('بيئة المحاكاة (تجريبي)'), z && z.env)}${opt('production', tr('الإنتاج (فعلي)'), z && z.env)}</select>`)}
       ${field('رمز OTP من بوابة فاتورة', '<input name="otp" inputmode="numeric" pattern="\\d{6}" maxlength="6" dir="ltr" placeholder="123456" required>')}

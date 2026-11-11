@@ -3048,6 +3048,7 @@
 رُفض	Rejected
 رُفض التظلم	Grievance rejected
 زاتكا	ZATCA
+زاتكا تقبل الفاتورة بدونه لكن مع ملاحظة	ZATCA accepts the invoice without it, but with a warning
 زوار الموقع	Website visitors
 زيادة	Increase
 زيادة التكلفة الشهرية	Monthly cost increase
@@ -4950,6 +4951,7 @@
 يُعكس قيد آخر شهر مُهلك	The last depreciated month's entry is reversed
 يُعكس قيد الإقفال	The closing entry is reversed
 يُفترض وجود إقامة ورخصة عمل سارية	a valid iqama and work permit are expected
+يُفضّل إضافة السجل التجاري في	Better add the commercial registration in
 يُقدَّم للعامل مكتوباً	given to the worker in writing
 يُقيد إهلاك شهر	Posts depreciation for month
 يُنشأ الطرف إن لم يكن موجوداً	the party is created if it does not exist
