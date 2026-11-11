@@ -325,3 +325,8 @@ tr.hl td{background:var(--waitbg)}
 /* the owner's trial / subscription countdown */
 .subbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 16px 0;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--soft2);font-size:14px}
 .subbar>span{flex:1;min-width:200px}.subbar .num{white-space:nowrap}.subbar.warn{border-color:var(--warn,#d97706);background:rgba(217,119,6,.10)}.subbar.bad{border-color:var(--bad);background:rgba(220,38,38,.08)}
+/* forms library */
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.fcard{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:start;cursor:pointer;font:inherit;color:var(--ink);min-height:74px}
+.fcard:hover{border-color:var(--accent)}
+.fauto{color:var(--ok);margin-top:2px}

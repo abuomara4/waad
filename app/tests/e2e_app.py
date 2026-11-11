@@ -1188,6 +1188,17 @@ with sync_playwright() as pw:
     ok(len(fit_routes) > 60 and not wide, 'all %d screens fit 360/390/768/1024/1440px with no sideways scroll: ' % len(fit_routes) + json.dumps(wide, ensure_ascii=False)[:400])
     ok(len(o.errors) == n_err, 'no script errors while opening every screen at every size: ' + '; '.join(o.errors[n_err:])[:300])
 
+    # ---------- forms library: a numbered form filled from the employee record ----------
+    go(o, '#/forms'); o.wait_for_selector('.fcard'); ok(o.locator('.fcard').count() >= 10, 'forms: the HR library is listed')
+    o.evaluate("window.__print=window.print;window.print=()=>{};0")
+    o.locator('.fcard', has_text='مباشرة عمل').click(); o.wait_for_selector('#dlg select[name=who]'); modal_ok(o); o.wait_for_timeout(800)
+    sheet = o.evaluate("document.getElementById('printarea').innerText")
+    ok('مباشرة عمل' in sheet and re.search(r'F-\d{4}-\d{4}', sheet) is not None and 'التوقيع' in sheet, 'forms: the sheet is filled, numbered and has signature lines')
+    o.evaluate("window.print=window.__print;window.dispatchEvent(new Event('afterprint'))")
+    o.click('#fnew'); o.wait_for_selector('#dlg input[name=title_ar]'); o.fill('#dlg input[name=title_ar]', 'تعهد استلام سيارة')
+    o.fill('#dlg textarea[name=body_ar]', 'أتعهد أنا {e.name} باستلام السيارة رقم {f:رقم اللوحة}.'); modal_ok(o); o.wait_for_timeout(500)
+    o.locator('.fcard', has_text='تعهد استلام سيارة').click(); o.wait_for_selector('#dlg input[name="f_رقم اللوحة"]')
+    ok(True, 'forms: a company template turns {f:…} into a field to fill'); o.click('#mx')
     # ---------- packages and the admin site (a separate page: waad-admin.html, published as site/admin/) ----------
     pp = new_page(b); signup(pp, 'platform@waad.test'); pp.wait_for_selector('#cf')
     sqlx("insert into platform_admins(user_id) select id from auth.users where email='platform@waad.test'")

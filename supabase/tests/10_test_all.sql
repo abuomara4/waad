@@ -2609,5 +2609,22 @@ select t.ok((public.my_manager(:'cid')->>'name') is not null or not exists(selec
   'an employee reads the name of their own direct manager');
 reset role;
 
+-- ================= FORMS: COMPANY TEMPLATES + NUMBERED ISSUE LOG (0076) =================
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+insert into public.form_templates(company_id, dept, subject, title_ar, body_ar, sigs) values (:'cid', 'hr', 'employee', 'تعهد خاص', 'أتعهد أنا {e.name} بـ {f:الالتزام}.', '["الموظف"]');
+select t.ok((select count(*) = 1 from public.form_templates where company_id = :'cid'), 'HR saves a company form template');
+select public.form_issue(:'cid', 'hire_decision', 'قرار تعيين', 'سارة', 'ar') as fno1 \gset
+select public.form_issue(:'cid', 'joining', 'مباشرة عمل', 'سارة', 'ar') as fno2 \gset
+select t.ok(:'fno1' = 'F-' || to_char((now() at time zone 'Asia/Riyadh')::date, 'YYYY') || '-0001' and :'fno2' like 'F-%-0002', 'printed forms get serial numbers F-YYYY-0001, 0002…');
+select t.err($$insert into public.form_issues(company_id, no, template, title) values ('$$ || :'cid' || $$', 'X', 'x', 'x')$$, 'permission denied', 'the issue log is written only through form_issue');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.form_issue('$$ || :'cid' || $$', 'x', 'x', null, 'ar')$$, '42501|غير مصرح', 'an ordinary employee cannot issue forms');
+select t.ok((select count(*) = 0 from public.form_templates), 'an ordinary employee does not see the company templates');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.ok((select count(*) = 0 from public.form_issues where company_id = :'cid'), 'another company cannot see the issue log');
+reset role;
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

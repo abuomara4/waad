@@ -504,6 +504,7 @@ function navItems() {
     // an employee sees only self and own team on the chart: with nobody under them it would show just them
     if (!(isHR() || has('finance')) && (!plainEmp() || S.hasTeam) && (ov === 'all' || (ov === 'managers' && has('manager')))) it.push({ h: '#/org', t: 'الهيكل التنظيمي' }); }
   if ((!['accountant', 'storekeeper'].includes(S.role) || S.emp) && (!plainEmp() || S.hasTeam || NAVC.approvals)) it.push({ h: '#/approvals', t: 'الاعتمادات', pill: NAVC.approvals });
+  if (typeof FORM_DEPTS !== 'undefined' && Object.keys(FORM_DEPTS).some(d => modOn(d) && formCanDept(d))) it.push({ h: '#/forms', t: 'النماذج' });
   if (has('manager') && !(isHR() || has('finance'))) it.push({ h: '#/clearance', t: 'إخلاء الطرف' });
   if (isHR() || has('finance')) {
     g('الموارد البشرية');
@@ -630,7 +631,7 @@ const NI = { home: 'M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z', 
   search: 'M11 4a7 7 0 1 0 0 14a7 7 0 0 0 0-14zM21 21l-5-5', truck: 'M2 6h11v10H2zM13 9h4l4 4v3h-8M6 19a2 2 0 1 0 0-.01M17 19a2 2 0 1 0 0-.01', swap: 'M4 8h14l-3-3M20 16H6l3 3' };
 const NAV_IC = { home: 'home', analytics: 'chart', attendance: 'clock', att: 'clock', requests: 'doc', payslips: 'money', reviews: 'star', profile: 'user', policies: 'book', org: 'org', approvals: 'check', clearance: 'shield',
   hrdash: 'chart', employees: 'users', docs: 'doc', roster: 'cal', leavecal: 'cal', penalties: 'shield', payroll: 'money', eos: 'money', nitaqat: 'chart', travel: 'plane', workflows: 'flow', recruit: 'search', training: 'grad',
-  hrreports: 'chart', crm: 'users', rfq: 'doc', serials: 'check', grades: 'chart', insurance: 'shield', trainplan: 'cal', platform: 'gear', sales: 'cart', quotes: 'doc', orders: 'cart', deliveries: 'truck', purchreq: 'doc', porders: 'box', receipts: 'truck', warehouses: 'box', transfers: 'swap', counts: 'check', expiry: 'cal', reorder: 'cart', parties: 'users', purchases: 'box', payments: 'swap', items: 'box', journal: 'book', reports: 'chart', coa: 'book', bankrec: 'check', cheques: 'doc', petty: 'money', mypetty: 'money', currencies: 'swap', opening: 'book', assets: 'box', costcenters: 'org', budgets: 'chart', periods: 'shield', users: 'users', settings: 'gear' };
+  hrreports: 'chart', forms: 'doc', crm: 'users', rfq: 'doc', serials: 'check', grades: 'chart', insurance: 'shield', trainplan: 'cal', platform: 'gear', sales: 'cart', quotes: 'doc', orders: 'cart', deliveries: 'truck', purchreq: 'doc', porders: 'box', receipts: 'truck', warehouses: 'box', transfers: 'swap', counts: 'check', expiry: 'cal', reorder: 'cart', parties: 'users', purchases: 'box', payments: 'swap', items: 'box', journal: 'book', reports: 'chart', coa: 'book', bankrec: 'check', cheques: 'doc', petty: 'money', mypetty: 'money', currencies: 'swap', opening: 'book', assets: 'box', costcenters: 'org', budgets: 'chart', periods: 'shield', users: 'users', settings: 'gear' };
 const navIcon = h => `<svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="${NI[NAV_IC[h.split('/')[1]]] || NI.doc}"/></svg>`;
 function drawNav() {
   const cur = location.hash.split('?')[0] || '#/home', opened = LS.get('waad.navopen');

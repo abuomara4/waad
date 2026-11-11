@@ -2,6 +2,7 @@
 آخر	Last
 آخر إهلاك	Last depreciation
 آخر الدفعات	Latest payments
+آخر النماذج المطبوعة	Latest printed forms
 آخر تحديث	Last updated
 آخر تسوية مكتملة بتاريخ	Last completed reconciliation is dated
 آخر دخول	Last sign-in
@@ -165,6 +166,7 @@
 أضف نفسك كموظف	Add yourself as an employee
 أضف هدفاً واحداً على الأقل	Add at least one goal
 أضف وردية افتراضية قبل تفعيل الحضور	Add a default shift before enabling attendance
+أضفها أول	Add them first
 أطفئ خيار	Turn off the
 أعد للموظف	refund the employee
 أعداد وتواريخ فقط	Counts and dates only
@@ -266,6 +268,7 @@
 أولاً	first
 أي جزاء إضافي يحتاج لائحة جزاءات معتمدة وتحقيقاً	any further penalty requires an approved disciplinary policy and an investigation
 أي حتى	i.e. by
+أي كلمة تكتبها بين	Any word you write between
 أي موقع من مواقع المنشأة	Any company work site
 أيام	days
 أيام أو متأخرة	days or overdue
@@ -350,6 +353,7 @@
 إجراء غير معروف	Unknown action
 إجمالي الأساسي والبدلات	basic plus allowances
 إجمالي الإنفاق	Total spend
+إجمالي الراتب	Total salary
 إجمالي الرواتب	Total payroll
 إجمالي الساعات	Total hours
 إجمالي الصافي	Total net
@@ -470,6 +474,7 @@
 إغلاق الدورة	Close cycle
 إغلاق باقي الأمر	Close the rest of the order
 إغلاق قسم لا يحذف بياناته	Closing a module does not delete its data
+إقامة	Iqama
 إقرار الضريبة	VAT return
 إقرارات سياسات ناقصة	Missing policy acknowledgements
 إقراري	My acknowledgement
@@ -622,6 +627,7 @@
 اختر مرحلة اعتماد واحدة على الأقل	Choose at least one approval step
 اختر مستودعين مختلفين	Choose two different warehouses
 اختر ملفاً	Choose a file
+اختر من القائمة	Choose from the list
 اختر موظفاً واحداً على الأقل	Choose at least one employee
 اختر نشاط المنشأة	Choose the company activity
 اختر نوع التأشيرة	Choose the visa type
@@ -732,6 +738,7 @@
 اضغط على المنشأة لقبولها كتجربة أو اشتراك	Click a company to accept it as a trial or a subscription
 اضغط على خطأ لتشوف مكانه في الكود والمتصفح	Click an error to see where it happened in the code and browser
 اضغط على عضو لإعادة تعيين كلمة مروره أو حذفه من الفريق	Click a member to reset their password or remove them from the team
+اضغط لإضافة خانة تتعبّى تلقائياً	Click to add a field that fills in automatically
 اطبع الإشعار وسلّمه للموظف	print the notice and hand it to the employee
 اطبعه من سجل الخطابات	print it from the letters log
 اطبعها للعد ثم أدخل الكميات المعدودة	print it for counting, then enter the counted quantities
@@ -789,6 +796,7 @@
 اكتب الرمز المكوّن من	Type the
 اكتب السبب	Enter the reason
 اكتب العنوان والتفاصيل	Write the subject and details
+اكتب العنوان والنص	Write the title and the text
 اكتب الغرض في الملاحظات	state the purpose in the notes
 اكتب المبلغ	Write the amount
 اكتب المدينة	Write the city
@@ -1044,6 +1052,7 @@
 التأمينات الاجتماعية	Social insurance (GOSI)
 التأمينات الاجتماعية المستحقة	GOSI payable
 التاريخ	Date
+التاريخ الهجري	Hijri date
 التاريخ بصيغة	Dates in the format
 التاريخ غير صحيح	Invalid date
 التاريخ قبل تاريخ الفاتورة	The date is before the invoice date
@@ -1129,6 +1138,7 @@
 التوزيع	Allocation
 التوظيف	Recruitment
 التوقيع	Signature
+التوقيعات	Signatures
 الثالثة	third
 الثانية	second
 الثلاثاء	Tuesday
@@ -1421,11 +1431,13 @@
 العملة الأساسية الريال السعودي	The base currency is the Saudi riyal
 العمليات	Operations
 العميل	Customer
+العميل أو المورد	Customer or supplier
 العميل غير موجود	Customer not found
 العنوان	Address
 العنوان المختصر	Short address
 العنوان الوطني	National address
 العنوان الوطني المختصر	Short national address
+العنوان بالإنجليزي	Title in English
 العهد	Custody
 العهد المسلّمة للموظفين	Assets issued to employees
 العهدة	Item
@@ -1791,6 +1803,10 @@
 النقدية والبنوك	Cash and banks
 النقل	transport
 النقل والبدلات والمستحقات السابقة والإضافي والمكافآت	transport, allowances, previous month's dues, overtime and bonuses
+النماذج	Forms
+النماذج لمدراء المنشأة	Forms are for the company's managers
+النموذج	Form
+النموذج لـ	Form for
 النهاري	light mode
 النهاية	end
 النوع	Type
@@ -2013,6 +2029,7 @@
 بنك البلاد	Bank Albilad
 بنك الجزيرة	Bank AlJazira
 بنك الرياض	Riyad Bank
+بنود	items
 بنود الحسابات لا تُستلم	Account lines are not received
 بيانات الاشتراك فقط	Subscription data only
 بيانات المنشأة	Company details
@@ -2087,6 +2104,7 @@
 تاريخ التوريد المتوقع بعد تاريخ الأمر	Expected delivery must be after the order date
 تاريخ التوقيع	Imposed on
 تاريخ الحاجة لا يكون قبل اليوم	Needed-by date cannot be before today
+تاريخ الحادثة	Date of the incident
 تاريخ الدفع	Payment date
 تاريخ الرصيد	Balance date
 تاريخ الرصيد الافتتاحي	Opening balance date
@@ -2283,6 +2301,7 @@
 تصدير بيانات المنشأة	Export company data
 تصريح الحج	Hajj permit
 تصميم الواجهات	UI design
+تصير خانة تُعبّأ وقت الطباعة	becomes a field filled in when printing
 تضيفه بكلمة مرور مؤقتة	you add them with a temporary password
 تطبيق	Apply
 تطبيق البريد	Mail app
@@ -2294,6 +2313,7 @@
 تظلمات بانتظار البت	Grievances awaiting decision
 تظلمات من جزاءات بانتظار البت خلال	penalty grievances awaiting a decision within
 تظهر في المطبوع	shown on the printout
+تعبّى من النظام	Filled from the system
 تعتمدها المالية فيُخصم من رصيدك	finance approves it and it is deducted from your balance
 تعديل	Edit
 تعديل أصل	Edit asset
@@ -2308,6 +2328,7 @@
 تعديل الدورة	Edit course
 تعديل الفرصة	Edit opportunity
 تعديل المشروع	Edit project
+تعديل النموذج	Edit form
 تعديل الوظيفة	Edit opening
 تعديل بدل	Edit allowance
 تعديل برنامج	Edit programme
@@ -2326,6 +2347,7 @@
 تعديل مستودع	Edit warehouse
 تعديل من ملف الموظف	Changed in the employee record
 تعديل موقع	Edit site
+تعديل نموذج	Edit form
 تعديل وثيقة	Edit policy
 تعديل وردية	Edit shift
 تعذر النسخ	Copy failed
@@ -2361,6 +2383,7 @@
 تغيير الشعار	Change logo
 تغيير كلمة المرور	Change password
 تغيّر الأجر	Wage changed
+تفاصيل	Details
 تفاصيل الخطأ	Error details
 تفاصيل الطلب	Request details
 تفاصيل النطاق	band details
@@ -2369,6 +2392,7 @@
 تفعيل الآن	Turn on now
 تفعيل التحقق بخطوتين	Turn on two-step verification
 تقارير الموارد البشرية	HR reports
+تقدر تعدّله	you can edit it
 تقدير استرشادي	Indicative estimate
 تقدير داخلي من بيانات الموظفين	Internal estimate from employee data
 تقديري	estimated
@@ -2546,6 +2570,7 @@
 جوال	mobile
 جوال الطوارئ	Emergency phone
 جوال المالك	Owner mobile
+جوال الموظف	Employee mobile
 جوال الواتساب والاتصال	Mobile for WhatsApp and calls
 جُدد العقد	Contract renewed
 جُدد العقد ثلاث مرات أو بلغت مدته أربع سنوات	The contract was renewed three times or reached four years
@@ -2618,6 +2643,7 @@
 حذف المرفق	Delete attachment
 حذف المستند	Delete document
 حذف الموقع	Delete site
+حذف النموذج	Delete form
 حذف الهدف	Delete goal
 حذف الوردية	Delete shift
 حذف من الفريق	Remove from the team
@@ -2708,6 +2734,7 @@
 خاسرة	Lost
 خاصة به	Their own
 خالد الدوسري	Khalid Al-Dosari
+خانة تكتبها وقت التعبئة	A field you type when filling
 خدمات	Services
 خدماته الذاتية	Self-service
 خدماتي	My services
@@ -2892,6 +2919,7 @@
 رقم المنشأة في وزارة الموارد البشرية مثل	MHRSD establishment number, e.g.
 رقم المورد	Supplier ref.
 رقم الموظف	employee no
+رقم النموذج	Form number
 رقم الهاتف أرقام فقط	Phone number must be digits only
 رقم الهوية	ID number
 رقم الوثيقة	Policy no.
@@ -2909,6 +2937,7 @@
 رقماً	digits
 رقماً تسلسلياً	serial numbers
 رقماً يبدأ وينتهي بـ	digits starting and ending with
+رقمه الضريبي	Their VAT number
 رقمه الوظيفي	their employee number
 رمز	Code
 رمز الأصل مستخدم	Asset code already used
@@ -3261,6 +3290,7 @@
 عاد	Returned
 عاد في	returned on
 عادةً نهاية الشهر أو الربع بعد تقديم إقرار ضريبة القيمة المضافة	Usually the end of the month or quarter after filing the VAT return
+عام	General
 عبدالله القحطاني	Abdullah Al-Qahtani
 عجز	Shortage
 عدا أيام العطل الرسمية	excluding public holidays
@@ -3351,6 +3381,7 @@
 عمود الاسم غير موجود	The name column is missing
 عمود رمز الصنف غير موجود	The item code column is missing
 عميل	customer
+عميل أو مورد	Customer or supplier
 عميل جديد محتمل	new prospective customer
 عميل حالي	Existing customer
 عميلاً	a customer
@@ -3368,6 +3399,7 @@
 عنوان العميل	Customer address
 عنوان الفرصة	Opportunity title
 عنوان المهمة	Task title
+عنوان النموذج	Form title
 عنيزة	Unaizah
 عهد لم تُسلَّم	Items not returned
 عهدة	items
@@ -3580,6 +3612,7 @@
 كل الموظفين	All employees
 كل الموظفين مسجّلون في الدورة	All employees are enrolled in the course
 كل تغيير يُحفظ في سجل التدقيق	Every change is kept in the audit log
+كل جهة في سطر	one per line
 كل حركة على حسابات النقد والبنوك	every movement on cash and bank accounts
 كل سؤال يحتاج سؤالاً وجواباً بالعربي	Every question needs a question and an answer in Arabic
 كل سنة	Every year
@@ -3812,6 +3845,7 @@
 لصالح العمال	for the workers' benefit
 لغة الخطاب	Letter language
 لغة الخطاب غير معروفة	Unknown letter language
+لغة النموذج	Form language
 لغير السعودي	For non-Saudis
 لـ	for
 لفريق وعد فقط	For the Waad team only
@@ -3903,6 +3937,7 @@
 مؤقتة	Temporary
 مؤهلة	Qualified
 ما أرسلت طلبات للحين	You haven't sent any requests yet
+ما طُبع شي للحين	Nothing printed yet
 ما فيه أخطاء في هذي الفترة	No errors in this period
 ما فيه أسئلة	No questions
 ما فيه أعضاء	No members
@@ -3914,9 +3949,11 @@
 ما فيه تواصل مسجّل	No contact recorded
 ما فيه دفعات	No payments
 ما فيه زيارات في هذي الفترة	No visits in this period
+ما فيه سجلات تختار منها	There are no records to choose from
 ما فيه شي	Nothing
 ما فيه طلبات هنا	No requests here
 ما فيه ملاحظات	No notes
+ما فيه نماذج في هذا القسم	No forms in this section
 ما فيها أي بيانات من داخل المنشآت	with no data from inside the companies
 ما نُسب للعامل وأقواله ودفاعه	the charge, the worker's statement and defence
 ما نُسب للعامل ودفاعه	the charge and the worker's defence
@@ -4135,6 +4172,7 @@
 مع دفعاتها وتواريخ صلاحيتها	with their batches and expiry dates
 مع ذكر السبب	with a reason
 مع يوم الإقفال إن وُجد	with the cutoff day if set
+معاينة وطباعة	Preview and print
 معتمد	Approved
 معتمدة	Active
 معدات	equipment
@@ -4192,6 +4230,7 @@
 مكرر من اللائحة	bis of the Regulations
 مكرر من نظام العمل	bis of the Labor Law
 مكسوبة	Won
+ملاحظ	notes
 ملاحظات	Notes
 ملاحظات الفريق	Team notes
 ملاحظات للموردين	Notes for suppliers
@@ -4354,6 +4393,7 @@
 نشاط المنشأة	Company activity
 نشط	Active
 نشطة	Active
+نص النموذج بالعربي	Form text in Arabic
 نص حر	free text
 نصغّر الصورة تلقائياً	the image is resized automatically
 نصف	half
@@ -4371,6 +4411,9 @@
 نقاط القوة	Strengths
 نقداً	Cash
 نقل كميات بين المستودعات بالتكلفة نفسها	Move quantities between warehouses at the same cost
+نماذج جاهزة تتعبّى من بيانات الموظف أو العميل أو المورد	Ready-made forms filled from the employee, customer or supplier record
+نموذج جديد	New form
+نموذج منشأتك	Your company's form
 نهاري	light
 نهاية البدل قبل بدايته	The allowance ends before it starts
 نهاية التجربة	probation end
@@ -4507,6 +4550,7 @@
 وتنتهي في	ending on
 وتنحسب هنا	and it is counted here
 وتنضاف المدة بعد تاريخ نهايته الحالي	and the length is added after its current end date
+وتنطبع بترويسة منشأتك برقم مسلسل	and printed on your letterhead with a serial number
 وتُؤخذ خلال	taken within
 وتُحسب على شهر الرواتب	and count within the payroll month
 وتُحوَّل تلقائياً	and are converted automatically
