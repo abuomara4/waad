@@ -153,6 +153,7 @@
 أضف العملات التي تبيع أو تشتري بها	add the currencies you sell or buy in
 أضف الموظفين	Add employees
 أضف بنداً واحداً على الأقل	Add at least one line
+أضف بيانات تجريبية	Add sample data
 أضف سؤالاً	Add a question
 أضف سجلات الموظفين ورواتبهم ومديريهم المباشرين	Add employee records, salaries and direct managers
 أضف سطراً لكل مستند آخر للموظف نفسه	add a row for every other document of the same employee
@@ -259,6 +260,7 @@
 أوزبكي	Uzbek
 أوغندي	Ugandan
 أول	First
+أول إدخال لكمية موجودة عندك	the first entry of stock you already have
 أول دخول	First sign-in
 أولاً	first
 أي جزاء إضافي يحتاج لائحة جزاءات معتمدة وتحقيقاً	any further penalty requires an approved disciplinary policy and an investigation
@@ -681,6 +683,7 @@
 استُبعد في	Disposed on
 استُلم في	Received in
 استُورد	Imported
+اسحب الجدول جانباً لعرض باقي الأعمدة	Swipe the table sideways to see the other columns
 اسم الباقة	Plan name
 اسم الباقة مستخدم مسبقاً	That plan name is already used
 اسم البدل	Allowance name
@@ -1231,6 +1234,7 @@
 الربح	Profit
 الربع	Quarter
 الرصيد	Balance
+الرصيد الافتتاحي يكون زيادة في الكمية	Opening stock must be an increase in quantity
 الرصيد المتاح	available balance
 الرصيد المطابق	Cleared balance
 الرصيد الموجب	A positive balance
@@ -1950,6 +1954,7 @@
 بدونها يُقبل التسجيل من أي مكان	without one, check-in is accepted from anywhere
 برازيلي	Brazilian
 برسم التحصيل	Under collection
+برمز المنشأة ورقمك الوظيفي	With the company code and your employee number
 برنامج البريد برسالة جاهزة إلى	your mail app with a ready message to
 برنامج جديد	New programme
 بريد	E-mail
@@ -2127,6 +2132,7 @@
 تبدأ من تاريخ الوفاة ولا تقل عن	Starts on the date of death and is not less than
 تبقى ملتزماً بالعمل خلال هذه المدة	You remain bound to work during this period
 تبوك	Tabuk
+تبي تجرّب قبل	Want to try it first
 تتبدل كل	Rotate every
 تتبع الصلاحية	Track expiry
 تتجاوز	Exceeds
@@ -2414,6 +2420,7 @@
 تمت الترسية	Awarded
 تمت معالجة هذه التسوية	This settlement has been processed
 تمزيق أو إتلاف إعلانات أو بلاغات إدارة المنشأة	Tearing or damaging management notices or announcements
+تمسحها بضغطة من الإعدادات لما تبدأ فعلياً	Remove it with one click in settings when you start for real
 تنبيه	Note
 تنبيه مهم	Important notice
 تنبيهات خلال	Alerts within
@@ -2486,6 +2493,7 @@
 ثم تُرفق هنا فتصل للموظف في طلبه	then attached here so it reaches the employee in his request
 ثم تُسجَّل هنا ليتابعها النظام وينبه قبل انتهائها	then recorded here so the system tracks it and alerts before expiry
 ثم تُقرأ ربحية كل مركز	then read the profitability of each center
+ثم حدّد ما يراه	then choose what they can see
 ثم رقمه الوظيفي وكلمة مرور مؤقتة	then their employee number and a temporary password
 ثم سجّل التحقيق وسماع دفاعه قبل توقيع أي جزاء	then record the investigation and the worker's defence before imposing any penalty
 ثم ضع العلامة	then tick the box
@@ -2507,6 +2515,7 @@
 جرد	Count
 جرد الأنظمة الحالية	Inventory of current systems
 جرد جديد	New count
+جرّب ببيانات تجريبية	Try with sample data
 جرّبه	Try it
 جرّبه مجاناً	Try it free
 جزء من الشهر	Part of the month
@@ -2811,6 +2820,7 @@
 رصيد	balance
 رصيد أول المدة	Opening balance
 رصيد افتتاحي	Opening balance
+رصيد افتتاحي للمخزون	Opening stock
 رصيد الإجازة	Leave balance
 رصيد الإجازة الافتتاحي	Opening leave balance
 رصيد الإجازة الافتتاحي بين	Opening leave balance must be between
@@ -4197,6 +4207,7 @@
 من الأساسي	of basic
 من الأمر تُصدر إشعارات التسليم ثم الفاتورة الضريبية	From the order issue delivery notes, then the tax invoice
 من الأمر يُسجَّل استلام البضاعة ثم فاتورة المورد	From the order record the goods receipt, then the supplier bill
+من الإعدادات	from settings
 من التدريب	from training
 من اللائحة التنفيذية	of the Implementing Regulations
 من الملف	from the file
@@ -4272,9 +4283,11 @@
 موظف على رأس العمل	Active employees
 موظف في الملف	employee(s) in the file
 موظف في الملف الواحد	employees per file
+موظف مبيعات أو مشتريات	A sales or purchasing employee
 موظفون بلا تغطية سارية	Employees without active cover
 موظفون رواتبهم خارج حدود درجتهم	Employees paid outside their grade range
 موظفين	employees
+موظفين وعملاء وفواتير ومشاريع	employees, customers, invoices and projects
 موعد المقابلة	Interview time
 موقع	site
 موقع العمل	Work site
@@ -4491,6 +4504,7 @@
 وثبوت المخالفة	and the violation being proven
 وثيقة تنتهي قريباً	Policy ending soon
 وثيقة جديدة	New policy
+وجرّب كل شي بدون بياناتك الحقيقية	and try everything without your real data
 وجّه الكاميرا إلى الباركود	Point the camera at the barcode
 وحد الائتمان	and the credit limit is
 وحدات أخرى	Other units
@@ -4556,6 +4570,7 @@
 ولا يجوز أن تتضمن ما يسيء إلى سمعة العامل	and must not contain anything harmful to the worker's reputation
 ولا يوقَّع جزاء إلا بعد إبلاغ الموظف كتابة والتحقيق معه	and no penalty may be imposed before notifying the employee in writing and investigating
 ولا يُتصرف فيها إلا فيما يعود بالنفع على عمال المنشأة	and may only be spent for the benefit of the company's workers
+ولا يُحسب ربحاً أو خسارة	and is not counted as profit or loss
 ولا يُحسم من الأجر للغرامات أكثر من أجر خمسة أيام في الشهر	and no more than five days' wage a month is deducted for fines
 ولمسح قيمة اكتب	to clear a value write
 وليست إيراداً للمنشأة	not company income
@@ -4683,6 +4698,7 @@
 يمكن اختيار أكثر من دور	more than one can be chosen
 يمكنك إعادة الإعداد ما دام المسير مسودة	You can prepare it again while the payroll is a draft
 يمكنك مسحها أولاً	you can clear it first
+يمكنك مسحها لاحقاً بضغطة من الإعدادات	You can remove it later with one click in settings
 يمكنك مسحها لاحقاً بضغطة من هذه الصفحة	you can clear it later with one click from this page
 يمكنك مسحها لتبدأ بإدخال بياناتك الحقيقية	you can clear it to start entering your real data
 يملأ منشأتك بموظفين وعملاء وحملات ومشاريع تجريبية لتجربة النظام كاملاً	Fills your company with sample employees, customers, campaigns and projects to try the full system
@@ -4753,6 +4769,7 @@
 يُسجَّل اتهام العامل خلال	The charge is recorded within
 يُسجَّل الخطاب برقم مرجعي مع البيانات وقت إصداره	The letter is logged with a reference number and the data at the time of issue
 يُسجَّل تاريخ نهاية الخدمة من بيانات الموظف وتُحسب المستحقات من	Record the end-of-service date in the employee record and compute dues from
+يُسجَّل في الأرصدة الافتتاحية	it is recorded in opening balances
 يُسجَّل في السجل	Recorded in the log
 يُسجَّل قيد	A journal entry is posted
 يُسجَّل من أمر الشراء عند وصول البضاعة	Recorded from the purchase order when goods arrive

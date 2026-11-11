@@ -183,7 +183,7 @@ function modal(title, body, { ok = 'حفظ', onOk, wide } = {}) {
   const close = () => d.close();
   $('#mx', d).onclick = close; if ($('#mc', d)) $('#mc', d).onclick = close;
   $('#mform', d).onsubmit = async ev => { ev.preventDefault(); if (!onOk) return close(); const b = $('#mok', d); try { await busy(b, () => onOk(formData($('#mform', d)), d)); close(); } catch (e) { showErr($('#merr', d), e); } };
-  d.showModal(); const first = $('input,select,textarea', d); if (first) first.focus();
+  d.showModal(); const first = $('input,select,textarea', d); if (first) first.focus(); setTimeout(() => markWide(d), 60);
   return d;
 }
 const confirmBox = (title, msg, okText = 'تأكيد') => new Promise(res => { modal(title, `<p>${esc(msg)}</p>`, { ok: okText, onOk: async () => res(true) }); $('#dlg').addEventListener('close', () => res(false), { once: true }); });
@@ -335,7 +335,7 @@ function onboardView() {
       <form id="jf" class="row" novalidate><input name="code" placeholder="رمز الدعوة" dir="ltr" style="flex:1;letter-spacing:2px;text-transform:uppercase"><button class="btn pri" id="jb">انضمام</button></form><div id="jerr"></div></div>
     <div class="card"><h2>أو أنشئ منشأة جديدة</h2>
       <form id="cf" class="fg" novalidate>
-        ${field('اسم المنشأة', inp('name', '', 'required'), 'wide')}
+        ${field('اسم المنشأة', inp('name', '', 'required'))}${field('الاسم بالإنجليزية (اختياري)', inp('name_en', '', 'dir="ltr"'))}
         ${field('الرقم الضريبي (اختياري)', inp('vat', '', 'dir="ltr" inputmode="numeric" placeholder="3XXXXXXXXXXXXX3"'))}
         ${field('السجل التجاري (اختياري)', inp('cr', '', 'dir="ltr" inputmode="numeric"'))}
         ${profileFields()}
@@ -351,7 +351,7 @@ function onboardView() {
     if (f.cr && !/^\d{10}$/.test(f.cr)) return showErr('#cerr', 'السجل التجاري 10 أرقام');
     try { await busy($('#cb'), async () => { const pe = profileErr(f); if (pe) throw new Error(pe);
       const cid = await db.rpc('create_company', { p_name: f.name, p_vat: blank(f.vat), p_cr: blank(f.cr) }); S.cid = cid; LS.set('waad.cid', cid);
-      await db.upd('companies', { id: 'eq.' + cid }, profileRow(f)); await boot(); if (S.sub && S.sub.status === 'pending') return; location.hash = '#/welcome'; setTimeout(() => companyCodeBox(true), 400); }); } catch (er) { showErr('#cerr', er); } };
+      await db.upd('companies', { id: 'eq.' + cid }, Object.assign(profileRow(f), (f.name_en || '').trim() ? { name_en: f.name_en.trim() } : {})); await boot(); if (S.sub && S.sub.status === 'pending') return; location.hash = '#/welcome'; setTimeout(() => companyCodeBox(true), 400); }); } catch (er) { showErr('#cerr', er); } };
 }
 
 /* the company code employees sign in with: shown once on creation, and any time from settings / the welcome page */
@@ -378,15 +378,16 @@ async function loadContext(pre) {
   let c = S.companies.find(x => x.company_id === S.cid) || S.companies[0];
   S.cid = c.company_id; LS.set('waad.cid', S.cid); S.role = c.role; S.roles = new Set(c.roles && c.roles.length ? c.roles : [c.role]); S.emp = c.employee_id; S.mustChange = !!c.must_change_password; if (c.code) { LS.set('waad.ccode', c.code); LS.set('waad.cname', c.name); }
   const fr = ['accountant', 'storekeeper'].filter(r => S.roles.has(r));
-  const [[co], [sub], , fp, me, pf] = await Promise.all([db.get('companies', { id: 'eq.' + S.cid }), db.get('company_subscriptions', { company_id: 'eq.' + S.cid }).catch(() => []), preloadNames(),
+  const [[co], [sub], , fp, me, pf, team] = await Promise.all([db.get('companies', { id: 'eq.' + S.cid }), db.get('company_subscriptions', { company_id: 'eq.' + S.cid }).catch(() => []), preloadNames(),
     fr.length ? db.get('finance_permissions', { company_id: 'eq.' + S.cid, role: 'in.(' + fr.join(',') + ')', select: 'perm' }) : [],
-    S.emp ? db.get('employees', { id: 'eq.' + S.emp }) : [], S.emp ? db.get('petty_funds', { employee_id: 'eq.' + S.emp, select: 'id', limit: 1 }).catch(() => []) : []]);
+    S.emp ? db.get('employees', { id: 'eq.' + S.emp }) : [], S.emp ? db.get('petty_funds', { employee_id: 'eq.' + S.emp, select: 'id', limit: 1 }).catch(() => []) : [],
+    S.emp ? db.get('employees', { company_id: 'eq.' + S.cid, manager_id: 'eq.' + S.emp, end_date: 'is.null', select: 'id', limit: 1 }).catch(() => []) : []]);
   S.company = co; S.sub = sub || null;
   S.perms = new Set();
   (c.perms || []).forEach(p => S.perms.add(p));
   fp.forEach(p => S.perms.add(p.perm));
   S.myEmp = me[0] || null;
-  S.hasPetty = pf.length > 0;
+  S.hasPetty = pf.length > 0; S.hasTeam = team.length > 0;
   return true;
 }
 // links from auth emails (password recovery, sign-up confirmation) come back as #access_token=…&type=… or #error=…
@@ -488,6 +489,7 @@ const modOn = m => !m || !S.sub || (subLive() && (S.sub.modules || []).includes(
 /* ===== shell & navigation ===== */
 const VIEWS = {};       // '#/path' -> async (root, arg) => void
 let NAVC = { approvals: 0 };
+const plainEmp = () => !has('owner', 'admin', 'hr', 'finance', 'manager', 'accountant', 'storekeeper');
 function navItems() {
   const it = []; const g = t => it.push({ g: t });
   it.push({ h: '#/home', t: 'الرئيسية' });
@@ -497,8 +499,9 @@ function navItems() {
     if (S.hasPetty) it.push({ h: '#/mypetty', t: 'عهدتي النقدية' });
     if (!isHR()) it.push({ h: '#/policies', t: 'السياسات واللوائح' });
     const ov = (S.company && S.company.org_visibility) || 'all';
-    if (!(isHR() || has('finance')) && (ov === 'all' || (ov === 'managers' && has('manager')))) it.push({ h: '#/org', t: 'الهيكل التنظيمي' }); }
-  if (!['accountant', 'storekeeper'].includes(S.role) || S.emp) it.push({ h: '#/approvals', t: 'الاعتمادات', pill: NAVC.approvals });
+    // an employee sees only self and own team on the chart: with nobody under them it would show just them
+    if (!(isHR() || has('finance')) && (!plainEmp() || S.hasTeam) && (ov === 'all' || (ov === 'managers' && has('manager')))) it.push({ h: '#/org', t: 'الهيكل التنظيمي' }); }
+  if ((!['accountant', 'storekeeper'].includes(S.role) || S.emp) && (!plainEmp() || S.hasTeam || NAVC.approvals)) it.push({ h: '#/approvals', t: 'الاعتمادات', pill: NAVC.approvals });
   if (has('manager') && !(isHR() || has('finance'))) it.push({ h: '#/clearance', t: 'إخلاء الطرف' });
   if (isHR() || has('finance')) {
     g('الموارد البشرية');
@@ -613,14 +616,16 @@ const NAV_IC = { home: 'home', analytics: 'chart', attendance: 'clock', att: 'cl
   hrreports: 'chart', crm: 'users', rfq: 'doc', serials: 'check', grades: 'chart', insurance: 'shield', trainplan: 'cal', platform: 'gear', sales: 'cart', quotes: 'doc', orders: 'cart', deliveries: 'truck', purchreq: 'doc', porders: 'box', receipts: 'truck', warehouses: 'box', transfers: 'swap', counts: 'check', expiry: 'cal', reorder: 'cart', parties: 'users', purchases: 'box', payments: 'swap', items: 'box', journal: 'book', reports: 'chart', coa: 'book', bankrec: 'check', cheques: 'doc', petty: 'money', mypetty: 'money', currencies: 'swap', opening: 'book', assets: 'box', costcenters: 'org', budgets: 'chart', periods: 'shield', users: 'users', settings: 'gear' };
 const navIcon = h => `<svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="${NI[NAV_IC[h.split('/')[1]]] || NI.doc}"/></svg>`;
 function drawNav() {
-  const cur = location.hash.split('?')[0] || '#/home', shut = LS.get('waad.navshut') || [];
+  const cur = location.hash.split('?')[0] || '#/home', opened = LS.get('waad.navopen');
   const isOn = i => cur === i.h || (cur.startsWith(i.h + '/') && i.h !== '#/home');
   const groups = [{ g: null, items: [] }]; navItems().filter(i => i.g || modOn(routeModule(i.h))).forEach(i => i.g ? groups.push({ g: i.g, items: [] }) : groups[groups.length - 1].items.push(i));
-  $('#nav').innerHTML = groups.filter(x => x.items.length).map(x => { const open = !x.g || !shut.includes(x.g) || x.items.some(isOn);
+  // a long menu (owner, finance: 50+ items) starts with its module groups folded; «my services» and the group of the open screen stay open
+  const long = groups.reduce((a, x) => a + x.items.length, 0) > 30;
+  $('#nav').innerHTML = groups.filter(x => x.items.length).map(x => { const open = !x.g || !long || x.g === 'خدماتي' || (opened || []).includes(x.g) || x.items.some(isOn);
     return `${x.g ? `<button type="button" class="grp" data-grp="${esc(x.g)}" aria-expanded="${open}">${esc(x.g)}<span class="chev">▾</span></button>` : ''}<div class="nitems" ${open ? '' : 'hidden'}>${x.items.map(i =>
       `<a href="${i.h}" class="${isOn(i) ? 'on' : ''}">${navIcon(i.h)}<span class="nt">${esc(i.t)}</span>${i.pill ? `<span class="pill">${i.pill}</span>` : ''}</a>`).join('')}</div>`; }).join('');
-  $$('[data-grp]', $('#nav')).forEach(b => b.onclick = () => { const g = b.dataset.grp, s = new Set(LS.get('waad.navshut') || []), box = b.nextElementSibling, open = box.hidden;
-    box.hidden = !open; b.setAttribute('aria-expanded', open); open ? s.delete(g) : s.add(g); LS.set('waad.navshut', [...s]); });
+  $$('[data-grp]', $('#nav')).forEach(b => b.onclick = () => { const g = b.dataset.grp, s = new Set(LS.get('waad.navopen') || []), box = b.nextElementSibling, open = box.hidden;
+    box.hidden = !open; b.setAttribute('aria-expanded', open); open ? s.add(g) : s.delete(g); LS.set('waad.navopen', [...s]); });
   $$('a', $('#nav')).forEach(a => a.addEventListener('click', () => $('#side') && $('#side').classList.remove('open')));
 }
 async function refreshCounts() { try { NAVC.approvals = (await pendingForMe()).length; if (isHR()) { NAVC.docs = await docAlertCount(); NAVC.pen = (await db.get('penalties', { company_id: 'eq.' + S.cid, status: 'eq.open', select: 'id' }).catch(() => [])).length; } drawNav(); } catch (e) {} drawBell(); }
@@ -666,6 +671,16 @@ async function drawBell(open) {
   p.innerHTML = `<div class="bh" data-ready><b>التنبيهات</b></div>${NOTIFS.length ? NOTIFS.map(x => `<a href="${x.h}" class="bi${x.hot ? ' hot' : ''}${isNew(x) ? ' new' : ''}">${x.ok === true ? '<span class="ok">✓</span> ' : x.ok === false ? '<span class="bad">✕</span> ' : ''}${esc(x.t)}${x.n ? ` <b>${esc(x.n)}</b>` : ''}${x.tail ? ' ' + esc(x.tail) : ''}${x.at ? ` <span class="muted small num">${esc(String(x.at).slice(0, 10))}</span>` : ''}</a>`).join('') : '<div class="muted small" style="padding:12px">لا توجد تنبيهات</div>'}`;
   $$('a', p).forEach(a => a.onclick = () => { p.hidden = true; });
 }
+// tables wider than the screen: a shadow on the hidden side and a one-line hint (mostly phones)
+function markWide(root = document) {
+  $$('.tw', root).forEach(t => {
+    const wide = t.scrollWidth > t.clientWidth + 4; t.classList.toggle('xs', wide);
+    const h = t.previousElementSibling && t.previousElementSibling.classList.contains('xsh') ? t.previousElementSibling : null;
+    if (wide && !h) t.insertAdjacentHTML('beforebegin', `<div class="xsh">${esc(tr('↔ اسحب الجدول جانباً لعرض باقي الأعمدة'))}</div>`);
+    if (!wide && h) h.remove();
+  });
+}
+window.addEventListener('resize', () => { clearTimeout(markWide.t); markWide.t = setTimeout(() => markWide(), 250); });
 async function route() {
   if (!S.session || !S.cid || !$('#page')) return;
   const [path, q] = (location.hash || '#/home').split('?');
@@ -679,7 +694,7 @@ async function route() {
   const page = document.createElement('div'); page.innerHTML = '<div class="muted">جارٍ التحميل…</div>';
   $('#page').replaceChildren(page);
   if (!modOn(routeModule(path))) { page.innerHTML = `<div class="note">${esc(tr('هذا القسم غير مشمول في باقة منشأتك.'))} ${has('owner') ? esc(tr('لتفعيله تواصل مع إدارة وعد.')) : esc(tr('راجع مالك المنشأة.'))}</div>`; return; }
-  try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); }
+  try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); setTimeout(() => page.isConnected && markWide(page), 60); }
   catch (e) { if (e.status === 401 && !S.session) return authView('in', 'انتهت الجلسة — سجّل الدخول مجدداً'); if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div>`; }
 }
 window.addEventListener('hashchange', () => /(^#|&)(access_token|error_code)=/.test(location.hash) ? boot() : !S.session && legalHash() ? legalView(legalHash()) : ADMIN ? (S.platform && $('#ppage') ? platformView() : null) : S.platform && /^#\/platform/.test(location.hash) ? (location.href = ADMIN_URL) : S.platform && !$('#page') ? boot() : route());

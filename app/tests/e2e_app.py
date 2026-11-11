@@ -63,6 +63,7 @@ with sync_playwright() as pw:
     ok('الرقم الضريبي' in o.inner_text('#cerr'), 'company VAT number validated')
     o.fill('#cf input[name=vat]', '300000000000003'); o.click('#cb')
     o.wait_for_selector('text=جهّز منشأتك'); ok(True, 'company created → welcome checklist')
+    ok(o.locator('#wdemo').count() == 1, 'the welcome steps offer to try with sample data first')
     o.wait_for_selector('#ccv'); code0 = o.inner_text('#ccv').strip()
     ok(code0 == sql("select code from companies where name='شركة وعد التجريبية'") and o.get_attribute('#ccm', 'href').startswith('mailto:gm%40waad.test?subject='), 'new company shows its code with a ready email to the owner: ' + code0)
     o.click('#mok'); o.wait_for_timeout(300); ok(o.locator('#dlg[open]').count() == 1 and 'احفظ الرمز' in o.inner_text('#merr'), 'the owner must confirm saving the code before continuing')
@@ -1073,7 +1074,7 @@ with sync_playwright() as pw:
         left = [r for r in set(ARX.findall(txt)) if not all(w in typed for w in r.split())]
         if left: leftovers[h] = left[:12]
     ok(not leftovers, 'English mode: no untranslated Arabic on any screen ' + json.dumps(leftovers, ensure_ascii=False)[:1500])
-    um(o, '#lg'); o.wait_for_selector('#nav'); o.wait_for_timeout(500); ok(o.evaluate('document.documentElement.dir') == 'rtl' and 'الموظفون' in o.inner_text('#nav'), 'switch back to Arabic')
+    um(o, '#lg'); o.wait_for_selector('#nav'); o.wait_for_timeout(500); ok(o.evaluate('document.documentElement.dir') == 'rtl' and 'الرئيسية' in o.inner_text('#nav') and o.locator('#nav a[href="#/employees"]').count() == 1, 'switch back to Arabic')
     # ---------- statements, item master, barcode entry, legal pages, error log ----------
     go(o, '#/parties/customer'); o.locator('#page tbody tr', has_text='مؤسسة النخبة').locator('[data-st]').click(); o.wait_for_selector('#stf')
     ok('#/statement/' + cust_id in o.url and 'فاتورة مبيعات' in o.inner_text('#page') and 'رصيد أول المدة' in o.inner_text('#page'), 'customer statement opens from the customer list with invoices and opening balance')
@@ -1198,11 +1199,11 @@ with sync_playwright() as pw:
     pp.locator('#ppage tbody tr', has_text='شركة وعد التجريبية').click(); pp.wait_for_selector('#csub'); pp.click('#csub'); pp.wait_for_selector('#dlg input[name=m_sales]')
     pp.uncheck('#dlg input[name=m_sales]'); pp.fill('#dlg input[name=plan]', 'الموارد والمالية'); pp.select_option('#dlg select[name=status]', 'active'); modal_ok(pp); pp.wait_for_timeout(600)
     ok(sql("select plan||'|'||array_to_string(modules,',')||'|'||status from company_subscriptions s join companies c on c.id=s.company_id where c.name='شركة وعد التجريبية'") == 'الموارد والمالية|hr,finance,purch,stock,proj|active', 'platform admin changes a company package')
-    o.reload(); o.wait_for_selector('#nav'); ok('فواتير المبيعات' not in o.inner_text('#nav') and 'مسير الرواتب' in o.inner_text('#nav'), 'a closed module disappears from the menu')
+    o.reload(); o.wait_for_selector('#nav'); ok(o.locator('#nav a[href="#/sales"]').count() == 0 and o.locator('#nav a[href="#/payroll"]').count() == 1, 'a closed module disappears from the menu')
     go(o, '#/sales'); o.wait_for_timeout(500); ok('غير مشمول في باقة' in o.inner_text('#page'), 'opening a closed module explains it is not in the plan')
     go(o, '#/settings'); o.wait_for_timeout(600); ok('الموارد والمالية' in o.inner_text('#page'), 'owner sees the package in settings')
     pp.wait_for_selector('#csub'); pp.click('#csub'); pp.wait_for_selector('#dlg input[name=m_sales]'); pp.check('#dlg input[name=m_sales]'); modal_ok(pp); pp.wait_for_timeout(500)
-    o.reload(); o.wait_for_selector('#nav'); ok('فواتير المبيعات' in o.inner_text('#nav'), 'reopened module is back with its data')
+    o.reload(); o.wait_for_selector('#nav'); ok(o.locator('#nav a[href="#/sales"]').count() == 1, 'reopened module is back with its data')
     # system numbers
     go(pp, '#/system'); pp.wait_for_selector('#ppage .pbars')
     ok('نسبة التحويل إلى اشتراك' in pp.inner_text('#ppage') and 'محمد العتيبي' not in pp.inner_text('#app'), 'admin site: system numbers from subscription data only')

@@ -39,13 +39,21 @@ async function leaveBalance() {
 }
 
 /* ===== first-run checklist for a new owner ===== */
+// sample data: employees, customers, campaigns and projects to try everything; removable from settings
+const demoSeedDialog = (after = null) => modal(tr('إضافة بيانات تجريبية'),
+  `<p>${esc(tr('سنضيف موظفين وأقساماً وعملاء وحملات تسويقية ومشاريع تجريبية لتجربة النظام. يمكنك مسحها لاحقاً بضغطة من الإعدادات.'))}</p>`,
+  { ok: 'إضافة', onOk: async () => { await db.rpc('demo_seed', { p_company: S.cid }); cache.emps = null; toast(tr('أُضيفت البيانات التجريبية')); if (after) location.hash = after; route(); } });
 VIEWS['#/welcome'] = async page => {
+  const noEmps = has('owner', 'admin') && !(await db.get('employees', { company_id: 'eq.' + S.cid, select: 'id', limit: 1 }).catch(() => [{}])).length;
   page.innerHTML = `<div class="head"><div><h1>جهّز منشأتك</h1><div class="muted">ثلاث خطوات وتبدأ</div></div></div>
+   ${noEmps ? `<div class="card" style="border-color:var(--accent)"><h2>${esc(tr('تبي تجرّب قبل؟'))}</h2><p class="muted">${esc(tr('أضف بيانات تجريبية (موظفين وعملاء وفواتير ومشاريع) وجرّب كل شي بدون بياناتك الحقيقية. تمسحها بضغطة من الإعدادات لما تبدأ فعلياً.'))}</p>
+     <button class="btn pri" id="wdemo">${esc(tr('جرّب ببيانات تجريبية'))}</button></div>` : ''}
    <div class="card"><h2>1. أضف نفسك كموظف</h2><p class="muted">ليظهر لك نظام الطلبات وقسائم الراتب، ويُعرف أنك المدير العام في مسارات الاعتماد.</p>
    ${S.emp ? '<div class="badge ok">تم</div>' : `<button class="btn pri" id="me">إضافة بياناتي</button>`}</div>
    <div class="card"><h2>2. أضف الموظفين</h2><p class="muted">أضف سجلات الموظفين ورواتبهم ومديريهم المباشرين.</p><a class="btn" href="#/employees">الموظفون</a></div>
    <div class="card"><h2>3. أعطِ فريقك الدخول</h2><p class="muted">الموظف: افتح سجله من «الموظفون» واضغط «إنشاء دخول للموظف» — يدخل برمز المنشأة <b class="num">${esc(S.company.code)}</b> ثم رقمه الوظيفي وكلمة مرور مؤقتة. الإدارة بالبريد: من «المستخدمون والدعوات».</p><a class="btn" href="#/employees">الموظفون</a> <a class="btn" href="#/users">المستخدمون والدعوات</a><div style="margin-top:8px"><button class="btn sm" id="ccw">إرسال رمز المنشأة لبريدي</button></div></div>`;
   if ($('#me', page)) $('#me', page).onclick = () => employeeForm(null, { linkMe: true });
+  if ($('#wdemo', page)) $('#wdemo', page).onclick = () => demoSeedDialog('#/home');
   $('#ccw', page).onclick = () => companyCodeBox(false);
 };
 
@@ -247,12 +255,14 @@ function payslip(l, e) {
 /* ===== profile ===== */
 VIEWS['#/profile'] = async page => {
   const e = S.myEmp; if (!e) { page.innerHTML = '<div class="note">حسابك غير مربوط بسجل موظف.</div>'; return; }
-  const [em, als] = await Promise.all([employeesMap().catch(() => ({})), db.get('employee_allowances', { employee_id: 'eq.' + e.id }).catch(() => [])]);
+  const [em, als, mm] = await Promise.all([employeesMap().catch(() => ({})), db.get('employee_allowances', { employee_id: 'eq.' + e.id }).catch(() => []),
+    e.manager_id ? db.rpc('my_manager', { p_company: S.cid }).catch(() => null) : null]);
   const myAl = als.filter(a => allowActive(a));
-  const mgr = e.manager_id && em[e.manager_id] ? em[e.manager_id].full_name : '—';
+  const mgr = e.manager_id && em[e.manager_id] ? em[e.manager_id].full_name : mm && mm.name ? mm.name + (mm.title ? ' — ' + mm.title : '') : '—';
+  const mail = (S.session.user || {}).email || '', staffLogin = /@staff\.waad\.app$/i.test(mail);
   const r = (t, v) => `<tr><td class="muted">${esc(t)}</td><td>${v}</td></tr>`;
   page.innerHTML = `<div class="head"><div><h1>${esc(e.full_name)}</h1><div class="muted">${esc(e.job_title || '')}</div></div></div><div class="card"><div class="tw"><table><tbody>
-    ${r('الرقم الوظيفي', esc(e.emp_no))}${r('البريد', esc(S.session.user.email))}${r('تاريخ المباشرة', fdate(e.hire_date))}${r('المدير المباشر', esc(mgr))}
+    ${r('الرقم الوظيفي', esc(e.emp_no))}${staffLogin ? r('الدخول', esc(tr('برمز المنشأة ورقمك الوظيفي'))) : r('البريد', esc(mail))}${r('تاريخ المباشرة', fdate(e.hire_date))}${r('المدير المباشر', esc(mgr))}
     ${r('الراتب الأساسي', `<span class="num">${money(e.basic)}</span>`)}${r('بدل السكن', `<span class="num">${money(e.housing)}</span>`)}${r('بدل النقل', `<span class="num">${money(e.transport)}</span>`)}${myAl.map(a => r(a.name, `<span class="num">${money(a.amount)}</span>`)).join('')}
     ${r('الجوال', `<span class="num">${esc(e.phone || '—')}</span>`)}${r('البريد الشخصي', `<span class="num">${esc(e.email || '—')}</span>`)}${r('الآيبان', `<span class="num">${esc(e.iban || '—')}</span>`)}
     ${r('الجنسية', esc(e.nationality ? natName(e.nationality) : tr(e.is_saudi ? 'سعودي' : 'غير سعودي')))}${e.birth_date ? r('تاريخ الميلاد', fdate(e.birth_date)) : ''}${e.marital_status ? r('الحالة الاجتماعية', esc(profileShow('marital_status', e.marital_status))) : ''}${e.dependents != null ? r('عدد المرافقين', `<span class="num">${e.dependents}</span>`) : ''}
@@ -430,7 +440,8 @@ function createStaffLogin(e) {
   if (!/^[A-Za-z0-9_-]{1,20}$/.test(e.emp_no)) return toast('الرقم الوظيفي يجب أن يكون أرقاماً أو حروفاً إنجليزية ليُستخدم في الدخول');
   const roles = INVITABLE();
   modal('إنشاء دخول — ' + e.full_name, `<p>سيدخل الموظف برمز المنشأة <b class="num">${esc(S.company.code)}</b> ثم <b>رقمه الوظيفي ${esc(e.emp_no)}</b> وكلمة مرور مؤقتة تظهر لك الآن، ويُطلب منه تغييرها عند أول دخول.</p>
-    ${field('الصلاحية', `<select name="role">${roles.map(r => opt(r, ROLES[r], 'employee')).join('')}</select>`)}`, {
+    ${field('الصلاحية', `<select name="role">${roles.map(r => opt(r, ROLES[r], 'employee')).join('')}</select>`)}
+    <p class="muted small">${esc(tr('موظف مبيعات أو مشتريات؟ اختر «محاسب»، ثم حدّد ما يراه (المبيعات، المشتريات…) من الإعدادات ← صلاحيات المحاسب وأمين المستودع.'))}</p>`, {
     ok: 'إنشاء الدخول', onOk: async f => {
       const pw = tempPassword();
       const res = await authApi.createStaff(staffEmail(S.company.code, e.emp_no), pw);
@@ -719,9 +730,7 @@ VIEWS['#/settings'] = async page => {
   if ($('#ccb', page)) $('#ccb', page).onclick = () => companyCodeBox(false);
   ['exx', 'exj'].forEach(k => { const b = $('#' + k, page); if (b) b.onclick = async () => { try { await busy(b, () => exportCompany(k === 'exj')); } catch (er) { showErr($('#exerr', page), er); } }; });
   if ($('#cibn', page)) $('#cibn', page).oninput = e => { $('#cibk', page).textContent = ibanBank(e.target.value); };
-  if ($('#demoseed', page)) $('#demoseed', page).onclick = () => modal(tr('إضافة بيانات تجريبية'),
-    `<p>${esc(tr('سنضيف موظفين وأقساماً وعملاء وحملات تسويقية ومشاريع تجريبية لتجربة النظام. يمكنك مسحها لاحقاً بضغطة من هذه الصفحة.'))}</p>`,
-    { ok: 'إضافة', onOk: async () => { await db.rpc('demo_seed', { p_company: S.cid }); cache.emps = null; toast(tr('أُضيفت البيانات التجريبية')); route(); } });
+  if ($('#demoseed', page)) $('#demoseed', page).onclick = () => demoSeedDialog();
   if ($('#democlear', page)) $('#democlear', page).onclick = () => modal(tr('مسح البيانات التجريبية'),
     `<p>${esc(tr('سيُحذف كل ما في أقسام الموظفين والعملاء والحملات والمشاريع. هذا الإجراء لا يمكن التراجع عنه.'))}</p>`,
     { ok: 'مسح', onOk: async () => { await db.rpc('demo_clear', { p_company: S.cid }); cache.emps = null; toast(tr('مُسحت البيانات التجريبية')); route(); } });

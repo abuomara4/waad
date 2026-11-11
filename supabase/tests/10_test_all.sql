@@ -2596,5 +2596,18 @@ select t.ok((select d->'notes'->0->>'channel' = 'meeting' and d->'notes'->1->>'c
    from (select public.platform_company(:'cid') d) x), 'the contact log shows each entry with its type and date, newest first');
 reset role;
 
+-- ================= REVIEW FIXES: OPENING STOCK, MY MANAGER (0074) =================
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.stock_adjust(:'cid', :'i1', current_date, 4, 50, 'رصيد أول المدة', null, null, true);
+select t.err($$select public.stock_adjust('$$ || :'cid' || $$', '$$ || :'i1' || $$', current_date, -1, null, 'نقص افتتاحي', null, null, true)$$, 'زيادة', 'opening stock cannot be a shortage');
+reset role;
+select t.ok((select bool_and(l.account_code <> '5600') and bool_or(l.account_code = '3900' and l.credit = 200)
+   from public.journal_lines l join public.journal_entries j on j.id = l.entry_id where j.company_id = :'cid' and j.memo like 'رصيد افتتاحي للمخزون%'),
+  'opening stock posts against opening balances (3900), not the inventory-differences expense');
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((public.my_manager(:'cid')->>'name') is not null or not exists(select 1 from public.employees e join public.members m on m.employee_id = e.id where m.user_id = :'u_emp' and e.manager_id is not null),
+  'an employee reads the name of their own direct manager');
+reset role;
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

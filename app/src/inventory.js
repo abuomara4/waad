@@ -45,8 +45,9 @@ VIEWS['#/items'] = async page => {
   if ($('#iim', page)) $('#iim', page).onclick = itemImport;
   if (can('items')) bindRows(page, items, formU);
   if ($('#adj', page)) $('#adj', page).onclick = async () => { const wf = await whField();
-    modal('تسوية مخزون', `<div class="fg">${field('الصنف', `<select name="item">${items.filter(i => i.type === 'stock').map(i => opt(i.id, i.code + ' — ' + i.name)).join('')}</select>`, 'wide')}${wf}${field('الكمية (+ زيادة / − عجز)', inp('qty', '', 'type="number" step="0.001"'))}${field('تكلفة الوحدة (للزيادة)', inp('cost', '', 'type="number" step="0.01" min="0"'))}${field('تاريخ الصلاحية (للزيادة في صنف بصلاحية)', '<input type="date" name="exp">')}${field('التاريخ', `<input type="date" name="d" value="${today()}">`)}${field('السبب', inp('reason'), 'wide')}</div>`, {
-      onOk: async f => { await db.rpc('stock_adjust', { p_company: S.cid, p_item: f.item, p_date: f.d, p_qty: +f.qty, p_unit_cost: f.cost === '' ? null : +f.cost, p_reason: f.reason, p_warehouse: blank(f.warehouse), p_expiry: blank(f.exp) }); toast('سُجلت التسوية'); route(); } }); };
+    modal('تسوية مخزون', `<div class="fg">${field('الصنف', `<select name="item">${items.filter(i => i.type === 'stock').map(i => opt(i.id, i.code + ' — ' + i.name)).join('')}</select>`, 'wide')}${wf}${field('الكمية (+ زيادة / − عجز)', inp('qty', '', 'type="number" step="0.001"'))}${field('تكلفة الوحدة (للزيادة)', inp('cost', '', 'type="number" step="0.01" min="0"'))}${field('تاريخ الصلاحية (للزيادة في صنف بصلاحية)', '<input type="date" name="exp">')}${field('التاريخ', `<input type="date" name="d" value="${today()}">`)}${field('السبب', inp('reason'), 'wide')}
+      <label class="row small wide" style="gap:6px;align-items:flex-start"><input type="checkbox" name="opening" style="width:auto;margin-top:4px"> <span>${esc(tr('رصيد افتتاحي (أول إدخال لكمية موجودة عندك) — يُسجَّل في الأرصدة الافتتاحية، ولا يُحسب ربحاً أو خسارة'))}</span></label></div>`, {
+      onOk: async f => { await db.rpc('stock_adjust', { p_company: S.cid, p_item: f.item, p_date: f.d, p_qty: +f.qty, p_unit_cost: f.cost === '' ? null : +f.cost, p_reason: f.reason, p_warehouse: blank(f.warehouse), p_expiry: blank(f.exp), p_opening: !!f.opening }); toast('سُجلت التسوية'); route(); } }); };
 };
 
 async function itemUnits(it, d) {
