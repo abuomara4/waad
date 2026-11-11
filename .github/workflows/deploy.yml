@@ -58,7 +58,9 @@ jobs:
           DB="$(printf '%s' "$DB" | tr -d '[:space:]')"
           case "$DB" in postgres://*|postgresql://*) ;; *) echo "::error::SUPABASE_DB_URL must start with postgresql:// (the saved value is ${#DB} characters and is not a connection URI). Copy the URI from Supabase → Connect → Session pooler."; exit 1;; esac
           case "$DB" in *YOUR-PASSWORD*|*'['*|*']'*) echo "::error::SUPABASE_DB_URL still has [YOUR-PASSWORD] or brackets; put the real database password in its place."; exit 1;; esac
-          sudo apt-get install -y -qq postgresql-client > /dev/null
+          # the runner image already has psql; install only if missing (with retries: the apt mirror sometimes fails to resolve)
+          command -v psql >/dev/null || for i in 1 2 3; do sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client > /dev/null && break; sleep 15; done
+          command -v psql >/dev/null || { echo "::error::could not install psql"; exit 1; }
           P="psql -v ON_ERROR_STOP=1 -X -q -At -d $DB"
           $P -c "create table if not exists public.schema_migrations (version text primary key, applied_at timestamptz not null default now());
                  alter table public.schema_migrations enable row level security;
