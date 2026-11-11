@@ -2663,5 +2663,30 @@ select t.ok((select count(*) = 0 from public.zatca_docs where company_id = :'cid
 reset role;
 delete from public.zatca_settings where company_id = :'cid';
 
+-- ================= ZATCA: LINKING A COMPANY TO FATOORA (0079) =================
+update public.companies set vat_no = '399999999900003', street = 'الأمير سلطان', bld_no = '2322', district = 'المربع', city = 'الرياض', postal_code = '23333' where id = :'cid';
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok((public.zatca_onboard_info(:'cid')->>'vat') = '399999999900003' and (public.zatca_onboard_info(:'cid')->>'building') = '2322', 'the owner may link to Fatoora and gets the official data ZATCA needs');
+select t.err($$select public.zatca_onboarded('$$ || :'cid' || $$', 'sandbox', 's', 'c', 'k', 't', 'x')$$, 'permission denied', 'even the owner cannot store certificates directly (server only)');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select public.zatca_onboard_info('$$ || :'cid' || $$')$$, '42501|مالك', 'finance staff cannot link the company (owner / admin only)');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.err($$select public.zatca_onboard_info('$$ || :'cid' || $$')$$, '42501|مالك', 'another company cannot read this company''s data for linking');
+reset role;
+set role service_role;
+select public.zatca_onboard_failed(:'cid', 'OTP expired');
+select public.zatca_onboarded(:'cid', 'sandbox', '1-Waad|2-1.0|3-x', 'CERT', 'KEY', 'TOKEN', 'SECRET');
+reset role;
+select t.ok((select enabled and env = 'sandbox' and csid_cert = 'CERT' and last_error is null and onboarded_at is not null from public.zatca_settings where company_id = :'cid')
+  and (select private_key = 'KEY' and csid_token = 'TOKEN' from public.zatca_secrets where company_id = :'cid'), 'a successful link enables the company and stores the key on the server side only');
+select t.ok((select icv from public.zatca_settings where company_id = :'cid') >= 0, 'linking again keeps the chain counter');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok((select csid_cert = 'CERT' from public.zatca_settings where company_id = :'cid'), 'the owner sees the link status and certificate');
+select t.err($$select private_key from public.zatca_secrets$$, 'permission denied', 'the owner cannot read the private key');
+reset role;
+delete from public.zatca_settings where company_id = :'cid'; delete from public.zatca_secrets where company_id = :'cid';
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary
