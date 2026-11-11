@@ -417,6 +417,7 @@
 إشعار تسليم المورد	Supplier delivery note
 إشعار دائن	Credit note
 إشعار مدين	Debit note
+إشعار مدين على الفاتورة	Debit note on invoice
 إشعارات التسليم	Delivery notes
 إصدار	Issue
 إصدار الإشعار	Issue note
@@ -920,6 +921,7 @@
 الإدارة بالبريد	Management by email
 الإدارة والمالية	Admin & Finance
 الإشعار	Notice
+الإشعار المدين يكون على فاتورة مبيعات قائمة	A debit note must be on a posted sales invoice
 الإشعار غير موجود	Note not found
 الإشعار ملغى مسبقاً	The note is already void
 الإشعارات	Notes
@@ -1465,7 +1467,9 @@
 الغياب والتأخير والإضافي المعتمد تنتقل إلى مسير الرواتب عند إعداده	Absence, lateness and approved overtime flow into payroll when it is prepared
 الفئة	Category
 الفئة المستهدفة	Target group
+الفاتورة الأصلية غير موجودة	The original invoice was not found
 الفاتورة غير موجودة	Invoice not found
+الفاتورة مرسلة إلى زاتكا ولا تُلغى	The invoice was sent to ZATCA and cannot be voided
 الفاتورة ملغاة مسبقاً	The invoice is already void
 الفترة	Period
 الفترة السابقة	Previous period
@@ -3045,6 +3049,8 @@
 سجل الغرامات	Fines register
 سجل الموظف	Employee record
 سجل الموظف مربوط بحساب آخر	The employee record is linked to another account
+سجل زاتكا لا يتغيّر	The ZATCA record cannot be changed
+سجل زاتكا لا يُحذف	The ZATCA record cannot be deleted
 سجّل الإقامة ورخصة العمل وجواز السفر	record the iqama, work permit and passport
 سجّل التأشيرة أولاً	Record the visa first
 سجّل التحقيق أولاً	Record the investigation first
@@ -3193,6 +3199,7 @@
 صحة	Health
 صحتي	Sehhaty
 صحيحة	are correct
+صحّحها بإشعار دائن	correct it with a credit note
 صحّحها بقيد يدوي بدل الإلغاء	correct them with a manual entry instead of undoing
 صحّحها في الملف ثم ارفعه مجدداً	fix them in the file and upload it again
 صدر أمر شراء لهذا الطلب من قبل	A purchase order was already issued for this request
