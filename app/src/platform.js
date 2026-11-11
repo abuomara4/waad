@@ -140,14 +140,14 @@ PV.companies = async page => {
       { t: 'التسجيل', h: c => `<span class="num">${esc(String(c.created_at).slice(0, 10))}</span>` }, { t: '', h: c => `<div class="row" style="gap:4px;flex-wrap:nowrap">${quickBtns(c)}</div>` }], shown, { empty: 'لا توجد منشآت', onRow: true })}
     <div class="card" style="margin-top:16px"><h2>${esc(tr('إعدادات المنشآت الجديدة'))}</h2>
       <form id="psf" class="fg">${field('الأقسام المفتوحة عند التسجيل', modChecks(st.default_modules), 'wide')}
-      ${field('مدة التجربة بالأيام (فارغ = بدون حد)', inp('days', st.default_trial_days, 'type="number" min="1" max="365"'))}
+      ${field('مدة التجربة بالأيام', inp('days', st.default_trial_days || 7, 'type="number" min="1" max="365" required'))}
       <label class="row small wide" style="gap:6px"><input type="checkbox" name="approval" ${st.require_approval !== false ? 'checked' : ''} style="width:auto"> ${esc(tr('المنشآت الجديدة تنتظر قبولي قبل ما تبدأ'))}</label>
       <div class="wide"><div id="pserr"></div><button class="btn pri" id="psb">${esc(tr('حفظ'))}</button></div></form></div>`;
   $('#pq', page).oninput = e => { LS.set('waad.platq', e.target.value); clearTimeout(platformView.t); platformView.t = setTimeout(platformView, 400); };
   bindRows(page, shown, c => { location.hash = '#/company/' + c.company_id; }); bindCopy(page); bindQuick(page, shown, st);
   $$('[data-f]', page).forEach(a => a.onclick = e => { e.preventDefault(); LS.set('waad.platf', a.dataset.f); platformView(); });
   $('#psf', page).onsubmit = async e => { e.preventDefault(); const f = e.target;
-    try { await busy($('#psb', page), async () => { await db.rpc('platform_set_settings', { p_modules: pickMods(f), p_trial_days: f.days.value ? +f.days.value : null, p_require_approval: f.approval.checked }); toast(tr('تم الحفظ')); }); }
+    try { await busy($('#psb', page), async () => { await db.rpc('platform_set_settings', { p_modules: pickMods(f), p_trial_days: +f.days.value || 7, p_require_approval: f.approval.checked }); toast(tr('تم الحفظ')); }); }
     catch (er) { showErr($('#pserr', page), er); } };
 };
 const modChecks = (sel, prefix = 'm') => `<div class="row" style="gap:14px;flex-wrap:wrap">${Object.entries(MODULES).map(([k, t]) =>
