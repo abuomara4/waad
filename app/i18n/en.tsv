@@ -990,6 +990,7 @@
 الاعتداء الجسدي أو القولي أو بأي وسيلة من وسائل الاتصال الإلكترونية على صاحب العمل أو المدير المسؤول أو أحد الرؤساء أثناء العمل أو بسببه	Physical or verbal assault, or by electronic means, on the employer, the responsible manager or a superior during or because of work
 الاعتداء بالإيذاء الجسدي على زملاء العمل أو على غيرهم بطريقة إباحية	Indecent physical assault on co-workers or others
 الاعتداء على زملاء العمل بالقول أو الإشارة أو باستعمال وسائل الاتصال الإلكترونية بالشتم أو التحقير	Insulting or demeaning co-workers by word, gesture or electronic means
+الاعتماد	Approvals
 الاعتمادات	Approvals
 الافتراضي	Default
 الافتراضية	Default
@@ -1038,6 +1039,7 @@
 البنك غير معروف من الآيبان	Bank not recognised from the IBAN
 البنود	Lines
 البيان	Description
+البيانات	Details
 البيانات التجريبية تُضاف فقط لمنشأة جديدة بلا موظفين	Sample data can only be added to a new company with no employees
 البيانات التجريبية مضافة مسبقاً	Sample data has already been added
 البيانات الشخصية	Personal details
@@ -1571,6 +1573,7 @@
 المبيعات قبل الضريبة	Sales before VAT
 المبيعات والتسويق	Sales & Marketing
 المبيعات والعملاء	Sales and customers
+المبيّنة في الجدول	listed in the table
 المتابعات	Follow-ups
 المتاح	Available
 المتاح للتعزيز	available to top up
@@ -1580,6 +1583,7 @@
 المتبقي للتسليم من	Remaining to deliver of
 المتبقي للفوترة في أحد البنود	Remaining to invoice on a line is
 المتدربون	Trainees
+المتعلقات	Pending items
 المتوفر في المصدر	Available at source
 المتوقع	Expected
 المحتوى طويل جداً	The content is too long
@@ -2031,6 +2035,7 @@
 بنك الرياض	Riyad Bank
 بنود	items
 بنود الحسابات لا تُستلم	Account lines are not received
+بيانات إخلاء الطرف	Clearance data
 بيانات الاشتراك فقط	Subscription data only
 بيانات المنشأة	Company details
 بيانات تجريبية	Sample data
@@ -2428,6 +2433,7 @@
 تلفيات	Damages
 تلقائي	automatic
 تم	Done
+تم إخلاء الطرف	Approved
 تم إنشاء الحساب	Account created
 تم الإيقاف	Suspended
 تم الاعتماد	Approved
@@ -2544,6 +2550,8 @@
 جدول الاختبارات المعتمد من الجهة التعليمية	Exam timetable approved by the educational institution
 جدول المخالفات والجزاءات	Violations and penalties table
 جدول الورديات	Shift roster
+جدول بالعربي والإنجليزي	Arabic and English table
+جدول عربي/إنجليزي	Arabic/English table
 جديدة	new
 جدّد الاشتراك	Renew
 جذب عملاء جدد للخدمة الجديدة	Attract new customers for the new service
@@ -3889,6 +3897,7 @@
 لم يبدأ	Not started
 لم يبدأ الإهلاك	Depreciation not started
 لم يتغير الأجر	The wage did not change
+لم يتم إخلاء الطرف	Not approved
 لم يحضر	No-show
 لم يسجّل بعد	Not in yet
 لم يسجّلوا بعد	Not in yet
@@ -4732,6 +4741,8 @@
 يطبق عليه دوام رمضان	Ramadan hours apply
 يطلب إقرار الموظفين	employees must acknowledge
 يطلبها الموظف مع إجازته أو منفردة	The employee requests it with a leave or on its own
+يطلع بالعربي والإنجليزي معاً على نفس الورقة	Prints in Arabic and English together on the same sheet
+يطلع بالعربي والإنجليزي معاً على نفس الورقة.	Prints in Arabic and English together on the same sheet.
 يظهر أعلى الخطابات المطبوعة	Shown at the top of printed letters
 يظهر الراتب وتفاصيله	Show salary and breakdown
 يظهر في أوامر الشراء	Shown on purchase orders

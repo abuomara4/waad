@@ -66,6 +66,11 @@ const FORM_LIB = [
     ar: 'إلى {e.name}، الرقم الوظيفي {e.no}، {e.job}.\n\nنُشعرك بإنهاء عقد عملك مع {c.name}، وذلك للسبب التالي:\n{f:reason}\n\nمدة الإشعار {f:notice} يوماً، وآخر يوم عمل لك {f:last}، وتُصرف لك مستحقاتك النظامية وفق نظام العمل بعد إتمام إخلاء الطرف.',
     en: 'To {e.name}, employee no. {e.no}, {e.job}.\n\nWe notify you that your employment contract with {c.name} will end, for the following reason:\n{f:reason}\n\nThe notice period is {f:notice} days and your last working day is {f:last}. Your statutory dues will be paid under the Labour Law once clearance is complete.',
     sig: ['hr', 'gm', 'recv'] },
+  { k: 'clearance', dept: 'hr', subject: 'employee', t: ['إخلاء طرف', 'Clearance'],
+    f: [['last', 'آخر يوم عمل', 'Last working day', 'date'], ['reason', 'سبب إخلاء الطرف', 'Reason for clearance', 'text'], ['held', 'العهد المسجّلة على الموظف', 'Custody items on record', 'textarea']],
+    ar: 'نرجو من الإدارات المعنية إخلاء طرف {e.name}، الرقم الوظيفي {e.no}، آخر يوم عمل {f:last}، والسبب: {f:reason}.\n\nالعهد المسجّلة عليه: {f:held}\n\nفي حال عدم الموافقة يجب إيضاح المتعلقات بالتفصيل، ولا يُعتدّ بأي شيء لم يُذكر في هذا النموذج.',
+    en: 'The departments concerned are asked to clear {e.name}, employee no. {e.no}, last working day {f:last}, reason: {f:reason}.\n\nCustody items on record: {f:held}\n\nIf clearance is not approved, the pending items must be stated in detail; nothing not stated in this form will be considered.',
+    sig: ['mgr', 'fin', 'hr', 'gm'] },
   { k: 'handover', dept: 'hr', subject: 'employee', t: ['تسليم واستلام عمل', 'Work Handover'],
     f: [['to', 'المستلم', 'Handed over to', 'text'], ['items', 'الأعمال والملفات المسلّمة', 'Work and files handed over', 'textarea'], ['date', 'التاريخ', 'Date', 'date']],
     ar: 'سلّم {e.name}، الرقم الوظيفي {e.no}، {e.job}، إلى {f:to} بتاريخ {f:date} الأعمال والملفات التالية:\n\n{f:items}\n\nوقد استلمها المستلم كاملة.',
@@ -576,3 +581,38 @@ const FORM_LIB = [
     en: '{c.name} handed over to {p.name} the following documents of project «{f:project}»:\n\n{f:docs}',
     sig: ['pm', 'cust'] },
 ];
+
+/* ===== forms printed as a bilingual table (Arabic + English on one sheet) instead of a letter: the ones that are filled in,
+   passed between departments and signed. d = print the text as a declaration (both languages); l = [textarea field, columns]:
+   that field becomes a table, one row per line (cells split on « — », « × », « - » or a tab); ck = rows of an approve / not-approve
+   table (one per department). Letters, decisions and notices stay letters. ===== */
+const GQ = [['الصنف / البيان', 'Item / Description'], ['الكمية', 'Qty'], ['الوحدة', 'Unit'], ['ملاحظات', 'Notes']];
+const FORM_GRID = {
+  clearance: { ck: [['المدير المباشر', 'Direct manager'], ['تقنية المعلومات', 'IT'], ['الإدارة المالية', 'Finance'], ['الموارد البشرية', 'Human resources'],
+    ['السكن والمواصلات', 'Housing & transport'], ['المستودع والعهد', 'Store & custody']], note: 2 },
+  joining: { d: 1 }, leave_form: {}, return_leave: {}, permission: {}, overtime_assign: {}, mission: {}, exit_reentry: {},
+  custody: { d: 1, l: ['items', [['العهدة', 'Item'], ['الرقم التسلسلي', 'Serial no.'], ['الحالة', 'Condition']]] },
+  handover: { d: 1, l: ['items', [['العمل / الملف', 'Task / file'], ['الحالة', 'Status'], ['ملاحظات', 'Notes']]] },
+  payment_request: {}, advance_request: {}, cash_settle: {}, bank_transfer_req: {}, petty_request: {}, budget_request: {}, refund_request: {},
+  asset_disposal: {}, cash_receipt: { d: 1 }, cheque_handover: { d: 1 }, asset_receipt: { d: 1 },
+  expense_claim: { l: ['items', [['البند', 'Item'], ['المبلغ', 'Amount'], ['رقم الفاتورة', 'Invoice no.']]] },
+  delivery_ack: { d: 1, l: ['items', GQ] }, delivery_note: { d: 1, l: ['items', GQ] }, customer_return: { l: ['items', GQ] },
+  discount_approval: {}, credit_limit: {}, visit_report: {},
+  supplier_eval: {}, supplier_reg: { d: 1 }, direct_purchase: {}, advance_to_supplier: {},
+  purchase_request: { l: ['items', GQ] },
+  inspection: { l: ['items', [['البند', 'Item'], ['الكمية', 'Qty'], ['مطابق', 'Accepted'], ['ملاحظات', 'Notes']]] },
+  bid_comparison: { l: ['offers', [['المورد', 'Supplier'], ['السعر', 'Price'], ['مدة التوريد', 'Delivery'], ['ملاحظات', 'Notes']]] },
+  delivery_schedule: { l: ['plan', [['البند', 'Item'], ['الكمية', 'Qty'], ['تاريخ التوريد', 'Delivery date']]] },
+  stock_issue: { l: ['items', GQ] }, receive_note: { d: 1, l: ['items', GQ] }, stock_transfer: { l: ['items', GQ] }, return_to_store: { l: ['items', GQ] },
+  disposal: { l: ['items', GQ] }, damage_report: { l: ['items', GQ] }, reorder_request: { l: ['items', GQ] }, dept_issue: { l: ['items', GQ] },
+  samples_issue: { l: ['items', GQ] }, gate_pass: { l: ['items', GQ] },
+  count_report: { l: ['result', [['الصنف', 'Item'], ['الرصيد الدفتري', 'Book qty'], ['الفعلي', 'Counted'], ['الفرق', 'Difference']]] },
+  expiry_report: { l: ['items', [['الصنف', 'Item'], ['الكمية', 'Qty'], ['تاريخ الانتهاء', 'Expiry date']]] },
+  serial_delivery: { d: 1, l: ['items', [['الجهاز', 'Device'], ['الرقم التسلسلي', 'Serial no.'], ['ملاحظات', 'Notes']]] },
+  store_handover: { d: 1 }, customer_item_in: { d: 1 }, count_plan: {},
+  minutes: { l: ['decisions', [['القرار', 'Decision'], ['المسؤول', 'Owner'], ['الموعد', 'Due']]] },
+  snag_list: { l: ['items', [['الملاحظة', 'Item'], ['الموقع', 'Location'], ['تمت المعالجة', 'Done']]] },
+  risk_register: { l: ['risks', [['الخطر', 'Risk'], ['الأثر', 'Impact'], ['الإجراء', 'Action'], ['المسؤول', 'Owner']]] },
+  docs_handover: { d: 1, l: ['docs', [['المستند', 'Document'], ['عدد النسخ', 'Copies'], ['ملاحظات', 'Notes']]] },
+  site_handover: { d: 1 }, site_visit: {}, rfi: {}, progress_report: {}, timesheet_approval: {}, change_order: { d: 1 },
+};
