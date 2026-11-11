@@ -70,6 +70,14 @@ const FORM_PRE = {
     return { ref: inv.no, date: inv.date, items: ln.map(l => (nm[l.item_id] || '') + ' × ' + n0(l.qty)).join('\n') }; },
   supply_delay: async p => { const po = (await db.get('purchase_orders', { company_id: 'eq.' + S.cid, party_id: 'eq.' + p.id, status: 'eq.open', order: 'date.desc', limit: 1 }).catch(() => []))[0];
     return po ? { po: po.no, due: po.expected_date || '', by: plusDays(today(), 7) } : { by: plusDays(today(), 7) }; },
+  final_notice: async p => { const o = await openDocs(p.id, 'sales'); return o.length ? { amount: o.reduce((a, x) => a + x.rem, 0).toFixed(2), invoices: o.map(x => x.no).join('، '), due: plusDays(today(), 3) } : { due: plusDays(today(), 3) }; },
+  debt_ack: async p => { const o = await openDocs(p.id, 'sales'); return { date: today(), amount: o.reduce((a, x) => a + x.rem, 0).toFixed(2), due: plusDays(today(), 30) }; },
+  installments: async p => { const o = await openDocs(p.id, 'sales'); return { total: o.reduce((a, x) => a + x.rem, 0).toFixed(2), first: plusDays(today(), 30) }; },
+  salary_bank_letter: async e => ({ iban: e.iban || '' }),
+  petty_request: async e => ({ until: plusDays(today(), 30) }),
+  po_cancel: async p => { const po = (await db.get('purchase_orders', { company_id: 'eq.' + S.cid, party_id: 'eq.' + p.id, status: 'eq.open', order: 'date.desc', limit: 1 }).catch(() => []))[0]; return po ? { po: po.no } : {}; },
+  inspection: async p => { const b = (await db.get('purchase_bills', { company_id: 'eq.' + S.cid, party_id: 'eq.' + p.id, status: 'eq.posted', order: 'date.desc', limit: 1 }).catch(() => []))[0]; return { date: today(), ref: b ? b.no : '' }; },
+  quote_cover: async p => ({ valid: plusDays(today(), 15) }),
   return_supplier: async p => { const b = (await db.get('purchase_bills', { company_id: 'eq.' + S.cid, party_id: 'eq.' + p.id, status: 'eq.posted', order: 'date.desc', limit: 1 }).catch(() => []))[0]; return b ? { ref: b.no } : {}; },
 };
 // fill a form: who it is for, the language, and its own fields → numbered sheet → print
