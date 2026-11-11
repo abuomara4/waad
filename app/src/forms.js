@@ -177,25 +177,25 @@ function formPrintGrid(t, { no, who, vals, deps }) {
   const cells = [];
   if (t.subject === 'employee') [['e.name', 'الاسم', 'Name'], ['e.no', 'الرقم الوظيفي', 'Employee no.'], ['e.job', 'الوظيفة', 'Position'], ['e.dept', 'القسم', 'Division'],
     ['e.nat', 'الجنسية', 'Nationality'], ['e.id', 'رقم الهوية / الإقامة', 'ID / Iqama no.'], ['e.hire', 'تاريخ التعيين', 'Hire date'], ['e.mgr', 'المدير المباشر', 'Direct manager']]
-    .forEach(([k, a, b]) => cells.push([L(a, b), both(k)]));
+    .slice(0, t.dept === 'hr' ? 8 : 4).forEach(([k, a, b]) => cells.push([L(a, b), both(k)]));
   if (['customer', 'supplier', 'party'].includes(t.subject)) [['p.name', t.subject === 'supplier' ? 'المورد' : t.subject === 'customer' ? 'العميل' : 'الجهة', t.subject === 'supplier' ? 'Supplier' : t.subject === 'customer' ? 'Customer' : 'Party'],
     ['p.vat', 'الرقم الضريبي', 'VAT no.'], ['p.cr', 'السجل التجاري', 'CR no.'], ['p.phone', 'الجوال', 'Phone']].forEach(([k, a, b]) => cells.push([L(a, b), both(k)]));
   const lf = g.l ? g.l[0] : null, boxes = [];
-  t.fields.forEach(([k, la, le, ty]) => { if (k === lf) return; const v = vals[k] || '';
+  t.fields.forEach(([k, la, le, ty]) => { if (k === lf || (g.ck && k === 'held')) return; const v = vals[k] || '';
     if (ty === 'textarea') boxes.push([L(la, le), v]); else cells.push([L(la, le), esc(v)]); });
   if (cells.length % 2) cells.push(['', '']);
   const rows = []; for (let i = 0; i < cells.length; i += 2) rows.push(`<tr>${[cells[i], cells[i + 1]].map(([l, v]) => `<th>${l}</th><td>${v}</td>`).join('')}</tr>`);
   const H = (ar, en) => `<div class="gh">${L(ar, en)}</div>`;
   let list = '';
   if (g.l) { const cols = g.l[1], lines = String(vals[lf] || '').split('\n').map(x => x.trim()).filter(Boolean).map(x => x.split(/\s+[—×|-]\s+|\t/));
-    while (lines.length < 6) lines.push([]);
+    while (lines.length < 4) lines.push([]);
     const fl = t.fields.find(f => f[0] === lf);
     list = '<div class="gsec">' + H(fl[1].replace(/\s*\(.*\)$/, ''), fl[2].replace(/\s*\(.*\)$/, '')) + `<table class="gt gl"><tr><th class="gn">#<br><span class="gle">م</span></th>${cols.map(([a, b]) => `<th>${L(a, b)}</th>`).join('')}</tr>
       ${lines.map((r, i) => `<tr><td class="gn">${r.length ? i + 1 : ''}</td>${cols.map((x, j) => `<td>${esc(j === cols.length - 1 && r.length > cols.length ? r.slice(j).join(' — ') : r[j] || '')}</td>`).join('')}</tr>`).join('')}</table></div>`; }
   const ck = g.ck ? '<div class="gsec">' + H('بيانات إخلاء الطرف', 'Clearance data') + `<table class="gt gc"><tr><th>${L('الإدارة', 'Department')}</th><th>${L('القرار', 'Decision')}</th><th>${L('المتعلقات', 'Pending items')}</th><th>${L('التوقيع', 'Signature')}</th></tr>
-      ${g.ck.map(([a, b]) => `<tr><th>${L(a, b)}</th><td class="gd">☐ ${L('تم إخلاء الطرف', 'Approved')}<br>☐ ${L('لم يتم إخلاء الطرف', 'Not approved')}</td><td></td><td></td></tr>`).join('')}</table></div>` : '';
-  const decl = g.d || g.ck ? `<div class="gdecl"><p>${formFillText(t.body_ar.split(/\n\s*\n/).filter(p => !g.ck || !/\{f:held\}/.test(p)).join(' '), A, vals, lf, false).replace(/\n/g, ' ')}</p>
-      <p dir="ltr">${formFillText(t.body_en.split(/\n\s*\n/).filter(p => !g.ck || !/\{f:held\}/.test(p)).join(' '), E, vals, lf, true).replace(/\n/g, ' ')}</p></div>` : '';
+      ${g.ck.map(([a, b], i) => `<tr><th>${L(a, b)}</th><td class="gd">☐ ${L('تم إخلاء الطرف', 'Approved')}<br>☐ ${L('لم يتم إخلاء الطرف', 'Not approved')}</td><td class="small">${i === g.ck.length - 1 && vals.held ? esc(vals.held).replace(/\n/g, '<br>') : ''}</td><td></td></tr>`).join('')}</table></div>` : '';
+  const decl = g.d || g.ck ? `<div class="gdecl"><p>${formFillText(t.body_ar.split(/\n\s*\n/).filter((p, i) => g.note == null || i === g.note).join(' '), A, vals, lf, false).replace(/\n/g, ' ')}</p>
+      <p dir="ltr">${formFillText(t.body_en.split(/\n\s*\n/).filter((p, i) => g.note == null || i === g.note).join(' '), E, vals, lf, true).replace(/\n/g, ' ')}</p></div>` : '';
   const sg = t.sigs || [];
   const w = document.createElement('div'); w.className = 'fsheet gsheet'; w.setAttribute('data-nt', ''); w.dir = 'rtl'; w.lang = 'ar';
   w.innerHTML = `<div class="fh"><div class="fhb">${c.logo ? `<img src="${esc(c.logo)}" alt="">` : ''}<div><div class="fco">${esc(A['c.name'] || '')}</div>${E['c.name'] && E['c.name'] !== A['c.name'] ? `<div class="fid" dir="ltr">${esc(E['c.name'])}</div>` : ''}
@@ -203,24 +203,24 @@ function formPrintGrid(t, { no, who, vals, deps }) {
       <div class="fmeta"><div>الرقم No.: <b class="num">${esc(no)}</b></div><div>التاريخ Date: <span class="num">${esc(A.date)}</span></div>${A.hijri ? `<div>${esc(A.hijri)}</div>` : ''}</div></div>
     <h1 class="ft">${esc(t.title_ar)}<span class="gle" dir="ltr">${esc(t.title_en || '')}</span></h1>
     ${rows.length ? `<div class="gsec">${H('البيانات', 'Details')}<table class="gt gd2">${rows.join('')}</table></div>` : ''}
-    ${boxes.map(([l, v]) => `<table class="gt"><tr><th class="gbh">${l}</th></tr><tr><td class="gbox">${v ? esc(v).replace(/\n/g, '<br>') : ''}</td></tr></table>`).join('')}
+    ${boxes.map(([l, v]) => `<table class="gt"><tr><th class="gbh">${l}</th></tr><tr><td class="${v ? 'gboxf' : 'gbox'}">${v ? esc(v).replace(/\n/g, '<br>') : ''}</td></tr></table>`).join('')}
     ${list}${ck}${decl}
     <table class="gt"><tr><th class="gbh">${L('ملاحظات', 'Notes')}</th></tr><tr><td class="gbox"></td></tr></table>
     ${sg.length ? '<div class="gsec">' + H('الاعتماد', 'Approvals') + `<table class="gt gs"><tr>${sg.map(s => `<th>${L(s[0], s[1] || s[0])}</th>`).join('')}</tr>
-      ${[['الاسم', 'Name'], ['التوقيع', 'Signature'], ['التاريخ', 'Date']].map(([a, b]) => `<tr>${sg.map(() => `<td><span class="gsl">${L(a, b)}</span></td>`).join('')}</tr>`).join('')}</table></div>` : ''}`;
-  printWith(w, FORM_CSS + `.gsheet{-webkit-print-color-adjust:exact;print-color-adjust:exact}.gsheet .gsec{break-inside:avoid;page-break-inside:avoid}.gsheet{font-size:10pt;line-height:1.5}.gsheet .fh{margin-bottom:5mm}.gsheet .ft{margin-bottom:5mm}
+      ${[['الاسم', 'Name'], ['التوقيع والتاريخ', 'Signature & date']].map(([a, b]) => `<tr>${sg.map(() => `<td><span class="gsl">${L(a, b)}</span></td>`).join('')}</tr>`).join('')}</table></div>` : ''}`;
+  printWith(w, FORM_CSS + `@page{size:A4 portrait;margin:10mm}.gsheet{-webkit-print-color-adjust:exact;print-color-adjust:exact}.gsheet .gsec{break-inside:avoid;page-break-inside:avoid}.gsheet{font-size:9.5pt;line-height:1.4}.gsheet .fh{margin-bottom:3mm;padding-bottom:2mm}.gsheet .fhb img{max-height:14mm}.gsheet .ft{margin-bottom:3mm;font-size:15pt}
     .gsheet .ft .gle{display:block;font-size:11pt;font-weight:600}
     .gsheet .gle{display:block;font-size:8pt;color:#444;font-weight:400}.gsheet .gla{display:block}
-    .gsheet .gh{background:#1f3b57;color:#fff;padding:1.5mm 3mm;margin-top:4mm;display:flex;justify-content:space-between;align-items:baseline;font-weight:700}
+    .gsheet .gh{background:#1f3b57;color:#fff;padding:1mm 3mm;margin-top:3mm;display:flex;justify-content:space-between;align-items:baseline;font-weight:700}
     .gsheet .gh .gle{color:#dde6ef;font-size:9pt;font-weight:600}
-    .gsheet .gt{width:100%;border-collapse:collapse;margin-top:0;page-break-inside:avoid}.gsheet .gt+.gt{margin-top:3mm}
-    .gsheet .gt th,.gsheet .gt td{border:.6pt solid #8a99a8;padding:1.5mm 2mm;vertical-align:top;text-align:start}
+    .gsheet .gt{width:100%;border-collapse:collapse;margin-top:0;page-break-inside:avoid}.gsheet .gt+.gt{margin-top:2mm}
+    .gsheet .gt th,.gsheet .gt td{border:.6pt solid #8a99a8;padding:1mm 2mm;vertical-align:top;text-align:start}
     .gsheet .gt th{background:#eef2f6;font-weight:700;width:auto}.gsheet .gd2 th{width:20%}.gsheet .gd2 td{width:30%}
-    .gsheet .gl td{height:7mm}.gsheet .gn{width:8mm;text-align:center!important}
-    .gsheet .gc th:first-child{width:24%}.gsheet .gc td{height:11mm}.gsheet .gc .gd{width:28%;white-space:nowrap}.gsheet .gc .gd .gla,.gsheet .gc .gd .gle{display:inline}
-    .gsheet .gbh{background:#eef2f6}.gsheet .gbox{height:16mm}
-    .gsheet .gdecl{margin-top:4mm;border:.6pt solid #8a99a8;padding:2mm 3mm}.gsheet .gdecl p{margin:0 0 1.5mm;text-align:justify}.gsheet .gdecl p[dir=ltr]{font-size:9pt;color:#333}
-    .gsheet .gs{margin-top:0}.gsheet .gs th{text-align:center}.gsheet .gs td{height:9mm;font-size:8pt;color:#555}.gsheet .gsl .gla,.gsheet .gsl .gle{display:inline;margin-inline-end:2mm}`);
+    .gsheet .gl td{height:6mm}.gsheet .gn{width:8mm;text-align:center!important}
+    .gsheet .gc th:first-child{width:24%}.gsheet .gc td{height:auto}.gsheet .gc .gle{font-size:7.5pt}.gsheet .gc .gd{width:28%;white-space:nowrap}.gsheet .gc .gd .gla,.gsheet .gc .gd .gle{display:inline}
+    .gsheet .gbh{background:#eef2f6}.gsheet .gbox{height:10mm}
+    .gsheet .gdecl{margin-top:3mm;font-size:9pt;border:.6pt solid #8a99a8;padding:2mm 3mm}.gsheet .gdecl p{margin:0 0 1.5mm;text-align:justify}.gsheet .gdecl p[dir=ltr]{font-size:9pt;color:#333}
+    .gsheet .gs{margin-top:0}.gsheet .gs th{text-align:center}.gsheet .gs td{height:7mm;font-size:8pt;color:#555}.gsheet .gsl .gla,.gsheet .gsl .gle{display:inline;margin-inline-end:2mm}`);
   toast(tr('النموذج') + ' ' + no);
 }
 
