@@ -92,5 +92,6 @@ jobs:
           git add site/app/index.html site/admin/index.html site/*.html app/waad-app.html app/waad-admin.html
           if git diff --cached --quiet; then echo "no app changes"; exit 0; fi
           git commit -q -m "Deploy ${GITHUB_SHA::7}: built app [skip ci]"
-          git pull -q --rebase --autostash origin main
+          # another deploy may have published in the meantime: the built files are generated, so ours (newer source) wins
+          git pull -q --rebase --autostash -X theirs origin main
           git push -q origin HEAD:main
