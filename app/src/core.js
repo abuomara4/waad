@@ -569,6 +569,7 @@ function shell() {
           <button type="button" class="mi" id="pw" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11V8a4 4 0 1 1 8 0v3M5 11h14v10H5zM12 15v2"/></svg><span>تغيير كلمة المرور</span></button>
           <button type="button" class="mi" id="mfa" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6zM9 12l2 2 4-4"/></svg><span>التحقق بخطوتين</span></button>
           ${S.platform ? '<a class="mi" href="' + ADMIN_URL + '" id="plat" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v6H4zM4 14h7v6H4zM15 14h5v6h-5z"/></svg><span>لوحة إدارة المنصة</span></a>' : ''}
+          ${has('owner', 'admin', 'hr', 'finance', 'accountant') ? '<a class="mi" href="#/support" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2v-6h4M4 13v4a2 2 0 0 0 2 2h2v-6H4"/></svg><span>الدعم الفني</span></a>' : ''}
           <a class="mi" href="#/privacy" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM9 12h7M9 16h7"/></svg><span>الخصوصية والشروط</span></a>
           <button type="button" class="mi out" id="lo" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg><span>تسجيل الخروج</span></button>
         </div><div class="bpanel" id="bpanel" hidden></div></div></header>
@@ -668,6 +669,7 @@ async function drawBell(open) {
 async function route() {
   if (!S.session || !S.cid || !$('#page')) return;
   const [path, q] = (location.hash || '#/home').split('?');
+  if (path !== '#/support') S.prevRoute = path;   // a support request says which screen it came from
   const parts = path.split('/'); // ['#', 'sales', 'id']
   let key = parts.slice(0, 2).join('/'), arg = parts.slice(2).join('/');
   if (!VIEWS[key]) { key = '#/home'; arg = ''; }

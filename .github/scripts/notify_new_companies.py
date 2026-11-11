@@ -1,6 +1,8 @@
-"""Run by .github/workflows/notify.yml every 10 minutes. Two jobs:
+"""Run by .github/workflows/notify.yml every 10 minutes:
  1. tell the Waad team about companies waiting for approval (status 'pending', not yet notified);
- 2. remind each customer by e-mail 3 days before its trial or subscription ends (once per end date).
+ 2. remind each customer by e-mail 3 days before its trial or subscription ends (once per end date);
+ 3. tell the team about new support requests; 4. e-mail the team's reply to the customer who asked;
+ 5. send the welcome e-mail once a company is accepted.
 Channels (each optional, set as repository secrets):
   e-mail   : NOTIFY_GMAIL_USER + NOTIFY_GMAIL_APP_PASSWORD (a Google «App password»); team mail goes to NOTIFY_EMAIL_TO or to itself
   WhatsApp : CALLMEBOT_PHONE + CALLMEBOT_APIKEY (free CallMeBot key for your own number) — team notices only
@@ -73,9 +75,8 @@ def remind():
        limit 50) x"""))
     if not rows:
         print('no reminders due'); return
-    c = json.loads(psql("select coalesce((select value from public.site_content where key = 'contact'), '{}')") or '{}')
-    phone = ('0' + c['phone'][3:]) if re.fullmatch(r'9665\d{8}', c.get('phone') or '') else '0554003226'
-    reach = 'واتساب أو اتصال: %s · %s\n%scontact.html' % (phone, c.get('email') or 'waad.erp@gmail.com', SITE)
+    phone, cmail = contact()
+    reach = 'واتساب أو اتصال: %s · %s\n%scontact.html' % (phone, cmail, SITE)
     done = []
     for r in rows:
         if not r.get('email'): continue
@@ -87,11 +88,71 @@ def remind():
                 'Your Waad %s for «%s» ends on %s. %s, contact us: %s · %s') % (
             what, r['name'], when, r['ends'],
             'للاشتراك وإكمال استخدام النظام بدون انقطاع، تواصل معنا قبل هذا التاريخ.' if trial else 'لتجديد الاشتراك بدون انقطاع، تواصل معنا قبل هذا التاريخ.',
-            reach, what_en, r['name'], r['ends'], 'To subscribe' if trial else 'To renew', phone, c.get('email') or 'waad.erp@gmail.com')
+            reach, what_en, r['name'], r['ends'], 'To subscribe' if trial else 'To renew', phone, cmail)
         if mail(r['email'], subject, body):
             psql("update public.company_subscriptions set reminded_end = '%s' where company_id = '%s'" % (r['ends'], r['company_id'])); done.append(r['name'])
     print('reminded %d of %d: %s' % (len(done), len(rows), ', '.join(done) or '—') if done else '::warning::%d reminder(s) due but none sent — check the e-mail secrets' % len(rows))
 
+def contact():
+    c = json.loads(psql("select coalesce((select value from public.site_content where key = 'contact'), '{}')") or '{}')
+    phone = ('0' + c['phone'][3:]) if re.fullmatch(r'9665\d{8}', c.get('phone') or '') else '0554003226'
+    return phone, c.get('email') or 'waad.erp@gmail.com'
+
+# ---------- 3. new support requests → the Waad team ----------
+def support_team():
+    rows = json.loads(psql("""select coalesce(json_agg(x), '[]') from (
+      select t.id, c.name, t.kind, t.subject, left(t.body, 600) as body, (select u.email from auth.users u where u.id = t.user_id) as author
+        from public.support_tickets t join public.companies c on c.id = t.company_id
+       where t.notified_at is null order by t.created_at limit 20) x"""))
+    if not rows: return
+    kinds = {'question': 'سؤال', 'problem': 'مشكلة', 'suggestion': 'اقتراح'}
+    title = 'وعد: %d طلب دعم جديد' % len(rows) if len(rows) > 1 else 'وعد: طلب دعم جديد'
+    body = title + '\n\n' + '\n\n'.join('• [%s] %s — %s (%s)\n%s' % (kinds.get(r['kind'], r['kind']), r['subject'], r['name'], r['author'] or '—', r['body']) for r in rows) \
+        + '\n\nللرد افتح لوحة الإدارة ← طلبات الدعم:\n' + ADMIN + '#/support'
+    sent = [n for n, ok in (('email', mail(os.environ.get('NOTIFY_EMAIL_TO', '').strip() or USER, title, body)), ('whatsapp', whatsapp(body))) if ok]
+    if sent:
+        psql('update public.support_tickets set notified_at = now() where id in (%s)' % ','.join("'%s'" % r['id'] for r in rows))
+        print('support: told the team about %d request(s)' % len(rows))
+
+# ---------- 4. the team's reply → the customer who asked ----------
+def support_replies():
+    rows = json.loads(psql("""select coalesce(json_agg(x), '[]') from (
+      select t.id, c.name, t.subject, t.reply, (select u.email from auth.users u where u.id = t.user_id) as author
+        from public.support_tickets t join public.companies c on c.id = t.company_id
+       where t.reply is not null and t.replied_at is not null and t.reply_notified_at is null order by t.replied_at limit 30) x"""))
+    n = 0
+    for r in rows:
+        if r.get('author') and mail(r['author'], 'وعد: رد على طلبك «%s»' % r['subject'],
+                'السلام عليكم،\n\nرد فريق وعد على طلبك «%s» لمنشأة «%s»:\n\n%s\n\nتشوف الرد كمان في النظام ← قائمة حسابك ← الدعم الفني.\n\nفريق وعد' % (r['subject'], r['name'], r['reply'])):
+            psql("update public.support_tickets set reply_notified_at = now() where id = '%s'" % r['id']); n += 1
+    if rows: print('support: sent %d of %d replies' % (n, len(rows)))
+
+# ---------- 5. welcome e-mail once a company is accepted ----------
+def welcome():
+    rows = json.loads(psql("""select coalesce(json_agg(x), '[]') from (
+      select s.company_id, c.name, c.code, s.status, case when s.status = 'trial' then s.trial_ends else s.sub_ends end as ends,
+             (select u.email from public.members m join auth.users u on u.id = m.user_id where m.company_id = c.id and m.role = 'owner' limit 1) as email
+        from public.company_subscriptions s join public.companies c on c.id = s.company_id
+       where s.status in ('trial','active') and s.welcomed_at is null limit 30) x"""))
+    if not rows: return
+    phone, email = contact()
+    n = 0
+    for r in rows:
+        if not r.get('email'): continue
+        until = (' حتى %s' % r['ends']) if r.get('ends') else ''
+        body = ('السلام عليكم،\n\nأهلاً بك في وعد! فعّلنا %s لمنشأة «%s»%s.\n\n'
+                'ادخل النظام: %sapp/\n\nأول ثلاث خطوات:\n'
+                '١. الإعدادات ← «بيانات تجريبية» إذا تبي تجرّب بدون بياناتك الحقيقية.\n'
+                '٢. الموظفون ← أضفهم واحد واحد أو ارفعهم من ملف Excel.\n'
+                '٣. أرسل للموظفين رمز المنشأة (%s) ليدخلوا برقمهم الوظيفي من جوالاتهم.\n\n'
+                'أي سؤال: من النظام ← قائمة حسابك ← الدعم الفني، أو واتساب/اتصال %s · %s\n\nفريق وعد\n\n— — —\n'
+                'Welcome to Waad! Your %s for «%s» is active%s. Sign in: %sapp/ — company code for staff: %s. Questions: Support in the account menu, or %s · %s') % (
+            'التجربة المجانية' if r['status'] == 'trial' else 'الاشتراك', r['name'], until, SITE, r.get('code') or '—', phone, email,
+            'free trial' if r['status'] == 'trial' else 'subscription', r['name'], (' until %s' % r['ends']) if r.get('ends') else '', SITE, r.get('code') or '—', phone, email)
+        if mail(r['email'], 'أهلاً بك في وعد — حسابك جاهز', body):
+            psql("update public.company_subscriptions set welcomed_at = now() where company_id = '%s'" % r['company_id']); n += 1
+    print('welcome: sent %d of %d' % (n, len(rows)))
+
 team()
 if not TEST:
-    remind()
+    remind(); support_team(); support_replies(); welcome()

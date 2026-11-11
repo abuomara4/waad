@@ -61,6 +61,7 @@ html = f'''<!doctype html>
 {r('modules.js')}
 {r('marketing.js')}
 {r('projects.js')}
+{r('support.js')}
 applyLang();
 boot();
 </script>

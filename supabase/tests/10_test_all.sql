@@ -2556,5 +2556,35 @@ reset role;
 select set_config('request.jwt.claims', '', false);
 update public.platform_settings set require_admin_mfa = false;
 
+-- ================= SUPPORT REQUESTS, ERROR LOG IN THE ADMIN SITE, WELCOME FLAG (0072) =================
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.support_open(:'cid', 'problem', 'المسير ما يطلع', 'لما أضغط اعتماد المسير يطلع خطأ', '#/payroll/0a1b2c3d-1111-2222-3333-444455556666') as tk \gset
+select t.ok((select count(*) = 1 and bool_and(status = 'open') from public.support_mine(:'cid')), 'the owner opens a support request and sees it');
+select t.err($$select * from public.support_tickets$$, 'permission denied', 'support requests are read through the functions only');
+reset role;
+select t.ok((select route = '#/payroll/:id' from public.support_tickets where id = :'tk'), 'record ids are stripped from the screen address');
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.support_open('$$ || :'cid' || $$', 'question', 'سؤال', 'نص السؤال', null)$$, '42501|غير مصرح', 'an ordinary employee does not write to Waad support');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.err($$select * from public.support_mine('$$ || :'cid' || $$')$$, '42501|غير مصرح', 'another company cannot read these requests');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select t.ok((select count(*) >= 1 and bool_or(subject = 'المسير ما يطلع' and owner_email is not null) from public.platform_tickets('open')), 'the admin site lists open requests with the owner e-mail');
+select public.platform_reply_ticket(:'tk', 'صلّحناها، جرّب الحين', 'answered');
+select t.err($$select public.platform_reply_ticket('$$ || :'tk' || $$', 'x', 'lost')$$, 'غير معروفة', 'unknown request states are refused');
+reset role;
+select t.ok((select status = 'answered' and reply_notified_at is null and replied_at is not null from public.support_tickets where id = :'tk'), 'a reply is queued for the customer e-mail');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok((select reply = 'صلّحناها، جرّب الحين' from public.support_mine(:'cid') where id = :'tk'), 'the owner reads the reply in the system');
+select public.log_client_error(:'cid', 'TypeError: x is undefined', 'app:1:2', '#/payroll/0a1b2c3d-1111-2222-3333-444455556666', 'test-agent');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select t.ok((select count(*) >= 1 and bool_or(message = 'TypeError: x is undefined' and route like '#/%/:id' and times >= 2) from public.platform_errors(7)), 'the admin site sees script errors grouped, without record ids');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select * from public.platform_errors(7)$$, '42501|غير مصرح', 'company users cannot read the error log');
+reset role;
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

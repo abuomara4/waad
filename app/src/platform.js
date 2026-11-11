@@ -6,7 +6,7 @@ const subState = c => c.status === 'trial' && c.trial_ends && c.trial_ends < tod
   : c.status === 'active' && c.sub_ends && c.sub_ends < today() ? ['انتهى الاشتراك', 'bad'] : SUB_ST[c.status] || [c.status, ''];
 const subEnd = c => c.status === 'trial' ? c.trial_ends : c.status === 'active' ? c.sub_ends : null;
 const daysLeft = d => d ? Math.round((new Date(d + 'T12:00:00Z') - new Date(today() + 'T12:00:00Z')) / 864e5) : null;
-const PTABS = [['home', 'الرئيسية'], ['companies', 'المنشآت'], ['billing', 'الإيرادات والباقات'], ['system', 'أرقام النظام'], ['site', 'زوار الموقع'], ['content', 'محتوى الموقع'], ['news', 'الإعلانات'], ['team', 'فريق وعد']];
+const PTABS = [['home', 'الرئيسية'], ['companies', 'المنشآت'], ['support', 'طلبات الدعم'], ['billing', 'الإيرادات والباقات'], ['system', 'أرقام النظام'], ['errors', 'أخطاء النظام'], ['site', 'زوار الموقع'], ['content', 'محتوى الموقع'], ['news', 'الإعلانات'], ['team', 'فريق وعد']];
 const PV = {};   // tab id -> async (page, arg) => void   (#/company/<id> opens one company)
 const money0 = n => Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
 const MONTH0 = () => today().slice(0, 8) + '01';
@@ -381,8 +381,8 @@ PV.team = async page => {
 
 /* ---------- home: what needs the team today ---------- */
 PV.home = async page => {
-  const [rows, st, visits, pays] = await Promise.all([db.rpc('platform_companies'), db.rpc('platform_get_settings'),
-    db.rpc('platform_site_stats', { p_days: 7 }).catch(() => []), db.rpc('platform_payments_list', { p_from: MONTH0(), p_to: today() }).catch(() => [])]);
+  const [rows, st, visits, pays, tks] = await Promise.all([db.rpc('platform_companies'), db.rpc('platform_get_settings'),
+    db.rpc('platform_site_stats', { p_days: 7 }).catch(() => []), db.rpc('platform_payments_list', { p_from: MONTH0(), p_to: today() }).catch(() => []), db.rpc('platform_tickets', { p_status: 'open' }).catch(() => [])]);
   const t0 = today(), pending = rows.filter(c => c.status === 'pending');
   const trialEnd = rows.filter(c => c.status === 'trial' && c.trial_ends && c.trial_ends >= t0 && c.trial_ends <= dayAgo(-3));
   const subEnd7 = rows.filter(c => c.status === 'active' && c.sub_ends && c.sub_ends >= t0 && c.sub_ends <= dayAgo(-7));
@@ -393,7 +393,8 @@ PV.home = async page => {
   const nameCol = { t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` };
   const endCol = { t: 'ينتهي', h: c => `<span class="num">${esc(subEnd(c) || '')}</span>` }, actCol = { t: '', h: c => `<div class="row" style="gap:4px">${quickBtns(c)}</div>` };
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('الرئيسية'))}</h1><div class="muted">${esc(tr('اللي يحتاج منك اليوم، وأهم الأرقام.'))}</div></div></div>
-    <div class="grid" style="margin-bottom:14px">${pkpi('بانتظار القبول', pending.length)}${pkpi('منشآت مشتركة', rows.filter(c => c.status === 'active' && subState(c)[1] !== 'bad').length)}
+    ${tks.length ? `<a class="note" href="#/support" style="display:block">${esc(tr('طلبات دعم تنتظر ردك'))}: <b class="num">${tks.length}</b></a>` : ''}
+    <div class="grid" style="margin-bottom:14px">${pkpi('بانتظار القبول', pending.length)}${pkpi('طلبات دعم مفتوحة', tks.length)}${pkpi('منشآت مشتركة', rows.filter(c => c.status === 'active' && subState(c)[1] !== 'bad').length)}
       ${pkpi('تجارب شغّالة', rows.filter(c => c.status === 'trial' && subState(c)[1] !== 'bad').length)}${pkpi('إيرادات هذا الشهر', money0(sum(pays, 'amount')), 'ريال')}
       ${pkpi('زيارات الموقع (٧ أيام)', sum(visits, 'visits'))}${pkpi('ضغطات «جرّبه» (٧ أيام)', sum(visits, 'cta'))}</div>
     <div class="g2p">
@@ -541,3 +542,51 @@ function printReceipt(c, p, plan) {
     .rcpt table{width:100%;border-collapse:collapse;font-size:14px}.rcpt th,.rcpt td{border-bottom:1px solid #ddd;padding:8px 6px;text-align:start;vertical-align:top}
     .rcpt th{width:38%;color:#444;font-weight:600}.rcpt .rf{font-size:11px;color:#666;margin-top:14px;text-align:center}`);
 }
+
+/* ---------- support requests from customers ---------- */
+const TK_KIND = { question: 'سؤال', problem: 'مشكلة', suggestion: 'اقتراح' };
+const TK_ST = { open: ['بانتظار الرد', 'wait'], answered: ['تم الرد', 'ok'], closed: ['مغلق', ''] };
+PV.support = async page => {
+  const fk = ['open', 'answered', 'closed', 'all'].includes(LS.get('waad.tkf')) ? LS.get('waad.tkf') : 'open';
+  const rows = await db.rpc('platform_tickets', { p_status: fk === 'all' ? null : fk });
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('طلبات الدعم'))}</h1><div class="muted">${esc(tr('أسئلة ومشاكل واقتراحات من مدراء المنشآت. ردّك يظهر لهم في النظام ويوصلهم على الإيميل.'))}</div></div></div>
+    <div class="ptabs pfil">${[['open', 'بانتظار الرد'], ['answered', 'تم الرد'], ['closed', 'مغلق'], ['all', 'الكل']].map(([k, t]) => `<a href="#" data-tf="${k}"${k === fk ? ' aria-current="page"' : ''}>${esc(tr(t))}</a>`).join('')}</div>
+    ${tbl([{ t: 'الطلب', h: r => `<b data-nt>${esc(r.subject)}</b><div class="small muted">${esc(tr(TK_KIND[r.kind]))}${r.route ? ' · <span dir="ltr">' + esc(r.route) + '</span>' : ''}</div>` },
+      { t: 'المنشأة', h: r => esc(r.company) + `<div class="small muted" dir="ltr">${esc(r.author || '')}</div>` },
+      { t: 'الحالة', h: r => `<span class="badge ${TK_ST[r.status][1]}">${esc(tr(TK_ST[r.status][0]))}</span>` },
+      { t: 'التاريخ', h: r => `<span class="num">${esc(String(r.created_at).slice(0, 16).replace('T', ' '))}</span>` }], rows, { empty: 'ما فيه طلبات هنا', onRow: true })}`;
+  $$('[data-tf]', page).forEach(a => a.onclick = e => { e.preventDefault(); LS.set('waad.tkf', a.dataset.tf); platformView(); });
+  bindRows(page, rows, ticketForm);
+};
+function ticketForm(r) {
+  const d = modal(r.subject, `<p class="small muted" style="margin-top:0">${esc(r.company)} · <span dir="ltr">${esc(r.author || '')}</span> · <span class="num">${esc(String(r.created_at).slice(0, 16).replace('T', ' '))}</span>${r.route ? ' · <span dir="ltr">' + esc(r.route) + '</span>' : ''}</p>
+    <div class="supb card" style="padding:10px 12px" data-nt>${esc(r.body)}</div>
+    <div class="fg" style="margin-top:12px">${field('ردّك', `<textarea name="reply" rows="5" maxlength="3000">${esc(r.reply || '')}</textarea>`, 'wide')}
+      ${field('الحالة', `<select name="status">${opt('answered', tr('تم الرد'), r.status === 'open' ? 'answered' : r.status)}${opt('open', tr('بانتظار الرد'), r.status === 'open' ? '' : r.status)}${opt('closed', tr('مغلق'), r.status)}</select>`)}</div>
+    <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px">${mailBtns(r.author, 'وعد: ' + r.subject)}</div>`, {
+    wide: true, ok: 'حفظ وإرسال', onOk: async f => {
+      if (f.status === 'answered' && !(f.reply || '').trim()) throw new Error('اكتب الرد');
+      await db.rpc('platform_reply_ticket', { p_id: r.id, p_reply: f.reply || null, p_status: f.status });
+      toast(tr('تم الحفظ — يوصل الرد للعميل على الإيميل خلال دقائق')); platformView();
+    } });
+  bindCopy(d);
+}
+
+/* ---------- script errors users ran into (message, place, screen; no record contents) ---------- */
+PV.errors = async page => {
+  const n = [1, 7, 30].includes(LS.get('waad.errdays')) ? LS.get('waad.errdays') : 7;
+  const rows = await db.rpc('platform_errors', { p_days: n });
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('أخطاء النظام'))}</h1><div class="muted">${esc(tr('أخطاء صارت في متصفحات المستخدمين، مجمّعة حسب الرسالة. ما فيها أي بيانات من داخل المنشآت.'))}</div></div>
+      <select id="edays" style="width:auto">${[1, 7, 30].map(d => opt(d, tr('آخر') + ' ' + d + ' ' + tr('يوم'), n)).join('')}</select></div>
+    <div class="grid" style="margin-bottom:14px">${pkpi('أخطاء مختلفة', rows.length)}${pkpi('مرات الحدوث', rows.reduce((a, r) => a + r.times, 0))}${pkpi('منشآت تأثرت', rows.length ? Math.max(...rows.map(r => r.companies)) : 0, 'أعلى عدد لخطأ واحد')}</div>
+    ${tbl([{ t: 'الخطأ', h: r => `<span dir="ltr" class="small" style="word-break:break-word">${esc(r.message)}</span>` }, { t: 'الشاشة', h: r => `<span dir="ltr" class="small">${esc(r.route || '—')}</span>` },
+      { t: 'مرات', r: 1, h: r => r.times }, { t: 'مستخدمين', r: 1, h: r => r.users }, { t: 'منشآت', r: 1, h: r => r.companies },
+      { t: 'آخر مرة', h: r => `<span class="num">${esc(String(r.last_at).slice(0, 16).replace('T', ' '))}</span>` }], rows, { empty: 'ما فيه أخطاء في هذي الفترة 👌', onRow: true })}
+    <p class="muted small">${esc(tr('اضغط على خطأ لتشوف مكانه في الكود والمتصفح. أرسل الصورة للمطوّر.'))}</p>`;
+  $('#edays', page).onchange = e => { LS.set('waad.errdays', +e.target.value); platformView(); };
+  bindRows(page, rows, r => modal(tr('تفاصيل الخطأ'), `<div dir="ltr" class="small" style="white-space:pre-wrap;word-break:break-word" data-nt><b>${esc(r.message)}</b>
+source: ${esc(r.source || '—')}
+screen: ${esc(r.route || '—')}
+browser: ${esc(r.agent || '—')}
+times: ${r.times} · users: ${r.users} · companies: ${r.companies} · last: ${esc(String(r.last_at))}</div>`));
+};

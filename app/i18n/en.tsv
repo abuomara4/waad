@@ -6,6 +6,7 @@
 آخر تسوية مكتملة بتاريخ	Last completed reconciliation is dated
 آخر دخول	Last sign-in
 آخر سعر	Last price
+آخر مرة	Last time
 آخر مورد	Last supplier
 آخر موعد لتوقيع الجزاء	Last day to impose the penalty
 آخر موعد للبت	Decision due by
@@ -34,6 +35,9 @@
 أخضر متوسط	Mid green
 أخضر مرتفع	High green
 أخضر منخفض	Low green
+أخطاء النظام	System errors
+أخطاء صارت في متصفحات المستخدمين	Errors that happened in users' browsers
+أخطاء مختلفة	Distinct errors
 أخطار مهنية على المنشأة فقط	occupational hazards, paid by the company only
 أدخل اسم العطلة	Enter the holiday name
 أدخل اسم المستند	Enter the document name
@@ -91,6 +95,7 @@
 أرباح فروقات العملة	Foreign exchange gains
 أردني	Jordanian
 أرسل الرمز والرابط إلى	Send the code and link to
+أرسل الصورة للمطوّر	Send a screenshot to the developer
 أرسل الطلب للموردين ثم أدخل عرض كل مورد	send the request to suppliers, then enter each supplier's offer
 أرسل له بياناته	Send them their details
 أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك	We sent a password reset link to your email
@@ -117,6 +122,7 @@
 أرمل	Widowed
 أرملة	Widowed
 أسئلة وتواصل	Questions & contact
+أسئلة ومشاكل واقتراحات من مدراء المنشآت	Questions, problems and suggestions from company managers
 أساس الأجر اليومي للغرامات	Day's wage basis for fines
 أساسي	Basic
 أسباب التظلم	Grounds of the grievance
@@ -172,6 +178,7 @@
 أعلى تكلفة	Highest cost
 أعلى راتب أساسي	Maximum basic salary
 أعلى راتب أقل من أدناه	The maximum is below the minimum
+أعلى عدد لخطأ واحد	most for a single error
 أعمار الذمم	Receivables and payables aging
 أعمار الذمم الدائنة	AP aging
 أعمار الذمم المدينة	AR aging
@@ -716,6 +723,7 @@
 اضغط على أي موظف لتغيير مديره المباشر أو قسمه	Click any employee to change their direct manager or department
 اضغط على أي يوم لتغييره	click any day to change it
 اضغط على المنشأة لقبولها كتجربة أو اشتراك	Click a company to accept it as a trial or a subscription
+اضغط على خطأ لتشوف مكانه في الكود والمتصفح	Click an error to see where it happened in the code and browser
 اضغط على عضو لإعادة تعيين كلمة مروره أو حذفه من الفريق	Click a member to reset their password or remove them from the team
 اطبع الإشعار وسلّمه للموظف	print the notice and hand it to the employee
 اطبعه من سجل الخطابات	print it from the letters log
@@ -757,6 +765,7 @@
 افتراضي	default
 اقامة	iqama
 اقبلها كتجربة بضغطة	Accept as a trial in one click
+اقتراح	Suggestion
 اقترحنا أول أيام عمل بعد العطلة	We suggested the first working days after the holiday
 اقتطاع التلفيات لا يزيد على أجر	Damage deductions cannot exceed the wage of
 اقتطاع تلفيات	Damage deduction
@@ -769,8 +778,10 @@
 اكتب اسم العهدة	Enter the item name
 اكتب اسم المستند الآخر	Enter the name of the other document
 اكتب اسم الوحدة وكم تساوي من الوحدة الأساسية	Type the unit name and how many base units it equals
+اكتب الرد	Write the reply
 اكتب الرمز المكوّن من	Type the
 اكتب السبب	Enter the reason
+اكتب العنوان والتفاصيل	Write the subject and details
 اكتب الغرض في الملاحظات	state the purpose in the notes
 اكتب المبلغ	Write the amount
 اكتب المدينة	Write the city
@@ -799,11 +810,13 @@
 اكتب عنوان الطلب	Type the request title
 اكتب عنوان الهدف	Write the title of goal
 اكتب قرار التظلم	Write the grievance decision
+اكتب لنا سؤالك أو المشكلة اللي واجهتك	Write us your question or the problem you ran into
 اكتب ما حدث للعهدة	Describe what happened to the item
 اكتب محضر التحقيق	Write the investigation minutes
 اكتب نص الإعلان	Write the announcement text
 اكتب نص السياسة	Enter the policy text
 اكتب نص الشريط بالعربي	Write the bar text in Arabic
+اكتب وش صار	Write what happened
 اكتب وصف البند	Describe the line
 اكتب وصف كل بند	Describe each line
 اكتب وقت الحضور	enter the check-in time
@@ -1079,6 +1092,7 @@
 التغيير	Change
 التغيير يظهر في سجل التدقيق الخاص بالمنشأة	The change appears in the company's audit log
 التغييرات	Changes
+التفاصيل	Details
 التفعيل	Activation
 التقارير	Reports
 التقدير	Rating
@@ -1169,6 +1183,7 @@
 الخصوصية والشروط	Privacy and terms
 الخصوم	Liabilities
 الخصوم وحقوق الملكية	Liabilities and equity
+الخطأ	Error
 الخطاب	Letter
 الخطاب غير موجود	Letter not found
 الخطابات	Letters
@@ -1181,6 +1196,8 @@
 الدرجات الوظيفية	Job grades
 الدرجة	Score
 الدرجة الوظيفية	Job grade
+الدعم الفني	Support
+الدعم الفني لمدير المنشأة	Support is for the company's managers
 الدعوات المعلّقة	Pending invitations
 الدعوة غير موجودة	Invitation not found
 الدعوة مقبولة	The invitation was already accepted
@@ -1312,6 +1329,7 @@
 السياسة غير موجودة	Policy not found
 السيرة الذاتية والمرفقات	CV and attachments
 الشارع	Street
+الشاشة	Screen
 الشاملة	Complete
 الشخص المسؤول	Contact person
 الشروط	Terms
@@ -1350,6 +1368,7 @@
 الطرف غير موجود	Party not found
 الطريقة	Method
 الطريقة المباشرة	Direct method
+الطلب	Request
 الطلب الذي يتأخر عند مرحلة أكثر من المهلة يظهر	A request waiting at a step longer than the deadline shows as
 الطلب غير موجود	Request not found
 الطلب لا يخص هذا الموظف	The request does not belong to this employee
@@ -1867,6 +1886,7 @@
 بانتظار اعتمادك في نظام وعد منذ	is awaiting your approval in Waad since
 بانتظار الإصدار	Awaiting issue
 بانتظار الاعتماد	Pending approval
+بانتظار الرد	Awaiting reply
 بانتظار الصرف	Awaiting payment
 بانتظار القبول	Awaiting approval
 بانتظار صرف البدل من المالية	Waiting for finance to pay the allowance
@@ -2322,6 +2342,7 @@
 تغيير الشعار	Change logo
 تغيير كلمة المرور	Change password
 تغيّر الأجر	Wage changed
+تفاصيل الخطأ	Error details
 تفاصيل الطلب	Request details
 تفاصيل النطاق	band details
 تفاوض	Negotiation
@@ -2375,6 +2396,7 @@
 تم التواصل	Contacted
 تم الحذف	Deleted
 تم الحفظ	Saved
+تم الرد	Answered
 تم الرفض	Rejected
 تم الصرف	Paid by bank
 تم القبول	Accepted
@@ -2404,6 +2426,7 @@
 تنقفل كل الأقسام لين تعيد تفعيلها	All modules close until you reactivate it
 تواصل مع الموارد البشرية	contact HR
 تواصل معنا	Contact us
+تواصل معنا بالواتساب إذا الأمر عاجل	contact us on WhatsApp if it is urgent
 تواصل معهم قبل ما تنتهي	Contact them before it ends
 تواصل معهم قبل ما تنتهي التجربة	Contact them before the trial ends
 توجد تسويات معلقة	There are pending settlements
@@ -2633,6 +2656,7 @@
 حفظ المخالفة	Close the case
 حفظ الموازنة	Save budget
 حفظ كمسودة	Save as draft
+حفظ وإرسال	Save and send
 حفظ والمتابعة	Save and continue
 حفظت رمز المنشأة	I have saved the company code
 حقوق الملكية	Equity
@@ -2772,9 +2796,12 @@
 رد العامل	Worker's reply
 رد العامل الكتابي	Worker's written reply
 رد الموظف الكتابي	Employee's written reply
+رد فريق وعد	Reply from the Waad team
 رد كتابي	Written reply
 رد كتابي على المخالفة	Written reply to the violation
 ردك ودفاعك	Your reply and defence
+ردّك	Your reply
+ردّك يظهر لهم في النظام ويوصلهم على الإيميل	Your reply shows in their system and reaches them by e-mail
 رسائل نصية	SMS
 رسالة قصيرة تظهر أعلى النظام لكل المستخدمين في كل المنشآت	A short message shown at the top of the system to every user in every company
 رسوم أو عمولة أو فائدة	fees, commission or interest
@@ -2908,6 +2935,7 @@
 زيارة	Visit
 زيدت رواتب	Salaries raised:
 س	h
+سؤال	Question
 سارة أحمد	Sara Ahmed
 سارة العتيبي	Sara Al-Otaibi
 ساري	Valid
@@ -3186,14 +3214,19 @@
 طلب عروض جديد	New request for quotations
 طلب معتمد	approved request
 طلب نسيان البصمة خلال	A forgotten-fingerprint request is within
+طلبات الدعم	Support requests
 طلبات الشراء	Purchase requests
 طلبات الشراء المعتمدة	Approved purchase requests
 طلبات الموظف	Employee requests
 طلبات بانتظار اعتمادك	requests awaiting your approval
 طلبات بانتظار الاعتماد	Requests awaiting approval
 طلبات تنتظر قبولك	Requests awaiting your approval
+طلبات دعم تنتظر ردك	Support requests awaiting your reply
+طلبات دعم مفتوحة	Open support requests
 طلبات عروض الأسعار	Requests for quotation
+طلبات في اليوم	requests per day
 طلبات معلقة	Pending requests
+طلباتك	Your requests
 طلباتي	My requests
 طلباتي قيد المعالجة	My requests in progress
 طلبك	your request
@@ -3843,6 +3876,8 @@
 مؤشرات تستحق الانتباه	Indicators worth attention
 مؤقتة	Temporary
 مؤهلة	Qualified
+ما أرسلت طلبات للحين	You haven't sent any requests yet
+ما فيه أخطاء في هذي الفترة	No errors in this period
 ما فيه أسئلة	No questions
 ما فيه أعضاء	No members
 ما فيه إعلانات	No announcements
@@ -3853,7 +3888,9 @@
 ما فيه دفعات	No payments
 ما فيه زيارات في هذي الفترة	No visits in this period
 ما فيه شي	Nothing
+ما فيه طلبات هنا	No requests here
 ما فيه ملاحظات	No notes
+ما فيها أي بيانات من داخل المنشآت	with no data from inside the companies
 ما نُسب للعامل وأقواله ودفاعه	the charge, the worker's statement and defence
 ما نُسب للعامل ودفاعه	the charge and the worker's defence
 ما يقدر يدخل اللوحة بعدها	They will no longer be able to sign in
@@ -3913,6 +3950,7 @@
 مجموع الحسميات لا يتجاوز نصف الأجر	Total deductions cannot exceed half the wage
 مجموع المدفوع	Total paid
 مجموعة روابي	Rawabi Group
+مجمّعة حسب الرسالة	grouped by message
 محاسب	Accountant
 محاسبة	Accountant
 محاولات كثيرة	Too many attempts
@@ -3971,6 +4009,7 @@
 مدين	Debit
 مدين تذاكر سفر الموظفين	debit employee travel tickets
 مرات	times
+مرات الحدوث	Occurrences
 مراجعة قبل الترحيل	Review before posting
 مراسلة	Message
 مراسلة عبر	Message via
@@ -4008,6 +4047,7 @@
 مستحقة خلال	Due within
 مستحقون للتذكرة	Due for a ticket
 مستحقون للتذكرة الآن	Due for a ticket now
+مستخدمين	Users
 مستند	document
 مستند آخر	Other document
 مستند اخر	other document
@@ -4039,6 +4079,7 @@
 مشتركة	Subscribed
 مشتريات	Purchases
 مشروع جديد	New project
+مشكلة	Problem
 مصرف الإنماء	Alinma Bank
 مصرف الراجحي	Al Rajhi Bank
 مصروف	Paid
@@ -4191,6 +4232,8 @@
 مندوب	Sales rep
 منذ	for
 منسقة عمليات	Operations Coordinator
+منشآت	Companies
+منشآت تأثرت	Companies affected
 منشآت دخلت آخر	Companies signed in, last
 منشآت ما دخلت من أسبوعين	Companies inactive for two weeks
 منشآت مشتركة	Subscribed companies
@@ -4378,6 +4421,7 @@
 و	and
 وأعلى	maximum
 وأهم الأرقام	and the key numbers
+وإذا فيه رسالة خطأ اكتبها	and if there is an error message, write it
 وإذا كان مطابقاً له لا يتغير شيء	and if it matches nothing changes
 وإذا لم تُكتب نهايته فمدته سنة	and without an end date it runs one year
 وإذا لم يُرد عليها خلال	If there is no reply within
@@ -4465,6 +4509,7 @@
 وسيُطلب منك تغييرها	and you will be asked to change it
 وصف الواقعة	Description of the incident
 وصلت المنشأة إلى الحد الأعلى للمستخدمين في باقتها	The company has reached its plan's user limit
+وصلت حد	You reached the limit of
 وصلت عروض على هذا الطلب	Offers have arrived on this request
 وصلت للموظف	Delivered to the employee
 وصلتك تأشيرة الخروج والعودة	Your exit/re-entry visa has arrived
@@ -4514,7 +4559,10 @@
 ومرحلة مدير الموارد البشرية تُتخطى إن لم يُعيَّن	and the HR-manager step is skipped if none is appointed
 ومقارنتها بالفعلي	compared with actuals
 وموقع العمل باسمه	and the work site by its name
+ونرد عليك قريباً	and we'll reply soon
+ونرد عليك هنا وعلى إيميلك	and we'll reply here and by e-mail
 ونسبة الضريبة	and the VAT rate
+ووين	and where
 ويبقى المبلغ في	and the amount stays in
 ويتابعها النظام وينبه قبل انتهائها	and the system tracks it and alerts before expiry
 ويجوز حسم الديون المستحقة بسبب العمل كرصيد السلف	work-related debts such as outstanding advances may be deducted
@@ -4642,6 +4690,7 @@
 ينشئ حساباً بنفس البريد ثم يُدخل الرمز	they create an account with the same email, then enter the code
 ينقل صافي ربح السنة	Moves the year's net profit
 يوجد جرد مفتوح لهذا المستودع	This warehouse already has an open count
+يوصل الرد للعميل على الإيميل خلال دقائق	the reply reaches the customer by e-mail within minutes
 يوليو	July
 يوم	days
 يوم إقفال الرواتب	Payroll cutoff day

@@ -1243,6 +1243,15 @@ with sync_playwright() as pw:
     pp.wait_for_selector('#ppage tbody tr'); ok('ظاهر الآن' in pp.inner_text('#ppage'), 'admin site: an announcement is posted and shown now')
     o.reload(); o.wait_for_selector('#ann .ann'); ok('صيانة مجدولة الليلة' in o.inner_text('#ann'), 'the system shows the announcement to company users')
     o.click('#ann .ann .x'); o.reload(); o.wait_for_selector('#nav'); o.wait_for_timeout(500); ok(o.locator('#ann .ann').count() == 0, 'a closed announcement stays closed for that user')
+    # support: the owner writes from the system, the team answers in the admin site, the owner reads the answer
+    go(o, '#/support'); o.wait_for_selector('#supf'); o.select_option('#supf select[name=kind]', 'problem')
+    o.fill('#supf input[name=subject]', 'المسير ما يطلع'); o.fill('#supf textarea[name=body]', 'لما أضغط اعتماد المسير يطلع خطأ'); o.click('#supb'); o.wait_for_timeout(800)
+    ok('المسير ما يطلع' in o.inner_text('#page') and 'بانتظار الرد' in o.inner_text('#page'), 'system: a manager sends a support request and sees it waiting')
+    go(pp, '#/support'); pp.wait_for_selector('#ppage tbody tr'); pp.locator('#ppage tbody tr', has_text='المسير ما يطلع').click(); pp.wait_for_selector('#dlg textarea[name=reply]')
+    pp.fill('#dlg textarea[name=reply]', 'صلّحناها، جرّب الحين'); modal_ok(pp); pp.wait_for_timeout(500)
+    go(o, '#/home'); go(o, '#/support'); o.wait_for_selector('.supr'); ok('صلّحناها، جرّب الحين' in o.inner_text('#page') and 'تم الرد' in o.inner_text('#page'), 'system: the manager reads the team reply')
+    ok(sql("(select reply_notified_at is null and notified_at is null from support_tickets where subject = 'المسير ما يطلع')") == 'true', 'the request and the reply are queued for e-mail')
+    go(pp, '#/errors'); pp.wait_for_selector('#edays'); ok('أخطاء النظام' in pp.inner_text('#ppage'), 'admin site: the system-errors page opens')
     # with the production setting on, an admin without two-step verification is sent to set it up first
     sqlx("update platform_settings set require_admin_mfa = true"); pp.reload(); pp.wait_for_selector('#pmfs')
     ok('فعّل التحقق بخطوتين' in pp.inner_text('#app') and pp.locator('#ppage').count() == 0, 'admin site: two-step verification is required before it opens')
