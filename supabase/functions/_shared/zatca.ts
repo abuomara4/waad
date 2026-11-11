@@ -142,10 +142,12 @@ export function rawKey(pem: string) {
   throw new Error('private key not recognised');
 }
 
+// the SignedProperties as ZATCA re-serialises them to check their digest: each ds element declares its namespace and the empty
+// DigestMethod is self-closing (the reporting API rejects the digest of the canonical start + end tag form — found on the sandbox)
 const SP = (time: string, certHash: string, issuer: string, serial: string) =>
   `<xades:SignedProperties xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Id="xadesSignedProperties">`
   + `<xades:SignedSignatureProperties><xades:SigningTime>${time}</xades:SigningTime><xades:SigningCertificate><xades:Cert><xades:CertDigest>`
-  + `<ds:DigestMethod xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></ds:DigestMethod>`
+  + `<ds:DigestMethod xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>`
   + `<ds:DigestValue xmlns:ds="http://www.w3.org/2000/09/xmldsig#">${certHash}</ds:DigestValue></xades:CertDigest><xades:IssuerSerial>`
   + `<ds:X509IssuerName xmlns:ds="http://www.w3.org/2000/09/xmldsig#">${esc(issuer)}</ds:X509IssuerName><ds:X509SerialNumber xmlns:ds="http://www.w3.org/2000/09/xmldsig#">${serial}</ds:X509SerialNumber>`
   + `</xades:IssuerSerial></xades:Cert></xades:SigningCertificate></xades:SignedSignatureProperties></xades:SignedProperties>`;

@@ -2,8 +2,10 @@
 // action "onboard" {company, otp, env}: the owner / an admin pastes the OTP from the Fatoora portal; the function checks the
 // caller with the database (their own login), creates the key + CSR, passes ZATCA's six compliance documents, gets the
 // production certificate and stores it with the service key. The private key never leaves the server.
-// (Sending invoices — reporting / clearance — is step 4.)
+// action "process" {company}: send what is waiting, in chain order (simplified → reporting, standard → clearance). Called by the
+// app right after posting a sales document and when a finance user opens it; the caller must be allowed to see the sales.
 import { onboard, type Company } from '../_shared/fatoora.ts';
+import { processCompany } from '../_shared/process.ts';
 import type { Env } from '../_shared/csr.ts';
 
 const URL_ = Deno.env.get('SUPABASE_URL')!, ANON = Deno.env.get('SUPABASE_ANON_KEY')!, SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -17,7 +19,7 @@ async function rpc(fn: string, args: unknown, auth: string, key: string) {
   if (!r.ok) throw new Error((b as any)?.message || t || String(r.status));
   return b;
 }
-const service = (fn: string, args: unknown) => rpc(fn, args, 'Bearer ' + SERVICE, SERVICE);
+const service = (fn: string, args: Record<string, unknown>) => rpc(fn, args, 'Bearer ' + SERVICE, SERVICE);
 
 Deno.serve(async req => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
@@ -40,6 +42,14 @@ Deno.serve(async req => {
       await service('zatca_onboard_failed', { p_company: p.company, p_error: msg }).catch(() => {});
       return reply({ error: msg }, 422);
     }
+  }
+  if (p.action === 'process') {
+    if (!/^[0-9a-f-]{36}$/.test(String(p.company))) return reply({ error: 'bad request' }, 400);
+    let ok = false;
+    try { ok = await rpc('zatca_can_send', { p_company: p.company }, auth, ANON) === true; } catch { ok = false; }
+    if (!ok) return reply({ error: 'غير مصرح' }, 403);
+    try { return reply({ ok: true, done: await processCompany(p.company, service) }); }
+    catch (e) { return reply({ error: (e as Error).message }, 500); }
   }
   return reply({ error: 'unknown action' }, 400);
 });

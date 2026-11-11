@@ -8,9 +8,9 @@ update public.platform_settings set require_approval = false, require_admin_mfa 
 -- ---------- test helpers ----------
 create schema t;
 create table t.results(n serial, name text, ok boolean, detail text);
-grant usage on schema t to authenticated, anon;
-grant insert, select on t.results to authenticated, anon;
-grant usage on sequence t.results_n_seq to authenticated, anon;
+grant usage on schema t to authenticated, anon, service_role;
+grant insert, select on t.results to authenticated, anon, service_role;
+grant usage on sequence t.results_n_seq to authenticated, anon, service_role;
 create function t.ok(c boolean, name text, detail text default null) returns void language plpgsql as $$
 begin
   insert into t.results(name, ok, detail) values (name, coalesce(c,false), detail);
@@ -26,7 +26,7 @@ begin
 end $$;
 create function t.eq(a numeric, b numeric, name text) returns void language plpgsql as $$
 begin perform t.ok(round(coalesce(a,-999999),2) = round(b,2), name, 'got ' || coalesce(a::text,'null') || ' expected ' || b); end $$;
-grant execute on all functions in schema t to authenticated, anon;
+grant execute on all functions in schema t to authenticated, anon, service_role;
 
 -- ---------- users ----------
 insert into auth.users(id, email) values
@@ -2687,6 +2687,48 @@ select t.ok((select csid_cert = 'CERT' from public.zatca_settings where company_
 select t.err($$select private_key from public.zatca_secrets$$, 'permission denied', 'the owner cannot read the private key');
 reset role;
 delete from public.zatca_settings where company_id = :'cid'; delete from public.zatca_secrets where company_id = :'cid';
+
+-- ================= ZATCA: SENDING (0080) =================
+update public.zatca_docs set status = 'rejected', hash = coalesce(hash, 'OLD' || icv) where company_id = :'cid';   -- earlier test documents are out of the way
+insert into public.zatca_settings(company_id, enabled, env, icv, csid_cert) select :'cid', true, 'sandbox', max(icv), 'CERT' from public.zatca_docs where company_id = :'cid';
+insert into public.zatca_secrets(company_id, private_key, csid_token, csid_secret) values (:'cid', 'KEY', 'TOKEN', 'SECRET');
+update public.parties set street = 'صلاح الدين', bld_no = '1111', district = 'المروج', postal_code = '12222', city = 'الرياض' where id = :'c1';
+update public.items set vat_exempt_code = 'VATEX-SA-32', vat_exempt_reason = 'Export of goods' where id = :'i3';
+select t.err($$update public.items set vat_exempt_code = 'free' where id = '$$ || :'i3' || $$'$$, 'check', 'an exemption code must be a ZATCA VATEX code');
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select public.post_sales_invoice_sn(:'cid', jsonb_build_object('party', :'c1', 'date', current_date, 'due', current_date, 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 2, 'price', 150)))) as zs1 \gset
+select public.post_credit_note_cc(:'cid', jsonb_build_object('kind', 'sales', 'doc', :'zs1', 'reason', 'إرجاع ساعة', 'lines', jsonb_build_array(jsonb_build_object('line', (select id from public.sales_invoice_lines where invoice_id = :'zs1' limit 1), 'qty', 1)))) as zs2 \gset
+select t.ok(public.zatca_can_send(:'cid'), 'finance may ask the server to send the company''s documents');
+select t.err($$select public.zatca_claim('$$ || :'cid' || $$')$$, 'permission denied', 'the app cannot claim, sign or record ZATCA results (server only)');
+select t.err($$select public.zatca_creds('$$ || :'cid' || $$')$$, 'permission denied', 'the app cannot read the signing secrets');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok(not public.zatca_can_send(:'cid'), 'an ordinary employee cannot trigger sending');
+reset role;
+set role service_role;
+select public.zatca_claim(:'cid') as zc1 \gset
+select t.ok((:'zc1'::jsonb->>'doc_id') = :'zs1' and (:'zc1'::jsonb->>'pih') is not null and (:'zc1'::jsonb->>'inv_type') = 'standard', 'the server claims the oldest waiting document, with the previous hash to chain to');
+select t.ok(public.zatca_claim(:'cid') is null, 'while it is being sent (2-minute lease) nothing after it is taken — the order is kept');
+select public.zatca_doc_data(:'zs1') as zd1 \gset
+select t.ok((:'zd1'::jsonb->'seller'->>'vat') = '399999999900003' and (:'zd1'::jsonb->'buyer'->>'vat') = '310000000000003' and (:'zd1'::jsonb->'buyer'->>'postal') = '12222'
+  and (:'zd1'::jsonb->'lines'->0->>'exemptCode') = 'VATEX-SA-32' and (:'zd1'::jsonb->>'issueTime') ~ '^\d\d:\d\d:\d\d$' and (:'zd1'::jsonb->>'no') is not null,
+  'the document data has the seller, the buyer''s national address, the lines with their exemption, and the Riyadh time');
+select t.ok((public.zatca_doc_data(:'zs2')->>'refNo') = (select no from public.sales_invoices where id = :'zs1') and (public.zatca_doc_data(:'zs2')->>'reason') = 'إرجاع ساعة'
+  and (public.zatca_doc_data(:'zs2')->'lines'->0->>'qty')::numeric = 1, 'a credit note carries the original invoice number, the reason and its own lines');
+select public.zatca_signed((:'zc1'::jsonb->>'id')::bigint, :'zc1'::jsonb->>'pih', 'HASH1', '<xml/>', 'QR1');
+select public.zatca_result((:'zc1'::jsonb->>'id')::bigint, 'cleared', '{"clearanceStatus":"CLEARED"}', '<cleared/>', 'QRZ', 0, null);
+select t.ok((select status = 'cleared' and xml = '<cleared/>' and qr = 'QRZ' and hash = 'HASH1' and sent_at is not null and lease_until is null from public.zatca_docs where doc_id = :'zs1'),
+  'a cleared invoice keeps ZATCA''s stamped XML and QR, and its own hash');
+select public.zatca_claim(:'cid') as zc2 \gset
+select t.ok((:'zc2'::jsonb->>'doc_id') = :'zs2' and (:'zc2'::jsonb->>'pih') = 'HASH1', 'the next document chains to the hash of the one before');
+select public.zatca_result((:'zc2'::jsonb->>'id')::bigint, 'error', null, null, null, 120, 'timeout');
+select t.ok(public.zatca_claim(:'cid') is null and (select last_error = 'timeout' and next_try > now() + interval '100 seconds' from public.zatca_docs where doc_id = :'zs2'), 'after a failure the document waits before it is tried again');
+select t.ok(:'cid' in (select public.zatca_waiting()) is false, 'nothing is due while it waits');
+update public.zatca_docs set next_try = now() where doc_id = :'zs2';
+select t.ok(:'cid' in (select public.zatca_waiting()), 'once due, the company is listed for a retry');
+select t.ok((public.zatca_creds(:'cid')->>'key') = 'KEY', 'the server reads the signing secrets');
+reset role;
+delete from public.zatca_secrets where company_id = :'cid'; update public.zatca_settings set enabled = false where company_id = :'cid';
 
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

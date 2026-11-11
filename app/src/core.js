@@ -125,8 +125,17 @@ const db = {
   ins: (t, rows) => api('/rest/v1/' + t, { method: 'POST', body: rows, headers: { Prefer: 'return=representation' } }),
   upd: (t, q, patch) => api('/rest/v1/' + t + '?' + qs(q), { method: 'PATCH', body: patch, headers: { Prefer: 'return=representation' } }),
   del: (t, q) => api('/rest/v1/' + t + '?' + qs(q), { method: 'DELETE', headers: { Prefer: 'return=representation' } }),
-  rpc: (fn, args = {}) => api('/rest/v1/rpc/' + fn, { method: 'POST', body: args }),
+  rpc: (fn, args = {}) => api('/rest/v1/rpc/' + fn, { method: 'POST', body: args }).then(r => { if (S.zatcaOn && /^post_(sales_invoice|credit_note|debit_note)|invoice_from|to_invoice/.test(fn)) zatcaKick(); return r; }),
 };
+// ZATCA Phase 2: a company linked to Fatoora sends its sales documents from the server (function «zatca», chain order).
+// The app only asks it to start: right after a sales invoice / credit / debit note is posted, and when a finance user opens it.
+let zatcaTimer = null;
+function zatcaKick() {
+  clearTimeout(zatcaTimer);
+  zatcaTimer = setTimeout(() => { if (!S.session || !S.cid) return;
+    fetch(CFG.url + '/functions/v1/zatca', { method: 'POST', headers: { apikey: CFG.key, Authorization: 'Bearer ' + S.session.access_token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'process', company: S.cid }) }).catch(() => {}); }, 1500);
+}
 const authApi = {
   async signIn(email, password) { const r = await fetch(CFG.url + '/auth/v1/token?grant_type=password', { method: 'POST', headers: { apikey: CFG.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) }).catch(e => { throw new ApiError(arMsg(e.message), 0); }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new ApiError(authMsg(j), r.status); setSession(j); },
   async signUp(email, password) { const r = await fetch(CFG.url + '/auth/v1/signup', { method: 'POST', headers: { apikey: CFG.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) }).catch(e => { throw new ApiError(arMsg(e.message), 0); }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new ApiError(authMsg(j), r.status); if (j.access_token) { setSession(j); return true; } return false; },
@@ -390,6 +399,8 @@ async function loadContext(pre) {
   fp.forEach(p => S.perms.add(p.perm));
   S.myEmp = me[0] || null;
   S.hasPetty = pf.length > 0; S.hasTeam = team.length > 0;
+  S.zatcaOn = false;
+  if (isFin()) db.get('zatca_settings', { company_id: 'eq.' + S.cid, select: 'enabled' }).then(r => { S.zatcaOn = !!(r[0] && r[0].enabled); if (S.zatcaOn) zatcaKick(); }).catch(() => {});
   return true;
 }
 // links from auth emails (password recovery, sign-up confirmation) come back as #access_token=…&type=… or #error=…
