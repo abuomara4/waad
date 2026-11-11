@@ -557,6 +557,7 @@
 إيقاف التحقق بخطوتين	Turn off two-step verification
 إيقاف المنشأة	Suspend company
 إيقاف بدل	Allowance stopped
+إيميل	E-mail
 ا	ا
 ابتدائي	Primary
 ابحث باسم أو مسمى	Search by name or title
@@ -2067,6 +2068,8 @@
 تاريخ التصدير	Exported at
 تاريخ التظلم	Grievance date
 تاريخ التعيين	Hire date
+تاريخ التواصل	Contact date
+تاريخ التواصل في المستقبل	The contact date is in the future
 تاريخ التوريد المتوقع بعد تاريخ الأمر	Expected delivery must be after the order date
 تاريخ التوقيع	Imposed on
 تاريخ الحاجة لا يكون قبل اليوم	Needed-by date cannot be before today
@@ -2978,6 +2981,7 @@
 ستظهر المعاينة بالتغييرات فقط	The preview shows only the changes
 ستكون مالك المنشأة	You will be the company owner
 سجل الاشتراك	Subscription history
+سجل التواصل	Contact log
 سجل الرواتب	Salary history
 سجل الغرامات	Fines register
 سجل الموظف	Employee record
@@ -3885,6 +3889,7 @@
 ما فيه باقات	No plans
 ما فيه بيانات	No data
 ما فيه تغييرات	No changes
+ما فيه تواصل مسجّل	No contact recorded
 ما فيه دفعات	No payments
 ما فيه زيارات في هذي الفترة	No visits in this period
 ما فيه شي	Nothing
@@ -4139,6 +4144,7 @@
 مقابل	against
 مقابل فاتورة	Against invoice
 مقابلة	Interview
+مقابلة حضورية	In-person meeting
 مقارنة الأقسام	Department comparison
 مقارنة العروض	Offer comparison
 مقارنة مع	compared with
@@ -4372,6 +4378,7 @@
 نوع المستند غير معروف	Unknown document type
 نوع المستند مطلوب	The document type is required
 نوع المقابلة	Interview type
+نوع تواصل غير معروف	Unknown contact type
 نوع سطر غير معروف	Unknown line type
 نوع طلب غير معروف	Unknown request type
 نوع غير معروف	unknown type

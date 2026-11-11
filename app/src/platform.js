@@ -11,6 +11,7 @@ const PV = {};   // tab id -> async (page, arg) => void   (#/company/<id> opens 
 const money0 = n => Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
 const MONTH0 = () => today().slice(0, 8) + '01';
 const PAY_M = { transfer: 'تحويل بنكي', card: 'بطاقة', cash: 'نقداً', other: 'أخرى' };
+const CH_N = { email: ['إيميل', '✉'], whatsapp: ['واتساب', '💬'], call: ['اتصال', '📞'], meeting: ['مقابلة حضورية', '🤝'], other: ['أخرى', '📝'] };
 // quick actions on a company (list, home and company page); each re-draws the current screen
 async function quickAct(c, act, days, st) {
   if (act === 'approve') { await db.rpc('platform_approve', { p_company: c.company_id, p_status: 'trial', p_days: (st && st.default_trial_days) || 7 }); toast(tr('تم القبول')); }
@@ -441,11 +442,15 @@ PV.company = async (page, id) => {
         <dt>${esc(tr('أقسام فيها بيانات'))}</dt><dd>${((c.usage || {}).modules || []).map(m => `<span class="badge ok">${esc(tr(MODULES[m] || m))}</span>`).join(' ') || '—'}</dd>
         <dt>${esc(tr('آخر نشاط'))}</dt><dd class="num">${(c.usage || {}).last_activity ? esc(String(c.usage.last_activity).slice(0, 16).replace('T', ' ')) : '—'}</dd></dl></div>
       <div class="card"><h2>${esc(tr('التواصل مع المالك'))}</h2><div class="row" style="gap:8px;flex-wrap:wrap">${phoneBtns(c.owner_phone)}${mailBtns(c.owner_email, 'وعد: ' + c.name)}</div>
-        <h2 style="margin-top:18px">${esc(tr('ملاحظات الفريق'))}</h2>
-        <form id="nform" class="row" style="gap:8px;align-items:flex-start"><textarea name="body" rows="2" maxlength="1000" placeholder="${esc(tr('مثلاً: اتصلت بالمالك، يبي باقة أكبر'))}" style="flex:1"></textarea><button class="btn pri">${esc(tr('إضافة'))}</button></form>
+        <h2 style="margin-top:18px">${esc(tr('سجل التواصل'))}</h2>
+        <form id="nform"><div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            <select name="channel" style="width:auto">${Object.entries(CH_N).map(([k, [t, i]]) => opt(k, i + ' ' + tr(t), 'call')).join('')}</select>
+            <input type="date" name="on" value="${today()}" max="${today()}" style="width:auto" aria-label="${esc(tr('تاريخ التواصل'))}"></div>
+          <div class="row" style="gap:8px;align-items:flex-start"><textarea name="body" rows="2" maxlength="1000" placeholder="${esc(tr('مثلاً: اتصلت بالمالك، يبي باقة أكبر'))}" style="flex:1"></textarea><button class="btn pri">${esc(tr('إضافة'))}</button></div></form>
         <div id="nerr"></div>
-        ${d.notes.length ? d.notes.map(x => `<div class="pnote"><div data-nt>${esc(x.body)}</div><div class="small muted"><span dir="ltr">${esc(x.by || '')}</span> · <span class="num">${esc(String(x.at).slice(0, 16).replace('T', ' '))}</span>
-          <a href="#" data-dn="${esc(x.id)}">${esc(tr('حذف'))}</a></div></div>`).join('') : `<p class="muted small">${esc(tr('ما فيه ملاحظات.'))}</p>`}</div></div>
+        ${d.notes.length ? d.notes.map(x => { const [t, i] = CH_N[x.channel] || CH_N.other; return `<div class="pnote"><div><span class="badge">${i} ${esc(tr(t))}</span> <span class="num small">${esc(x.on || String(x.at).slice(0, 10))}</span></div>
+          <div data-nt style="margin-top:4px">${esc(x.body)}</div><div class="small muted"><span dir="ltr">${esc(x.by || '')}</span> · <a href="#" data-dn="${esc(x.id)}">${esc(tr('حذف'))}</a></div></div>`; }).join('')
+          : `<p class="muted small">${esc(tr('ما فيه تواصل مسجّل.'))}</p>`}</div></div>
     <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الدفعات'))}</h2>
       ${tbl([{ t: 'التاريخ', h: p => `<span class="num">${esc(p.paid_on)}</span>` }, { t: 'المبلغ', r: 1, h: p => money0(p.amount) }, { t: 'الطريقة', h: p => esc(tr(PAY_M[p.method] || p.method)) },
         { t: 'المدة', h: p => p.days ? `<span class="num">${p.days}</span> ${esc(tr('يوم'))}` : '—' }, { t: 'ملاحظة', h: p => `<span data-nt>${esc(p.note || '')}</span>` },
@@ -457,7 +462,7 @@ PV.company = async (page, id) => {
   $('#csub', page).onclick = () => subForm(c);
   $('#cpay', page).onclick = () => platPayForm(c, plans);
   $('#nform', page).onsubmit = async ev => { ev.preventDefault();
-    try { await db.rpc('platform_add_note', { p_company: id, p_body: ev.target.body.value }); platformView(); } catch (er) { showErr($('#nerr', page), er); } };
+    const f = ev.target; try { await db.rpc('platform_add_note', { p_company: id, p_body: f.body.value, p_channel: f.channel.value, p_on: f.on.value || null }); platformView(); } catch (er) { showErr($('#nerr', page), er); } };
   $$('[data-dn]', page).forEach(a => a.onclick = async ev => { ev.preventDefault(); await db.rpc('platform_delete_note', { p_id: a.dataset.dn }); platformView(); });
   $$('[data-rc]', page).forEach(a => a.onclick = ev => { ev.preventDefault(); const p = d.payments.find(x => x.id === a.dataset.rc); if (p) printReceipt(c, p, plans.find(x => x.id === p.plan_id)); });
   $$('[data-dp]', page).forEach(a => a.onclick = async ev => { ev.preventDefault();
