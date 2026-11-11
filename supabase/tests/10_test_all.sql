@@ -2626,5 +2626,42 @@ select set_config('request.jwt.claim.sub', :'u_other', false); set role authenti
 select t.ok((select count(*) = 0 from public.form_issues where company_id = :'cid'), 'another company cannot see the issue log');
 reset role;
 
+-- ================= ZATCA PHASE 2: THE CHAIN, NO VOIDING, DEBIT NOTES (0078) =================
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select public.post_sales_invoice_sn(:'cid', jsonb_build_object('party', :'c2', 'date', current_date, 'due', current_date, 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 1, 'price', 100)))) as zq0 \gset
+reset role;
+select t.ok(not exists(select 1 from public.zatca_docs where doc_id = :'zq0'), 'a company not linked to Fatoora: invoices stay out of the ZATCA chain');
+insert into public.zatca_settings(company_id, enabled) values (:'cid', true);
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select public.post_sales_invoice_sn(:'cid', jsonb_build_object('party', :'c1', 'date', current_date, 'due', current_date, 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 2, 'price', 200)))) as zq1 \gset
+select public.post_sales_invoice_sn(:'cid', jsonb_build_object('party', :'c2', 'date', current_date, 'due', current_date, 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 1, 'price', 200)))) as zq2 \gset
+select t.ok((select icv = 1 and inv_type = 'standard' and kind = 'invoice' and status = 'pending' from public.zatca_docs where doc_id = :'zq1'), 'linked: the first invoice is number 1 in the chain, standard (the buyer has a VAT number)');
+select t.ok((select icv = 2 and inv_type = 'simplified' from public.zatca_docs where doc_id = :'zq2'), 'the next one is number 2, simplified (no buyer VAT number)');
+select t.err($$select public.void_sales_invoice('$$ || :'zq2' || $$', 'إلغاء تجريبي')$$, 'إشعار دائن', 'an invoice in the chain cannot be voided — a credit note corrects it');
+select public.post_credit_note_cc(:'cid', jsonb_build_object('kind', 'sales', 'doc', :'zq1', 'reason', 'خصم بعد البيع', 'lines', jsonb_build_array(jsonb_build_object('line', (select id from public.sales_invoice_lines where invoice_id = :'zq1' limit 1), 'qty', 1)))) as zcn \gset
+select t.ok((select icv = 3 and kind = 'credit' and inv_type = 'standard' from public.zatca_docs where doc_id = :'zcn'), 'a sales credit note joins the chain (number 3) with the type of its invoice');
+select public.post_debit_note(:'cid', jsonb_build_object('ref', :'zq2', 'reason', 'فرق سعر', 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 1, 'price', 50)))) as zdn \gset
+select t.ok((select doc_type = 'debit' and ref_id = :'zq2' and total = 57.5 and party_id = :'c2' from public.sales_invoices where id = :'zdn'), 'a debit note is posted on the invoice (50 + VAT = 57.50, same customer)');
+select t.ok((select icv = 4 and kind = 'debit' from public.zatca_docs where doc_id = :'zdn'), 'the debit note is number 4 in the chain');
+select t.err($$select public.post_debit_note('$$ || :'cid' || $$', jsonb_build_object('ref', '$$ || :'zq2' || $$', 'reason', 'x', 'lines', '[]'::jsonb))$$, 'سبب', 'a debit note needs a reason');
+select t.err($$select public.post_debit_note('$$ || :'cid' || $$', jsonb_build_object('ref', '$$ || :'zdn' || $$', 'reason', 'على إشعار', 'lines', jsonb_build_array(jsonb_build_object('item', '$$ || :'i3' || $$', 'qty', 1, 'price', 10))))$$, 'فاتورة مبيعات قائمة', 'a debit note is not raised on another debit note');
+select t.ok((select count(*) = 4 from public.zatca_docs where company_id = :'cid'), 'finance reads the chain of its company');
+select t.err($$update public.zatca_docs set status = 'cleared' where company_id = '$$ || :'cid' || $$'$$, 'permission denied', 'the app cannot change a ZATCA status (only the server)');
+select t.err($$select * from public.zatca_secrets$$, 'permission denied', 'the private key store is not readable from the app');
+select t.err($$update public.zatca_settings set icv = 0$$, 'permission denied', 'the counter cannot be reset from the app');
+reset role;
+select t.ok(public.zatca_prev_hash(:'cid', 1) = 'NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==' and public.zatca_prev_hash(:'cid', 2) is null,
+  'the first document chains to ZATCA''s starting hash; the next waits until the previous one is signed');
+update public.zatca_docs set pih = public.zatca_prev_hash(:'cid', 1), hash = 'h1', status = 'cleared' where company_id = :'cid' and icv = 1;
+select t.ok(public.zatca_prev_hash(:'cid', 2) = 'h1', 'once number 1 is signed, number 2 chains to its hash');
+select t.err($$update public.zatca_docs set hash = 'other' where company_id = '$$ || :'cid' || $$' and icv = 1$$, 'لا يتغيّر', 'a signed hash never changes (even for the server)');
+select t.err($$delete from public.zatca_docs where company_id = '$$ || :'cid' || $$' and icv = 4$$, 'لا يُحذف', 'a chain row is never deleted');
+select t.err($$update public.zatca_docs set icv = 9 where company_id = '$$ || :'cid' || $$' and icv = 4$$, 'لا يتغيّر', 'the chain number never changes');
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.ok((select count(*) = 0 from public.zatca_docs where company_id = :'cid') and (select count(*) = 0 from public.zatca_settings where company_id = :'cid'), 'another company sees nothing of this chain');
+reset role;
+delete from public.zatca_settings where company_id = :'cid';
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary
