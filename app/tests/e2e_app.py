@@ -1246,6 +1246,8 @@ with sync_playwright() as pw:
     # with the production setting on, an admin without two-step verification is sent to set it up first
     sqlx("update platform_settings set require_admin_mfa = true"); pp.reload(); pp.wait_for_selector('#pmfs')
     ok('فعّل التحقق بخطوتين' in pp.inner_text('#app') and pp.locator('#ppage').count() == 0, 'admin site: two-step verification is required before it opens')
+    pp.click('#pmfs'); pp.wait_for_selector('#dlg[open] svg', timeout=8000); ok(pp.locator('#dlg input[name=code]').count() == 1, 'admin site: «start setup» shows the QR code and asks for the 6-digit code')
+    pp.click('#mx')
     sqlx("update platform_settings set require_admin_mfa = false"); pp.reload(); pp.wait_for_selector('#ptabs')
     # someone who is not on the Waad team gets nothing from the admin site
     op = o.context.new_page(); op.goto(BASE + '/waad-admin.html'); op.wait_for_selector('.auth .card h2')
