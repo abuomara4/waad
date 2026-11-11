@@ -19,7 +19,7 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
       - name: Database tests
@@ -32,7 +32,9 @@ jobs:
         run: |
           pip install --break-system-packages playwright==1.49.1 openpyxl pillow numpy opencv-python-headless
           # the Ubuntu mirror sometimes fails to resolve on the runner: refresh and retry before giving up
-          for i in 1 2 3 4; do python3 -m playwright install --with-deps chromium && break; echo "retry $i"; sleep 30; sudo apt-get update -qq || true; done
+          # if it keeps failing, install the browser alone: the runner image already has its system libraries
+          ok=0; for i in 1 2; do timeout 300 python3 -m playwright install --with-deps chromium && { ok=1; break; }; echo "retry $i"; sleep 20; sudo apt-get update -qq || true; done
+          [ $ok = 1 ] || python3 -m playwright install chromium
           export CHROME_PATH=$(python3 -c "from playwright.sync_api import sync_playwright as s; p=s().start(); print(p.chromium.executable_path); p.stop()")
           bash devserver/start.sh app > dev.log 2>&1 || { cat dev.log; exit 1; }
           SHOTS=/tmp/shots python3 app/tests/e2e_app.py
