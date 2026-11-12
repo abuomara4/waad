@@ -129,6 +129,19 @@ const db = {
 };
 // ZATCA Phase 2: a company linked to Fatoora sends its sales documents from the server (function «zatca», chain order).
 // The app only asks it to start: right after a sales invoice / credit / debit note is posted, and when a finance user opens it.
+// «ثبّت وعد على جوالك»: the app is installable (web app). Chrome / Edge / Android offer their own prompt;
+// iPhone has none, so the steps are shown instead.
+let installEvt = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
+const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+async function installApp() {
+  if (installEvt) { installEvt.prompt(); const r = await installEvt.userChoice.catch(() => null); installEvt = null; if (r && r.outcome === 'accepted') toast(tr('تم تثبيت وعد')); return; }
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  modal(tr('ثبّت وعد على جوالك'), `<ol style="padding-inline-start:20px;margin:0">${(ios
+    ? ['افتح وعد في متصفح Safari.', 'اضغط زر المشاركة (المربع والسهم للأعلى) أسفل الشاشة.', 'اختر «إضافة إلى الشاشة الرئيسية» ثم «إضافة».']
+    : ['افتح قائمة المتصفح (⋮ أعلى الشاشة).', 'اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».', 'يظهر وعد بأيقونته مثل أي تطبيق، ويفتح بدون شريط المتصفح.']).map(x => `<li style="margin-bottom:6px">${esc(tr(x))}</li>`).join('')}</ol>
+    <p class="muted small">${esc(tr('مجاني وبدون متجر التطبيقات، ويتحدّث تلقائياً.'))}</p>`, { ok: 'تم' });
+}
 // a Supabase Edge Function, called with the user's own login (the function asks the database what they may do)
 async function fnCall(name, body) {
   const r = await fetch(CFG.url + '/functions/v1/' + name, { method: 'POST', headers: { apikey: CFG.key, Authorization: 'Bearer ' + (S.session ? S.session.access_token : ''), 'Content-Type': 'application/json' },
@@ -548,7 +561,7 @@ function navItems() {
     g('المبيعات');
     if (can('sales')) it.push({ h: '#/crm', t: 'الفرص والعملاء المحتملون' }, { h: '#/marketing', t: 'التسويق والحملات' }, { h: '#/quotes', t: 'عروض الأسعار' });
     it.push({ h: '#/orders', t: 'أوامر البيع' }, { h: '#/deliveries', t: 'إشعارات التسليم' });
-    if (can('sales')) it.push({ h: '#/sales', t: 'فواتير المبيعات' }, { h: '#/parties/customer', t: 'العملاء' });
+    if (can('sales')) it.push({ h: '#/pos', t: 'نقطة البيع' }, { h: '#/sales', t: 'فواتير المبيعات' }, { h: '#/parties/customer', t: 'العملاء' });
   }
   if (isFin() && (can('purch') || can('stock'))) {
     g('المشتريات');
@@ -587,6 +600,7 @@ function shell() {
     <div class="main"><header class="top"><button class="btn sm menu" id="mb" aria-label="القائمة">☰</button>
       <div class="cname"><b>${esc(S.company ? S.company.name : '')}</b> <span class="badge info">${esc(ROLES[S.role] || S.role)}</span></div><div class="sp"></div>
       ${multi ? `<select id="cs" style="width:auto;min-height:32px">${S.companies.map(c => opt(c.company_id, c.name, S.cid)).join('')}</select>` : ''}
+      ${ADMIN ? '' : '<button class="btn sm" id="hb" aria-label="مساعدة" title="مساعدة" style="min-width:34px">؟</button>'}
       <div class="umw"><button class="btn sm um" id="um" aria-haspopup="true" aria-expanded="false" aria-label="حسابي" title="حسابي"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"/></svg><span class="bt">حسابي</span><span class="bdot" id="bcnt" hidden></span></button>
         <div class="umenu" id="umenu" role="menu" hidden>
           <button type="button" class="mi" id="bell" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span>التنبيهات</span><span class="mcnt" id="bcnt2" hidden></span></button>
@@ -595,6 +609,8 @@ function shell() {
           <button type="button" class="mi" id="mfa" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6zM9 12l2 2 4-4"/></svg><span>التحقق بخطوتين</span></button>
           ${S.platform ? '<a class="mi" href="' + ADMIN_URL + '" id="plat" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v6H4zM4 14h7v6H4zM15 14h5v6h-5z"/></svg><span>لوحة إدارة المنصة</span></a>' : ''}
           ${has('owner', 'admin', 'hr', 'finance', 'accountant') ? '<a class="mi" href="#/support" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2v-6h4M4 13v4a2 2 0 0 0 2 2h2v-6H4"/></svg><span>الدعم الفني</span></a>' : ''}
+          ${ADMIN || isStandalone() ? '' : '<button type="button" class="mi" id="inst" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10v20H7zM11 18h2M12 6v7M9 10l3 3 3-3"/></svg><span>ثبّت وعد على جوالك</span></button>'}
+          <a class="mi" href="#/help" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17h.01"/></svg><span>مركز المساعدة</span></a>
           <a class="mi" href="#/privacy" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM9 12h7M9 16h7"/></svg><span>الخصوصية والشروط</span></a>
           <button type="button" class="mi out" id="lo" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg><span>تسجيل الخروج</span></button>
         </div><div class="bpanel" id="bpanel" hidden></div></div></header>
@@ -607,6 +623,8 @@ function shell() {
   $('#lg').onclick = () => setLang(LANG === 'en' ? 'ar' : 'en');
   $('#pw').onclick = () => changePasswordView(false);
   const umSet = open => { $('#umenu').hidden = !open; $('#um').setAttribute('aria-expanded', open ? 'true' : 'false'); };
+  if ($('#hb')) $('#hb').onclick = () => { if (typeof helpModal === 'function') helpModal(); };
+  if ($('#inst')) $('#inst').onclick = () => { $('#umenu').hidden = true; installApp(); };
   $('#um').onclick = ev => { ev.stopPropagation(); const p = $('#bpanel'); if (!p.hidden) { p.hidden = true; return umSet(false); } umSet($('#umenu').hidden); };
   $('#bell').onclick = ev => { ev.stopPropagation(); umSet(false); const p = $('#bpanel'); p.hidden = false; drawBell(true); LS.set(seenKey(), new Date().toISOString()); };
   $('#pw').addEventListener('click', () => umSet(false));

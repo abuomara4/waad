@@ -8,7 +8,7 @@ def runs():
     files = glob.glob(os.path.join(ROOT, 'src', '*.js')) + glob.glob(os.path.join(ROOT, '..', 'supabase', 'migrations', '*.sql')) + [os.path.join(ROOT, 'build.py')]
     out = {}
     for f in files:
-        if f.endswith('i18n_en.js') or f.endswith('letters.js') or f.endswith('legal.js') or f.endswith('forms_lib.js'): continue   # letter sheets render in the language chosen for the letter (data-nt)
+        if f.endswith('i18n_en.js') or f.endswith('letters.js') or f.endswith('legal.js') or f.endswith('forms_lib.js') or f.endswith('help_lib.js') or f.endswith('support_lib.js'): continue   # letter sheets render in the language chosen for the letter (data-nt)
         for line in open(f, encoding='utf-8'):
             if f.endswith('.sql') and line.lstrip().startswith('--'): continue
             for m in RUN.findall(line): out.setdefault(m, os.path.basename(f))

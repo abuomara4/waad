@@ -566,7 +566,9 @@ PV.support = async page => {
 function ticketForm(r) {
   const d = modal(r.subject, `<p class="small muted" style="margin-top:0">${esc(r.company)} · <span dir="ltr">${esc(r.author || '')}</span> · <span class="num">${esc(String(r.created_at).slice(0, 16).replace('T', ' '))}</span>${r.route ? ' · <span dir="ltr">' + esc(r.route) + '</span>' : ''}</p>
     <div class="supb card" style="padding:10px 12px" data-nt>${esc(r.body)}</div>
-    <div class="fg" style="margin-top:12px">${field('ردّك', `<textarea name="reply" rows="5" maxlength="3000">${esc(r.reply || '')}</textarea>`, 'wide')}
+    <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:12px" data-nt>${esc(tr('ردود جاهزة'))}: ${cannedList().map((c, i) => `<button type="button" class="btn sm" data-cn="${i}">${esc(c[0])}</button>`).join('')}
+      <button type="button" class="btn sm" id="cnsave">${esc(tr('احفظ الرد كرد جاهز'))}</button></div>
+    <div class="fg" style="margin-top:8px">${field('ردّك', `<textarea name="reply" rows="6" maxlength="3000">${esc(r.reply || '')}</textarea>`, 'wide')}
       ${field('الحالة', `<select name="status">${opt('answered', tr('تم الرد'), r.status === 'open' ? 'answered' : r.status)}${opt('open', tr('بانتظار الرد'), r.status === 'open' ? '' : r.status)}${opt('closed', tr('مغلق'), r.status)}</select>`)}</div>
     <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px">${mailBtns(r.author, 'وعد: ' + r.subject)}</div>`, {
     wide: true, ok: 'حفظ وإرسال', onOk: async f => {
@@ -575,7 +577,15 @@ function ticketForm(r) {
       toast(tr('تم الحفظ — يوصل الرد للعميل على الإيميل خلال دقائق')); platformView();
     } });
   bindCopy(d);
+  const ta = d.querySelector('[name=reply]');
+  d.querySelectorAll('[data-cn]').forEach(bt => bt.onclick = () => { const t = cannedList()[+bt.dataset.cn][1], at = ta.selectionStart ?? ta.value.length;
+    ta.value = ta.value.slice(0, at) + t + ta.value.slice(ta.selectionEnd ?? at); ta.focus(); });
+  d.querySelector('#cnsave').onclick = () => { const t = ta.value.trim(); if (t.length < 10) return toast(tr('اكتب الرد أولاً'));
+    const name = prompt(tr('اسم مختصر للرد الجاهز')); if (!name) return;
+    const mine = LS.get('waad.canned') || []; mine.push([name.slice(0, 30), t]); LS.set('waad.canned', mine.slice(-20)); toast(tr('حُفظ الرد الجاهز على هذا الجهاز')); d.close(); ticketForm(r); };
 }
+// the built-in replies (support_lib.js) plus the ones this team member saved on this device
+const cannedList = () => [...CANNED, ...(LS.get('waad.canned') || [])];
 
 /* ---------- script errors users ran into (message, place, screen; no record contents) ---------- */
 PV.errors = async page => {

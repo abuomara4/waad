@@ -19,14 +19,19 @@ VIEWS['#/home'] = async page => {
   if (can('sales')) { const inv = await db.get('sales_invoices', { company_id: 'eq.' + S.cid, status: 'eq.posted', select: 'total' }); cards.push(`<a class="card kpi" href="#/sales"><div class="muted small">إجمالي المبيعات المرحّلة</div><div class="v num">${money(inv.reduce((a, x) => a + n0(x.total), 0))}</div></a>`); }
   if (can('purch')) { const b = await db.get('purchase_bills', { company_id: 'eq.' + S.cid, status: 'eq.posted', select: 'total' }); cards.push(`<a class="card kpi" href="#/purchases"><div class="muted small">إجمالي المشتريات المرحّلة</div><div class="v num">${money(b.reduce((a, x) => a + n0(x.total), 0))}</div></a>`); }
   // first-use guide: a dismissible banner that walks a new owner back to the setup steps
-  const setup = has('owner') && !LS.get('waad.setupdone') && (!S.company.logo || !S.emp || (isHR() && (await db.get('employees', { company_id: 'eq.' + S.cid, select: 'id', limit: 3 })).length < 2))
-    ? `<div class="note" id="setupg" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span>${esc(tr('مرحباً بك في وعد — أكمل تجهيز منشأتك في ثلاث خطوات.'))}</span><span style="white-space:nowrap"><a class="btn sm pri" href="#/welcome">${esc(tr('ابدأ'))}</a> <button class="btn sm" id="setupx" aria-label="${esc(tr('إخفاء'))}">×</button></span></div>` : '';
+  // on a phone, suggest installing the app once (until installed or dismissed)
+  const inst = !isStandalone() && innerWidth < 760 && !LS.get('waad.instx') ? `<div class="note" id="instg" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span>${esc(tr('ثبّت وعد على جوالك ليفتح مثل التطبيق — مجاناً وبدون متجر.'))}</span><span style="white-space:nowrap"><button class="btn sm pri" id="instb">${esc(tr('ثبّت'))}</button> <button class="btn sm" id="instx" aria-label="${esc(tr('إخفاء'))}">×</button></span></div>` : '';
+  const ss = has('owner', 'admin') && !LS.get('waad.setupdone') ? await setupSteps().catch(() => []) : [], sd = ss.filter(x => x.ok).length;
+  const setup = ss.length && sd < ss.length
+    ? `<div class="note" id="setupg" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span>${esc(tr('ابدأ هنا: جهّز منشأتك'))} — ${esc(tr('تم'))} <b class="num">${sd}</b> ${esc(tr('من'))} <b class="num">${ss.length}</b></span><span style="white-space:nowrap"><a class="btn sm pri" href="#/welcome">${esc(tr('أكمل'))}</a> <button class="btn sm" id="setupx" aria-label="${esc(tr('إخفاء'))}">×</button></span></div>` : '';
   const nudge = !S.emp && !['accountant', 'storekeeper'].includes(S.role) ? `<div class="note">حسابك غير مربوط بسجل موظف، لذلك لا تظهر لك خدمات الإجازات والطلبات. ${isHR() ? '<a href="#/welcome">اربطه الآن</a>' : 'اطلب من الموارد البشرية ربطه.'}</div>` : '';
   const pp = await pendingPolicies().catch(() => []);
   const polNote = pp.length ? `<a class="note" href="#/policies" style="display:block">${esc(tr('سياسات بانتظار إقرارك'))}: <b class="num">${pp.length}</b> — ${pp.map(p => esc((LANG === 'en' && p.title_en) || p.title)).join('، ')}</a>` : '';
   // owners and finance hold the keys to payroll and money: nudge them to turn on two-step verification
   const mfaNote = has('owner', 'admin', 'finance') && S.mfa && !S.mfa.enrolled ? `<div class="note">${esc(tr('احمِ حسابك: فعّل التحقق بخطوتين حتى لا تكفي كلمة المرور وحدها للدخول.'))} <button class="btn sm" id="mfan">${esc(tr('تفعيل الآن'))}</button></div>` : '';
-  page.innerHTML = `<div class="head"><div><h1>أهلاً${S.myEmp ? '، ' + esc(S.myEmp.full_name.split(' ')[0]) : ''}</h1><div class="muted">${esc(S.company.name)}</div></div>${isHR() || has('finance') ? `<a class="btn" href="#/hrdash">${esc(tr('لوحة الموارد البشرية'))}</a>` : ''}</div>${setup}${nudge}${polNote}${mfaNote}<div class="grid">${cards.join('')}</div>`;
+  page.innerHTML = `<div class="head"><div><h1>أهلاً${S.myEmp ? '، ' + esc(S.myEmp.full_name.split(' ')[0]) : ''}</h1><div class="muted">${esc(S.company.name)}</div></div>${isHR() || has('finance') ? `<a class="btn" href="#/hrdash">${esc(tr('لوحة الموارد البشرية'))}</a>` : ''}</div>${setup}${inst}${nudge}${polNote}${mfaNote}<div class="grid">${cards.join('')}</div>`;
+  if ($('#instb', page)) $('#instb', page).onclick = installApp;
+  if ($('#instx', page)) $('#instx', page).onclick = () => { LS.set('waad.instx', 1); $('#instg', page).remove(); };
   if ($('#setupx', page)) $('#setupx', page).onclick = () => { LS.set('waad.setupdone', 1); const g = $('#setupg', page); if (g) g.remove(); };
   if ($('#mfan', page)) $('#mfan', page).onclick = mfaSetup;
 };
@@ -39,17 +44,6 @@ async function leaveBalance() {
 }
 
 /* ===== first-run checklist for a new owner ===== */
-VIEWS['#/welcome'] = async page => {
-  page.innerHTML = `<div class="head"><div><h1>جهّز منشأتك</h1><div class="muted">ثلاث خطوات وتبدأ</div></div></div>
-
-   <div class="card"><h2>1. أضف نفسك كموظف</h2><p class="muted">ليظهر لك نظام الطلبات وقسائم الراتب، ويُعرف أنك المدير العام في مسارات الاعتماد.</p>
-   ${S.emp ? '<div class="badge ok">تم</div>' : `<button class="btn pri" id="me">إضافة بياناتي</button>`}</div>
-   <div class="card"><h2>2. أضف الموظفين</h2><p class="muted">أضف سجلات الموظفين ورواتبهم ومديريهم المباشرين.</p><a class="btn" href="#/employees">الموظفون</a></div>
-   <div class="card"><h2>3. أعطِ فريقك الدخول</h2><p class="muted">الموظف: افتح سجله من «الموظفون» واضغط «إنشاء دخول للموظف» — يدخل برمز المنشأة <b class="num">${esc(S.company.code)}</b> ثم رقمه الوظيفي وكلمة مرور مؤقتة. الإدارة بالبريد: من «المستخدمون والدعوات».</p><a class="btn" href="#/employees">الموظفون</a> <a class="btn" href="#/users">المستخدمون والدعوات</a><div style="margin-top:8px"><button class="btn sm" id="ccw">إرسال رمز المنشأة لبريدي</button></div></div>`;
-  if ($('#me', page)) $('#me', page).onclick = () => employeeForm(null, { linkMe: true });
-  $('#ccw', page).onclick = () => companyCodeBox(false);
-};
-
 /* ===== my requests ===== */
 const LEAVE_TYPES = async () => cache.lt || (cache.lt = await db.get('leave_types', { order: 'code' }));
 VIEWS['#/requests'] = async page => {

@@ -330,3 +330,6 @@ tr.hl td{background:var(--waitbg)}
 .fcard{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:start;cursor:pointer;font:inherit;color:var(--ink);min-height:74px}
 .fcard:hover{border-color:var(--accent)}
 .fauto{color:var(--ok);margin-top:2px}
+
+/* point of sale: the cart goes under the items on a phone */
+@media (max-width: 760px) { .pos { grid-template-columns: 1fr !important; } }
