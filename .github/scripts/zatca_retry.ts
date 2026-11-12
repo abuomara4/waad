@@ -28,11 +28,12 @@ const t0 = Date.now();
 try {
   const due = await sql`select public.zatca_waiting() as c`;
   console.log(`companies with documents due: ${due.length}`);
+  // the log is public: only counts per status, never company ids, document numbers or ZATCA's messages (they live in the database)
+  const tally: Record<string, number> = {};
   for (const { c } of due) {
     if (Date.now() - t0 > 200000) { console.log('time budget used — the rest waits for the next run'); break; }
-    try {
-      const out = await processCompany(c, rpc, { budgetMs: 40000 });
-      console.log(c.slice(0, 8), out.map(o => `#${o.icv} ${o.status}`).join(', ') || 'nothing claimable yet');
-    } catch (e) { console.log(c.slice(0, 8), 'failed:', (e as Error).message); }
+    try { for (const o of await processCompany(c, rpc, { budgetMs: 40000 })) tally[o.status] = (tally[o.status] || 0) + 1; }
+    catch { tally['company failed'] = (tally['company failed'] || 0) + 1; }
   }
+  console.log('documents:', JSON.stringify(tally));
 } finally { await sql.end({ timeout: 5 }); }

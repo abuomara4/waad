@@ -91,7 +91,7 @@ def remind():
             reach, what_en, r['name'], r['ends'], 'To subscribe' if trial else 'To renew', phone, cmail)
         if mail(r['email'], subject, body):
             psql("update public.company_subscriptions set reminded_end = '%s' where company_id = '%s'" % (r['ends'], r['company_id'])); done.append(r['name'])
-    print('reminded %d of %d: %s' % (len(done), len(rows), ', '.join(done) or '—') if done else '::warning::%d reminder(s) due but none sent — check the e-mail secrets' % len(rows))
+    print('reminded %d of %d' % (len(done), len(rows)) if done else '::warning::%d reminder(s) due but none sent — check the e-mail secrets' % len(rows))
 
 def contact():
     c = json.loads(psql("select coalesce((select value from public.site_content where key = 'contact'), '{}')") or '{}')
