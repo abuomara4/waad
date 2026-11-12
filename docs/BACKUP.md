@@ -21,3 +21,9 @@ pg_restore --no-owner --no-privileges --clean --if-exists -d "postgresql://…ne
 
 `auth_users.jsonl` holds the sign-in accounts (one JSON per line, password hashes only); they are re-created in the new
 project's `auth.users` only if the whole project has to be rebuilt — ask for help with that step.
+
+**Restore drill (automatic):** `.github/workflows/restore-drill.yml` runs on the 1st of every month (and on demand:
+Actions → *restore drill* → *Run workflow*). It downloads the latest backup, decrypts it with `BACKUP_PASSPHRASE`, restores
+it into a throwaway PostgreSQL on the runner (gone when the job ends) and checks: every table is back, the key tables have
+data, every journal entry balances. The log prints only PASS / FAIL lines — never data or counts (the logs are public).
+A failed drill shows as a failed run in Actions: fix it before you need the backup.

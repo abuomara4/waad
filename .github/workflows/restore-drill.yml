@@ -1,0 +1,40 @@
+# Monthly (and on demand): prove the latest daily backup can be decrypted and restored. The copy goes into a throwaway
+# database on the runner and is gone when the job ends; the log shows only PASS / FAIL lines. See docs/BACKUP.md.
+name: restore drill
+on:
+  schedule: [{ cron: '0 3 1 * *' }]   # 1st of each month, 06:00 Riyadh
+  workflow_dispatch:
+permissions: { actions: read, contents: read }
+jobs:
+  drill:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: production
+    services:
+      pg:
+        image: postgres:17
+        env: { POSTGRES_PASSWORD: drill }
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 5s --health-retries 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: PostgreSQL 17 client
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client-17 > /dev/null
+      - name: Download the latest backup
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          id=$(gh run list -R "$GITHUB_REPOSITORY" --workflow backup.yml --status success -L 1 --json databaseId -q '.[0].databaseId')
+          test -n "$id" || { echo "::error::no successful backup run yet"; exit 1; }
+          gh run download "$id" -R "$GITHUB_REPOSITORY" -n waad-backup -D bk
+      - name: Decrypt, restore into a throwaway database and check
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          DB: ${{ secrets.SUPABASE_DB_URL }}
+          TEST: postgresql://postgres:drill@localhost:5432/postgres
+          PGBIN: /usr/lib/postgresql/17/bin/
+          BK: bk
+        run: bash .github/scripts/restore_drill.sh
