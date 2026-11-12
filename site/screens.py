@@ -35,11 +35,21 @@ with sync_playwright() as p:
       out.projects = (await db.get('projects', { company_id: 'eq.' + c })).map(p => p.id);
       return out; }""")
     print(json.dumps(res, ensure_ascii=False)[:600])
-    shots = [('hr', '#/hrdash'), ('finance', '#/reports'), ('marketing', '#/marketing'), ('purch', '#/purchases'), ('stock', '#/items'), ('project', '#/projects/' + (res['projects'] or [''])[0])]
+    # e-invoicing: link the sample company to Fatoora on the local mock only, post one invoice and mark it cleared (no ZATCA call)
+    import urllib.request
+    def mx(q): urllib.request.urlopen(urllib.request.Request(BASE + '/mock/exec', data=json.dumps({'q': q}).encode(), headers={'Content-Type': 'application/json'}))
+    cid = o.evaluate('S.cid')
+    mx(f"insert into zatca_settings(company_id, enabled, env, onboarded_at) values ('{cid}', true, 'simulation', now()) on conflict (company_id) do update set enabled = true")
+    mx(f"update parties set vat_no = '310000000000003' where id = (select id from parties where company_id = '{cid}' and kind = 'customer' order by name limit 1)")
+    zinv = o.evaluate("""async () => { const c = S.cid, cust = await db.get('parties', { company_id: 'eq.' + c, kind: 'eq.customer' }), all = await db.get('items', { company_id: 'eq.' + c });
+      const by = Object.fromEntries(all.map(i => [i.code, i]));
+      return db.rpc('post_sales_invoice_sn', { p_company: c, p_doc: { party: cust.find(p => p.vat_no).id, lines: [['PRD-01', 3], ['SRV-01', 2]].map(([k, q]) => ({ item: by[k].id, qty: q, price: by[k].sale_price })) } }); }""")
+    mx(f"update zatca_docs set status = 'cleared', sent_at = now() where doc_id = '{zinv}'")
+    shots = [('hr', '#/hrdash'), ('finance', '#/reports'), ('marketing', '#/marketing'), ('purch', '#/purchases'), ('stock', '#/items'), ('project', '#/projects/' + (res['projects'] or [''])[0]), ('forms', '#/forms'), ('invoice', '#/sales/' + zinv)]
     for lang in ('ar', 'en'):
         o.evaluate("l => localStorage.setItem('waad.lang', JSON.stringify(l))", lang); o.reload(); o.wait_for_selector('#nav')
         for name, route in shots:
-            o.evaluate("h => location.hash = h", route); o.wait_for_timeout(1500); o.screenshot(path=f'{OUT}/{name}-{lang}.png')
+            o.evaluate("h => location.hash = h", route); o.mouse.move(1279, 799); o.wait_for_timeout(1500); o.screenshot(path=f'{OUT}/{name}-{lang}.png')
     print('errors:', errs[:3]); b.close()
 from PIL import Image
 for name, _ in shots:
