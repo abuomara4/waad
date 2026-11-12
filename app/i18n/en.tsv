@@ -1760,6 +1760,7 @@
 المكلّف	Assignee
 الملاحظات	Notes
 الملاحظة	Note
+الملخص الشهري بالإيميل	Monthly e-mail summary
 الملف	File
 الملف فارغ	The file is empty
 الملف لا يحتوي أسماء	The file has no names
@@ -4829,6 +4830,7 @@
 يسقط الأجر إذا ثبت عدم أداء الامتحان	Pay is lost if the exam was not sat
 يسقط الأجر عن إجازة الاختبارات إذا ثبت أن العامل لم يؤدِّ الامتحان	exam leave pay is lost if the worker did not sit the exam
 يصدر الخطاب بعد اعتماد طلب التعريف بالراتب	The letter is issued after the salary certificate request is approved
+يصل للمالك أول كل شهر بمبيعات الشهر الماضي ومشترياته ورواتبه والمتأخرات وما ينتظر الاعتماد	sent to the owner at the start of each month with last month's sales, purchases, payroll, overdue invoices and pending approvals
 يصير أدمن بعد التفعيل	It becomes an admin once activated
 يصير الاشتراك	the subscription becomes
 يطبق عليه	Applies

@@ -1206,6 +1206,9 @@ with sync_playwright() as pw:
     ok(True, 'forms: a company template turns {f:…} into a field to fill'); o.click('#mx')
     # ---------- ZATCA Phase 2 screens: link card, exemption reason, chain status, debit note ----------
     go(o, '#/settings'); o.wait_for_selector('#zcard h2')
+    o.uncheck('#cf input[name=monthly_report]'); o.click('#cb'); o.wait_for_timeout(900)
+    ok(sql(f"select monthly_report from companies where id='{o.evaluate('S.cid')}'") in ('f', 'false', False), 'settings: the owner can switch off the monthly e-mail summary')
+    go(o, '#/settings'); o.wait_for_selector('#zcard h2'); o.check('#cf input[name=monthly_report]'); o.click('#cb'); o.wait_for_timeout(900); go(o, '#/settings'); o.wait_for_selector('#zcard h2')
     ok('الربط مع فاتورة' in o.inner_text('#zcard') and o.locator('#zcard input[name=otp]').count() == 1, 'settings: the owner sees «link with Fatoora» with an OTP field')
     cid = o.evaluate('S.cid')
     svc = sql(f"select id||'|'||name from items where company_id='{cid}' and type='service' and active order by code limit 1")

@@ -2,7 +2,8 @@
  1. tell the Waad team about companies waiting for approval (status 'pending', not yet notified);
  2. remind each customer by e-mail 3 days before its trial or subscription ends (once per end date);
  3. tell the team about new support requests; 4. e-mail the team's reply to the customer who asked;
- 5. send the welcome e-mail once a company is accepted.
+ 5. send the welcome e-mail once a company is accepted;
+ 6. on the 1st–3rd of each month, e-mail each owner a summary of last month (once; they can switch it off in settings).
 Channels (each optional, set as repository secrets):
   e-mail   : NOTIFY_GMAIL_USER + NOTIFY_GMAIL_APP_PASSWORD (a Google «App password»); team mail goes to NOTIFY_EMAIL_TO or to itself
   WhatsApp : CALLMEBOT_PHONE + CALLMEBOT_APIKEY (free CallMeBot key for your own number) — team notices only
@@ -153,6 +154,45 @@ def welcome():
             psql("update public.company_subscriptions set welcomed_at = now() where company_id = '%s'" % r['company_id']); n += 1
     print('welcome: sent %d of %d' % (n, len(rows)))
 
+# ---------- 6. the monthly summary → each company's owner ----------
+def money(x): return '{:,.2f}'.format(float(x or 0))
+def monthly_body(name, d):
+    L, E = [], []
+    if d['sales_n'] or float(d['sales']):
+        L.append('• المبيعات: %s ريال (عدد الفواتير %d)' % (money(d['sales']), d['sales_n'])); E.append('Sales: %d invoices, SAR %s' % (d['sales_n'], money(d['sales'])))
+    if float(d['collected']): L.append('• المحصّل من العملاء: %s ريال' % money(d['collected'])); E.append('Collected: SAR %s' % money(d['collected']))
+    if float(d['purchases']): L.append('• المشتريات: %s ريال' % money(d['purchases'])); E.append('Purchases: SAR %s' % money(d['purchases']))
+    if float(d['paid_out']): L.append('• المدفوع للموردين والمصروفات: %s ريال' % money(d['paid_out'])); E.append('Paid out: SAR %s' % money(d['paid_out']))
+    pr = d.get('payroll')
+    if pr: L.append('• الرواتب: صافي %s ريال (عدد الموظفين %d)%s' % (money(pr['net']), pr['n'], '' if pr['status'] in ('approved', 'paid') else ' (المسير لم يُعتمد بعد)')); E.append('Payroll: SAR %s net for %d employees%s' % (money(pr['net']), pr['n'], '' if pr['status'] in ('approved', 'paid') else ' (not approved yet)'))
+    elif d['staff']: L.append('• الرواتب: لا يوجد مسير لهذا الشهر'); E.append('Payroll: no run for this month')
+    if d['overdue_n']: L.append('• فواتير متأخرة السداد: %s ريال (عددها %d)' % (money(d['overdue']), d['overdue_n'])); E.append('Overdue invoices: %d, SAR %s' % (d['overdue_n'], money(d['overdue'])))
+    if d['staff'] or d['joined'] or d['left']:
+        L.append('• الموظفون على رأس العمل: %d%s' % (d['staff'], (' (انضم %d، غادر %d)' % (d['joined'], d['left'])) if d['joined'] or d['left'] else ''))
+        E.append('Staff: %d%s' % (d['staff'], (' (%d joined, %d left)' % (d['joined'], d['left'])) if d['joined'] or d['left'] else ''))
+    if d['expiring']: L.append('• مستندات موظفين تنتهي خلال 30 يوماً: %d' % d['expiring']); E.append('Employee documents expiring within 30 days: %d' % d['expiring'])
+    if d['pending']: L.append('• طلبات بانتظار الاعتماد: %d' % d['pending']); E.append('Requests waiting for approval: %d' % d['pending'])
+    if d['zatca_bad']: L.append('• زاتكا: مستندات مرفوضة أو لم تُرسل (عددها %d) — راجعها في المبيعات' % d['zatca_bad']); E.append('ZATCA: %d document(s) rejected or not sent' % d['zatca_bad'])
+    if not L: return None   # nothing happened: no e-mail
+    return ('السلام عليكم،\n\nملخص شهر %s لمنشأة «%s» من نظام وعد:\n\n%s\n\nللتفاصيل: %sapp/\n'
+            'لإيقاف هذا الملخص: إعدادات المنشأة ← «الملخص الشهري بالإيميل».\n\nفريق وعد\n\n— — —\n'
+            'Your Waad summary for %s, «%s»:\n%s\nDetails: %sapp/ · To stop it: company settings → monthly e-mail summary.') % (
+        d['month'], name, '\n'.join(L), SITE, d['month'], name, '\n'.join(E), SITE)
+
+def monthly():
+    rows = json.loads(psql("select coalesce(json_agg(x), '[]') from (select * from public.monthly_report_due()) x"))
+    if not rows:
+        print('monthly: none due'); return
+    n = skip = 0
+    for r in rows:
+        if not r.get('email'): continue
+        d = json.loads(psql("select public.monthly_report('%s', '%s-01')" % (r['company_id'], r['month'])))
+        body = monthly_body(r['name'], d)
+        if body is None or mail(r['email'], 'وعد: ملخص شهر %s' % r['month'], body):
+            psql("update public.companies set monthly_report_sent = '%s' where id = '%s'" % (r['month'], r['company_id']))
+            n += body is not None; skip += body is None
+    print('monthly: sent %d, nothing to report %d, of %d due' % (n, skip, len(rows)))
+
 team()
 if not TEST:
-    remind(); support_team(); support_replies(); welcome()
+    remind(); support_team(); support_replies(); welcome(); monthly()

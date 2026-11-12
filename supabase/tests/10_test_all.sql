@@ -2730,5 +2730,30 @@ select t.ok((public.zatca_creds(:'cid')->>'key') = 'KEY', 'the server reads the 
 reset role;
 delete from public.zatca_secrets where company_id = :'cid'; update public.zatca_settings set enabled = false where company_id = :'cid';
 
+-- ================= MONTHLY REPORT E-MAIL (0081) =================
+set role service_role;
+select public.monthly_report(:'cid', date_trunc('month', current_date)::date) as mr \gset
+reset role;
+select t.ok((:'mr'::jsonb->>'month') = to_char(current_date, 'YYYY-MM')
+  and (:'mr'::jsonb->>'sales')::numeric = (select coalesce(sum(total), 0) from public.sales_invoices where company_id = :'cid' and status = 'posted' and not is_opening and date >= date_trunc('month', current_date) and date < date_trunc('month', current_date) + interval '1 month')
+  and (:'mr'::jsonb->>'sales_n')::int = (select count(*) from public.sales_invoices where company_id = :'cid' and status = 'posted' and not is_opening and date >= date_trunc('month', current_date) and date < date_trunc('month', current_date) + interval '1 month')
+  and (:'mr'::jsonb->>'staff')::int = (select count(*) from public.employees where company_id = :'cid' and hire_date < date_trunc('month', current_date) + interval '1 month'
+        and (end_date is null or end_date >= date_trunc('month', current_date) + interval '1 month')),
+  'monthly report: sales, invoice count and staff match the books');
+select t.ok((:'mr'::jsonb->>'overdue')::numeric >= 0 and (:'mr'::jsonb->>'pending')::int >= 0 and (:'mr'::jsonb ? 'payroll'), 'monthly report: overdue, pending requests and payroll are included');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.err($$select public.monthly_report('$$ || :'cid' || $$', current_date)$$, 'permission denied', 'the report figures are read by the server job only');
+select t.err($$select * from public.monthly_report_due()$$, 'permission denied', 'the list of due reports (with owner e-mails) is server only');
+update public.companies set monthly_report = false where id = :'cid';
+select t.ok((select not monthly_report from public.companies where id = :'cid'), 'the owner can switch the monthly report off');
+reset role;
+set role service_role;
+select t.ok(not exists(select 1 from public.monthly_report_due() d where d.company_id = :'cid'), 'a company that switched it off gets no report');
+reset role;
+update public.companies set monthly_report = true, monthly_report_sent = to_char(date_trunc('month', current_date) - interval '1 month', 'YYYY-MM') where id = :'cid';
+set role service_role;
+select t.ok(not exists(select 1 from public.monthly_report_due() d where d.company_id = :'cid'), 'one report per month: already sent → not due again');
+reset role;
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary
