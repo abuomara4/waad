@@ -299,7 +299,7 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
       : `<p class="muted small" style="margin:10px 0 0">لصاحب منشأة جديدة، أو لمن وصلته دعوة بالبريد من الإدارة. الموظفون لا يسجلون هنا — يدخلون برمز المنشأة ورقمهم الوظيفي.</p>`;
   }
   const links = tab === 'staff' ? `<a href="#" data-go="in">دخول الإدارة بالبريد</a> · <a href="#" data-go="up">حساب جديد بالبريد</a>` : `<a href="#" data-go="staff">دخول الموظفين</a> · ${tab === 'in' ? '<a href="#" data-go="up">حساب جديد بالبريد</a>' : '<a href="#" data-go="in">لديك حساب؟ دخول بالبريد</a>'}`;
-  app.innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card">
+  app.innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="atag">${esc(tr('حلول دقيقة… لوعد موثوق'))}</div><div class="card">
     ${tab !== 'staff' ? `<h2>${tab === 'in' ? 'دخول الإدارة بالبريد' : 'حساب جديد بالبريد'}</h2>` : ''}
     ${msg ? `<div class="note">${esc(msg)}</div>` : ''}
     <form id="af" novalidate>${body}<div id="aerr"></div><div style="height:12px"></div><button class="btn pri full" id="ab">${btn}</button>${foot}</form></div>

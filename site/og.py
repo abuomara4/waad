@@ -9,10 +9,10 @@ html = '''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <style>*{box-sizing:border-box;margin:0}body{width:1200px;height:630px;font-family:"IBM Plex Sans Arabic",sans-serif;color:#fff;
 background:radial-gradient(900px 420px at 88% -10%,rgba(184,137,58,.30),transparent 60%),radial-gradient(700px 420px at 0% 110%,rgba(37,99,235,.30),transparent 60%),#131b2e;
 padding:70px 80px;display:flex;flex-direction:column;justify-content:space-between}
-img{height:84px;align-self:flex-start}h1{font-size:60px;line-height:1.25;font-weight:700}h1 b{color:#d6ad5e}
+.top{display:flex;align-items:center;justify-content:space-between;gap:30px}img{height:84px}.tag{font-size:30px;font-weight:600;color:#d6ad5e}h1{font-size:60px;line-height:1.25;font-weight:700}h1 b{color:#d6ad5e}
 p{font-size:30px;color:#cbd5e1;margin-top:18px;line-height:1.6}.tags{display:flex;gap:14px;flex-wrap:wrap}
 .tags span{border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:8px 22px;font-size:24px;color:#e2e8f0}</style></head><body>
-<img src="LOGO">
+<div class="top"><img src="LOGO"><div class="tag">حلول دقيقة… لوعد موثوق</div></div>
 <div><h1>منشأتك كاملة، في <b>نظام واحد</b></h1><p>نظام سعودي للمنشآت الصغيرة والمتوسطة. جرّبه ٧ أيام مجاناً.</p></div>
 <div class="tags"><span>نظام العمل</span><span>ضريبة القيمة المضافة</span><span>حماية الأجور</span><span>عربي وإنجليزي</span></div>
 </body></html>'''.replace('LOGO', logo)

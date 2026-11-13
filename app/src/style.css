@@ -333,3 +333,6 @@ tr.hl td{background:var(--waitbg)}
 
 /* point of sale: the cart goes under the items on a phone */
 @media (max-width: 760px) { .pos { grid-template-columns: 1fr !important; } }
+
+/* the tagline under the logo on the sign-in screen */
+.atag{text-align:center;color:var(--gold, #d6ad5e);font-weight:600;margin:-6px 0 14px;font-size:15px}
