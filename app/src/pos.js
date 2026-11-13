@@ -19,13 +19,14 @@ VIEWS['#/pos'] = async page => {
   const tot = () => { let net = 0, vat = 0; cart.forEach(l => { const a = r2(l.qty * l.price); net += a; vat += r2(a * n0(l.it.vat_rate == null ? 15 : l.it.vat_rate) / 100); }); return { net: r2(net), vat: r2(vat), total: r2(net + vat) }; };
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('نقطة البيع'))}</h1><div class="muted">${esc(tr('فاتورة مبسطة سريعة: اختر الأصناف، استلم المبلغ، واطبع الإيصال.'))}</div></div></div>
     <div class="pos" style="display:grid;grid-template-columns:minmax(0,3fr) minmax(280px,2fr);gap:14px">
-      <div><div class="row" style="gap:8px;margin-bottom:10px"><input id="psc" placeholder="${esc(tr('امسح الباركود أو اكتب اسم الصنف أو رمزه'))}" autocomplete="off" style="flex:1">
+      <div><div class="row" style="gap:8px;margin-bottom:10px"><input id="psc" aria-label="${esc(tr('بحث عن صنف'))}" placeholder="${esc(tr('امسح الباركود أو اكتب اسم الصنف أو رمزه'))}" autocomplete="off" style="flex:1">
         ${'BarcodeDetector' in window ? `<button type="button" class="btn" id="pcam">${esc(tr('الكاميرا'))}</button>` : ''}</div><div class="small" id="pmsg" role="status"></div>
         <div id="pgrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:8px"></div></div>
       <div class="card" style="align-self:start"><div id="pcart"></div>
         <div class="fg" style="margin-top:10px">${field('العميل', `<select id="pcu"><option value="">${esc(tr(POS_CASH))}</option>${custs.filter(c => c.name !== POS_CASH).map(c => opt(c.id, c.name)).join('')}</select>`, 'wide')}
           ${field('طريقة الدفع', `<select id="ppm">${opt('1110', tr('نقداً (الصندوق)'))}${opt('1120', tr('شبكة / بطاقة (البنك)'))}${opt('', tr('آجل — بدون قبض'))}</select>`, 'wide')}</div>
-        <div id="perr"></div><button class="btn pri" id="pok" style="width:100%;margin-top:8px;min-height:48px">${esc(tr('إتمام البيع'))}</button></div></div>`;
+        <div id="perr"></div><button class="btn pri" id="pok" style="width:100%;margin-top:8px;min-height:48px">${esc(tr('إتمام البيع'))}</button></div></div>
+    <div class="posbar" id="pbar"></div>`;
   const grid = $('#pgrid', page), draw = () => {
     const t = tot();
     $('#pcart', page).innerHTML = cart.length ? `<table class="lines" style="width:100%"><tbody>${cart.map((l, i) => `<tr><td>${esc(l.it.name)}<div class="small muted num">${money(l.price)}</div></td>
@@ -34,6 +35,10 @@ VIEWS['#/pos'] = async page => {
       <p class="r" style="margin:8px 0 0">${esc(tr('قبل الضريبة'))} <span class="num">${money(t.net)}</span> · ${esc(tr('الضريبة'))} <span class="num">${money(t.vat)}</span></p>
       <p class="r" style="font-size:1.4em;margin:4px 0 0"><b>${esc(tr('الإجمالي'))} <span class="num">${money(t.total)}</span></b></p>`
       : `<p class="muted">${esc(tr('السلة فارغة — اختر صنفاً.'))}</p>`;
+    // phones: the total and «complete sale» stay at the bottom of the screen while picking items
+    $('#pbar', page).innerHTML = cart.length ? `<b>${esc(tr('الإجمالي'))} <span class="num">${money(t.total)}</span> <span class="small muted">(${cart.reduce((a, l) => a + l.qty, 0)})</span></b>
+      <button type="button" class="btn pri" id="pbgo">${esc(tr('السلة والدفع'))}</button>` : '';
+    if ($('#pbgo', page)) $('#pbgo', page).onclick = () => $('#pcart', page).scrollIntoView({ behavior: 'smooth', block: 'start' });
     $$('[data-p]', page).forEach(b => b.onclick = () => { cart[+b.dataset.p].qty += 1; draw(); });
     $$('[data-m]', page).forEach(b => b.onclick = () => { const l = cart[+b.dataset.m]; l.qty = r2(l.qty - 1); if (l.qty <= 0) cart.splice(+b.dataset.m, 1); draw(); });
     $$('[data-x]', page).forEach(b => b.onclick = () => { cart.splice(+b.dataset.x, 1); draw(); });

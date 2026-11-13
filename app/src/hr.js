@@ -1,5 +1,9 @@
 'use strict';
 /* ===== home ===== */
+// the home page's suggestions (setup, two-step verification, link to an employee record, install the app): one notice shows
+// as it is; two or more become one «مهام مقترحة» card so the figures below are not pushed off a phone screen
+const homeTasks = list => { const t = list.filter(Boolean); if (t.length < 2) return t.join('');
+  return `<div class="card tasks"><h2 style="font-size:1rem;margin:0 0 4px">${esc(tr('مهام مقترحة'))}</h2>${t.map(x => x.replace(/^<div class="note"/, '<div class="trow"')).join('')}</div>`; };
 VIEWS['#/home'] = async page => {
   const cards = [];
   if (isHR()) { try { const n = await db.rpc('apply_deemed_resignations', { p_company: S.cid }); if (n) toast(n + ' استقالة اعتُبرت مقبولة لمضي 30 يوماً دون رد (م79 مكرر)'); } catch (e) {} }
@@ -29,7 +33,7 @@ VIEWS['#/home'] = async page => {
   const polNote = pp.length ? `<a class="note" href="#/policies" style="display:block">${esc(tr('سياسات بانتظار إقرارك'))}: <b class="num">${pp.length}</b> — ${pp.map(p => esc((LANG === 'en' && p.title_en) || p.title)).join('، ')}</a>` : '';
   // owners and finance hold the keys to payroll and money: nudge them to turn on two-step verification
   const mfaNote = has('owner', 'admin', 'finance') && S.mfa && !S.mfa.enrolled ? `<div class="note">${esc(tr('احمِ حسابك: فعّل التحقق بخطوتين حتى لا تكفي كلمة المرور وحدها للدخول.'))} <button class="btn sm" id="mfan">${esc(tr('تفعيل الآن'))}</button></div>` : '';
-  page.innerHTML = `<div class="head"><div><h1>أهلاً${S.myEmp ? '، ' + esc(S.myEmp.full_name.split(' ')[0]) : ''}</h1><div class="muted">${esc(S.company.name)}</div></div>${isHR() || has('finance') ? `<a class="btn" href="#/hrdash">${esc(tr('لوحة الموارد البشرية'))}</a>` : ''}</div>${setup}${inst}${nudge}${polNote}${mfaNote}<div class="grid">${cards.join('')}</div>`;
+  page.innerHTML = `<div class="head"><div><h1>أهلاً${S.myEmp ? '، ' + esc(S.myEmp.full_name.split(' ')[0]) : ''}</h1><div class="muted">${esc(S.company.name)}</div></div>${isHR() || has('finance') ? `<a class="btn" href="#/hrdash">${esc(tr('لوحة الموارد البشرية'))}</a>` : ''}</div>${homeTasks([setup, mfaNote, nudge, inst])}${polNote}<div class="grid">${cards.join('')}</div>`;
   if ($('#instb', page)) $('#instb', page).onclick = installApp;
   if ($('#instx', page)) $('#instx', page).onclick = () => { LS.set('waad.instx', 1); $('#instg', page).remove(); };
   if ($('#setupx', page)) $('#setupx', page).onclick = () => { LS.set('waad.setupdone', 1); const g = $('#setupg', page); if (g) g.remove(); };
@@ -302,7 +306,7 @@ VIEWS['#/employees'] = async (page, arg, q) => {
   const searchStr = e => [e.emp_no, e.full_name, e.full_name_en, e.job_title, e.job_title_en, dm[e.department_id], e.manager_id && em[e.manager_id] ? em[e.manager_id].full_name : '', e.national_id, e.iqama_no, e.mobile].filter(Boolean).join(' ').toLowerCase();
   page.innerHTML = `<div class="head"><div><h1>الموظفون</h1><div class="muted"><span id="ecount">${rows.length}</span> موظف</div></div><div class="row">
      <a class="btn" href="#/employees${showEnded ? '' : '?all=1'}">${showEnded ? 'على رأس العمل فقط' : 'إظهار المنتهية خدماتهم'}</a><button class="btn" id="dep">الأقسام</button><button class="btn" id="imx">استيراد من Excel</button><button class="btn" id="upx">تحديث جماعي من Excel</button><button class="btn" id="brs">زيادة جماعية</button><button class="btn pri" id="ne">إضافة موظف</button></div></div>
-   <div style="margin-bottom:12px"><input id="esrch" type="search" placeholder="بحث: الرقم الوظيفي، الاسم، المسمى، القسم، المدير، الهوية، الجوال…" autocomplete="off"></div>
+   <div style="margin-bottom:12px"><input id="esrch" type="search" aria-label="${esc(tr('بحث في الموظفين'))}" placeholder="بحث: الرقم الوظيفي، الاسم، المسمى، القسم، المدير، الهوية، الجوال…" autocomplete="off"></div>
    <div id="emptbl"></div>`;
   const draw = term => { const t = (term || '').trim().toLowerCase(); const fr = t ? rows.filter(e => searchStr(e).includes(t)) : rows; const ec = $('#ecount', page); if (ec) ec.textContent = fr.length; $('#emptbl', page).innerHTML = tbl(cols, fr, { empty: t ? 'لا نتائج مطابقة' : 'لم تُضف موظفين بعد', onRow: true }); bindRows(page, fr, e => employeeForm(e)); };
   draw('');

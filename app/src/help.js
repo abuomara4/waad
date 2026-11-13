@@ -11,7 +11,7 @@ function helpModal() {
 VIEWS['#/help'] = async page => {
   const list = Object.entries(HELP);
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('مركز المساعدة'))}</h1><div class="muted">${esc(tr('شرح مختصر لكل صفحة. وفي أي صفحة اضغط «؟» أعلى الشاشة ليظهر شرحها.'))}</div></div></div>
-    <input id="hq" type="search" placeholder="${esc(tr('ابحث، مثل: الرواتب، فاتورة، زاتكا'))}" style="max-width:420px;margin-bottom:12px">
+    <input id="hq" type="search" aria-label="${esc(tr('بحث في الشروحات'))}" placeholder="${esc(tr('ابحث، مثل: الرواتب، فاتورة، زاتكا'))}" style="max-width:420px;margin-bottom:12px">
     <div id="hl" data-nt>${list.map(([k, v]) => `<details class="card hitem" data-k="${esc(k)}" style="margin-bottom:8px"><summary style="cursor:pointer"><b>${esc(hT(v.t))}</b></summary>
       <ol style="padding-inline-start:20px;margin:8px 0 0">${v.s.map(x => `<li style="margin-bottom:6px">${esc(hT(x))}</li>`).join('')}</ol>
       <a class="small" href="${esc(k)}">${esc(LANG === 'en' ? 'Open the page' : 'افتح الصفحة')}</a></details>`).join('')}</div>

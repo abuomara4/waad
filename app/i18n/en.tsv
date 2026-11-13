@@ -675,6 +675,7 @@
 اربطه بحسابك لتظهر لك خدمات الطلبات والإجازات وقسائم راتبك	Link it to your account to get requests, leave and payslip services
 ارتجع الشيك	Cheque bounced
 ارتجع بعد الإيداع	Bounced after deposit
+ارجع للقائمة وافتحه من جديد	go back to the list and open it again
 ارفع العقد الساري فقط	upload the current contract only
 ارفع الملف	Upload the file
 ارفع الملف وراجع المعاينة	Upload the file and review the preview
@@ -1290,6 +1291,7 @@
 الرئيسية	Home
 الرابط	Link
 الرابط غير صالح	The link is not valid
+الرابط غير صحيح أو السجل غير موجود	The link is not valid or the record no longer exists
 الرابعة	fourth
 الراتب	Salary
 الراتب الأساسي	Basic salary
@@ -1391,6 +1393,7 @@
 السكن	housing
 السلام عليكم	Hello
 السلة فارغة	The cart is empty
+السلة والدفع	Cart & payment
 السلف	Advances
 السلفة لا تزيد على الراتب الأساسي	The advance cannot exceed the basic salary
 السماح	Grace
@@ -2005,6 +2008,9 @@
 بتوقيت الرياض	Riyadh time
 بحث	Search
 بحث بالاسم أو البريد أو الباقة	Search by name, e-mail or plan
+بحث عن صنف	Search items
+بحث في الشروحات	Search the guides
+بحث في الموظفين	Search employees
 بحريني	Bahraini
 بحساب المنشأة	with the company account
 بحسابك الحالي	to your current account
@@ -4482,6 +4488,7 @@
 منضمون	Joiners
 منفّذ	Delivered
 منهم تابعون	of them dependants
+مهام مقترحة	Suggested tasks
 مهلة الإشعار	Notice period
 مهلة التظلم	Grievance period
 مهلة كل مرحلة	Deadline per step

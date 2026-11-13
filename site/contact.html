@@ -62,6 +62,9 @@ nav.links a:hover{color:#fff}
 .pill b{width:8px;height:8px;border-radius:50%;background:var(--gold2);display:inline-block}
 h1{font-size:clamp(32px,5vw,52px);line-height:1.25;margin:18px 0 16px;font-weight:700;letter-spacing:-.5px}
 h1 em{font-style:normal;color:var(--gold2)}
+:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
+@media(max-width:700px){footer nav a{display:inline-flex;align-items:center;min-height:44px;padding:0 6px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}}
 .kicker{margin:0 0 10px;color:var(--gold2);font-weight:600;font-size:clamp(15px,3.6vw,19px);letter-spacing:.2px}
 .fbrand{display:flex;flex-direction:column;gap:6px}.ftag{font-size:13px;color:var(--gold2);font-weight:500}
 html:not([lang=en]) .hero h1{white-space:nowrap;font-size:clamp(22px,8vw,46px)}

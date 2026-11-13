@@ -65,6 +65,7 @@ async function refreshSession() {
 }
 class ApiError extends Error { constructor(m, status, code) { super(m); this.status = status; this.code = code; } }
 const EN_AR = [
+  [/invalid input syntax for type uuid/i, 'الرابط غير صحيح أو السجل غير موجود — ارجع للقائمة وافتحه من جديد'],
   [/permission denied|row-level security|42501/i, 'ليست لديك صلاحية لهذا الإجراء'],
   [/duplicate key.*(emp_no)/i, 'الرقم الوظيفي مستخدم مسبقاً'],
   [/duplicate key.*(code)/i, 'الرمز مستخدم مسبقاً'],
@@ -750,7 +751,7 @@ async function route() {
   $('#page').replaceChildren(page);
   if (!modOn(routeModule(path))) { page.innerHTML = `<div class="note">${esc(tr('هذا القسم غير مشمول في باقة منشأتك.'))} ${has('owner') ? esc(tr('لتفعيله تواصل مع إدارة وعد.')) : esc(tr('راجع مالك المنشأة.'))}</div>`; return; }
   try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); setTimeout(() => page.isConnected && markWide(page), 60); }
-  catch (e) { if (e.status === 401 && !S.session) return authView('in', 'انتهت الجلسة — سجّل الدخول مجدداً'); if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+  catch (e) { if (e.status === 401 && !S.session) return authView('in', 'انتهت الجلسة — سجّل الدخول مجدداً'); if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div><p style="margin-top:10px"><button type="button" class="btn" onclick="history.length > 1 ? history.back() : (location.hash = '#/home')">${esc(tr('رجوع'))}</button> <a class="btn" href="#/home">${esc(tr('الرئيسية'))}</a></p>`; }
 }
 window.addEventListener('hashchange', () => /(^#|&)(access_token|error_code)=/.test(location.hash) ? boot() : !S.session && legalHash() ? legalView(legalHash()) : ADMIN ? (S.platform && $('#ppage') ? platformView() : null) : S.platform && /^#\/platform/.test(location.hash) ? (location.href = ADMIN_URL) : S.platform && !$('#page') ? boot() : route());
 window.addEventListener('hashchange', () => { if (!ADMIN && Date.now() - BELL_AT > 60000) drawBell(); });
