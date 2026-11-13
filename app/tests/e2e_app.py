@@ -1436,6 +1436,8 @@ with sync_playwright() as pw:
     ok(True, 'signs in with the new password')
     um(o, '#lo'); o.wait_for_selector('#af')
     o.goto(BASE + '/waad-app.html#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired'); o.wait_for_selector('#af')
+    try: o.wait_for_function("document.querySelector('#app') && document.querySelector('#app').innerText.includes('انتهت صلاحية الرابط')", timeout=8000)
+    except Exception: pass
     ok('انتهت صلاحية الرابط' in o.inner_text('#app'), 'an expired link shows a clear message instead of a blank page')
     b.close()
 
