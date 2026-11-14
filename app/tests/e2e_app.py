@@ -1356,7 +1356,7 @@ with sync_playwright() as pw:
     # home, price plans, a payment on the company page, notes, quick actions
     go(pp, '#/home'); pp.wait_for_selector('#ppage .g2p'); ok('طلبات تنتظر قبولك' in pp.inner_text('#ppage'), 'admin site: the home page lists what needs the team')
     go(pp, '#/billing'); pp.wait_for_selector('#padd'); pp.click('#padd'); pp.wait_for_selector('#dlg input[name=name]')
-    pp.fill('#dlg input[name=name]', 'الأساسية'); pp.fill('#dlg input[name=price]', '299'); modal_ok(pp); pp.wait_for_timeout(500)
+    pp.fill('#dlg input[name=name]', 'الأساسية'); pp.fill('#dlg input[name=price]', '299'); pp.fill('#dlg input[name=max_employees]', '10'); modal_ok(pp); pp.wait_for_timeout(500)
     go(pp, '#/companies'); pp.wait_for_selector('[data-f=active]'); pp.click('[data-f=all]'); pp.wait_for_timeout(500)
     pp.locator('#ppage tbody tr', has_text='منشأة تنتظر القبول').click(); pp.wait_for_selector('#cpay')
     pp.select_option('#nform select[name=channel]', 'whatsapp'); pp.fill('#nform textarea', 'اتصلت بالمالك'); pp.click('#nform button'); pp.wait_for_timeout(700)
@@ -1368,6 +1368,8 @@ with sync_playwright() as pw:
     ok('0511111111' in t and 'الرياض' in t and 'تجارة' in t and pp.locator('#ppage a[href^="https://wa.me/966511111111"]').count() == 1, 'company page: sign-up profile with a WhatsApp button')
     ok(sql("(select plan || '|' || (sub_ends - current_date) from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'منشأة تنتظر القبول')") == 'الأساسية|60',
        'the payment extends the subscription by the plan period after its current end')
+    ok(sql("(select max_employees from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'منشأة تنتظر القبول')") == '10' and ' / 10' in t,
+       'a payment on a plan applies its employee limit, shown on the company page')
     pp.click('[data-q=extend][data-d="7"]'); pp.wait_for_timeout(700)
     ok(sql("(select sub_ends - current_date from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'منشأة تنتظر القبول')") == '67', 'quick action: +7 days')
     go(pp, '#/system'); pp.wait_for_selector('#ppage .pbars'); ok('حسب المدينة' in pp.inner_text('#ppage') and 'الرياض' in pp.inner_text('#ppage'), 'system numbers: companies by city, size, activity and source')

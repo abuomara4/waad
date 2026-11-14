@@ -132,7 +132,7 @@ PV.companies = async page => {
       <div class="sp"></div><button type="button" class="btn sm" data-copymail="${esc([...new Set(shown.map(c => c.owner_email).filter(Boolean))].join(', '))}">${esc(tr('نسخ إيميلات المنشآت الظاهرة'))}</button></div>
     ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'الباقة', h: c => esc(c.plan) },
       { t: 'المدينة', h: c => esc(c.city || '—') + (c.size_band ? `<div class="small muted">${esc(tr(SIZE_B[c.size_band] || c.size_band))}</div>` : '') },
-      { t: 'يستخدم', h: c => { const u = c.usage || {}; return `<span class="num">${u.employees || 0}</span> ${esc(tr('موظف'))}<div class="small muted">${(u.modules || []).map(m => esc(tr(MODULES[m] || m))).join('، ') || '—'}</div>`; } },
+      { t: 'يستخدم', h: c => { const u = c.usage || {}; return `<span class="num">${u.employees || 0}${c.max_employees ? ' / ' + c.max_employees : ''}</span> ${esc(tr('موظف'))}<div class="small muted">${(u.modules || []).map(m => esc(tr(MODULES[m] || m))).join('، ') || '—'}</div>`; } },
       { t: 'الحالة', h: c => { const [t, k] = subState(c); return `<span class="badge ${k}">${esc(tr(t))}</span>`; } },
       { t: 'ينتهي', h: c => { const e = subEnd(c), n = daysLeft(e); return e ? `<span class="num">${esc(e)}</span>` + (n >= 0 ? `<div class="small muted">${esc(tr('باقي'))} <span class="num">${n}</span> ${esc(tr('يوم'))}</div>` : '') : '—'; } },
       { t: 'المستخدمون', r: 1, h: c => `<span class="num">${c.users}${c.max_users ? ' / ' + c.max_users : ''}</span>` },
@@ -160,6 +160,7 @@ function subForm(c) {
       ${field('المدة بالأيام من اليوم', '<input name="days" type="number" min="1" max="3660" placeholder="30">')}
       ${field('أو تاريخ النهاية (فارغ = بدون نهاية)', `<input type="date" name="ends" value="${esc(subEnd(c) || '')}">`)}
       ${field('الحد الأعلى للمستخدمين (فارغ = بدون حد)', inp('max_users', c.max_users, 'type="number" min="1"'))}
+      ${field('الحد الأعلى للموظفين (فارغ = بدون حد)', inp('max_employees', c.max_employees, 'type="number" min="1"'))}
       ${field('ملاحظة داخلية', inp('note', c.note), 'wide')}</div>
     <div class="card" style="margin-top:12px;padding:10px 12px"><b>${esc(tr('التواصل مع المالك'))}</b> <span class="small muted" dir="ltr">${esc(c.owner_email || '')}</span>
       <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px">${mailBtns(c.owner_email, 'وعد: ' + c.name)}</div></div>
@@ -169,7 +170,7 @@ function subForm(c) {
       if (!mods.length) throw new Error('اختر قسما واحدا على الأقل');
       const ends = f.days ? dayAgo(-(+f.days)) : f.ends || null;
       await db.rpc('platform_set_subscription', { p_company: c.company_id, p_plan: f.plan, p_modules: mods, p_status: f.status,
-        p_trial_ends: f.status === 'trial' ? ends : null, p_max_users: f.max_users ? +f.max_users : null, p_note: f.note || null, p_sub_ends: f.status === 'active' ? ends : null });
+        p_trial_ends: f.status === 'trial' ? ends : null, p_max_users: f.max_users ? +f.max_users : null, p_note: f.note || null, p_sub_ends: f.status === 'active' ? ends : null, p_max_employees: f.max_employees ? +f.max_employees : null });
       toast(tr('تم الحفظ')); platformView();
     } });
   bindCopy($('#dlg'));
@@ -438,7 +439,7 @@ PV.company = async (page, id) => {
         <dt>${esc(tr('النشاط'))}</dt><dd>${esc(c.industry ? tr(INDUSTRY[c.industry] || c.industry) : '—')}</dd>
         <dt>${esc(tr('عرف عن وعد من'))}</dt><dd>${esc(c.heard_from ? tr(HEARD[c.heard_from] || c.heard_from) : '—')}</dd></dl>
         <h2 style="margin-top:18px">${esc(tr('الاستخدام'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('أعداد وتواريخ فقط، بدون أي بيانات من داخل المنشأة.'))}</p><dl class="pdl">
-        <dt>${esc(tr('الموظفون المسجّلون'))}</dt><dd class="num">${(c.usage || {}).employees || 0}</dd>
+        <dt>${esc(tr('الموظفون المسجّلون'))}</dt><dd class="num">${(c.usage || {}).employees || 0}${c.max_employees ? ' / ' + c.max_employees : ''}</dd>
         <dt>${esc(tr('أقسام فيها بيانات'))}</dt><dd>${((c.usage || {}).modules || []).map(m => `<span class="badge ok">${esc(tr(MODULES[m] || m))}</span>`).join(' ') || '—'}</dd>
         <dt>${esc(tr('آخر نشاط'))}</dt><dd class="num">${(c.usage || {}).last_activity ? esc(String(c.usage.last_activity).slice(0, 16).replace('T', ' ')) : '—'}</dd></dl></div>
       <div class="card"><h2>${esc(tr('التواصل مع المالك'))}</h2><div class="row" style="gap:8px;flex-wrap:wrap">${phoneBtns(c.owner_phone)}${mailBtns(c.owner_email, 'وعد: ' + c.name)}</div>
@@ -504,7 +505,7 @@ PV.billing = async page => {
     <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الباقات والأسعار'))}</h2>
       ${tbl([{ t: 'الباقة', h: p => `<b>${esc(p.name)}</b>` + (p.active ? '' : ` <span class="badge">${esc(tr('موقوفة'))}</span>`) }, { t: 'السعر', r: 1, h: p => money0(p.price) },
         { t: 'المدة', h: p => `<span class="num">${p.period_days}</span> ${esc(tr('يوم'))}` }, { t: 'الأقسام', h: p => p.modules.map(m => `<span class="badge">${esc(tr(MODULES[m] || m))}</span>`).join(' ') },
-        { t: 'المستخدمون', r: 1, h: p => p.max_users || '—' }], plans, { empty: 'ما فيه باقات. أضف أول باقة.', onRow: true })}</div>
+        { t: 'المستخدمون', r: 1, h: p => p.max_users || '—' }, { t: 'الموظفون', r: 1, h: p => p.max_employees || '—' }], plans, { empty: 'ما فيه باقات. أضف أول باقة.', onRow: true })}</div>
     <div class="card"><h2>${esc(tr('آخر الدفعات'))}</h2>
       ${tbl([{ t: 'التاريخ', h: p => `<span class="num">${esc(p.paid_on)}</span>` }, { t: 'المنشأة', h: p => esc(p.company) }, { t: 'المبلغ', r: 1, h: p => money0(p.amount) },
         { t: 'الباقة', h: p => esc(p.plan || '—') }, { t: 'الطريقة', h: p => esc(tr(PAY_M[p.method] || p.method)) }], pays.slice(0, 50), { empty: 'ما فيه دفعات', onRow: true })}</div>`;
@@ -517,11 +518,12 @@ function planForm(p) {
   modal(p.id ? tr('تعديل الباقة') : tr('باقة جديدة'), `<div class="fg">${field('اسم الباقة', inp('name', p.name, 'maxlength="40" required'))}
       ${field('السعر (ريال)', inp('price', p.price, 'type="number" min="0" step="0.01" required'))}${field('المدة بالأيام', inp('period_days', p.period_days || 30, 'type="number" min="1" max="3660"'))}
       ${field('الحد الأعلى للمستخدمين (فارغ = بدون حد)', inp('max_users', p.max_users, 'type="number" min="1"'))}
+      ${field('الحد الأعلى للموظفين (فارغ = بدون حد)', inp('max_employees', p.max_employees, 'type="number" min="1"'))}
       ${field('الأقسام', modChecks(p.modules || Object.keys(MODULES)), 'wide')}
       <label class="row small wide" style="gap:6px"><input type="checkbox" name="active" ${p.active === false ? '' : 'checked'} style="width:auto"> ${esc(tr('متاحة للاختيار'))}</label></div>`, {
     wide: true, onOk: async (f, d) => {
       const mods = pickMods($('#mform', d)); if (!mods.length) throw new Error('اختر قسما واحدا على الأقل');
-      await db.rpc('platform_save_plan', { p: { id: p.id || null, name: f.name, price: f.price, period_days: f.period_days, max_users: f.max_users || '', modules: mods, active: f.active } });
+      await db.rpc('platform_save_plan', { p: { id: p.id || null, name: f.name, price: f.price, period_days: f.period_days, max_users: f.max_users || '', max_employees: f.max_employees || '', modules: mods, active: f.active } });
       toast(tr('تم الحفظ')); platformView();
     } });
 }

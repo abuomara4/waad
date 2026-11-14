@@ -2755,5 +2755,27 @@ set role service_role;
 select t.ok(not exists(select 1 from public.monthly_report_due() d where d.company_id = :'cid'), 'one report per month: already sent → not due again');
 reset role;
 
+-- ================= EMPLOYEE LIMIT PER PLAN (0082) =================
+select count(*)::int as ecount from public.employees where company_id = :'cid' and (end_date is null or end_date >= current_date) \gset
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_set_subscription(:'cid', 'نمو', array['hr','finance','sales','purch','stock','proj'], 'active', null, null, null, null, :ecount);
+select t.ok((select max_employees from public.platform_companies() where company_id = :'cid') = :ecount, 'employee limit: the admin sets it and the list shows it');
+select public.platform_save_plan('{"name":"أساس سنوي","price":2490,"period_days":365,"modules":["hr"],"max_employees":10}') as plan_cap \gset
+select t.ok((select max_employees from public.platform_plans_list() where id = :'plan_cap') = 10, 'employee limit: a plan carries its own limit');
+reset role;
+select t.err($$insert into public.employees(company_id, emp_no, full_name, is_saudi, gender, job_title, hire_date, basic) values ('$$ || :'cid' || $$', 'CAP1', 'موظف زائد', false, 'm', 'فني', current_date, 4000)$$,
+  'الحد الأعلى للموظفين', 'employee limit: a new employee beyond the limit is refused');
+insert into public.employees(company_id, emp_no, full_name, is_saudi, gender, job_title, hire_date, end_date, basic)
+ values (:'cid', 'CAP2', 'موظف سابق', false, 'm', 'فني', '2019-01-01', '2020-01-01', 4000) returning id as e_old \gset
+select t.ok(true, 'employee limit: a former employee (past end date) can still be recorded');
+select t.err($$update public.employees set end_date = null where id = '$$ || :'e_old' || $$'$$, 'الحد الأعلى للموظفين', 'employee limit: bringing a former employee back beyond the limit is refused');
+select t.ok((select count(*) from public.employees where company_id = :'cid' and (end_date is null or end_date >= current_date)) = :ecount, 'employee limit: the count stays at the limit');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_set_subscription(:'cid', 'نمو', array['hr','finance','sales','purch','stock','proj'], 'active', null, null, null, null, null);
+reset role;
+update public.employees set end_date = null where id = :'e_old';
+select t.ok((select end_date is null from public.employees where id = :'e_old'), 'employee limit: an empty limit means no limit');
+update public.employees set end_date = '2020-01-01' where id = :'e_old';
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

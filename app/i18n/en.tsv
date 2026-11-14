@@ -1306,6 +1306,8 @@
 الحالة بعد التغيير	Status after the change
 الحالي	current
 الحد الأعلى للمستخدمين	User limit
+الحد الأعلى للموظفين	Employee limit
+الحد الأعلى للموظفين (فارغ = بدون حد)	Employee limit (empty = no limit)
 الحد الأقصى	The maximum is
 الحد الأقصى لهذه الإجازة	The maximum for this leave is
 الحدود الشهرية من لائحة المنشأة الداخلية	Monthly limits come from the company's internal regulation
@@ -5014,6 +5016,7 @@
 وسيُطلب منك تغييرها	and you will be asked to change it
 وصف الواقعة	Description of the incident
 وصلت المنشأة إلى الحد الأعلى للمستخدمين في باقتها	The company has reached its plan's user limit
+وصلت المنشأة إلى الحد الأعلى للموظفين في باقتها	The company has reached its plan's employee limit
 وصلت حد	You reached the limit of
 وصلت عروض على هذا الطلب	Offers have arrived on this request
 وصلت للموظف	Delivered to the employee
