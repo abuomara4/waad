@@ -144,6 +144,14 @@ with sync_playwright() as pw:
     ok('متابعة كل الطلبات' in t and 'المالك' in row and 'لا يوجد مستخدم موارد بشرية' in row and o.locator('tbody tr', has_text='إجازة').first.locator('.rstep.now').inner_text().strip() == 'الموارد البشرية' and '✓' in row,
        'track all requests: the owner sees where the leave is (HR step, manager step done) and who has it')
     go(m, '#/approvals?t=all'); m.wait_for_timeout(500); ok(m.locator('.rpath').count() == 0, 'track all requests: a direct manager only sees his own queue')
+    ovr = sqlx("insert into requests(company_id, employee_id, kind, route, step, status) select company_id, id, 'cert', array['m','p'], 0, 'pending' from employees where emp_no = '5000' returning id")
+    ovr = ovr[0]['id'] if isinstance(ovr, list) else sql("(select id from requests where kind = 'cert' and status = 'pending' order by created_at desc limit 1)")
+    go(o, '#/home'); go(o, '#/approvals?t=all'); o.wait_for_selector('.rpath'); o.locator('tbody tr', has_text='تعريف بالراتب').first.click(); o.wait_for_selector('#dlg[open] #rovr'); o.click('#rovr')
+    o.wait_for_selector('#dlg[open] textarea[name=why]'); o.click('#mok'); o.wait_for_selector('#merr .err'); ok('سبب' in o.inner_text('#merr'), 'override: a reason is required')
+    o.fill('#dlg textarea[name=why]', 'المدير في إجازة'); modal_ok(o)
+    ok(sql("(select step::text || status from requests where id = '%s')" % ovr) == '2approved' and sql("(select note from request_actions where request_id = '%s' and actor_step = 'm')" % ovr) == 'تجاوز المدير المباشر: المدير في إجازة',
+       'override: the owner approves in the manager\'s place with the reason (and, with no HR user yet, the HR step too)')
+    sqlx("update requests set status = 'cancelled' where id = '%s'" % ovr)
 
     # ---------- payroll ----------
     go(o, '#/payroll'); o.click('#np'); o.fill('#dlg input[name=y]', '2026'); o.select_option('#dlg select[name=m]', '10'); modal_ok(o)

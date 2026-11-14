@@ -870,6 +870,7 @@
 اطّلعت على التقييم	I have read the review
 اعتماد	Approve
 اعتماد المسير	Approve payroll
+اعتماد بدلا من المدير	Approve in the manager's place
 اعتماد تلقائي	Automatic approval
 اعتماد طلبات فريقه ومتابعة حضورهم	approves the team's requests and follows their attendance
 اعتماد وترحيل القيد	Approve and post entry
@@ -881,6 +882,7 @@
 اعتمدها أو ارفضها أولاً	approve or reject them first
 اعتُمد	Approved
 اعتُمد التقييم	Review approved
+اعتُمد الطلب	The request is approved
 اعتُمد الطلب نهائيا	Finally approved
 اعتُمد الطلب نهائياً	Finally approved
 اعتُمد المسير	Payroll approved
@@ -945,6 +947,7 @@
 اكتب سبب الإعادة للمقيّم	Write the reason for returning it to the reviewer
 اكتب سبب الإلغاء	Write the reason for voiding
 اكتب سبب التأجيل	Write the reason for the deferral
+اكتب سبب التجاوز	Write the reason for overriding
 اكتب سبب التسوية	Write the reason for the adjustment
 اكتب سبب التعديل	Write the reason for the change
 اكتب سبب الحفظ	Write the reason for closing the case
@@ -1578,6 +1581,7 @@
 الطلب غير موجود	Request not found
 الطلب لا يخص هذا الموظف	The request does not belong to this employee
 الطلب ليس بانتظار قرار	The request is not awaiting a decision
+الطلب ليس عند المدير المباشر	The request is not at the direct manager's step
 الطلب ليس مفتوحا	The request is not open
 الطلب ليس مفتوحاً	The request is not open
 الطلبات التي تنتظر قرارك	Requests awaiting your decision
@@ -2425,6 +2429,8 @@
 تجارب تنتهي قريباً	Trials ending soon
 تجارب شغّالة	Active trials
 تجارة	Trade
+تجاوز المدير المباشر	Override the direct manager
+تجاوز المدير المباشر:	Direct manager overridden:
 تجاوز المهلة	past the deadline
 تجاوز حد الائتمان	Credit limit exceeded
 تجاوز حد الائتمان للعميل	Customer credit limit exceeded
@@ -2659,6 +2665,8 @@
 تفعيل الآن	Turn on now
 تفعيل التحقق بخطوتين	Turn on two-step verification
 تقارير الموارد البشرية	HR reports
+تقدر تعتمد الطلب أو ترفضه بدلا من المدير المباشر	You can approve or reject the request in the direct manager's place
+تقدر تعتمد الطلب أو ترفضه بدلا من المدير المباشر، ويُسجَّل باسمك مع السبب في مسار الطلب.	You can approve or reject the request in the direct manager's place; it is logged under your name with the reason in the request's journey.
 تقدر تعدّله	you can edit it
 تقدير استرشادي	Indicative estimate
 تقدير داخلي من بيانات الموظفين	Internal estimate from employee data
@@ -2699,6 +2707,7 @@
 تم إنشاء الحساب	Account created
 تم الإيقاف	Suspended
 تم الاعتماد	Approved
+تم الاعتماد وانتقل الطلب للمرحلة التالية	Approved; the request moved to the next step
 تم الانضمام	Joined
 تم البت في طلب الاستقالة	The resignation has already been decided
 تم البيع	Sale completed
@@ -3208,6 +3217,7 @@
 رفض التظلم	Reject grievance
 رفض التفتيش الإداري عند الانصراف	Refusing an administrative search on leaving
 رفض العرض	Reject quotation
+رفض بدلا من المدير	Reject in the manager's place
 رفضتها زاتكا	Rejected by ZATCA
 رفضه	rejected by
 رفع الأجر	Raise the wage by
@@ -3350,6 +3360,8 @@
 سبب الإلغاء	Void reason
 سبب الانتهاء	End reason
 سبب التأجيل	Reason for deferral
+سبب التجاوز	Reason for overriding
+سبب التجاوز (يظهر للموظف والمدير)	Reason for overriding (the employee and the manager see it)
 سبب التعديل	Reason for the change
 سبب الحفظ	Reason for closing
 سبب الخسارة	Reason lost
@@ -4168,6 +4180,7 @@
 لا يمكن تعديل الإضافي	overtime can no longer be changed
 لا يمكن تعيين مرشح مرحلته	Cannot hire a candidate whose stage is
 لا يمكن طلب تعديل الحقل	You cannot request a change to the field
+لا يمكنك البت في طلبك	You can't decide your own request
 لا يمكنك تعديل صلاحياتك بنفسك	You cannot change your own access
 لا يمكنك تقييم نفسك	You cannot review yourself
 لا يملك حسابا بعد	No account yet
@@ -5176,6 +5189,7 @@
 ويُرسل إلى زاتكا مرتبطا بالفاتورة الأصلية	and is sent to ZATCA linked to the original invoice
 ويُرسل إلى زاتكا مرتبطاً بالفاتورة الأصلية	and is sent to ZATCA linked to the original invoice
 ويُستحق التعويض عن المدة الباقية إذا أُنهي قبلها بلا سبب مشروع	and compensation for the remaining term is due if ended early without a valid reason
+ويُسجَّل باسمك مع السبب في مسار الطلب	it is logged under your name with the reason in the request's journey
 ويُسجَّل رقمها وآخر موعد للعودة في طلبك	and its number and return deadline are recorded in your request
 ويُسجَّل كل تصدير في سجل التدقيق	every export is recorded in the audit log
 ويُشترط توثيق العقد في قوى	and the contract must be documented in Qiwa
@@ -5269,6 +5283,7 @@
 يظهر في الفواتير الضريبية والخطابات	Shown on tax invoices and letters
 يظهر في الفواتير والأوامر الجديدة	shown on new invoices and orders
 يظهر في فواتير المبيعات	shown on sales invoices
+يظهر للموظف والمدير	the employee and the manager see it
 يظهر وعد بأيقونته مثل أي تطبيق	Waad appears with its icon like any app
 يظهر وعد بأيقونته مثل أي تطبيق، ويفتح بدون شريط المتصفح.	Waad appears with its icon like any app and opens without the browser bar.
 يعتمدها المدير المالي أو المالك	the finance manager or owner must approve it

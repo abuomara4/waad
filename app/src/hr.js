@@ -183,7 +183,11 @@ async function requestDetail(r, { decide } = {}) {
   const hrResign = isHR() && r.kind === 'resign' && r.status === 'pending' && !(r.payload && r.payload.defer_until) && (Date.now() - new Date(r.created_at)) < 30 * 864e5;
   const hrExam = isHR() && r.kind === 'leave' && r.sub === 'exam' && r.status === 'approved';
   const body4 = body3 + (hrResign || hrExam || (r.payload && r.payload.defer_until) ? `<div class="row" style="margin-top:12px">${hrResign ? '<button type="button" class="btn sm" id="rdefer">تأجيل قبول الاستقالة</button>' : ''}${r.payload && r.payload.defer_until ? '<button type="button" class="btn sm" id="rdprint">طباعة إشعار التأجيل</button>' : ''}${hrExam ? '<button type="button" class="btn sm danger" id="xmiss">لم يؤدِّ الامتحان</button>' : ''}</div>` : '');
-  const d = modal('تفاصيل الطلب', body4, decide ? { ok: 'اعتماد', onOk: async f => { await db.rpc('decide_request', { p_id: r.id, p_approve: true, p_note: blank(f.note) }); toast('تم الاعتماد'); route(); refreshCounts(); } } : {});
+  // the owner, admins and HR may decide at the manager's step in his place, with a reason (0086)
+  const canOvr = !decide && r.status === 'pending' && r.route[r.step] === 'm' && has('owner', 'admin', 'hr') && r.employee_id !== S.emp;
+  const body5 = body4 + (canOvr ? `<div class="card" style="margin:12px 0 0;padding:12px"><b>${esc(tr('تجاوز المدير المباشر'))}</b><p class="muted small" style="margin:4px 0 8px">${esc(tr('تقدر تعتمد الطلب أو ترفضه بدلا من المدير المباشر، ويُسجَّل باسمك مع السبب في مسار الطلب.'))}</p>
+    <button type="button" class="btn sm" id="rovr">${esc(tr('تجاوز المدير المباشر'))}</button></div>` : '');
+  const d = modal('تفاصيل الطلب', body5, decide ? { ok: 'اعتماد', onOk: async f => { await db.rpc('decide_request', { p_id: r.id, p_approve: true, p_note: blank(f.note) }); toast('تم الاعتماد'); route(); refreshCounts(); } } : {});
   $$('[data-att]', d).forEach(b => b.onclick = () => openAttachment(b.dataset.att));
   bindTravelFiles(d);
   if ($('#rref', d)) $('#rref', d).onclick = () => { const l = lt.find(x => x.code === r.sub) || {}; d.close();
@@ -203,6 +207,12 @@ async function requestDetail(r, { decide } = {}) {
     printBlock(n, 'إشعار تأجيل قبول الاستقالة'); };
   if ($('#xmiss', d)) $('#xmiss', d).onclick = () => { d.close(); modal('لم يؤدِّ الامتحان', `${field('ملاحظة', '<textarea name="n" rows="2"></textarea>')}<p class="muted small">م115: يسقط الأجر عن إجازة الاختبارات إذا ثبت أن العامل لم يؤدِّ الامتحان، فتُحوَّل إلى إجازة بدون أجر وتُخصم في المسير.</p>`, {
       ok: 'تحويل لإجازة بدون أجر', onOk: async f => { await db.rpc('exam_not_sat', { p_id: r.id, p_note: blank(f.n) }); toast('تم'); route(); } }); };
+  if ($('#rovr', d)) $('#rovr', d).onclick = () => { d.close();
+    const o = modal(tr('تجاوز المدير المباشر'), `${field('سبب التجاوز (يظهر للموظف والمدير)', '<textarea name="why" rows="2" required></textarea>')}`, {
+      ok: 'اعتماد بدلا من المدير', onOk: async f => { const x = await db.rpc('request_override', { p_id: r.id, p_approve: true, p_note: f.why }); toast(x === 'approved' ? tr('اعتُمد الطلب') : tr('تم الاعتماد وانتقل الطلب للمرحلة التالية')); route(); refreshCounts(); } });
+    const rj = document.createElement('button'); rj.type = 'button'; rj.className = 'btn danger'; rj.textContent = tr('رفض بدلا من المدير');
+    $('.df', o).insertBefore(rj, $('#mok', o));
+    rj.onclick = async () => { try { await busy(rj, () => db.rpc('request_override', { p_id: r.id, p_approve: false, p_note: $('#mform', o).why.value })); o.close(); toast(tr('تم الرفض')); route(); refreshCounts(); } catch (e) { showErr($('#merr', o), e); } }; };
   if ($('#mkltr', d)) $('#mkltr', d).onclick = async () => { const e = r.employee_id === S.emp ? S.myEmp : (await employeesMap(true))[r.employee_id]; d.close(); letterDialog(e, 'salary', r); };
   if (decide) {
     const rej = document.createElement('button'); rej.type = 'button'; rej.className = 'btn danger'; rej.textContent = 'رفض';

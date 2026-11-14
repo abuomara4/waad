@@ -2829,5 +2829,30 @@ reset role;
 select t.ok((select status || ':' || step from public.requests where id = :'fb_req') = 'pending:1', 'approvals: the owner approves the manager step for the manager without a login, and it moves on to HR');
 update public.requests set status = 'cancelled' where id = :'fb_req';   -- the action log is append-only; the sample stays, closed
 
+-- ================= OVERRIDE THE DIRECT MANAGER (0086) =================
+select employee_id as ov_mgr from public.members where company_id = :'cid' and user_id = :'u_mgr' \gset
+insert into public.employees(company_id, emp_no, full_name, is_saudi, gender, job_title, manager_id, hire_date, basic)
+ values (:'cid', 'OV1', 'موظف لتجاوز المدير', true, 'm', 'فني', :'ov_mgr', '2021-01-01', 6000) returning id as ov_emp \gset
+insert into public.requests(company_id, employee_id, kind, route, step, status) values (:'cid', :'ov_emp', 'cert', array['m','g'], 0, 'pending') returning id as ov_r1 \gset
+insert into public.requests(company_id, employee_id, kind, route, step, status) values (:'cid', :'ov_emp', 'cert', array['m','g'], 0, 'pending') returning id as ov_r2 \gset
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.request_override('$$ || :'ov_r1' || $$', true, 'المدير في إجازة')$$, '42501|غير مصرح', 'override: an employee cannot override the manager');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.err($$select public.request_override('$$ || :'ov_r1' || $$', true, '')$$, 'سبب التجاوز', 'override: a reason is required');
+select public.request_override(:'ov_r1', true, 'المدير في إجازة') as ov_res \gset
+reset role;
+select t.ok(:'ov_res' = 'next:g' and (select step from public.requests where id = :'ov_r1') = 1
+  and exists(select 1 from public.request_actions where request_id = :'ov_r1' and actor = :'u_hr' and actor_step = 'm' and action = 'approved' and note = 'تجاوز المدير المباشر: المدير في إجازة'),
+  'override: HR approves in the manager''s place, logged with the reason, and the route goes on (to the owner)');
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.err($$select public.request_override('$$ || :'ov_r1' || $$', true, 'مرة ثانية')$$, 'ليس عند المدير المباشر', 'override: only at the manager''s step');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.request_override(:'ov_r2', false, 'الطلب مكرر');
+reset role;
+select t.ok((select status from public.requests where id = :'ov_r2') = 'rejected', 'override: the owner can also reject in the manager''s place');
+update public.requests set status = 'cancelled' where id = :'ov_r1';
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary
