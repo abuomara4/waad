@@ -2801,5 +2801,33 @@ select set_config('request.jwt.claim.sub', :'u_other', false); set role authenti
 select t.err($$select public.guide_quiz_submit('$$ || :'cid' || $$', 'emp', '{}')$$, '42501|غير مصرح', 'guide quiz: an outsider cannot submit for the company');
 reset role;
 
+-- ================= APPROVALS: THE OWNER STANDS IN (0085) =================
+insert into public.employees(company_id, emp_no, full_name, is_saudi, gender, job_title, hire_date, basic)
+ values (:'cid', 'FB1', 'مدير بلا حساب', true, 'm', 'مشرف', '2020-01-01', 9000) returning id as fb_mgr \gset
+insert into public.employees(company_id, emp_no, full_name, is_saudi, gender, job_title, manager_id, hire_date, basic)
+ values (:'cid', 'FB2', 'موظف عند مدير بلا حساب', true, 'm', 'فني', :'fb_mgr', '2021-01-01', 6000) returning id as fb_emp \gset
+insert into public.requests(company_id, employee_id, kind, route, step, status) values (:'cid', :'fb_emp', 'cert', array['m','p'], 0, 'pending') returning id as fb_req \gset
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok((select public.can_act(r, 'm') from public.requests r where r.id = :'fb_req'), 'approvals: a manager without a login → the owner can act on the manager step');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.ok(not coalesce((select public.can_act(r, 'm') from public.requests r where r.id = :'fb_req'), false), 'approvals: another manager cannot act on it');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok(not (select public.can_act(r, 'p') from public.requests r where r.id = :'fb_req'), 'approvals: with an HR user in the company, the HR step stays with HR');
+reset role;
+begin;
+update public.members set role = 'employee', extra_roles = '{}' where company_id = :'cid' and role in ('hr','admin');
+update public.members set extra_roles = array_remove(array_remove(extra_roles, 'hr'), 'admin') where company_id = :'cid';
+select set_config('request.jwt.claim.sub', :'u_owner', true); set local role authenticated;
+select (select public.can_act(r, 'p') from public.requests r where r.id = :'fb_req') as fb_p \gset
+rollback;
+select t.ok(:'fb_p'::boolean, 'approvals: a company with no HR/admin user → the HR step falls to the owner');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.decide_request(:'fb_req', true, null) as fb_act \gset
+reset role;
+select t.ok((select status || ':' || step from public.requests where id = :'fb_req') = 'pending:1', 'approvals: the owner approves the manager step for the manager without a login, and it moves on to HR');
+update public.requests set status = 'cancelled' where id = :'fb_req';   -- the action log is append-only; the sample stays, closed
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

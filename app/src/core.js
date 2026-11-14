@@ -765,7 +765,9 @@ async function employeesMap(force) { if (force || !cache.emps) { cache.emps = aw
 async function pendingForMe() {
   const reqs = await db.get('requests', { company_id: 'eq.' + S.cid, status: 'eq.pending', order: 'created_at' });
   if (!reqs.length) return [];
-  if (has('owner') && !has('finance') && cache.noFin === undefined) cache.noFin = !(await db.get('members', { company_id: 'eq.' + S.cid, select: 'role,extra_roles' }).catch(() => [])).some(m => m.role === 'finance' || (m.extra_roles || []).includes('finance'));
+  // the owner stands in where nobody else can act (0085): no finance user, no HR/admin user, or a manager without a login
+  if (has('owner')) { const ms = await db.get('members', { company_id: 'eq.' + S.cid, select: 'role,extra_roles,employee_id' }).catch(() => []), hasR = rs => ms.some(m => rs.includes(m.role) || (m.extra_roles || []).some(x => rs.includes(x)));
+    cache.ownMem = { noFin: !hasR(['finance']), noHR: !hasR(['hr', 'admin']), linked: new Set(ms.map(m => m.employee_id).filter(Boolean)) }; cache.noFin = cache.ownMem.noFin; }
   const ids = [...new Set(reqs.map(r => r.employee_id))];
   const emps = await db.get('employees', { id: 'in.(' + ids.join(',') + ')', select: 'id,manager_id,department_id,full_name,emp_no' });
   const em = {}; emps.forEach(e => em[e.id] = e);
@@ -774,8 +776,9 @@ async function pendingForMe() {
 function canAct(r, e) {
   const st = r.route[r.step]; if (!st) return false;
   if (S.emp && r.employee_id === S.emp) return false;
-  if (st === 'm') return !!(e && S.emp && e.manager_id === S.emp);
-  if (st === 'p') return has('hr', 'admin');
+  const om = has('owner') && cache.ownMem;
+  if (st === 'm') return !!(e && ((S.emp && e.manager_id === S.emp) || (om && e.manager_id && !om.linked.has(e.manager_id))));
+  if (st === 'p') return has('hr', 'admin') || !!(om && om.noHR);
   if (st === 'h') return !!(S.company && S.company.hr_manager && S.company.hr_manager === S.session.user.id);
   if (st === 'f') return has('finance') || (has('owner') && cache.noFin === true);
   if (st === 'g') return has('owner');
