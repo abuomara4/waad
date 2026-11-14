@@ -139,7 +139,7 @@ with sync_playwright() as pw:
     ok(m.locator('#nav a[href="#/employees"]').count() == 0, 'manager has no HR menu')
 
     # owner (GM) acts on the advance at its 'g' step only after m/p/f; check owner sees nothing at step p
-    go(o, '#/approvals'); ok('لا شيء بانتظارك' in o.inner_text('#page'), 'GM not shown requests waiting for HR')
+    go(o, '#/approvals'); o.wait_for_timeout(400); ok(o.locator('tbody tr', has_text='إجازة').count() == 1, 'no HR user in the company yet → the leave waiting for HR reaches the owner (0085)')
 
     # ---------- payroll ----------
     go(o, '#/payroll'); o.click('#np'); o.fill('#dlg input[name=y]', '2026'); o.select_option('#dlg select[name=m]', '10'); modal_ok(o)
