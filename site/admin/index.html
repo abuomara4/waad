@@ -1399,7 +1399,7 @@ const PAY_M = { transfer: 'تحويل بنكي', card: 'بطاقة', cash: 'نق
 const CH_N = { email: ['إيميل', '✉'], whatsapp: ['واتساب', '💬'], call: ['اتصال', '📞'], meeting: ['مقابلة حضورية', '🤝'], other: ['أخرى', '📝'] };
 // quick actions on a company (list, home and company page); each re-draws the current screen
 async function quickAct(c, act, days, st) {
-  if (act === 'approve') { await db.rpc('platform_approve', { p_company: c.company_id, p_status: 'trial', p_days: (st && st.default_trial_days) || 7 }); toast(tr('تم القبول')); }
+  if (act === 'approve') { await db.rpc('platform_approve', { p_company: c.company_id, p_status: 'trial', p_days: (st && st.default_trial_days) || 14 }); toast(tr('تم القبول')); }
   else if (act === 'suspend') { if (!(await confirmBox(tr('إيقاف المنشأة'), tr('تنقفل كل الأقسام لين تعيد تفعيلها، وبياناتها ما تنحذف.') + ' ' + c.name, tr('إيقاف')))) return; await db.rpc('platform_quick', { p_company: c.company_id, p_action: 'suspend' }); toast(tr('تم الإيقاف')); }
   else { await db.rpc('platform_quick', { p_company: c.company_id, p_action: act, p_days: days || null }); toast(tr('تم الحفظ')); }
   platformView();
@@ -1525,7 +1525,7 @@ PV.companies = async page => {
       { t: 'التسجيل', h: c => `<span class="num">${esc(String(c.created_at).slice(0, 10))}</span>` }, { t: '', h: c => `<div class="row" style="gap:4px;flex-wrap:nowrap">${quickBtns(c)}</div>` }], shown, { empty: 'لا توجد منشآت', onRow: true })}
     <div class="card" style="margin-top:16px"><h2>${esc(tr('إعدادات المنشآت الجديدة'))}</h2>
       <form id="psf" class="fg">${field('الأقسام المفتوحة عند التسجيل', modChecks(st.default_modules), 'wide')}
-      ${field('مدة التجربة بالأيام', inp('days', st.default_trial_days || 7, 'type="number" min="1" max="365" required'))}
+      ${field('مدة التجربة بالأيام', inp('days', st.default_trial_days || 14, 'type="number" min="1" max="365" required'))}
       <label class="row small wide" style="gap:6px"><input type="checkbox" name="approval" ${st.require_approval !== false ? 'checked' : ''} style="width:auto"> ${esc(tr('المنشآت الجديدة تنتظر قبولي قبل ما تبدأ'))}</label>
       <div class="wide"><div id="pserr"></div><button class="btn pri" id="psb">${esc(tr('حفظ'))}</button></div></form></div>`;
   $('#pq', page).oninput = e => { LS.set('waad.platq', e.target.value); clearTimeout(platformView.t); platformView.t = setTimeout(platformView, 400); };
@@ -1565,7 +1565,7 @@ function subForm(c) {
 function approveForm(c, st) {
   const d = modal(tr('قبول المنشأة') + ': ' + c.name, `<p class="muted small" style="margin-top:0" dir="ltr">${esc(c.owner_email || '')} · <span class="num">${esc(String(c.created_at).slice(0, 10))}</span></p>
     <div class="fg">${field('القبول كـ', `<select name="status">${opt('trial', tr('تجربة'), 'trial')}${opt('active', tr('اشتراك'), '')}</select>`)}
-      ${field('المدة بالأيام (فارغ = بدون نهاية)', `<input name="days" type="number" min="1" max="3660" value="${esc(st && st.default_trial_days || 7)}">`)}</div>
+      ${field('المدة بالأيام (فارغ = بدون نهاية)', `<input name="days" type="number" min="1" max="3660" value="${esc(st && st.default_trial_days || 14)}">`)}</div>
     <div class="card" style="margin-top:12px;padding:10px 12px"><b>${esc(tr('التواصل مع المالك'))}</b>
       <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px">${mailBtns(c.owner_email, 'وعد: ' + c.name)}</div></div>`, {
     ok: 'قبول', onOk: async f => {
@@ -1573,7 +1573,7 @@ function approveForm(c, st) {
       toast(tr('تم القبول')); platformView();
     } });
   bindCopy(d);
-  d.querySelector('[name=status]').onchange = e => { d.querySelector('[name=days]').value = e.target.value === 'trial' ? (st && st.default_trial_days || 7) : 30; };
+  d.querySelector('[name=status]').onchange = e => { d.querySelector('[name=days]').value = e.target.value === 'trial' ? (st && st.default_trial_days || 14) : 30; };
 }
 
 /* ---------- system numbers (from the same subscription metadata) ---------- */
