@@ -982,7 +982,8 @@ with sync_playwright() as pw:
     go(e, '#/home'); um(e, '#bell'); e.wait_for_selector('#bpanel [data-ready]'); ok('وصلتك تذكرة السفر' in e.inner_text('#bpanel'), 'the employee is notified that his ticket arrived')
     e.click('#um')
     if SH: o.screenshot(path=SH + '/travel.png', full_page=True)
-    go(o, '#/approvals'); o.wait_for_timeout(500); ok('بانتظارك منذ' in o.inner_text('#page') or 'لا شيء بانتظارك' in o.inner_text('#page'), 'approvals show how long each request has waited')
+    go(o, '#/approvals'); o.wait_for_timeout(500); ok('مدة الانتظار' in o.inner_text('#page') or 'لا شيء بانتظارك' in o.inner_text('#page'), 'approvals show how long each request has waited')
+    ok(o.evaluate("[waitTxt(new Date(Date.now() - 135 * 6e4).toISOString()), waitTxt(new Date(Date.now() - (2 * 1440 + 185) * 6e4).toISOString()), waitTxt(new Date(Date.now() - 7 * 6e4).toISOString()), /^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}$/.test(waitAt(new Date().toISOString()))].join('|')") == 'منذ 2 ساعة و 15 دقيقة|منذ 2 يوم و 3 ساعة|منذ 7 دقيقة|true', 'the waiting time is exact (minutes, hours and minutes, days and hours) with the arrival time')
     sqlx("update companies set request_sla_days = null")
 
     # ---------- company analytics: every section and every export format ----------

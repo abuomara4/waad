@@ -1,8 +1,13 @@
 'use strict';
 /* ===== Request journey (step by step), approval settings, travel desk (tickets and exit/re-entry visas) ===== */
 
-const waitTxt = ts => { if (!ts) return ''; const h = Math.max(0, (Date.now() - new Date(ts)) / 36e5);
-  return h < 1 ? tr('أقل من ساعة') : h < 24 ? tr('منذ') + ' ' + Math.floor(h) + ' ' + tr('ساعة') : tr('منذ') + ' ' + Math.floor(h / 24) + ' ' + tr('يوم'); };
+// how long it has waited, exactly: minutes, then hours and minutes, then days and hours
+const waitTxt = ts => { if (!ts) return ''; const m = Math.max(0, Math.floor((Date.now() - new Date(ts)) / 6e4)), d = Math.floor(m / 1440), h = Math.floor(m % 1440 / 60), mi = m % 60;
+  const p = d ? [[d, 'يوم'], [h, 'ساعة']] : h ? [[h, 'ساعة'], [mi, 'دقيقة']] : [[mi, 'دقيقة']];
+  return tr('منذ') + ' ' + p.filter(([n], k) => n || k === 0).map(([n, u]) => n + ' ' + tr(u)).join(' ' + tr('و') + ' '); };
+// the moment it arrived, in Riyadh time: 2026-11-14 17:05
+const waitAt = ts => { if (!ts) return ''; const p = {}; new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Riyadh', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ts)).forEach(x => p[x.type] = x.value);
+  return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}`; };
 const slaLate = r => { const d = S.company && S.company.request_sla_days; return !!d && r.status === 'pending' && (Date.now() - new Date(r.step_at)) / 864e5 > d; };
 const TT_ST = { approved: 'بانتظار الصرف', issued: 'صُرفت', cancelled: 'ملغاة' };
 const ttSt = t => t.status === 'cancelled' ? 'ملغاة' : t.mode === 'cash' ? (t.status === 'issued' ? 'صُرف البدل' : 'بانتظار صرف البدل من المالية') : t.status === 'issued' ? 'سُلّمت التذكرة' : 'بانتظار إرفاق التذكرة من الموارد البشرية';

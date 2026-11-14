@@ -230,7 +230,7 @@ VIEWS['#/approvals'] = async (page, arg, q) => {
   page.innerHTML = `<div class="head"><div><h1>الاعتمادات</h1><div class="muted">الطلبات التي تنتظر قرارك</div></div></div>${boss ? apprTabs('mine') : ''}
    ${tbl([{ t: 'الموظف', h: r => esc(r._emp ? r._emp.full_name : '') }, { t: 'النوع', h: r => esc(KIND[r.kind] + (r.sub ? ' — ' + (ltn[r.sub] || r.sub) : '')) },
      { t: 'الفترة/المبلغ', h: r => r.amount != null ? `<span class="num">${money(r.amount)}</span>` : r.from_date ? fdate(r.from_date) + ' → ' + fdate(r.to_date) : '—' },
-     { t: 'مرحلتك', h: r => esc(STEP[r.route[r.step]]) }, { t: 'تاريخ الطلب', h: r => fdate(r.created_at) }, { t: 'بانتظارك منذ', h: r => `<span class="${slaLate(r) ? 'bad' : 'muted'} small">${esc(waitTxt(r.step_at))}${slaLate(r) ? ' · ' + esc(tr('متأخر')) : ''}</span>` }], mine, { empty: 'لا شيء بانتظارك', onRow: true })}`;
+     { t: 'مرحلتك', h: r => esc(STEP[r.route[r.step]]) }, { t: 'تاريخ الطلب', h: r => fdate(r.created_at) }, { t: 'مدة الانتظار', h: r => `<span class="${slaLate(r) ? 'bad' : 'muted'} small" title="${esc(waitAt(r.step_at))}">${esc(waitTxt(r.step_at))}<br><span class="num">${esc(waitAt(r.step_at))}</span>${slaLate(r) ? ' · ' + esc(tr('متأخر')) : ''}</span>` }], mine, { empty: 'لا شيء بانتظارك', onRow: true })}`;
   bindRows(page, mine, r => requestDetail(r, { decide: true }));
 };
 
@@ -256,7 +256,7 @@ async function approvalsTrack(page) {
     ${tbl([{ t: 'الموظف', h: r => { const e = em[r.employee_id]; return e ? esc(e.full_name) + ` <span class="muted small num">${esc(e.emp_no)}</span>` : '—'; } },
       { t: 'النوع', h: r => esc(tr(KIND[r.kind] || r.kind) + (r.sub ? ' — ' + (ltn[r.sub] || r.sub) : '')) },
       { t: 'عند', h: who }, { t: 'المسار', h: path },
-      { t: 'بانتظار منذ', h: r => `<span class="${slaLate(r) ? 'bad' : 'muted'} small">${esc(waitTxt(r.step_at))}${slaLate(r) ? ' · ' + esc(tr('متأخر')) : ''}</span>` },
+      { t: 'مدة الانتظار', h: r => `<span class="${slaLate(r) ? 'bad' : 'muted'} small" title="${esc(waitAt(r.step_at))}">${esc(waitTxt(r.step_at))}<br><span class="num">${esc(waitAt(r.step_at))}</span>${slaLate(r) ? ' · ' + esc(tr('متأخر')) : ''}</span>` },
       { t: 'تاريخ الطلب', h: r => fdate(r.created_at) }], reqs, { empty: 'لا توجد طلبات قيد الاعتماد', onRow: true })}`;
   bindRows(page, reqs, r => requestDetail(Object.assign(r, { _emp: em[r.employee_id] }), { decide: canAct(r, em[r.employee_id]) }));
 }
