@@ -1190,6 +1190,11 @@ with sync_playwright() as pw:
 
     # ---------- forms library: a numbered form filled from the employee record ----------
     go(o, '#/forms'); o.wait_for_selector('.fcard'); ok(o.locator('.fcard').count() >= 10, 'forms: the HR library is listed')
+    o.locator('.fcard', has_text='استلام عهدة').click(); o.wait_for_selector('#dlg #whoq')
+    n_all = o.locator('#dlg select[name=who] option').count(); eno = o.evaluate("document.querySelector('#dlg select[name=who]').options[1].textContent.split(' — ')[0]")
+    o.fill('#dlg #whoq', eno); o.wait_for_timeout(300)
+    ok(n_all > 1 and o.locator('#dlg select[name=who] option').count() == 1 and o.input_value('#dlg select[name=who]') != '', 'forms: the employee list is searched by employee number')
+    o.fill('#dlg #whoq', 'لا يوجد أحد بهذا'); o.wait_for_timeout(200); ok('لا توجد نتائج' in o.inner_text('#dlg select[name=who]'), 'forms: a search with no match says so'); o.click('#mx'); o.wait_for_timeout(300)
     o.evaluate("window.__print=window.print;window.print=()=>{};0")
     o.locator('.fcard', has_text='مباشرة عمل').click(); o.wait_for_selector('#dlg select[name=who]'); modal_ok(o); o.wait_for_timeout(800)
     sheet = o.evaluate("document.getElementById('printarea').innerText")

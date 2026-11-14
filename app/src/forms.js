@@ -91,8 +91,8 @@ async function formFill(t) {
   const inputFor = ([k, la, le, ty]) => field(fT(la, le), ty === 'textarea' ? `<textarea name="f_${esc(k)}" rows="3"></textarea>`
     : `<input name="f_${esc(k)}" type="${ty === 'number' ? 'number' : ty === 'date' ? 'date' : ty === 'time' ? 'time' : 'text'}"${ty === 'number' ? ' step="0.01"' : ''}${ty === 'date' ? ` value="${today()}"` : ''}>`, ty === 'textarea' ? 'wide' : '');
   const d = modal(fT(t.title_ar, t.title_en), `<div class="fg">
-      ${t.subject === 'employee' ? field('الموظف', `<select name="who" required>${el.map(e => opt(e.id, e.emp_no + ' — ' + e.full_name)).join('')}</select>`, 'wide') : ''}
-      ${kinds.length ? field(t.subject === 'supplier' ? 'المورد' : t.subject === 'customer' ? 'العميل' : 'العميل أو المورد', `<select name="who" required>${parties.map(p => opt(p.id, p.name)).join('')}</select>`, 'wide') : ''}
+      ${t.subject === 'employee' ? field('الموظف', `<input id="whoq" type="search" autocomplete="off" aria-label="${esc(tr('بحث'))}" placeholder="${esc(tr('ابحث بالاسم أو الرقم الوظيفي'))}" style="margin-bottom:6px"><select name="who" required>${el.map(e => opt(e.id, e.emp_no + ' — ' + e.full_name)).join('')}</select>`, 'wide') : ''}
+      ${kinds.length ? field(t.subject === 'supplier' ? 'المورد' : t.subject === 'customer' ? 'العميل' : 'العميل أو المورد', `<input id="whoq" type="search" autocomplete="off" aria-label="${esc(tr('بحث'))}" placeholder="${esc(tr('ابحث بالاسم'))}" style="margin-bottom:6px"><select name="who" required>${parties.map(p => opt(p.id, p.name)).join('')}</select>`, 'wide') : ''}
       ${t.lib && FORM_GRID[t.key] ? `<input type="hidden" name="lang" value="ar"><div class="wide small muted">${esc(tr('يطلع بالعربي والإنجليزي معاً على نفس الورقة.'))}</div>` : field('لغة النموذج', `<select name="lang">${opt('ar', 'العربية', LANG)}${t.body_en ? opt('en', 'English', LANG) : ''}</select>`)}
       ${t.fields.map(inputFor).join('')}</div>
     ${(t.subject === 'employee' && !el.length) || (kinds.length && !parties.length) ? `<div class="note">${esc(tr('ما فيه سجلات تختار منها. أضفها أول.'))}</div>` : ''}
@@ -122,6 +122,13 @@ async function formFill(t) {
   };
   d.querySelectorAll('input,textarea').forEach(i => i.addEventListener('input', () => { delete i.dataset.auto; }));
   if (sel) sel.onchange = apply;
+  // search the list by name or employee number: the matches stay, the first one is picked and its data filled in
+  const q = d.querySelector('#whoq');
+  if (q && sel) { const all = [...sel.options].map(o => [o.value, o.textContent]);
+    q.oninput = () => { const v = q.value.trim().toLowerCase(), keep = all.filter(([, t]) => !v || t.toLowerCase().includes(v));
+      const was = sel.value; sel.innerHTML = keep.map(([id, t]) => `<option value="${esc(id)}">${esc(t)}</option>`).join('') || `<option value="">${esc(tr('لا توجد نتائج'))}</option>`;
+      if (keep.length && sel.value !== was) apply(); };
+    setTimeout(() => q.focus(), 50); }
   apply();
   return d;
 }

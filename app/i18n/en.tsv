@@ -589,6 +589,8 @@
 ابتدائي	Primary
 ابحث	Search
 ابحث باسم أو مسمى	Search by name or title
+ابحث بالاسم	Search by name
+ابحث بالاسم أو الرقم الوظيفي	Search by name or employee number
 ابحث برقم تسلسلي لتعرف متى دخل ولمن بيع	Search a serial number to see when it came in and who bought it
 ابدأ	Start
 ابدأ التفعيل	Start setup
@@ -3894,6 +3896,7 @@
 لا توجد مهام	No tasks
 لا توجد موازنة ولا حركات لهذه السنة	No budget or activity for this year
 لا توجد مواقع	No sites
+لا توجد نتائج	No results
 لا توجد وثائق	No policies
 لا توجد وحدات أخرى	No other units
 لا توجد ورديات	No shifts
