@@ -17,12 +17,16 @@
 آخر موعد للرد	Reply by
 آخر موعد للرد بعد تاريخ الطلب	The reply date must be after the request date
 آخر موعد للعودة	Return deadline
+آخر نتيجة	Last result
 آخر نشاط	Last activity
 آخر يوم	Last day
 آخر يوم عمل	Last working day
 آلات	machines
 أبها	Abha
 أثاث	furniture
+أجب عن الأسئلة	Answer the questions
+أجب عن كل الأسئلة	Answer every question
+أجبت عن كل الأسئلة إجابة صحيحة	you answered every question correctly
 أجر الساعة	hourly wage
 أجر الساعة الإضافية	Overtime hourly pay
 أجر اليوم	day's wage
@@ -32,6 +36,8 @@
 أحتاج تذكرة السفر المستحقة	I need my entitled travel ticket
 أحرف أو أكثر	characters or more
 أحرف على الأقل	characters minimum
+أحسنت	Well done
+أحسنت، أجبت عن كل الأسئلة إجابة صحيحة.	Well done, you answered every question correctly.
 أحمر	Red
 أخت	sister
 أخرى	Other
@@ -103,6 +109,7 @@
 أرباح	Profit
 أرباح فروقات العملة	Foreign exchange gains
 أردني	Jordanian
+أرسل الإجابات	Send the answers
 أرسل الرمز والرابط إلى	Send the code and link to
 أرسل الصورة للمطوّر	Send a screenshot to the developer
 أرسل الطلب للموردين ثم أدخل عرض كل مورد	send the request to suppliers, then enter each supplier's offer
@@ -130,6 +137,8 @@
 أرقام يومية فقط	daily totals only
 أرمل	Widowed
 أرملة	Widowed
+أسئلة قصيرة عن هذا الدليل	Short questions about this guide
+أسئلة قصيرة عن هذا الدليل، وتصل نتيجتك لمالك المنشأة والموارد البشرية.	Short questions about this guide; your result goes to the company owner and HR.
 أسئلة وتواصل	Questions & contact
 أسئلة ومشاكل واقتراحات من مدراء المنشآت	Questions, problems and suggestions from company managers
 أساس الأجر اليومي للغرامات	Day's wage basis for fines
@@ -190,6 +199,7 @@
 أضف وردية افتراضية قبل تفعيل الحضور	Add a default shift before enabling attendance
 أضفها أول	Add them first
 أطفئ خيار	Turn off the
+أعد الاختبار	Retake the quiz
 أعد للموظف	refund the employee
 أعداد وتواريخ فقط	Counts and dates only
 أعزب	Single
@@ -629,6 +639,7 @@
 ابحث، مثل	Search, e.g.
 ابحث، مثل: إجازة، راتب، حضور	Search, e.g. leave, pay, attendance
 ابدأ	Start
+ابدأ الاختبار	Start the quiz
 ابدأ التفعيل	Start setup
 ابدأ بحملة جديدة	start a new campaign
 ابدأ بمشروع جديد	start a new project
@@ -664,6 +675,8 @@
 احفظ رمز منشأتك	Save your company code
 احفظه بصيغة	save it as
 احمِ حسابك	Protect your account
+اختبار غير معروف	Unknown quiz
+اختبر فهمك	Check your understanding
 اختر	choose
 اختر «إضافة إلى الشاشة الرئيسية» ثم «إضافة».	Choose «Add to Home Screen», then «Add».
 اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».	Choose «Install app» or «Add to Home screen».
@@ -1376,6 +1389,7 @@
 الدقائق المحوّلة	Minutes to convert
 الدقائق المحوّلة لا تُصرف في المسير	converted minutes are not paid in payroll
 الدقائق المحوّلة من الإضافي المعتمد	Converted minutes come from approved overtime
+الدليل	Guide
 الدمام	Dammam
 الدور	Role
 الدورات والحضور والشهادات	Courses, attendance and certificates
@@ -1777,6 +1791,7 @@
 المتعلقات	Pending items
 المتوفر في المصدر	Available at source
 المتوقع	Expected
+المحاولات	Attempts
 المحتوى طويل جدا	The content is too long
 المحتوى طويل جداً	The content is too long
 المحسوم	Deducted
@@ -3120,6 +3135,8 @@
 راجع إجراءات الغياب وإبلاغ الجهات	Follow the absence procedures and notify the authorities
 راجع الحالات الخاصة مع مختص	review special cases with a specialist
 راجع الموارد البشرية	contact HR
+راجع في الدليل ما يخص هذه الأسئلة ثم أعد الاختبار	Review these questions in the guide, then retake the quiz
+راجع في الدليل ما يخص هذه الأسئلة ثم أعد الاختبار:	Review these questions in the guide, then retake the quiz:
 راجع قالب بنكك قبل الرفع	Check your bank's template before uploading
 راجع مالك المنشأة	Ask the company owner
 راجعها	Checked by
@@ -4251,6 +4268,7 @@
 للعميل المحتمل	for a prospect
 للفاتورة الإلكترونية حتى يُسجّل الرقم الضريبي للمنشأة في الإعدادات	for the e-invoice until the company VAT number is set in Settings
 للمالك فقط	Owner only
+للمدير المباشر	For direct managers
 للمراجعة فقط	for reference only
 للمزيد	More
 للمستند الآخر	for other documents
@@ -4276,7 +4294,10 @@
 لم يبدأ الإهلاك	Depreciation not started
 لم يتغير الأجر	The wage did not change
 لم يتم إخلاء الطرف	Not approved
+لم يجتز	Not passed
 لم يحضر	No-show
+لم يختبر أحد بعد	Nobody has taken it yet
+لم يختبر أحد بعد. يظهر الاختبار في آخر دليل الموظف ودليل المدير.	Nobody has taken it yet. The quiz is at the end of the employee and manager guides.
 لم يسجّل بعد	Not in yet
 لم يسجّلوا بعد	Not in yet
 لم يصدر خطاب بعد	No letters issued yet
@@ -4772,6 +4793,10 @@
 مُستلمة	Returned
 مُسحت البيانات التجريبية	Sample data cleared
 نأمل تجهيز متطلبات التجديد والتواصل مع الموارد البشرية	Please prepare the renewal requirements and contact HR
+ناجح	Passed
+نتائج اختبار الدليل	User-guide quiz results
+نتائج جديدة لاختبار دليل الاستخدام	new user-guide quiz results
+نتيجتك	Your result
 نجران	Najran
 نحفظ الأرقام والتواريخ فقط بدون صور المستندات	we keep numbers and dates only, no scans
 نزّل القالب	Download the template
@@ -4986,6 +5011,7 @@
 وتبقى الفاتورة ظاهرة بحالة ملغاة	and the invoice stays visible as void
 وتبقى ملتزما بأداء عملك خلالها	and you remain bound to perform your work during it
 وتبقى ملتزماً بأداء عملك خلالها	and you remain bound to perform your work during it
+وتصل نتيجتك لمالك المنشأة والموارد البشرية	your result goes to the company owner and HR
 وتمر على مديره ثم المالية ثم المدير العام	go to their manager, then finance, then the GM
 وتنتهي العلاقة بانتهائها	and employment ends when it ends
 وتنتهي العلاقة من تاريخ قبولها	and employment ends on the date it is accepted
@@ -5042,6 +5068,8 @@
 وصلت حد	You reached the limit of
 وصلت عروض على هذا الطلب	Offers have arrived on this request
 وصلت للموظف	Delivered to the employee
+وصلت نتيجتك لمالك المنشأة والموارد البشرية	Your result has reached the company owner and HR
+وصلت نتيجتك لمالك المنشأة والموارد البشرية.	Your result has reached the company owner and HR.
 وصلتك تأشيرة الخروج والعودة	Your exit/re-entry visa has arrived
 وصلتك تذكرة السفر	Your travel ticket has arrived
 وصلنا طلبك	We got your request
@@ -5220,6 +5248,7 @@
 يطلع بالعربي والإنجليزي معاً على نفس الورقة.	Prints in Arabic and English together on the same sheet.
 يظهر أعلى الخطابات المطبوعة	Shown at the top of printed letters
 يظهر أعلى الفواتير والخطابات والنماذج المطبوعة	Shown at the top of printed invoices, letters and forms
+يظهر الاختبار في آخر دليل الموظف ودليل المدير	The quiz is at the end of the employee and manager guides
 يظهر الراتب وتفاصيله	Show salary and breakdown
 يظهر في أوامر الشراء	Shown on purchase orders
 يظهر في الفواتير الضريبية والخطابات	Shown on tax invoices and letters

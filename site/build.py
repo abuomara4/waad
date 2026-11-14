@@ -32,11 +32,11 @@ PAGES = [  # page, output file, title, description
 # «دليل الاستخدام» is for subscribers: it lives inside the system (#/guide, by role, after signing in). The website page only
 # says so and sends them there; the texts stay in app/src/guide_lib.js.
 def guide_body(out):
-    return ('<div class="phero"><div class="wrap"><h1><span class="ar">دليل الاستخدام</span><span class="en">User guide</span></h1><p><span class="ar">دليل مخصص لمشتركي «وعد»، يظهر داخل النظام بعد تسجيل الدخول حسب دورك: الموظف، المدير المباشر، وإدارة المنشأة</span><span class="en">A guide for Waad subscribers, inside the system after you sign in, by your role: employee, direct manager, company admins</span></p></div></div>'
-            '<section><div class="wrap"><div class="grid g2">'
-            '<div class="card"><h3><span class="ar">مشترك في وعد؟</span><span class="en">Already on Waad?</span></h3><p><span class="ar">سجّل دخولك، ثم افتح «دليل الاستخدام» من القائمة</span><span class="en">Sign in, then open «User guide» from the menu</span></p><a class="btn gold" href="app/#/guide"><span class="ar">ادخل إلى الدليل</span><span class="en">Go to the guide</span></a></div>'
-            '<div class="card"><h3><span class="ar">موظف وأول مرة تدخل؟</span><span class="en">An employee signing in for the first time?</span></h3><p><span class="ar">اطلب من الموارد البشرية رمز المنشأة ورقمك الوظيفي وكلمة المرور المؤقتة، ثم ادخل من «دخول الموظفين»</span><span class="en">Ask HR for the company code, your employee number and the temporary password, then use «Employee sign-in»</span></p><a class="btn line" href="app/"><span class="ar">دخول الموظفين</span><span class="en">Employee sign-in</span></a></div>'
-            '</div></div></section>')
+    return ('<div class="phero"><div class="wrap"><h1><span class="ar">دليل الاستخدام</span><span class="en">User guide</span></h1><p><span class="ar">دليل مخصص لمشتركي «وعد»: ادخل برقمك الوظيفي وكلمة المرور، فيظهر لك الدليل حسب وظيفتك مع أسئلة قصيرة تتأكد بها أنك فهمت، وتصل نتيجتك لمالك المنشأة والموارد البشرية</span><span class="en">For Waad subscribers: sign in with your employee number and password to see the guide for your job, with a short quiz to check you understood; your result goes to the company owner and HR</span></p></div></div>'
+            '<section><div class="wrap"><div class="card gate"><h3><span class="ar">ادخل إلى الدليل</span><span class="en">Open the guide</span></h3>'
+            '<p><span class="ar">تحتاج رمز المنشأة ورقمك الوظيفي وكلمة المرور، وتأخذها من الموارد البشرية في منشأتك</span><span class="en">You need the company code, your employee number and your password, from your company\'s HR</span></p>'
+            '<a class="btn gold" href="app/?start=staff#/guide"><span class="ar">دخول الموظفين إلى الدليل</span><span class="en">Employee sign-in to the guide</span></a>'
+            '<p class="small"><a href="app/?start=signin#/guide"><span class="ar">مالك المنشأة أو الإدارة؟ ادخل بالبريد</span><span class="en">Company owner or admin? Sign in with e-mail</span></a></p></div></div></section>')
 
 for page, out, title, desc in PAGES:
     body = guide_body(out) if page == 'guide' else open(os.path.join(D, 'pages', page + '.html'), encoding='utf-8').read()

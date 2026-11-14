@@ -439,7 +439,7 @@ async function authFromLink() {
 }
 // the landing page links to app/?start=signup (new company) or ?start=signin (owner/admin e-mail login)
 function startTab() {
-  const q = new URLSearchParams(location.search), t = { signup: 'up', signin: 'in' }[q.get('start')];
+  const q = new URLSearchParams(location.search), t = { signup: 'up', signin: 'in', staff: 'staff' }[q.get('start')];
   if (q.has('start')) { q.delete('start'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash); }
   return t;
 }
@@ -707,6 +707,8 @@ async function loadNotifs() {
     if (due) add(due + ' مخالفات انتهى تحقيقها وتقترب مهلة القرار (30 يوما)', '#/penalties', { hot: 1 }); }
   if (myPens) { myPens.filter(p => p.status === 'open' && !p.inv_on && !p.emp_defense).forEach(() => add('مخالفة منسوبة إليك — اطّلع وأرسل ردك الكتابي', '#/profile', { hot: 1 }));
     myPens.filter(p => p.status === 'applied' && p.notified_on && (new Date(td) - new Date(p.notified_on)) / 864e5 <= 30 && !p.griev_on).forEach(p => add('صدر بحقك جزاء — لك حق التظلم خلال 30 يوما', '#/profile', { at: p.notified_on + 'T12:00:00Z' })); }
+  if (has('owner', 'admin', 'hr') && typeof GUIDE_QUIZ !== 'undefined') { const gq = await safe(db.get('guide_quiz_results', { company_id: 'eq.' + S.cid, taken_at: 'gte.' + new Date(Date.now() - 7 * 864e5).toISOString(), user_id: 'neq.' + S.session.user.id, select: 'id' }));
+    if (gq && gq.length) add(gq.length + ' نتائج جديدة لاختبار دليل الاستخدام', '#/guide?t=results'); }
   if (alerts) { const u = alerts.filter(a => a.level === 'expired' || a.level === 'd30').length; if (u) add(u + ' مستندات أو عقود منتهية أو تنتهي خلال 30 يوما', '#/docs', { hot: 1 }); }
   if (prob) { const em = await employeesMap().catch(() => ({})); const soon = prob.filter(p => p.effective_end >= td && (new Date(p.effective_end) - new Date(td)) / 864e5 <= 14 && em[p.employee_id] && !em[p.employee_id].end_date);
     soon.forEach(p => add('تنتهي فترة تجربة', '#/hrreports', { hot: 1, n: em[p.employee_id].full_name, tail: 'بتاريخ ' + p.effective_end })); }

@@ -69,3 +69,21 @@ const GUIDE = {
       ['لكل صفحة شرح مختصر: اضغط «؟» أعلى الشاشة، أو افتح «مركز المساعدة».', 'Every page has a short explanation: press «?» at the top, or open the «Help center».'],
       ['وقائمة «ابدأ هنا» ترتّب لك تجهيز المنشأة خطوة بخطوة.', 'And «Start here» walks you through setting up the company step by step.']] }] }
 };
+
+/* «اختبر فهمك»: a few questions at the end of a role's guide. The right answers are kept in the database only
+   (guide_quiz_key in 0084), which marks each attempt; the result goes to the company's owner and HR. */
+const GUIDE_QUIZ = {
+  emp: [
+    { id: 'e1', q: ['من أين تطلب إجازة؟', 'Where do you request leave?'], a: [['من «ملفي»', 'From «My profile»'], ['من «طلباتي» ثم «طلب جديد»', 'From «My requests», then «New request»'], ['من «قسائم الراتب»', 'From «Payslips»']] },
+    { id: 'e2', q: ['نسيت تسجيل حضورك اليوم، ماذا تفعل؟', 'You forgot to check in today. What do you do?'], a: [['أقدّم طلب «نسيان بصمة» من «طلباتي»', 'Send a «Missed punch» request from «My requests»'], ['لا شيء، يُصحَّح تلقائيا', 'Nothing, it fixes itself'], ['أسجّل الحضور مرتين غدا', 'Check in twice tomorrow']] },
+    { id: 'e3', q: ['متى تظهر قسيمة راتبك في النظام؟', 'When does your payslip appear in the system?'], a: [['أول يوم من كل شهر', 'On the first day of each month'], ['عندما أطلبها من الموارد البشرية', 'When I ask HR for it'], ['بعد اعتماد مسير الرواتب', 'Once the payroll run is approved']] },
+    { id: 'e4', q: ['تريد تغيير رقم جوالك المسجّل، كيف؟', 'You want to change your registered mobile number. How?'], a: [['من «ملفي» ثم «طلب تعديل بياناتي»', 'From «My profile», then «Request a change to my data»'], ['أعدّله بنفسي مباشرة في أي صفحة', 'I edit it myself on any page'], ['لا يمكن تغييره', 'It can\'t be changed']] },
+    { id: 'e5', q: ['تقدر تلغي طلبك متى؟', 'When can you cancel your request?'], a: [['في أي وقت حتى بعد اعتماده', 'Any time, even after approval'], ['ما دام لم يُعتمد بعد', 'As long as it isn\'t approved yet'], ['لا يمكن إلغاء أي طلب', 'No request can be cancelled']] },
+    { id: 'e6', q: ['إذا صدر بحقك جزاء، خلال كم يوما يحق لك التظلم؟', 'If a penalty is issued against you, within how many days may you appeal?'], a: [['7 أيام', '7 days'], ['60 يوما', '60 days'], ['30 يوما من إبلاغك', '30 days from being notified']] },
+    { id: 'e7', q: ['نسيت كلمة المرور، ماذا تفعل؟', 'You forgot your password. What do you do?'], a: [['أطلب من الموارد البشرية إعادة تعيينها', 'Ask HR to reset it'], ['أنشئ حسابا جديدا', 'Create a new account'], ['أدخل برقم موظف آخر', 'Sign in with another employee\'s number']] }],
+  mgr: [
+    { id: 'm1', q: ['أين تجد طلبات فريقك التي تنتظرك؟', 'Where do you find your team\'s requests waiting for you?'], a: [['في «طلباتي»', 'In «My requests»'], ['في «الاعتمادات»', 'In «Approvals»'], ['في «ملفي»', 'In «My profile»']] },
+    { id: 'm2', q: ['عند رفض طلب موظف، ماذا تفعل؟', 'When you reject an employee\'s request, what do you do?'], a: [['أكتب سبب الرفض ليصل للموظف', 'Write the reason so the employee sees it'], ['أرفضه دون سبب', 'Reject it without a reason'], ['أتركه دون قرار', 'Leave it without a decision']] },
+    { id: 'm3', q: ['قبل اعتماد إجازة جديدة، أين ترى من في إجازة من فريقك؟', 'Before approving new leave, where do you see who in your team is on leave?'], a: [['في «قسائم الراتب»', 'In «Payslips»'], ['في «السياسات واللوائح»', 'In «Policies»'], ['في «تقويم الإجازات»', 'In «Leave calendar»']] },
+    { id: 'm4', q: ['في تقييم الأداء، كم يجب أن يكون مجموع أوزان الأهداف؟', 'In a performance review, what must the goals\' weights total?'], a: [['100%', '100%'], ['50%', '50%'], ['أي مجموع', 'Any total']] }]
+};

@@ -2777,5 +2777,29 @@ update public.employees set end_date = null where id = :'e_old';
 select t.ok((select end_date is null from public.employees where id = :'e_old'), 'employee limit: an empty limit means no limit');
 update public.employees set end_date = '2020-01-01' where id = :'e_old';
 
+-- ================= USER GUIDE QUIZ (0084) =================
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select public.guide_quiz_submit(:'cid', 'emp', '{"e1":1,"e2":0,"e3":2,"e4":0,"e5":1,"e6":2,"e7":0}') as gq1 \gset
+select t.ok((:'gq1'::jsonb->>'score')::int = 7 and (:'gq1'::jsonb->>'passed')::boolean, 'guide quiz: all right answers pass (marked by the database)');
+select public.guide_quiz_submit(:'cid', 'emp', '{"e1":0,"e2":0,"e3":2,"e4":0,"e5":0}') as gq2 \gset
+select t.ok((:'gq2'::jsonb->>'score')::int = 3 and not (:'gq2'::jsonb->>'passed')::boolean and (:'gq2'::jsonb->'wrong') ? 'e6' and (:'gq2'::jsonb->'wrong') ? 'e1', 'guide quiz: wrong or missing answers are listed and fail under 80%');
+select t.ok((select count(*) from public.guide_quiz_results where company_id = :'cid') = 2, 'guide quiz: the employee sees their own attempts');
+select t.err($$select public.guide_quiz_key('emp')$$, 'permission denied', 'guide quiz: the answer key is not readable from the app');
+select t.err($$insert into public.guide_quiz_results(company_id, user_id, section, score, total, passed) values ('$$ || :'cid' || $$', auth.uid(), 'emp', 7, 7, true)$$, 'permission denied|row-level', 'guide quiz: a result cannot be written directly (only marked by the database)');
+select t.err($$select public.guide_quiz_submit('$$ || :'cid' || $$', 'xyz', '{}')$$, 'غير معروف', 'guide quiz: unknown section refused');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.ok((select count(*) from public.guide_quiz_results where company_id = :'cid' and employee_id is not null) = 2, 'guide quiz: HR sees the employees'' results with their employee record');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok((select count(*) from public.guide_quiz_results where company_id = :'cid') = 2, 'guide quiz: the owner sees the results');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.ok((select count(*) from public.guide_quiz_results where company_id = :'cid') = 0, 'guide quiz: other colleagues (finance) do not see someone else''s results');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.err($$select public.guide_quiz_submit('$$ || :'cid' || $$', 'emp', '{}')$$, '42501|غير مصرح', 'guide quiz: an outsider cannot submit for the company');
+reset role;
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary
