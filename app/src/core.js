@@ -528,6 +528,7 @@ const plainEmp = () => !has('owner', 'admin', 'hr', 'finance', 'manager', 'accou
 function navItems() {
   const it = []; const g = t => it.push({ g: t });
   it.push({ h: '#/home', t: 'الرئيسية' });
+  if (typeof GUIDE !== 'undefined') it.push({ h: '#/guide', t: 'دليل الاستخدام' });
   if (isHR() || isFin() || has('manager')) it.push({ h: '#/analytics', t: 'التحليلات' });
   if (S.emp) { g('خدماتي'); if (S.company && S.company.att_enabled && !(S.myEmp && S.myEmp.att_exempt)) it.push({ h: '#/attendance', t: 'حضوري' });
     it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/payslips', t: 'قسائم الراتب' }, { h: '#/reviews', t: 'تقييم الأداء' }, { h: '#/profile', t: 'ملفي' });
@@ -750,7 +751,7 @@ async function route() {
   const page = document.createElement('div'); page.innerHTML = '<div class="muted">جارٍ التحميل…</div>';
   $('#page').replaceChildren(page);
   if (!modOn(routeModule(path))) { page.innerHTML = `<div class="note">${esc(tr('هذا القسم غير مشمول في باقة منشأتك.'))} ${has('owner') ? esc(tr('لتفعيله تواصل مع إدارة وعد.')) : esc(tr('راجع مالك المنشأة.'))}</div>`; return; }
-  try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); setTimeout(() => page.isConnected && markWide(page), 60); }
+  try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); setTimeout(() => page.isConnected && markWide(page), 60); if (key === '#/home' && typeof guideWelcome === 'function') guideWelcome(page); }
   catch (e) { if (e.status === 401 && !S.session) { if (!$('#af')) authView('in', 'انتهت الجلسة — سجّل الدخول مجددا'); return; } /* a late answer from a page left behind never replaces a sign-in screen already shown */ if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div><p style="margin-top:10px"><button type="button" class="btn" onclick="history.length > 1 ? history.back() : (location.hash = '#/home')">${esc(tr('رجوع'))}</button> <a class="btn" href="#/home">${esc(tr('الرئيسية'))}</a></p>`; }
 }
 window.addEventListener('hashchange', () => /(^#|&)(access_token|error_code)=/.test(location.hash) ? boot() : !S.session && legalHash() ? legalView(legalHash()) : ADMIN ? (S.platform && $('#ppage') ? platformView() : null) : S.platform && /^#\/platform/.test(location.hash) ? (location.href = ADMIN_URL) : S.platform && !$('#page') ? boot() : route());

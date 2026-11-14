@@ -268,6 +268,7 @@
 أنواع المستندات	Document types
 أهداف بأوزان ودرجات من	Weighted goals scored from
 أهلا	Welcome
+أهلا بك في وعد	Welcome to Waad
 أهلاً	Welcome
 أو	or
 أو أدخل المفتاح يدويا	or enter the key manually
@@ -625,6 +626,8 @@
 ابحث بالاسم	Search by name
 ابحث بالاسم أو الرقم الوظيفي	Search by name or employee number
 ابحث برقم تسلسلي لتعرف متى دخل ولمن بيع	Search a serial number to see when it came in and who bought it
+ابحث، مثل	Search, e.g.
+ابحث، مثل: إجازة، راتب، حضور	Search, e.g. leave, pay, attendance
 ابدأ	Start
 ابدأ التفعيل	Start setup
 ابدأ بحملة جديدة	start a new campaign
@@ -834,9 +837,12 @@
 اضغط لإضافة خانة تتعبّى تلقائيا	Click to add a field that fills in automatically
 اضغط لإضافة خانة تتعبّى تلقائياً	Click to add a field that fills in automatically
 اطبع الإشعار وسلّمه للموظف	print the notice and hand it to the employee
+اطبع دليل الموظف	Print the employee guide
 اطبعه من سجل الخطابات	print it from the letters log
 اطبعها للعد ثم أدخل الكميات المعدودة	print it for counting, then enter the counted quantities
 اطلاع الموظف	Employee acknowledgement
+اطلب إجازة أو استئذانا أو تعريفا بالراتب وتابع حالته	Request leave, a permission or a salary certificate and follow its status
+اطلب إجازة أو استئذانا أو تعريفا بالراتب وتابع حالته.	Request leave, a permission or a salary certificate and follow its status.
 اطلب رابطا جديدا	request a new link
 اطلب رابطاً جديداً	request a new link
 اطلب عروضا من أكثر من مورد	Ask several suppliers for offers
@@ -869,6 +875,7 @@
 افتح	Open
 افتح الصفحة	Open the page
 افتح تطبيق المصادقة في جوالك	Open the authenticator app on your phone
+افتح دليل الاستخدام	Open the user guide
 افتح رابط التأكيد في بريدك	open the confirmation link in your email
 افتح رسالة التأكيد في بريدك ثم سجّل الدخول	Open the confirmation email, then sign in
 افتح سجله من	open their record from
@@ -2136,6 +2143,7 @@
 بحث	Search
 بحث بالاسم أو البريد أو الباقة	Search by name, e-mail or plan
 بحث عن صنف	Search items
+بحث في الدليل	Search the guide
 بحث في الشروحات	Search the guides
 بحث في الموظفين	Search employees
 بحريني	Bahraini
@@ -2549,6 +2557,8 @@
 تظلمات من جزاءات بانتظار البت خلال	penalty grievances awaiting a decision within
 تظهر في الفواتير والخطابات	they appear on invoices and letters
 تظهر في المطبوع	shown on the printout
+تظهر قسيمتك كل شهر بعد اعتماد الرواتب	Your payslip appears each month once payroll is approved
+تظهر قسيمتك كل شهر بعد اعتماد الرواتب.	Your payslip appears each month once payroll is approved.
 تعبّى من النظام	Filled from the system
 تعتمدها المالية فيُخصم من رصيدك	finance approves it and it is deducted from your balance
 تعديل	Edit
@@ -2813,6 +2823,7 @@
 جرّبه	Try it
 جرّبه مجانا	Try it free
 جرّبه مجاناً	Try it free
+جرّبها الآن	Try it now
 جزء من الشهر	Part of the month
 جزء من الكمية بيع	part of the quantity has been sold
 جزء من كمية	part of the quantity of
@@ -3035,6 +3046,8 @@
 خطاباتي	My letters
 خطة التدريب السنوية	Annual training plan
 خطوات تجهيز منشأتك	Your company's setup steps
+خطوات قصيرة لما تستخدمه في وعد	Short steps for what you use in Waad
+خطوات قصيرة لما تستخدمه في وعد، والصور من منشأة تجريبية.	Short steps for what you use in Waad; the pictures come from a sample company.
 خلال	within
 خميس مشيط	Khamis Mushait
 خيار	The option
@@ -3072,7 +3085,9 @@
 دقيقة دون إذن أو عذر مقبول	minutes without permission or an acceptable excuse
 دقيقة لغاية	minutes and up to
 دكتوراه	PhD
+دليل الاستخدام	User guide
 دليل الحسابات	Chart of accounts
+دليل الموظف في نظام وعد	Employee guide to Waad
 دوام رمضان	Ramadan hours
 دوام رمضان لا يزيد على	Ramadan hours do not exceed
 دوامه العادي في رمضان	normal hours in Ramadan
@@ -3097,8 +3112,10 @@
 رأس المال والمسحوبات	Capital and drawings
 رئيس القسم	Department head
 رئيس القسم ليس من موظفي المنشأة	The department head is not an employee of this company
+رابط الدخول	Sign-in link
 رابط اللوحة	Admin link
 رابط دخول الموظفين	Employee sign-in link
+راتب	pay
 راج كومار	Raj Kumar
 راجع إجراءات الغياب وإبلاغ الجهات	Follow the absence procedures and notify the authorities
 راجع الحالات الخاصة مع مختص	review special cases with a specialist
@@ -3348,6 +3365,8 @@
 سجّل تاريخ نهاية الخدمة أولاً	record the end-of-service date first
 سجّل تاريخ نهاية الخدمة في بيانات الموظف أولا	record the end-of-service date in the employee record first
 سجّل تاريخ نهاية الخدمة في بيانات الموظف أولاً	record the end-of-service date in the employee record first
+سجّل حضورك وانصرافك من جوالك	Check in and out from your phone
+سجّل حضورك وانصرافك من جوالك.	Check in and out from your phone.
 سجّل كل دفعة من صفحة المنشأة	Record each payment from the company page
 سجّلت الحضور والانصراف لهذا اليوم	You have checked in and out for today
 سجّلت حضورك قبل لحظات	You checked in moments ago
@@ -4233,6 +4252,7 @@
 للفاتورة الإلكترونية حتى يُسجّل الرقم الضريبي للمنشأة في الإعدادات	for the e-invoice until the company VAT number is set in Settings
 للمالك فقط	Owner only
 للمراجعة فقط	for reference only
+للمزيد	More
 للمستند الآخر	for other documents
 للمسلمين	for Muslims
 للمنضم والمغادر	for joiners and leavers
@@ -4652,6 +4672,7 @@
 من الأمر يُسجَّل استلام البضاعة ثم فاتورة المورد	From the order record the goods receipt, then the supplier bill
 من الإعدادات	from settings
 من التدريب	from training
+من القائمة بعد دخولك	from the menu after you sign in
 من اللائحة التنفيذية	of the Implementing Regulations
 من الملف	from the file
 من الملف أو من الموظفين الحاليين	from the file or from current employees
@@ -4942,6 +4963,7 @@
 والرقم الضريبي إن كنت مسجّلاً	and the VAT number if registered
 والرمادية من وردية الموظف أو قسمه أو الافتراضية	grey ones from the employee's, department or default shift
 والسجل التجاري	and the C.R.
+والصور من منشأة تجريبية	the pictures come from a sample company
 والغرامة عن المخالفة الواحدة لا تزيد على أجر خمسة أيام	and a fine for one violation never exceeds five days' wage
 والمادة	and Article
 والمالك والمالية	plus the owner and finance

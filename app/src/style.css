@@ -357,3 +357,13 @@ tr.hl td{background:var(--waitbg)}
 /* point of sale on a phone: a bar with the total stays at the bottom while picking items */
 .posbar{display:none}
 @media(max-width:760px){.posbar:not(:empty){display:flex;justify-content:space-between;align-items:center;gap:10px;position:sticky;bottom:0;margin:12px -12px 0;padding:10px 14px;background:var(--surface);border-top:1px solid var(--line2);box-shadow:0 -6px 16px -8px rgba(0,0,0,.25);z-index:5}}
+
+/* «دليل الاستخدام» */
+.gsec{margin-bottom:18px}.gsec h2{margin:0 0 10px}
+.gitem{margin-bottom:8px}.gitem summary{cursor:pointer}
+.gbody{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;margin:8px 0}.gbody ol{flex:1 1 280px;padding-inline-start:20px;margin:0}.gbody li{margin-bottom:6px}
+.gshot{width:240px;max-width:100%;border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.gprint .gpbox{display:flex;gap:28px;align-items:center;border:2px solid #142039;border-radius:10px;padding:10px 16px;margin:10px 0 14px}
+.gprint .gpcode{font-size:30px;font-weight:700;letter-spacing:4px;direction:ltr}
+.gprint .gpitem{break-inside:avoid;margin-bottom:8px}.gprint h3{margin:0 0 4px;font-size:15px}.gprint ol{margin:0;padding-inline-start:20px;font-size:13px}.gprint li{margin-bottom:2px}
+.gwel{position:relative;margin-bottom:14px;border-inline-start:4px solid #C9B27B}.gwel h2{margin:0 0 8px}.gwel ul{margin:0 0 12px;padding-inline-start:18px}.gwel li{margin-bottom:6px}.gwel .x{position:absolute;top:8px;inset-inline-end:10px;background:none;border:0;font-size:22px;cursor:pointer;color:var(--muted)}

@@ -5,8 +5,8 @@ function helpModal() {
   const f = helpFor(location.hash), body = f ? `<ol style="padding-inline-start:20px;margin:0">${f[1].s.map(x => `<li style="margin-bottom:6px">${esc(hT(x))}</li>`).join('')}</ol>`
     : `<p class="muted">${esc(tr('لا يوجد شرح لهذه الصفحة بعد.'))}</p>`;
   const d = modal(f ? hT(f[1].t) : tr('مركز المساعدة'), `<div data-nt>${body}</div>
-    <p class="small" style="margin-top:12px"><a href="#/help" id="hall">${esc(tr('كل الشروحات'))}</a>${has('owner', 'admin', 'hr', 'finance', 'accountant') ? ` · <a href="#/support" id="hsup">${esc(tr('ما لقيت جوابك؟ راسل الدعم الفني'))}</a>` : ''}</p>`, { ok: 'تم' });
-  ['#hall', '#hsup'].forEach(s => { const a = d.querySelector(s); if (a) a.addEventListener('click', () => d.close()); });
+    <p class="small" style="margin-top:12px"><a href="#/help" id="hall">${esc(tr('كل الشروحات'))}</a> · <a href="#/guide" id="hgd">${esc(tr('دليل الاستخدام'))}</a>${has('owner', 'admin', 'hr', 'finance', 'accountant') ? ` · <a href="#/support" id="hsup">${esc(tr('ما لقيت جوابك؟ راسل الدعم الفني'))}</a>` : ''}</p>`, { ok: 'تم' });
+  ['#hall', '#hgd', '#hsup'].forEach(s => { const a = d.querySelector(s); if (a) a.addEventListener('click', () => d.close()); });
 }
 VIEWS['#/help'] = async page => {
   const list = Object.entries(HELP);

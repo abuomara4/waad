@@ -67,6 +67,8 @@ html = f'''<!doctype html>
 {r('help_lib.js')}
 {r('help.js')}
 {r('pos.js')}
+{r('guide_lib.js')}
+{r('guide.js')}
 applyLang();
 boot();
 </script>

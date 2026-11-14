@@ -1,7 +1,7 @@
 """Builds the public website from site/layout.html (shared head, header, footer, script) + site/pages/*.html (page bodies):
   site/index.html     home        site/modules.html   modules
   site/trust.html     compliance + security             site/contact.html   FAQ + contact
-  site/pricing.html   plans + prices
+  site/pricing.html   plans + prices        site/guide.html   user guide (from app/src/guide_lib.js)
 The official Waad logos are inlined straight from the system's source so they stay identical."""
 import re, os
 D = os.path.dirname(os.path.abspath(__file__))
@@ -23,11 +23,35 @@ PAGES = [  # page, output file, title, description
      'كيف يحسب وعد نظام العمل ونطاقات وضريبة القيمة المضافة والتأمينات وحماية الأجور والتأمين الطبي، وكيف يحمي بيانات كل منشأة.'),
     ('pricing', 'pricing.html', 'الباقات والأسعار | وعد',
      'باقات وعد الثلاث: أساس ونمو وريادة. اشتراك سنوي يُدفع مقدما بسعر 10 أشهر أو على أقساط شهرية، مع تجربة مجانية 14 يوما.'),
+    ('guide', 'guide.html', 'دليل الاستخدام | وعد',
+     'كيف يستخدم الموظف والمدير وإدارة المنشأة نظام وعد: الدخول، الحضور، طلب الإجازة، قسيمة الراتب، الاعتمادات، بخطوات قصيرة وصور توضيحية.'),
     ('contact', 'contact.html', 'أسئلة وتواصل | وعد',
      'أسئلة شائعة عن وعد والتجربة المجانية، وطرق التواصل معنا بالواتساب أو الإيميل.'),
 ]
+
+# «دليل الاستخدام» page: built from the system's own guide texts (app/src/guide_lib.js) and the screenshots of
+# site/guide_shots.py, so the website and the in-app guide never drift apart.
+import json, subprocess, html
+def guide_body():
+    js = "const fs=require('fs');eval(fs.readFileSync(process.argv[1],'utf8').replace('const GUIDE','globalThis.GUIDE'));process.stdout.write(JSON.stringify(GUIDE))"
+    G = json.loads(subprocess.run(['node', '-e', js, os.path.join(D, '..', 'app', 'src', 'guide_lib.js')], capture_output=True, text=True, check=True).stdout)
+    e = lambda t: html.escape(t, quote=False)
+    bi = lambda p, tag='span': '<span class="ar">%s</span><span class="en">%s</span>' % (e(p[0].rstrip('.')), e(p[1].rstrip('.')))
+    out = ['<div class="phero"><div class="wrap"><h1><span class="ar">دليل الاستخدام</span><span class="en">User guide</span></h1><p><span class="ar">خطوات قصيرة مع صور توضيحية لكل ما يستخدمه الموظف والمدير وإدارة المنشأة في «وعد»، والصور من منشأة تجريبية</span><span class="en">Short steps with pictures for what employees, managers and admins use in Waad; the pictures come from a sample company</span></p>',
+           '<nav class="gnav">' + ''.join('<a href="#%s">%s</a>' % (k, bi(G[k]['t'])) for k in G) + '</nav></div></div>']
+    for i, (k, sec) in enumerate(G.items()):
+        out.append('<section id="%s"%s><div class="wrap"><div class="sh"><h2>%s</h2></div><div class="gitems">' % (k, ' class="alt"' if i % 2 else '', bi(sec['t'])))
+        for it in sec['items']:
+            if it['id'] == 'print': continue   # «print the guide» is a button inside the system
+            img = ('<figure class="gimg"><img class="ar" src="img/guide/%s-ar.webp" alt="%s" width="480" height="1039" loading="lazy" decoding="async"><img class="en" src="img/guide/%s-en.webp" alt="%s" width="480" height="1039" loading="lazy" decoding="async"></figure>'
+                   % (it['img'], e(it['t'][0]), it['img'], e(it['t'][1]))) if it.get('img') else ''
+            out.append('<article class="gitem" id="g-%s"><div><h3>%s</h3><ol>%s</ol></div>%s</article>' % (it['id'], bi(it['t']), ''.join('<li>%s</li>' % bi(x) for x in it['s']), img))
+        out.append('</div></div></section>')
+    out.append('<section><div class="wrap"><div class="band"><div><h2><span class="ar">جرّب «وعد» لمدة 14 يوما مجانا</span><span class="en">Try Waad free for 14 days</span></h2><p><span class="ar">ابدأ ببيانات منشأتك، ووزّع على موظفيك رمز المنشأة وهذا الدليل</span><span class="en">Start with your company\'s data, and give your employees the company code and this guide</span></p></div><div class="cta"><a class="btn gold" href="app/?start=signup"><span class="ar">ابدأ التجربة المجانية</span><span class="en">Start the free trial</span></a><a class="btn ghost" href="app/"><span class="ar">دخول النظام</span><span class="en">Sign in</span></a></div></div></div></section>')
+    return '\n'.join(out)
+
 for page, out, title, desc in PAGES:
-    body = open(os.path.join(D, 'pages', page + '.html'), encoding='utf-8').read()
+    body = guide_body() if page == 'guide' else open(os.path.join(D, 'pages', page + '.html'), encoding='utf-8').read()
     url = BASE if out == 'index.html' else BASE + out
     t = (layout.replace('__BODY__', body).replace('__TITLE__', title).replace('__DESC__', desc)
                .replace('__URL__', url).replace('__PAGE__', page).replace('__SB_URL__', SB.group(1)).replace('__SB_KEY__', SB.group(2)))
