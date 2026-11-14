@@ -2,7 +2,7 @@
 /* ===== Projects & timesheets: projects with tasks and logged hours, rolled up into estimated cost
    (from the employee wage) and billing (fixed budget or hourly rate). Module: 'proj'. ===== */
 
-const PRJ_STATUS = { active: 'جارٍ', on_hold: 'متوقف مؤقتاً', done: 'منتهٍ', cancelled: 'ملغى' };
+const PRJ_STATUS = { active: 'جارٍ', on_hold: 'متوقف مؤقتا', done: 'منتهٍ', cancelled: 'ملغى' };
 const PRJ_BILLING = { fixed: 'سعر ثابت', hourly: 'بالساعة', internal: 'داخلي (غير مفوتر)' };
 const TASK_STATUS = { todo: 'لم تبدأ', doing: 'جارية', done: 'منجزة' };
 const prjBadge = s => `<span class="badge ${s === 'active' ? 'ok' : s === 'cancelled' ? 'bad' : s === 'on_hold' ? 'wait' : 'info'}">${esc(tr(PRJ_STATUS[s] || s))}</span>`;
@@ -48,7 +48,7 @@ async function projectForm(p) {
     ${field('تاريخ البدء', inp('start_date', v.start_date, 'type="date"'))}
     ${field('تاريخ التسليم', inp('due_date', v.due_date, 'type="date"'))}
     ${field('ملاحظات', `<textarea name="note" rows="2">${esc(v.note || '')}</textarea>`, 'wide')}</div>
-    <p class="muted small">${esc(tr('التكلفة تُحسب تقديرياً من أجر الموظف مقسوماً على ساعات الشهر.'))}</p>`, {
+    <p class="muted small">${esc(tr('التكلفة تُحسب تقديريا من أجر الموظف مقسوما على ساعات الشهر.'))}</p>`, {
     onOk: async f => {
       const row = { company_id: S.cid, name: f.name, party_id: blank(f.party_id), billing: f.billing, budget: blank(f.budget),
         hourly_rate: blank(f.hourly_rate), status: f.status, start_date: blank(f.start_date), due_date: blank(f.due_date), note: blank(f.note) };

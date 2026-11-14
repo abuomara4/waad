@@ -22,5 +22,5 @@ VIEWS['#/support'] = async page => {
   $('#supf', page).onsubmit = async e => { e.preventDefault(); const f = formData(e.target);
     if ((f.subject || '').length < 3 || (f.body || '').length < 3) return showErr($('#superr', page), tr('اكتب العنوان والتفاصيل'));
     try { await busy($('#supb', page), () => db.rpc('support_open', { p_company: S.cid, p_kind: f.kind, p_subject: f.subject, p_body: f.body, p_route: S.prevRoute || null }));
-      toast(tr('وصلنا طلبك، ونرد عليك قريباً')); route(); } catch (er) { showErr($('#superr', page), er); } };
+      toast(tr('وصلنا طلبك، ونرد عليك قريبا')); route(); } catch (er) { showErr($('#superr', page), er); } };
 };

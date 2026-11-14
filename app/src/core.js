@@ -67,25 +67,25 @@ class ApiError extends Error { constructor(m, status, code) { super(m); this.sta
 const EN_AR = [
   [/invalid input syntax for type uuid/i, 'الرابط غير صحيح أو السجل غير موجود — ارجع للقائمة وافتحه من جديد'],
   [/permission denied|row-level security|42501/i, 'ليست لديك صلاحية لهذا الإجراء'],
-  [/duplicate key.*(emp_no)/i, 'الرقم الوظيفي مستخدم مسبقاً'],
-  [/duplicate key.*(code)/i, 'الرمز مستخدم مسبقاً'],
-  [/duplicate key|23505/i, 'السجل موجود مسبقاً'],
+  [/duplicate key.*(emp_no)/i, 'الرقم الوظيفي مستخدم مسبقا'],
+  [/duplicate key.*(code)/i, 'الرمز مستخدم مسبقا'],
+  [/duplicate key|23505/i, 'السجل موجود مسبقا'],
   [/national_id_check|national_id/i, 'رقم الهوية/الإقامة 10 أرقام يبدأ بـ 1 أو 2'],
-  [/iban_check/i, 'الآيبان يبدأ بـ SA ويليه 22 رقماً'],
-  [/vat_no_check/i, 'الرقم الضريبي 15 رقماً يبدأ وينتهي بـ 3'],
+  [/iban_check/i, 'الآيبان يبدأ بـ SA ويليه 22 رقما'],
+  [/vat_no_check/i, 'الرقم الضريبي 15 رقما يبدأ وينتهي بـ 3'],
   [/cr_no_check/i, 'السجل التجاري 10 أرقام'],
   [/phone_check/i, 'رقم الجوال بصيغة 05XXXXXXXX'],
   [/full_name_check|name_check/i, 'الاسم 3 أحرف على الأقل'],
   [/violates check constraint/i, 'قيمة غير صالحة في أحد الحقول'],
   [/violates foreign key/i, 'لا يمكن الحذف لارتباطه بسجلات أخرى'],
-  [/invalid input syntax for type (numeric|integer)/i, 'أدخل رقماً صحيحاً'],
-  [/invalid input syntax for type date/i, 'أدخل تاريخاً صحيحاً'],
+  [/invalid input syntax for type (numeric|integer)/i, 'أدخل رقما صحيحا'],
+  [/invalid input syntax for type date/i, 'أدخل تاريخا صحيحا'],
   [/Invalid login credentials/i, 'البريد أو كلمة المرور غير صحيحة'],
   [/Email not confirmed/i, 'لم يُؤكَّد البريد بعد — افتح رابط التأكيد في بريدك'],
-  [/User already registered/i, 'هذا البريد مسجّل مسبقاً — سجّل الدخول'],
+  [/User already registered/i, 'هذا البريد مسجّل مسبقا — سجّل الدخول'],
   [/Password should be at least/i, 'كلمة المرور 8 أحرف على الأقل'],
   [/confirmation (mail|email)|sending.*email/i, 'أطفئ خيار «Confirm email» في إعدادات Supabase ثم أعد المحاولة'],
-  [/rate limit|too many/i, 'محاولات كثيرة — انتظر قليلاً ثم أعد المحاولة'],
+  [/rate limit|too many/i, 'محاولات كثيرة — انتظر قليلا ثم أعد المحاولة'],
   [/Failed to fetch|NetworkError|Load failed/i, 'تعذّر الاتصال بالخادم — تحقق من الإنترنت'],
 ];
 function arMsg(m) { m = String(m || ''); if (/[؀-ۿ]/.test(m)) return m; for (const [re, ar] of EN_AR) if (re.test(m)) return ar; return m || 'حدث خطأ غير متوقع'; }
@@ -141,7 +141,7 @@ async function installApp() {
   modal(tr('ثبّت وعد على جوالك'), `<ol style="padding-inline-start:20px;margin:0">${(ios
     ? ['افتح وعد في متصفح Safari.', 'اضغط زر المشاركة (المربع والسهم للأعلى) أسفل الشاشة.', 'اختر «إضافة إلى الشاشة الرئيسية» ثم «إضافة».']
     : ['افتح قائمة المتصفح (⋮ أعلى الشاشة).', 'اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».', 'يظهر وعد بأيقونته مثل أي تطبيق، ويفتح بدون شريط المتصفح.']).map(x => `<li style="margin-bottom:6px">${esc(tr(x))}</li>`).join('')}</ol>
-    <p class="muted small">${esc(tr('مجاني وبدون متجر التطبيقات، ويتحدّث تلقائياً.'))}</p>`, { ok: 'تم' });
+    <p class="muted small">${esc(tr('مجاني وبدون متجر التطبيقات، ويتحدّث تلقائيا.'))}</p>`, { ok: 'تم' });
 }
 // a Supabase Edge Function, called with the user's own login (the function asks the database what they may do)
 async function fnCall(name, body) {
@@ -311,7 +311,7 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
   $$('[data-go]', app).forEach(a => a.onclick = e => { e.preventDefault(); authView(a.dataset.go); });
   $('#theme').onclick = e => { e.preventDefault(); toggleTheme(); }; applyTheme(curTheme());
   if ($('#chg')) $('#chg').onclick = e => { e.preventDefault(); LS.set('waad.ccode', null); LS.set('waad.cname', null); authView('staff'); };
-  if ($('#forgot')) $('#forgot').onclick = async e => { e.preventDefault(); const em = $('#af').email.value.trim(); if (!em) return showErr('#aerr', 'اكتب بريدك أولاً'); try { await authApi.recover(em); authView('in', 'أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك (إن كان مسجلاً).'); } catch (er) { showErr('#aerr', er); } };
+  if ($('#forgot')) $('#forgot').onclick = async e => { e.preventDefault(); const em = $('#af').email.value.trim(); if (!em) return showErr('#aerr', 'اكتب بريدك أولا'); try { await authApi.recover(em); authView('in', 'أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك (إن كان مسجلا).'); } catch (er) { showErr('#aerr', er); } };
   $('#af').onsubmit = async e => {
     e.preventDefault(); const f = formData(e.target);
     if (step === 'code') {
@@ -372,14 +372,14 @@ function onboardView() {
         ${profileFields()}
         <label class="row small wide" style="gap:6px;align-items:flex-start"><input type="checkbox" name="xfer" style="width:auto;margin-top:4px"> <span>${esc(tr('أوافق على حفظ بيانات منشأتي وموظفيها وعملائها لدى مزوّد سحابي خارج المملكة (اليابان)، وأتحمّل إبلاغهم بذلك، كما في'))} <a href="#/privacy">${esc(tr('سياسة الخصوصية'))}</a>.</span></label>
         <div class="wide"><div id="cerr"></div><button class="btn pri" id="cb">إنشاء المنشأة</button></div>
-      </form><p class="muted small">ستكون مالك المنشأة، ويُنشأ دليل الحسابات تلقائياً.</p></div>
+      </form><p class="muted small">ستكون مالك المنشأة، ويُنشأ دليل الحسابات تلقائيا.</p></div>
     <p class="muted small" style="text-align:center">${esc(S.session.user.email)} · <a href="#" id="lo">تسجيل الخروج</a></p></div></div>`;
   $('#lo').onclick = async e => { e.preventDefault(); await authApi.signOut(); authView(); };
   $('#jf').onsubmit = async e => { e.preventDefault(); const code = e.target.code.value.trim(); if (!code) return showErr('#jerr', 'أدخل الرمز');
     try { await busy($('#jb'), async () => { const cid = await db.rpc('accept_invite', { p_code: code }); S.cid = cid; LS.set('waad.cid', cid); await boot(); toast('تم الانضمام'); }); } catch (er) { showErr('#jerr', er); } };
   $('#cf').onsubmit = async e => { e.preventDefault(); const f = formData(e.target);
     if (f.name.length < 3) return showErr('#cerr', 'اسم المنشأة 3 أحرف على الأقل');
-    if (f.vat && !/^3\d{13}3$/.test(f.vat)) return showErr('#cerr', 'الرقم الضريبي 15 رقماً يبدأ وينتهي بـ 3');
+    if (f.vat && !/^3\d{13}3$/.test(f.vat)) return showErr('#cerr', 'الرقم الضريبي 15 رقما يبدأ وينتهي بـ 3');
     if (f.cr && !/^\d{10}$/.test(f.cr)) return showErr('#cerr', 'السجل التجاري 10 أرقام');
     try { await busy($('#cb'), async () => { const pe = profileErr(f); if (pe) throw new Error(pe);
       if (!f.xfer) throw new Error('وافق على حفظ البيانات خارج المملكة لإكمال إنشاء المنشأة');
@@ -396,8 +396,8 @@ function companyCodeBox(first) {
     <div style="text-align:center;margin:14px 0"><span class="code" id="ccv" style="font-size:30px;padding:8px 18px">${esc(c.code)}</span></div>
     <p class="small" style="text-align:center"><span class="muted">${esc('رابط دخول الموظفين')}:</span><br><span class="num" style="word-break:break-all">${esc(link)}</span></p>
     <div class="row" style="justify-content:center"><a class="btn pri" id="ccm" href="${esc(mail)}">${esc('أرسله إلى بريدي')}</a><button type="button" class="btn" id="ccc">${esc('نسخ الرمز والرابط')}</button>${waBtn('', msg, 'واتساب', 'btn wa')}</div>
-    <p class="muted small" style="text-align:center">${esc('يفتح «أرسله إلى بريدي» برنامج البريد برسالة جاهزة إلى')} <span class="num">${esc(me)}</span> — ${esc('اضغط إرسال فيها. تجده دائماً في «إعدادات المنشأة».')}</p>
-    ${first ? `<label class="row small" style="justify-content:center;gap:6px;margin-top:6px"><input type="checkbox" id="ccok"> ${esc('حفظت رمز المنشأة')}</label>` : ''}`, first ? { ok: 'متابعة', onOk: async () => { if (!$('#ccok').checked) throw new Error('احفظ الرمز أولاً (أرسله لبريدك أو انسخه)، ثم ضع العلامة'); } } : {});
+    <p class="muted small" style="text-align:center">${esc('يفتح «أرسله إلى بريدي» برنامج البريد برسالة جاهزة إلى')} <span class="num">${esc(me)}</span> — ${esc('اضغط إرسال فيها. تجده دائما في «إعدادات المنشأة».')}</p>
+    ${first ? `<label class="row small" style="justify-content:center;gap:6px;margin-top:6px"><input type="checkbox" id="ccok"> ${esc('حفظت رمز المنشأة')}</label>` : ''}`, first ? { ok: 'متابعة', onOk: async () => { if (!$('#ccok').checked) throw new Error('احفظ الرمز أولا (أرسله لبريدك أو انسخه)، ثم ضع العلامة'); } } : {});
   $('#ccc', d).onclick = async ev => { try { await navigator.clipboard.writeText(msg); ev.target.textContent = tr('نُسخ ✓'); } catch (er) { toast('تعذر النسخ — انسخ الرمز من الشاشة'); } };
   $('#ccm', d).addEventListener('click', () => { if ($('#ccok', d)) $('#ccok', d).checked = true; });
   if (first) { $('#mx', d).hidden = true; if ($('#mc', d)) $('#mc', d).hidden = true; const keep = ev => ev.preventDefault(); d.addEventListener('cancel', keep); d.addEventListener('close', () => d.removeEventListener('cancel', keep), { once: true }); }
@@ -431,10 +431,10 @@ async function authFromLink() {
   if (!/(^#|&)(access_token|error_code|error)=/.test(h)) return null;
   const p = new URLSearchParams(h.slice(1));
   history.replaceState(null, '', location.pathname + location.search);
-  if (!p.get('access_token')) return { error: p.get('error_code') === 'otp_expired' ? 'انتهت صلاحية الرابط أو استُخدم من قبل — اطلب رابطاً جديداً' : 'الرابط غير صالح — اطلب رابطاً جديداً' };
+  if (!p.get('access_token')) return { error: p.get('error_code') === 'otp_expired' ? 'انتهت صلاحية الرابط أو استُخدم من قبل — اطلب رابطا جديدا' : 'الرابط غير صالح — اطلب رابطا جديدا' };
   setSession({ access_token: p.get('access_token'), refresh_token: p.get('refresh_token'), expires_in: +p.get('expires_in') || 3600, user: null });
   try { const u = await api('/auth/v1/user'); setSession({ access_token: p.get('access_token'), refresh_token: p.get('refresh_token'), expires_in: +p.get('expires_in') || 3600, user: u }); }
-  catch (e) { setSession(null); return { error: 'الرابط غير صالح — اطلب رابطاً جديداً' }; }
+  catch (e) { setSession(null); return { error: 'الرابط غير صالح — اطلب رابطا جديدا' }; }
   return { type: p.get('type') };
 }
 // the landing page links to app/?start=signup (new company) or ?start=signin (owner/admin e-mail login)
@@ -466,7 +466,7 @@ async function boot() {
     if (S.mustChange) return changePasswordView(true);
     if (S.sub && S.sub.status === 'pending') return pendingView();
   } catch (e) {
-    if (e.status === 401) { setSession(null); return authView('in', 'انتهت الجلسة — سجّل الدخول مجدداً'); }
+    if (e.status === 401) { setSession(null); return authView('in', 'انتهت الجلسة — سجّل الدخول مجددا'); }
     $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><div class="err">${esc(e.message)}</div><button class="btn" onclick="boot()">إعادة المحاولة</button></div></div></div>`; return;
   }
   shell(); route();
@@ -511,7 +511,7 @@ const subLive = () => { const s = S.sub; if (!s) return true;
 // a new company waits until the Waad team accepts it (admin site → المنشآت)
 function pendingView() {
   $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><h2>${esc(tr('وصلنا طلبك'))}</h2>
-    <p>${esc(tr('سجّلنا منشأتك'))} «<b>${esc(S.company ? S.company.name : '')}</b>»${esc(tr('، وفريق وعد يراجع الطلب ويفعّل لك التجربة قريباً. بنتواصل معك على إيميلك.'))}</p>
+    <p>${esc(tr('سجّلنا منشأتك'))} «<b>${esc(S.company ? S.company.name : '')}</b>»${esc(tr('، وفريق وعد يراجع الطلب ويفعّل لك التجربة قريبا. بنتواصل معك على إيميلك.'))}</p>
     <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn pri" id="pchk">${esc(tr('تحقق مرة ثانية'))}</button>
       <a class="btn" href="${SITE_URL}contact.html#contact" target="_blank" rel="noopener">${esc(tr('تواصل معنا'))}</a><button class="btn" id="lo">${esc(tr('تسجيل الخروج'))}</button></div></div>
     <p class="muted small" style="text-align:center">${langBtn('linkbtn')}</p></div></div>`;
@@ -637,8 +637,8 @@ function shell() {
   if (multi) $('#cs').onchange = async e => { S.cid = e.target.value; LS.set('waad.cid', S.cid); await loadContext(); shell(); location.hash = '#/home'; route(); };
   refreshCounts(); drawAnn(); drawSubBar();
 }
-// Arabic day counts: يوم واحد / يومان / 3–10 أيام / 11+ يوماً
-const daysAr = n => n === 0 ? 'اليوم آخر يوم' : n === 1 ? 'باقي يوم واحد' : n === 2 ? 'باقي يومان' : n <= 10 ? `باقي ${n} أيام` : `باقي ${n} يوماً`;
+// Arabic day counts: يوم واحد / يومان / 3–10 أيام / 11+ يوما
+const daysAr = n => n === 0 ? 'اليوم آخر يوم' : n === 1 ? 'باقي يوم واحد' : n === 2 ? 'باقي يومان' : n <= 10 ? `باقي ${n} أيام` : `باقي ${n} يوما`;
 // the owner sees how long the trial or the subscription has left, counting down every day
 function drawSubBar() {
   const box = $('#subbar'), s = S.sub; if (!box) return;
@@ -702,11 +702,11 @@ async function loadNotifs() {
     S.emp ? safe(db.get('penalties', { employee_id: 'eq.' + S.emp, status: 'in.(open,applied)', select: 'id,status,inv_on,emp_defense,notified_on,griev_on' })) : null]);
   if (mine && mine.length) add(mine.length + ' طلبات بانتظار اعتمادك', '#/approvals', { hot: 1 });
   if (pens) { const g = pens.filter(p => p.griev_on && !p.griev_result).length, due = pens.filter(p => p.status === 'open' && p.inv_on && (new Date(td) - new Date(p.inv_on)) / 864e5 >= 25).length;
-    if (g) add(g + ' تظلمات من جزاءات بانتظار البت خلال 15 يوماً', '#/penalties', { hot: 1 });
-    if (due) add(due + ' مخالفات انتهى تحقيقها وتقترب مهلة القرار (30 يوماً)', '#/penalties', { hot: 1 }); }
+    if (g) add(g + ' تظلمات من جزاءات بانتظار البت خلال 15 يوما', '#/penalties', { hot: 1 });
+    if (due) add(due + ' مخالفات انتهى تحقيقها وتقترب مهلة القرار (30 يوما)', '#/penalties', { hot: 1 }); }
   if (myPens) { myPens.filter(p => p.status === 'open' && !p.inv_on && !p.emp_defense).forEach(() => add('مخالفة منسوبة إليك — اطّلع وأرسل ردك الكتابي', '#/profile', { hot: 1 }));
-    myPens.filter(p => p.status === 'applied' && p.notified_on && (new Date(td) - new Date(p.notified_on)) / 864e5 <= 30 && !p.griev_on).forEach(p => add('صدر بحقك جزاء — لك حق التظلم خلال 30 يوماً', '#/profile', { at: p.notified_on + 'T12:00:00Z' })); }
-  if (alerts) { const u = alerts.filter(a => a.level === 'expired' || a.level === 'd30').length; if (u) add(u + ' مستندات أو عقود منتهية أو تنتهي خلال 30 يوماً', '#/docs', { hot: 1 }); }
+    myPens.filter(p => p.status === 'applied' && p.notified_on && (new Date(td) - new Date(p.notified_on)) / 864e5 <= 30 && !p.griev_on).forEach(p => add('صدر بحقك جزاء — لك حق التظلم خلال 30 يوما', '#/profile', { at: p.notified_on + 'T12:00:00Z' })); }
+  if (alerts) { const u = alerts.filter(a => a.level === 'expired' || a.level === 'd30').length; if (u) add(u + ' مستندات أو عقود منتهية أو تنتهي خلال 30 يوما', '#/docs', { hot: 1 }); }
   if (prob) { const em = await employeesMap().catch(() => ({})); const soon = prob.filter(p => p.effective_end >= td && (new Date(p.effective_end) - new Date(td)) / 864e5 <= 14 && em[p.employee_id] && !em[p.employee_id].end_date);
     soon.forEach(p => add('تنتهي فترة تجربة', '#/hrreports', { hot: 1, n: em[p.employee_id].full_name, tail: 'بتاريخ ' + p.effective_end })); }
   if (myDocs) myDocs.forEach(d => add((d.expiry_date < td ? 'انتهت ' : 'تنتهي ') + (typeof docName === 'function' ? docName(d) : d.doc_type) + ' بتاريخ ' + d.expiry_date + ' — تواصل مع الموارد البشرية', '#/profile', { hot: 1 }));
@@ -732,7 +732,7 @@ function markWide(root = document) {
   $$('.tw', root).forEach(t => {
     const wide = t.scrollWidth > t.clientWidth + 4; t.classList.toggle('xs', wide);
     const h = t.previousElementSibling && t.previousElementSibling.classList.contains('xsh') ? t.previousElementSibling : null;
-    if (wide && !h) t.insertAdjacentHTML('beforebegin', `<div class="xsh">${esc(tr('↔ اسحب الجدول جانباً لعرض باقي الأعمدة'))}</div>`);
+    if (wide && !h) t.insertAdjacentHTML('beforebegin', `<div class="xsh">${esc(tr('↔ اسحب الجدول جانبا لعرض باقي الأعمدة'))}</div>`);
     if (!wide && h) h.remove();
   });
 }
@@ -751,7 +751,7 @@ async function route() {
   $('#page').replaceChildren(page);
   if (!modOn(routeModule(path))) { page.innerHTML = `<div class="note">${esc(tr('هذا القسم غير مشمول في باقة منشأتك.'))} ${has('owner') ? esc(tr('لتفعيله تواصل مع إدارة وعد.')) : esc(tr('راجع مالك المنشأة.'))}</div>`; return; }
   try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); setTimeout(() => page.isConnected && markWide(page), 60); }
-  catch (e) { if (e.status === 401 && !S.session) { if (!$('#af')) authView('in', 'انتهت الجلسة — سجّل الدخول مجدداً'); return; } /* a late answer from a page left behind never replaces a sign-in screen already shown */ if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div><p style="margin-top:10px"><button type="button" class="btn" onclick="history.length > 1 ? history.back() : (location.hash = '#/home')">${esc(tr('رجوع'))}</button> <a class="btn" href="#/home">${esc(tr('الرئيسية'))}</a></p>`; }
+  catch (e) { if (e.status === 401 && !S.session) { if (!$('#af')) authView('in', 'انتهت الجلسة — سجّل الدخول مجددا'); return; } /* a late answer from a page left behind never replaces a sign-in screen already shown */ if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div><p style="margin-top:10px"><button type="button" class="btn" onclick="history.length > 1 ? history.back() : (location.hash = '#/home')">${esc(tr('رجوع'))}</button> <a class="btn" href="#/home">${esc(tr('الرئيسية'))}</a></p>`; }
 }
 window.addEventListener('hashchange', () => /(^#|&)(access_token|error_code)=/.test(location.hash) ? boot() : !S.session && legalHash() ? legalView(legalHash()) : ADMIN ? (S.platform && $('#ppage') ? platformView() : null) : S.platform && /^#\/platform/.test(location.hash) ? (location.href = ADMIN_URL) : S.platform && !$('#page') ? boot() : route());
 window.addEventListener('hashchange', () => { if (!ADMIN && Date.now() - BELL_AT > 60000) drawBell(); });
@@ -814,7 +814,7 @@ async function mfaSetup() {
   let en; try { en = await authFetch('factors', 'POST', { factor_type: 'totp', friendly_name: 'Waad ' + Date.now() }); } catch (e) { return toast(e.message); }
   const t = en.totp || {}, secret = t.secret || '';
   modal('تفعيل التحقق بخطوتين', `<ol class="small" style="padding-inline-start:18px;margin-top:0"><li>${esc(tr('ثبّت تطبيق مصادقة في جوالك مثل Google Authenticator أو Microsoft Authenticator.'))}</li>
-      <li>${esc(tr('امسح الرمز التالي من التطبيق، أو أدخل المفتاح يدوياً.'))}</li><li>${esc(tr('اكتب الرمز المكوّن من 6 أرقام الذي يظهر في التطبيق.'))}</li></ol>
+      <li>${esc(tr('امسح الرمز التالي من التطبيق، أو أدخل المفتاح يدويا.'))}</li><li>${esc(tr('اكتب الرمز المكوّن من 6 أرقام الذي يظهر في التطبيق.'))}</li></ol>
     <div style="text-align:center" data-nt>${QR.svg(t.uri || '', 180)}<div class="small num" dir="ltr" id="mfs" style="word-break:break-all;margin-top:6px">${esc(secret)}</div></div>
     <div class="fg">${field('رمز التحقق', '<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" dir="ltr" required>')}</div>`, {
     ok: 'تفعيل', onOk: async f => { await mfaVerify(en.id, (f.code || '').trim()); S.mfa = { enrolled: true, aal: 'aal2' }; toast(tr('فُعّل التحقق بخطوتين')); ADMIN ? boot() : route(); } });

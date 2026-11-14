@@ -26,7 +26,7 @@ VIEWS['#/parties'] = async (page, kind) => {
   const T = cust ? ['العملاء', 'عميل'] : ['الموردون', 'مورد'];
   page.innerHTML = `<div class="head"><div><h1>${T[0]}</h1></div><div class="row"><button class="btn" id="pim">استيراد من Excel</button><button class="btn pri" id="np">إضافة ${T[1]}</button></div></div>
     ${tbl([{ t: 'الاسم', h: p => esc(p.name) + (p.active === false ? ` <span class="badge">${esc(tr('موقوف'))}</span>` : '') }, { t: 'الرقم الضريبي', h: p => `<span class="num">${esc(p.vat_no || '—')}</span>` }, { t: 'الجوال', h: p => `<span class="num">${esc(p.phone || '—')}</span>` },
-      { t: 'المدينة', h: p => esc(p.city || '—') + (p.country && p.country !== 'SA' ? ` <span class="muted num">${esc(p.country)}</span>` : '') }, { t: 'مدة السداد', h: p => p.terms_days ? `<span class="num">${p.terms_days}</span> ${esc(tr('يوماً'))}` : '—' },
+      { t: 'المدينة', h: p => esc(p.city || '—') + (p.country && p.country !== 'SA' ? ` <span class="muted num">${esc(p.country)}</span>` : '') }, { t: 'مدة السداد', h: p => p.terms_days ? `<span class="num">${p.terms_days}</span> ${esc(tr('يوما'))}` : '—' },
       ...(cust ? [{ t: 'حد الائتمان', r: 1, h: p => p.credit_limit != null ? money(p.credit_limit) : '—' }] : [{ t: 'التقييم', h: p => { const x = scm[p.id]; return x && x.ratings ? `★ <span class="num">${x.overall}</span> <span class="small muted">(${x.ratings})</span>` : '—'; } },
         { t: 'الالتزام بالمواعيد', r: 1, h: p => { const x = scm[p.id]; return x && x.on_time_pct != null ? `<span class="num">${x.on_time_pct}%</span>` : '—'; } }]),
       { t: '', h: p => `<a class="btn sm" href="#/statement/${p.id}" data-st>${esc(tr('كشف حساب'))}</a>` }], rows, { empty: 'لا يوجد ' + T[0], onRow: true })}`;
@@ -43,7 +43,7 @@ VIEWS['#/parties'] = async (page, kind) => {
       ${field('الآيبان', inp('iban', p && p.iban, 'dir="ltr" maxlength="34" id="piban"') + '<div class="small muted" id="pibk"></div>')}
       ${field('ملاحظات', inp('note', p && p.note), 'wide')}${p ? field('الحالة', `<label class="row" style="gap:6px"><input type="checkbox" name="active" ${p.active !== false ? 'checked' : ''}> ${esc(tr('نشط — يظهر في الفواتير والأوامر الجديدة'))}</label>`, 'wide') : ''}</div>`, {
       wide: true, onOk: async f => {
-        if (f.vat_no && !/^3\d{13}3$/.test(f.vat_no)) throw new Error('الرقم الضريبي 15 رقماً يبدأ وينتهي بـ 3');
+        if (f.vat_no && !/^3\d{13}3$/.test(f.vat_no)) throw new Error('الرقم الضريبي 15 رقما يبدأ وينتهي بـ 3');
         if (f.cr_no && !/^\d{10}$/.test(f.cr_no)) throw new Error('السجل التجاري 10 أرقام');
         const out = f.loc === 'X', country = out ? (f.country || '').trim().toUpperCase() : 'SA';
         if (out && !/^[A-Z]{2}$/.test(country)) throw new Error('رمز الدولة حرفان مثل AE');
@@ -86,8 +86,8 @@ VIEWS['#/statement'] = async (page, id, q) => {
     printBlock(w, tr('كشف حساب') + ' — ' + p.name); };
 };
 function partyImport(kind, T) {
-  const d = modal(tr('استيراد') + ' ' + tr(T[0]) + ' ' + tr('من Excel'), `<ol class="small" style="padding-inline-start:18px;margin-top:0"><li>${esc(tr('نزّل القالب واملأ سطراً لكل اسم — الاسم وحده مطلوب.'))}</li>
-    <li>${esc(tr('الاسم الموجود مسبقاً تُحدَّث بياناته من الخانات المعبأة فقط، والجديد يُضاف.'))}</li><li>${esc(tr('رمز الدولة فارغ = داخل المملكة.'))}</li></ol>
+  const d = modal(tr('استيراد') + ' ' + tr(T[0]) + ' ' + tr('من Excel'), `<ol class="small" style="padding-inline-start:18px;margin-top:0"><li>${esc(tr('نزّل القالب واملأ سطرا لكل اسم — الاسم وحده مطلوب.'))}</li>
+    <li>${esc(tr('الاسم الموجود مسبقا تُحدَّث بياناته من الخانات المعبأة فقط، والجديد يُضاف.'))}</li><li>${esc(tr('رمز الدولة فارغ = داخل المملكة.'))}</li></ol>
     <div class="row"><button type="button" class="btn" id="ptpl">${esc(tr('تنزيل القالب'))}</button><label class="btn pri" style="margin:0;color:var(--prim-ink)">${esc(tr('اختيار الملف'))}<input type="file" id="pimf" accept=".xlsx,.csv,text/csv" hidden></label></div><div id="pimp"></div>`, { wide: true });
   const cols = PARTY_COLS.filter(c => kind === 'customer' || c[0] !== 'credit_limit');
   $('#ptpl', d).onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(templateXlsx([cols.map(c => tr(c[1]) + (c[3] ? ' *' : ''))])); a.download = kind === 'customer' ? 'waad-customers.xlsx' : 'waad-suppliers.xlsx'; a.click(); };
@@ -102,13 +102,13 @@ function partyImport(kind, T) {
         cols.forEach(([k]) => { if (idx[k] != null) { const v = arDigits(String(r[idx[k]] == null ? '' : r[idx[k]]).trim()); if (v) x[k] = v; } });
         const nm = (x.name || '').replace(/\s+/g, ' ');
         if (nm.length < 3) errs.push(tr('الاسم مطلوب')); else if (seen[nm]) errs.push(tr('الاسم مكرر في الملف')); seen[nm] = 1;
-        if (x.vat_no && !/^3\d{13}3$/.test(x.vat_no)) errs.push(tr('الرقم الضريبي 15 رقماً يبدأ وينتهي بـ 3'));
+        if (x.vat_no && !/^3\d{13}3$/.test(x.vat_no)) errs.push(tr('الرقم الضريبي 15 رقما يبدأ وينتهي بـ 3'));
         if (x.cr_no && !/^\d{10}$/.test(x.cr_no)) errs.push(tr('السجل التجاري 10 أرقام'));
         if (x.terms_days && !/^\d{1,3}$/.test(x.terms_days)) errs.push(tr('مدة السداد أرقام فقط'));
         if (x.credit_limit && !(+x.credit_limit >= 0)) errs.push(tr('حد الائتمان أرقام فقط'));
         return { x, errs }; });
       const bad = items.filter(i => i.errs.length);
-      box.innerHTML = `<div class="${bad.length ? 'err' : 'note'}">${items.length} ${esc(tr('سطر في الملف'))}${bad.length ? ` — ${bad.length} ${esc(tr('سطر فيه أخطاء، صحّحها في الملف ثم ارفعه مجدداً'))}` : ' — ' + esc(tr('جاهز للاستيراد'))}</div>
+      box.innerHTML = `<div class="${bad.length ? 'err' : 'note'}">${items.length} ${esc(tr('سطر في الملف'))}${bad.length ? ` — ${bad.length} ${esc(tr('سطر فيه أخطاء، صحّحها في الملف ثم ارفعه مجددا'))}` : ' — ' + esc(tr('جاهز للاستيراد'))}</div>
         ${tbl([{ t: 'السطر', h: i => i.x._row }, { t: 'الاسم', h: i => esc(i.x.name || '') }, { t: 'الرقم الضريبي', h: i => `<span class="num">${esc(i.x.vat_no || '')}</span>` }, { t: 'المدينة', h: i => esc(i.x.city || '') },
           { t: 'الملاحظات', h: i => i.errs.length ? `<span class="bad">${esc(i.errs.join('، '))}</span>` : '<span class="ok">✓</span>' }], (bad.length ? bad : items).slice(0, 300))}
         ${bad.length ? '' : `<div class="row" style="margin-top:12px"><button type="button" class="btn pri" id="pgo">${esc(tr('استيراد'))} ${items.length} ${esc(tr('سطر'))}</button></div><div id="pier"></div>`}`;
@@ -161,7 +161,7 @@ async function docForm(page, key) {
   const [allParties, items, acc] = await Promise.all([db.get('parties', Object.assign(C(), { kind: 'eq.' + D.party, order: 'name' })), db.get('items', Object.assign(C(), { order: 'code' })), accounts()]);
   const parties = allParties.filter(p => p.active !== false), units = await db.get('item_units', Object.assign(C(), { select: 'item_id,name,name_en,factor,barcode' })).catch(() => []);
   const expAcc = acc.filter(a => !a.is_header && (a.type === 'exp' || a.type === 'asset') && !['1110', '1120', '1200', '1300', '1400'].includes(a.code) && a.parent_code !== '1100');
-  if (!parties.length) { page.innerHTML = `<div class="note">أضف ${key === 'sales' ? 'عميلاً' : 'مورداً'} أولاً. <a href="#/parties/${D.party}">${key === 'sales' ? 'العملاء' : 'الموردون'}</a></div>`; return; }
+  if (!parties.length) { page.innerHTML = `<div class="note">أضف ${key === 'sales' ? 'عميلا' : 'موردا'} أولا. <a href="#/parties/${D.party}">${key === 'sales' ? 'العملاء' : 'الموردون'}</a></div>`; return; }
   const lines = [{}], whf = await whField(null, key === 'sales' ? 'يُصرف من مستودع' : 'يُستلم في مستودع'), ccf = await ccField(null), curs = await currencies();
   const fxf = curs.length ? field('العملة', `<select name="currency" id="dcur"><option value="">${esc(tr('ريال سعودي'))} (SAR)</option>${curs.map(c => opt(c.code, c.code + ' — ' + ((LANG === 'en' && c.name_en) || c.name))).join('')}</select>`) + `<div id="dfxw" hidden>${field('سعر الصرف (ريال للوحدة)', inp('fx_rate', '', 'type="number" step="0.000001" min="0.000001" id="dfx"'))}</div>` : '';
   page.innerHTML = `<div class="head"><div><a href="#/${key}" class="small">← ${D.t}</a><h1>${D.one} جديدة</h1></div></div><form id="df" class="card" novalidate>
@@ -201,7 +201,7 @@ async function docForm(page, key) {
   const syncParty = async () => {
     const p = partyNow(); if (!dueTouched) $('#ddu', page).value = addDays($('#ddt', page).value || today(), n0(p.terms_days));
     credit = null; $('#pcr', page).textContent = '';
-    const bits = []; if (p.terms_days) bits.push(tr('مدة السداد') + ' ' + p.terms_days + ' ' + tr('يوماً'));
+    const bits = []; if (p.terms_days) bits.push(tr('مدة السداد') + ' ' + p.terms_days + ' ' + tr('يوما'));
     if (key === 'sales' && p.credit_limit != null) { try { [credit] = await db.rpc('party_credit', { p_party: p.id }); } catch (e) { credit = null; }
       if (credit && partyNow().id === p.id) bits.push(tr('الرصيد') + ' ' + money(credit.balance) + ' · ' + tr('حد الائتمان') + ' ' + money(credit.credit_limit)); }
     $('#pcr', page).textContent = bits.join(' · ');
@@ -218,7 +218,7 @@ async function docForm(page, key) {
       }
     }
     const ls = lines.filter(l => l.what).map(l => { const o = { qty: r2(+(l.qty == null ? 1 : l.qty) * n0(l.u || 1) * 1000) / 1000, price: +l.price, vat: +(l.vat == null ? 15 : l.vat) }; if (l.sn) o.serials = snSplit(l.sn); if (l.what.startsWith('i:')) o.item = l.what.slice(2); else o.account = l.what.slice(2); return o; });
-    if (!ls.length) return showErr($('#derr', page), 'أضف بنداً واحداً على الأقل');
+    if (!ls.length) return showErr($('#derr', page), 'أضف بندا واحدا على الأقل');
     if (ls.some(l => !(l.qty > 0) || !(l.price >= 0))) return showErr($('#derr', page), 'تحقق من الكميات والأسعار');
     const doc = { party: f.party, date: f.date, due: f.due || f.date, note: blank(f.note), warehouse: blank(f.warehouse), cost_center: blank(f.cost_center), currency: blank(f.currency), fx_rate: f.currency ? +f.fx_rate : null, lines: ls }; if (key === 'purchases') doc.ref = blank(f.ref);
     try { await busy($('#ds', page), async () => { const id = await db.rpc(D.rpc, { p_company: S.cid, p_doc: doc }); toast('رُحّلت الفاتورة'); location.hash = `#/${key}/${id}`; }); } catch (er) { showErr($('#derr', page), er); }
@@ -275,7 +275,7 @@ function zatcaBox(z) {
       <div>${esc(tr('فاتورة (زاتكا)'))}: ${zatcaBadge(z.status)} <span class="small muted">${esc(tr(z.inv_type === 'standard' ? 'ضريبية — تُعتمد قبل تسليمها للعميل' : 'مبسطة — تُبلَّغ خلال 24 ساعة'))} · ${esc(tr('التسلسل'))} <span class="num">${z.icv}</span>${z.sent_at ? ' · ' + fdate(String(z.sent_at).slice(0, 10)) : ''}</span></div>
       ${again ? `<button class="btn sm" id="zrs">${esc(tr('إعادة الإرسال الآن'))}</button>` : ''}</div>
     ${z.last_error ? `<p class="small" style="margin:6px 0 0;color:var(${z.status === 'rejected' ? '--bad' : '--gold'})" data-nt>${esc(z.last_error)}</p>` : ''}
-    ${z.status === 'rejected' ? `<p class="small muted" style="margin:6px 0 0">${esc(tr('المستند المرفوض لا يُعدّل: أصدر إشعاراً دائناً عليه ثم فاتورة صحيحة جديدة.'))}</p>` : ''}
+    ${z.status === 'rejected' ? `<p class="small muted" style="margin:6px 0 0">${esc(tr('المستند المرفوض لا يُعدّل: أصدر إشعارا دائنا عليه ثم فاتورة صحيحة جديدة.'))}</p>` : ''}
     ${z.inv_type === 'standard' && z.status === 'pending' ? `<p class="small muted" style="margin:6px 0 0">${esc(tr('لا تسلّم الفاتورة الضريبية للعميل قبل اعتماد زاتكا.'))}</p>` : ''}</div>`;
 }
 // a debit note: an extra amount on this invoice (price difference, extra service…) — posted as its own document, chained to ZATCA
@@ -285,10 +285,10 @@ function debitNoteForm(doc, items) {
   modal(tr('إشعار مدين على الفاتورة') + ' ' + doc.no, `<div class="fg">${field('التاريخ', `<input type="date" name="d" value="${today()}" min="${doc.date}" max="${today()}">`)}
       ${field('السبب', '<input name="reason" required maxlength="300" placeholder="' + esc(tr('مثل: فرق سعر، خدمة إضافية')) + '">', 'wide')}</div>
     <div class="tw"><table class="lines"><thead><tr><th>${esc(tr('البند'))}</th><th>${esc(tr('الكمية'))}</th><th>${esc(tr('السعر'))}</th></tr></thead><tbody>${[0, 1, 2].map(row).join('')}</tbody></table></div>
-    <p class="muted small">${esc(tr('يُرحّل كمستند مستقل على نفس العميل ويُضاف لرصيده، ويُرسل إلى زاتكا مرتبطاً بالفاتورة الأصلية.'))}</p>`, {
+    <p class="muted small">${esc(tr('يُرحّل كمستند مستقل على نفس العميل ويُضاف لرصيده، ويُرسل إلى زاتكا مرتبطا بالفاتورة الأصلية.'))}</p>`, {
     wide: true, ok: 'ترحيل الإشعار', onOk: async f => {
       const lines = [0, 1, 2].map(i => ({ item: f['it' + i], qty: +f['q' + i], price: +f['p' + i] })).filter(l => l.item && l.qty > 0 && l.price > 0);
-      if (!lines.length) throw new Error('أدخل بنداً واحداً على الأقل بكمية وسعر');
+      if (!lines.length) throw new Error('أدخل بندا واحدا على الأقل بكمية وسعر');
       if ((f.reason || '').trim().length < 3) throw new Error('اكتب سبب الإشعار');
       const nid = await db.rpc('post_debit_note', { p_company: S.cid, p_doc: { ref: doc.id, date: f.d, reason: f.reason.trim(), lines } });
       toast(tr('رُحّل الإشعار المدين')); location.hash = '#/sales/' + nid;
@@ -309,11 +309,11 @@ async function paymentForm({ dir, party, doc, amount }) {
   const [parties, cash, open] = await Promise.all([db.get('parties', Object.assign(C(), { kind: 'eq.' + D.party, order: 'name' })), cashAccounts(), db.get(D.table, Object.assign(C(), { status: 'eq.posted', order: 'date', select: 'id,no,party_id,total,date' }))]);
   const paid = await paidMap(D, open.map(o => o.id));
   const openDocs = open.filter(o => n0(o.total) - n0(paid[o.id]) > 0.001);
-  if (!parties.length) return toast(dir === 'in' ? 'أضف عميلاً أولاً' : 'أضف مورداً أولاً');
+  if (!parties.length) return toast(dir === 'in' ? 'أضف عميلا أولا' : 'أضف موردا أولا');
   const d = modal(dir === 'in' ? 'سند قبض' : 'سند صرف', `<div class="fg">${field(dir === 'in' ? 'العميل' : 'المورد', `<select name="party" id="pp">${parties.map(p => opt(p.id, p.name, party)).join('')}</select>`)}
      ${field('مقابل فاتورة', `<select name="doc" id="pdoc"></select>`)}${field('المبلغ', inp('amount', amount || '', 'type="number" step="0.01" min="0.01" id="pam"'))}${field(dir === 'in' ? 'إلى حساب' : 'من حساب', `<select name="acc">${cash.map(a => opt(a.code, a.name, '1120')).join('')}</select>`)}
      ${field('التاريخ', `<input type="date" name="date" value="${today()}" max="${today()}">`)}${field('ملاحظات', inp('note'))}</div>`, {
-    ok: 'حفظ السند', onOk: async f => { if (!(+f.amount > 0)) throw new Error('أدخل مبلغاً أكبر من صفر');
+    ok: 'حفظ السند', onOk: async f => { if (!(+f.amount > 0)) throw new Error('أدخل مبلغا أكبر من صفر');
       await db.rpc('record_payment', { p_company: S.cid, p_doc: { direction: dir, party: f.party, amount: +f.amount, account: f.acc, date: f.date, note: blank(f.note), [D.payKey]: f.doc || '' } }); toast('حُفظ السند'); route(); }
   });
   const fill = () => { const p = $('#pp', d).value; $('#pdoc', d).innerHTML = '<option value="">— دفعة على الحساب —</option>' + openDocs.filter(o => o.party_id === p).map(o => opt(o.id, o.no + ' — متبقي ' + money(n0(o.total) - n0(paid[o.id])), doc)).join(''); };

@@ -22,7 +22,7 @@ VIEWS['#/forms'] = async page => {
     db.get('form_issues', { company_id: 'eq.' + S.cid, order: 'issued_at.desc', limit: 30 }).catch(() => [])]);
   const list = [...FORM_LIB.filter(x => x.dept === cur).map(libAsTpl), ...mine.filter(r => r.dept === cur).map(dbAsTpl)];
   const subjN = { employee: 'موظف', customer: 'عميل', supplier: 'مورد', party: 'عميل أو مورد', none: 'عام' };
-  page.innerHTML = `<div class="head"><div><h1>${esc(tr('النماذج'))}</h1><div class="muted">${esc(tr('نماذج جاهزة تُعبّأ تلقائياً من بيانات الموظف أو العميل أو المورد، وتُطبع بترويسة منشأتك وبرقم مسلسل'))}</div></div>
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('النماذج'))}</h1><div class="muted">${esc(tr('نماذج جاهزة تُعبّأ تلقائيا من بيانات الموظف أو العميل أو المورد، وتُطبع بترويسة منشأتك وبرقم مسلسل'))}</div></div>
       ${formCanWrite() ? `<button class="btn pri" id="fnew">${esc(tr('نموذج جديد'))}</button>` : ''}</div>
     <div class="ptabs pfil">${depts.map(d => `<a href="#" data-fd="${d}" data-nt${d === cur ? ' aria-current="page"' : ''}>${esc(fT(...FORM_DEPTS[d]))}</a>`).join('')}</div>
     <div class="fgrid">${list.map((t, i) => `<button type="button" class="card fcard" data-fi="${i}"><b data-nt>${esc(fT(t.title_ar, t.title_en))}</b>
@@ -93,7 +93,7 @@ async function formFill(t) {
   const d = modal(fT(t.title_ar, t.title_en), `<div class="fg">
       ${t.subject === 'employee' ? field('الموظف', `<input id="whoq" type="search" autocomplete="off" aria-label="${esc(tr('بحث'))}" placeholder="${esc(tr('ابحث بالاسم أو الرقم الوظيفي'))}" style="margin-bottom:6px"><select name="who" required>${el.map(e => opt(e.id, e.emp_no + ' — ' + e.full_name)).join('')}</select>`, 'wide') : ''}
       ${kinds.length ? field(t.subject === 'supplier' ? 'المورد' : t.subject === 'customer' ? 'العميل' : 'العميل أو المورد', `<input id="whoq" type="search" autocomplete="off" aria-label="${esc(tr('بحث'))}" placeholder="${esc(tr('ابحث بالاسم'))}" style="margin-bottom:6px"><select name="who" required>${parties.map(p => opt(p.id, p.name)).join('')}</select>`, 'wide') : ''}
-      ${t.lib && FORM_GRID[t.key] ? `<input type="hidden" name="lang" value="ar"><div class="wide small muted">${esc(tr('يطلع بالعربي والإنجليزي معاً على نفس الورقة.'))}</div>` : field('لغة النموذج', `<select name="lang">${opt('ar', 'العربية', LANG)}${t.body_en ? opt('en', 'English', LANG) : ''}</select>`)}
+      ${t.lib && FORM_GRID[t.key] ? `<input type="hidden" name="lang" value="ar"><div class="wide small muted">${esc(tr('يطلع بالعربي والإنجليزي معا على نفس الورقة.'))}</div>` : field('لغة النموذج', `<select name="lang">${opt('ar', 'العربية', LANG)}${t.body_en ? opt('en', 'English', LANG) : ''}</select>`)}
       ${t.fields.map(inputFor).join('')}</div>
     ${(t.subject === 'employee' && !el.length) || (kinds.length && !parties.length) ? `<div class="note">${esc(tr('ما فيه سجلات تختار منها. أضفها أول.'))}</div>` : ''}
     ${!t.lib && formCanWrite() ? `<button type="button" class="btn sm" id="fedit" style="margin-top:8px">${esc(tr('تعديل النموذج'))}</button>` : ''}`, {
@@ -238,7 +238,7 @@ function formEdit(r) {
       ${field('القسم', `<select name="dept">${Object.keys(FORM_DEPTS).filter(x => modOn(x) && formCanDept(x)).map(x => opt(x, fT(...FORM_DEPTS[x]), r.dept)).join('')}</select>`)}
       ${field('النموذج لـ', `<select name="subject">${[['employee', 'موظف'], ['customer', 'عميل'], ['supplier', 'مورد'], ['none', 'عام']].map(([k, l]) => opt(k, tr(l), r.subject || 'employee')).join('')}</select>`)}
       ${field('عنوان النموذج', inp('title_ar', r.title_ar, 'maxlength="120" required'))}${field('العنوان بالإنجليزي (اختياري)', inp('title_en', r.title_en, 'maxlength="120" dir="ltr"'))}
-      <div class="wide"><label>${esc(tr('اضغط لإضافة خانة تتعبّى تلقائياً'))}</label><div class="row" style="gap:6px;flex-wrap:wrap">${chips}</div></div>
+      <div class="wide"><label>${esc(tr('اضغط لإضافة خانة تتعبّى تلقائيا'))}</label><div class="row" style="gap:6px;flex-wrap:wrap">${chips}</div></div>
       ${field('نص النموذج بالعربي', `<textarea name="body_ar" rows="9" maxlength="8000" required data-nt>${esc(r.body_ar || '')}</textarea>`, 'wide')}
       ${field('النص بالإنجليزي (اختياري)', `<textarea name="body_en" rows="5" maxlength="8000" dir="ltr" data-nt>${esc(r.body_en || '')}</textarea>`, 'wide')}
       ${field('التوقيعات (كل جهة في سطر)', `<textarea name="sigs" rows="3" placeholder="${esc(tr('الموظف') + '\n' + tr('الموارد البشرية'))}">${esc((r.sigs || []).join('\n'))}</textarea>`, 'wide')}</div>

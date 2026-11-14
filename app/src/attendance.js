@@ -123,7 +123,7 @@ function attEdit(r, em) {
     <div class="fg">${field('وقت الحضور', `<input type="time" name="tin" value="${loc(r.check_in)}">`)}${field('وقت الانصراف', `<input type="time" name="tout" value="${loc(r.check_out)}">`)}
     ${field('سبب التعديل', inp('note', '', 'required placeholder="مثال: نسي تسجيل الانصراف"'), 'wide')}
     ${n0(r.extra_min) ? field('الإضافي المعتمد بالدقائق (من ' + r.extra_min + ')', inp('ot', r.ot_min || 0, `type="number" min="0" max="${r.extra_min}" step="1"`), 'wide') : ''}</div>
-    <p class="muted small">اترك وقت الحضور فارغاً لحذف السجل واعتبار اليوم غياباً. التعديل يُحفظ في سجل التدقيق.</p>
+    <p class="muted small">اترك وقت الحضور فارغا لحذف السجل واعتبار اليوم غيابا. التعديل يُحفظ في سجل التدقيق.</p>
     ${n0(r.ot_min) && r.att_id ? '<div class="row"><button type="button" class="btn sm" id="ot2c">تحويل الإضافي المعتمد إلى إجازة تعويضية</button></div>' : ''}`, {
     onOk: async f => {
       const changed = (f.tin || '') !== loc(r.check_in) || (f.tout || '') !== loc(r.check_out);
@@ -154,9 +154,9 @@ async function attSettings(box) {
       ${field('بداية الدوام في رمضان للورديات بلا وقت رمضان', `<input type="time" name="rs" value="${esc(String(c.ramadan_start || '').slice(0, 5))}">`)}${field('ساعات العمل اليومية في رمضان', `<input name="rh" type="number" step="0.5" min="4" max="6" value="${esc(c.ramadan_hours || 6)}">`)}
       ${field('حد طلبات نسيان البصمة في الشهر', `<input name="flim" type="number" step="1" min="0" max="31" placeholder="${esc(tr('بلا حد'))}" value="${c.punch_fix_month == null ? '' : esc(c.punch_fix_month)}">`)}
       <div class="wide"><button class="btn pri" id="ass">حفظ</button></div><div id="aserr" class="wide"></div></form>
-      <p class="muted small">${esc(tr('رمضان (م98): لا تزيد ساعات العمل على 6 ساعات يومياً و36 أسبوعياً للعمال المسلمين فقط (حسب الديانة في ملف الموظف). كل وردية تستخدم وقت رمضان المحدد لها، وإن لم يُحدد تبدأ من بداية الدوام في رمضان أدناه بعدد الساعات. يُعاد احتساب الحضور تلقائياً.'))}</p>
+      <p class="muted small">${esc(tr('رمضان (م98): لا تزيد ساعات العمل على 6 ساعات يوميا و36 أسبوعيا للعمال المسلمين فقط (حسب الديانة في ملف الموظف). كل وردية تستخدم وقت رمضان المحدد لها، وإن لم يُحدد تبدأ من بداية الدوام في رمضان أدناه بعدد الساعات. يُعاد احتساب الحضور تلقائيا.'))}</p>
       <p class="muted small">${esc(tr('الحدود الشهرية من لائحة المنشأة الداخلية، وتُحسب على شهر الرواتب (مع يوم الإقفال إن وُجد). اتركها فارغة لعدم التحديد.'))}</p>
-      <p class="muted small">الغياب بلا عذر يُحسم بأجر اليوم (الأجر الفعلي ÷ 30). حسم التأخير يكون بقدر الوقت الذي لم يُعمل فيه فقط؛ أي جزاء إضافي يحتاج لائحة جزاءات معتمدة وتحقيقاً (م66 و71).</p></div>
+      <p class="muted small">الغياب بلا عذر يُحسم بأجر اليوم (الأجر الفعلي ÷ 30). حسم التأخير يكون بقدر الوقت الذي لم يُعمل فيه فقط؛ أي جزاء إضافي يحتاج لائحة جزاءات معتمدة وتحقيقا (م66 و71).</p></div>
     <div class="card"><div class="row" style="justify-content:space-between"><h2>مواقع العمل</h2><button class="btn sm" id="ns">+ موقع</button></div>
       ${tbl([{ t: 'الموقع', k: 'name' }, { t: 'الإحداثيات', h: s => `<span class="num small">${(+s.lat).toFixed(5)}, ${(+s.lng).toFixed(5)}</span>` }, { t: 'النطاق', h: s => `<span class="num">${s.radius_m}</span> م` }], sites, { empty: 'لا توجد مواقع — بدونها يُقبل التسجيل من أي مكان', onRow: true })}</div>
     <div class="card"><div class="row" style="justify-content:space-between"><h2>الورديات</h2><button class="btn sm" id="nsh">+ وردية</button></div>
@@ -196,8 +196,8 @@ async function attSettings(box) {
       ${field('فترة السماح بالتأخير (دقيقة)', inp('g', v.grace_min, 'type="number" min="0" max="120"'))}${field('الوردية الافتراضية', `<select name="def">${opt('false', 'لا', String(v.is_default))}${opt('true', 'نعم — لكل موظف بلا وردية محددة', String(v.is_default))}</select>`)}
       <div class="wide"><label>أيام العمل</label><div class="row">${DOW.map((n, i) => `<label style="display:flex;gap:6px;align-items:center;color:var(--ink)"><input type="checkbox" name="d${i}" ${v.work_days.includes(i) ? 'checked' : ''}> ${n}</label>`).join('')}</div></div>
       ${s ? '<div class="wide"><button type="button" class="btn sm danger" id="shdel">حذف الوردية</button></div>' : ''}</div>
-      <p class="muted small">إذا كانت نهاية الدوام قبل بدايته فالوردية ليلية تنتهي صباح اليوم التالي. ساعات العمل لا تزيد على 8 يومياً أو 48 أسبوعياً، و6 ساعات في رمضان للمسلمين (م98).</p>`, {
-      onOk: async f => { const days = DOW.map((_, i) => i).filter(i => f['d' + i]); if (!(f.name || '').trim()) throw new Error('أدخل اسم الوردية'); if (!days.length) throw new Error('اختر يوم عمل واحداً على الأقل'); if (f.st === f.en) throw new Error('وقت البداية والنهاية متساويان');
+      <p class="muted small">إذا كانت نهاية الدوام قبل بدايته فالوردية ليلية تنتهي صباح اليوم التالي. ساعات العمل لا تزيد على 8 يوميا أو 48 أسبوعيا، و6 ساعات في رمضان للمسلمين (م98).</p>`, {
+      onOk: async f => { const days = DOW.map((_, i) => i).filter(i => f['d' + i]); if (!(f.name || '').trim()) throw new Error('أدخل اسم الوردية'); if (!days.length) throw new Error('اختر يوم عمل واحدا على الأقل'); if (f.st === f.en) throw new Error('وقت البداية والنهاية متساويان');
         if (!!f.rst !== !!f.ren) throw new Error(tr('أدخل بداية ونهاية دوام رمضان أو اتركهما فارغين'));
         const row = { name: f.name.trim(), name_en: blank((f.name_en || '').trim()), start_time: f.st, end_time: f.en, grace_min: Math.round(+f.g || 0), break_min: Math.round(+f.brk || 0),
           ramadan_start: blank(f.rst), ramadan_end: blank(f.ren), work_days: days, is_default: f.def === 'true' };

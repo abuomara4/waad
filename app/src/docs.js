@@ -1,14 +1,14 @@
 'use strict';
 /* ===== employee documents and contracts: expiry alerts (Labor Law Arts. 37, 55, 75) ===== */
 const DOC_T = { iqama: 'الإقامة', national_id: 'الهوية الوطنية', passport: 'جواز السفر', work_permit: 'رخصة العمل', health: 'الشهادة الصحية', driving: 'رخصة القيادة', other: 'مستند آخر', contract: 'عقد العمل', probation: 'نهاية فترة التجربة', service5: 'إكمال 5 سنوات خدمة' };
-const DOC_LVL = { expired: ['منتهي', 'bad'], d30: ['خلال 30 يوماً', 'bad'], d60: ['خلال 60 يوماً', 'wait'], d90: ['خلال 90 يوماً', 'info'], missing: ['غير مسجّل', 'wait'] };
+const DOC_LVL = { expired: ['منتهي', 'bad'], d30: ['خلال 30 يوما', 'bad'], d60: ['خلال 60 يوما', 'wait'], d90: ['خلال 90 يوما', 'info'], missing: ['غير مسجّل', 'wait'] };
 const CT_T = { fixed: 'محدد المدة', indefinite: 'غير محدد المدة' };
 const lvlBadge = l => `<span class="badge ${DOC_LVL[l][1]}">${esc(DOC_LVL[l][0])}</span>`;
 const daysTxt = n => n == null ? '—' : n < 0 ? 'منتهي منذ ' + (-n) + ' يوم' : n === 0 ? 'ينتهي اليوم' : 'باقي ' + n + ' يوم';
 const docName = d => d.doc_type === 'other' ? (d.title || DOC_T.other) : DOC_T[d.doc_type];
 // Art. 75: notice for an indefinite contract — 30 days from the worker, 60 from the employer (30 both ways if not paid monthly)
 const noticeTxt = c => c.contract_type === 'fixed' ? 'ينتهي بانتهاء مدته، ويُستحق التعويض عن المدة الباقية إذا أُنهي قبلها بلا سبب مشروع (م77)'
-  : c.monthly_paid ? 'مهلة الإشعار: 30 يوماً إذا أنهاه الموظف، و60 يوماً إذا أنهته المنشأة (م75)' : 'مهلة الإشعار: 30 يوماً من أي طرف (م75)';
+  : c.monthly_paid ? 'مهلة الإشعار: 30 يوما إذا أنهاه الموظف، و60 يوما إذا أنهته المنشأة (م75)' : 'مهلة الإشعار: 30 يوما من أي طرف (م75)';
 async function docAlertCount() { try { return (await db.rpc('doc_alerts', { p_company: S.cid, p_within: 30 })).filter(a => a.level === 'expired' || a.level === 'd30').length; } catch (e) { return 0; } }
 const docWaMsg = (a, e) => 'السلام عليكم ' + String(e.full_name || '').split(' ')[0] + '،\n' + (a.days_left < 0 ? 'انتهت ' : 'تنتهي ') + DOC_T[a.label] + (a.ref_no ? ' رقم ' + a.ref_no : '') + ' بتاريخ ' + a.due + '.\nنأمل تجهيز متطلبات التجديد والتواصل مع الموارد البشرية.\n' + S.company.name;
 // #9/#10 attachments widget: list, open, upload and delete files for one parent row (document or contract)
@@ -38,11 +38,11 @@ VIEWS['#/docs'] = async (page, arg) => {
   NAVC.docs = alerts.filter(a => a.level === 'expired' || a.level === 'd30').length; drawNav();
   const c = l => alerts.filter(a => a.level === l).length;
   page.innerHTML = `<div class="head"><div><h1>المستندات والعقود</h1><div class="muted">الإقامات ورخص العمل والجوازات والعقود ونهاية فترات التجربة وإكمال 5 سنوات خدمة — نحفظ الأرقام والتواريخ فقط بدون صور المستندات</div></div>
-      <div class="row"><select id="dw" style="width:auto">${[30, 60, 90, 180].map(n => opt(n, 'خلال ' + n + ' يوماً', within)).join('')}</select><button class="btn" id="imd">استيراد المستندات</button><button class="btn" id="imc">استيراد العقود</button></div></div>
+      <div class="row"><select id="dw" style="width:auto">${[30, 60, 90, 180].map(n => opt(n, 'خلال ' + n + ' يوما', within)).join('')}</select><button class="btn" id="imd">استيراد المستندات</button><button class="btn" id="imc">استيراد العقود</button></div></div>
     <div class="grid" style="margin-bottom:16px">
       <div class="card kpi"><div class="muted small">منتهية</div><div class="v num ${c('expired') ? 'bad' : ''}">${c('expired')}</div></div>
-      <div class="card kpi"><div class="muted small">خلال 30 يوماً</div><div class="v num ${c('d30') ? 'bad' : ''}">${c('d30')}</div></div>
-      <div class="card kpi"><div class="muted small">خلال 31–${within} يوماً</div><div class="v num">${c('d60') + c('d90')}</div></div>
+      <div class="card kpi"><div class="muted small">خلال 30 يوما</div><div class="v num ${c('d30') ? 'bad' : ''}">${c('d30')}</div></div>
+      <div class="card kpi"><div class="muted small">خلال 31–${within} يوما</div><div class="v num">${c('d60') + c('d90')}</div></div>
       <div class="card kpi"><div class="muted small">غير مسجّلة</div><div class="v num">${c('missing')}</div></div></div>
     ${tbl([{ t: 'الموظف', h: a => esc((em[a.employee_id] || {}).full_name || '') }, { t: 'البند', h: a => esc(DOC_T[a.label] || a.label) + (a.ref_no ? ` <span class="num muted small">${esc(a.ref_no)}</span>` : '') },
       { t: 'تاريخ الانتهاء', h: a => fdate(a.due) }, { t: 'المتبقي', h: a => daysTxt(a.days_left) }, { t: 'الحالة', h: a => lvlBadge(a.level) },
@@ -76,8 +76,8 @@ async function docsEmployee(page, id) {
         <tr><td class="muted">بداية أول عقد</td><td>${fdate(cur.first_start)}</td></tr>
         <tr><td class="muted">الإشعار</td><td class="small">${esc(noticeTxt(cur))}</td></tr></tbody></table></div>
         ${conv ? '<div class="note" style="margin-top:10px">جُدد العقد ثلاث مرات أو بلغت مدته أربع سنوات؛ إذا استمر الطرفان بعد نهايته يتحوّل إلى غير محدد المدة (م55).</div>' : ''}
-        ${cur.contract_type === 'fixed' && !e.is_saudi ? '<p class="muted small">إذا استمر العمل بعد انتهاء العقد عُدّ متجدداً لمدة مماثلة (م37).</p>' : ''}`
-      : `<div class="note">لا يوجد عقد مسجّل لهذا الموظف.${e.is_saudi ? '' : ' عقد غير السعودي يكون مكتوباً ومحدد المدة (م37).'}</div>`}
+        ${cur.contract_type === 'fixed' && !e.is_saudi ? '<p class="muted small">إذا استمر العمل بعد انتهاء العقد عُدّ متجددا لمدة مماثلة (م37).</p>' : ''}`
+      : `<div class="note">لا يوجد عقد مسجّل لهذا الموظف.${e.is_saudi ? '' : ' عقد غير السعودي يكون مكتوبا ومحدد المدة (م37).'}</div>`}
       ${cons.length > 1 ? `<details style="margin-top:10px"><summary class="small">العقود السابقة (${cons.length - 1})</summary>${tbl([{ t: 'النوع', h: c => esc(CT_T[c.contract_type]) }, { t: 'من', h: c => fdate(c.start_date) }, { t: 'إلى', h: c => fdate(c.end_date) }, { t: 'الحالة', h: c => c.status === 'renewed' ? 'جُدّد' : 'انتهى' }], cons.filter(c => c !== cur))}</details>` : ''}
       ${cur ? '<div id="cfiles" style="margin-top:12px;border-top:1px solid var(--line3);padding-top:10px"></div>' : ''}</div>
     <div class="card" id="dcard"><div class="row" style="justify-content:space-between"><h2>المستندات</h2><button class="btn sm pri" id="dnew">+ مستند</button></div>
@@ -93,7 +93,7 @@ async function docsEmployee(page, id) {
       <div data-o>${field('اسم المستند', inp('title', v.title))}</div><div data-o>${enF('title_en', v.title_en)}</div>${field('رقم المستند', inp('no', v.doc_no, 'dir="ltr"'))}
       ${field('تاريخ الإصدار', `<input type="date" name="is" value="${esc(v.issue_date || '')}">`)}${field('تاريخ الانتهاء', `<input type="date" name="ex" value="${esc(v.expiry_date || '')}">`)}
       ${field('ملاحظات', inp('notes', v.notes), 'wide')}${d ? '<div class="wide" id="dfiles" style="border-top:1px solid var(--line3);padding-top:10px"></div><div class="wide"><button type="button" class="btn sm danger" id="ddel">حذف المستند</button></div>' : ''}</div>
-      <p class="muted small">التنبيه يظهر قبل الانتهاء بـ90 و60 و30 يوماً. عند التجديد عدّل تاريخ الانتهاء أو أضف المستند الجديد.</p>`, {
+      <p class="muted small">التنبيه يظهر قبل الانتهاء بـ90 و60 و30 يوما. عند التجديد عدّل تاريخ الانتهاء أو أضف المستند الجديد.</p>`, {
       onOk: async f => { if (f.t === 'other' && (f.title || '').trim().length < 2) throw new Error('أدخل اسم المستند'); if (f.is && f.ex && f.ex < f.is) throw new Error('تاريخ الانتهاء قبل الإصدار');
         const row = { doc_type: f.t, title: f.t === 'other' ? f.title.trim() : null, title_en: f.t === 'other' ? blank((f.title_en || '').trim()) : null, doc_no: blank(f.no), issue_date: blank(f.is), expiry_date: blank(f.ex), notes: blank(f.notes) };
         if (d) await db.upd('employee_documents', { id: 'eq.' + d.id }, row); else await db.ins('employee_documents', Object.assign(row, { company_id: S.cid, employee_id: id })); toast('تم الحفظ'); route(); } });
@@ -142,21 +142,21 @@ async function payAndRequestsSection(page, e) {
       <div class="grid"><div class="card kpi"><div class="muted small">المكتسب</div><div class="v num">${r2(bal.earned_hours)}</div></div><div class="card kpi"><div class="muted small">المستخدم والمحجوز</div><div class="v num">${r2(bal.used_hours)}</div></div>
         <div class="card kpi"><div class="muted small">الرصيد بالساعات</div><div class="v num">${r2(bal.balance_hours)}</div></div><div class="card kpi"><div class="muted small">قيمة الرصيد</div><div class="v num">${money(r2(Math.max(0, n0(bal.balance_hours)) * gross / 30 / 8))}</div></div></div>
       ${tbl([{ t: 'تاريخ العمل الإضافي', h: c => fdate(c.earned_on) }, { t: 'ساعات إضافية', r: 1, h: c => r2(c.ot_hours) }, { t: 'ساعات الإجازة', r: 1, h: c => r2(c.hours) }, { t: 'تُستخدم قبل', h: c => fdate(c.use_by) + (c.use_by < today() ? ' <span class="badge wait">' + esc('انتهت المهلة') + '</span>' : '') }, { t: 'ملاحظة', h: c => `<span class="small">${esc(c.note || '')}</span>` }], cc, { empty: 'لا توجد ساعات تعويضية' })}
-      <p class="muted small">م107 والمادة 22 مكرر من اللائحة: بموافقة العامل يُعوَّض عن العمل الإضافي بإجازة مدفوعة بدل الأجر، بما لا يقل عن ساعة ونصف عن كل ساعة، وبحد 30 يوماً في السنة، وتُؤخذ خلال 60 يوماً ما لم يُتفق على غير ذلك. إذا انتهت العلاقة قبل استخدامها يُصرف للعامل أجرها، ويظهر ذلك في حساب نهاية الخدمة. للتحويل من سجل الحضور: افتح يوم العمل من صفحة الحضور.</p></div>
+      <p class="muted small">م107 والمادة 22 مكرر من اللائحة: بموافقة العامل يُعوَّض عن العمل الإضافي بإجازة مدفوعة بدل الأجر، بما لا يقل عن ساعة ونصف عن كل ساعة، وبحد 30 يوما في السنة، وتُؤخذ خلال 60 يوما ما لم يُتفق على غير ذلك. إذا انتهت العلاقة قبل استخدامها يُصرف للعامل أجرها، ويظهر ذلك في حساب نهاية الخدمة. للتحويل من سجل الحضور: افتح يوم العمل من صفحة الحضور.</p></div>
     <div class="card" id="rqcard"><h2>طلبات الموظف</h2>${tbl([{ t: 'النوع', h: r => esc(KIND[r.kind] + (r.sub ? ' — ' + (ltn[r.sub] || r.sub) : '')) }, { t: 'من', h: r => fdate(r.from_date) }, { t: 'إلى', h: r => fdate(r.to_date) },
       { t: 'الحالة', h: r => badge(r.status) + (r.payload && r.payload.defer_until ? ' <span class="badge wait">' + esc('قبول مؤجل') + '</span>' : '') }, { t: 'تاريخ الطلب', h: r => fdate(r.created_at) }], rqs, { empty: 'لا توجد طلبات', onRow: true })}</div>`);
   bindRows($('#rqcard', page), rqs, r => requestDetail(Object.assign({ _emp: e }, r)));
   const alForm = a => modal(a ? 'تعديل بدل' : 'بدل جديد', `<div class="fg">${field('اسم البدل', inp('name', a ? a.name : '', 'required placeholder="مثال: بدل اتصال، بدل طبيعة عمل"'))}${enF('name_en', a ? a.name_en : '', 'اسم البدل بالإنجليزية')}
-      ${field('المبلغ الشهري', inp('amount', a ? a.amount : '', 'type="number" step="0.01" min="0"'))}${field('من تاريخ', `<input type="date" name="st" value="${esc(a ? a.start_on : today())}">`)}${field('إلى تاريخ (اتركه فارغاً إن كان مستمراً)', `<input type="date" name="en" value="${esc(a && a.end_on || '')}">`)}${field('ملاحظة', inp('note', a ? a.note : ''), 'wide')}</div>
-      <p class="muted small">لإيقاف البدل حدد تاريخ النهاية؛ لا يُحذف حتى يبقى في السجل. يدخل البدل مسير الشهر إذا كان سارياً في آخر يوم منه.</p>`, {
+      ${field('المبلغ الشهري', inp('amount', a ? a.amount : '', 'type="number" step="0.01" min="0"'))}${field('من تاريخ', `<input type="date" name="st" value="${esc(a ? a.start_on : today())}">`)}${field('إلى تاريخ (اتركه فارغا إن كان مستمرا)', `<input type="date" name="en" value="${esc(a && a.end_on || '')}">`)}${field('ملاحظة', inp('note', a ? a.note : ''), 'wide')}</div>
+      <p class="muted small">لإيقاف البدل حدد تاريخ النهاية؛ لا يُحذف حتى يبقى في السجل. يدخل البدل مسير الشهر إذا كان ساريا في آخر يوم منه.</p>`, {
       onOk: async f => { const x = await db.rpc('allowance_save', { p_id: a ? a.id : null, p_emp: e.id, p_name: f.name, p_name_en: blank(f.name_en), p_amount: +f.amount || 0, p_start: blank(f.st), p_end: blank(f.en), p_note: blank(f.note) });
         if (f.name_en) EN[f.name.trim().replace(/\s+/g, ' ')] = f.name_en.trim(); cache.emps = null; toast('تم الحفظ'); route(); } });
   $('#alnew', page).onclick = () => alForm(null);
   bindRows($('#altbl', page), als, alForm);
   $('#salch', page).onclick = () => { const m = modal('تعديل الأجر', `<div class="fg">${field('الراتب الأساسي', inp('b', e.basic, 'type="number" step="0.01" min="0"'))}${field('بدل السكن', inp('h', e.housing, 'type="number" step="0.01" min="0"'))}${field('بدل النقل', inp('t', e.transport, 'type="number" step="0.01" min="0"'))}
       ${field('تاريخ السريان', `<input type="date" name="on" value="${today()}" max="${today()}">`)}${field('السبب', inp('why', '', 'required placeholder="ترقية، علاوة سنوية، تعديل عقد..."'), 'wide')}
-      <label class="wide row small" id="cons" style="gap:6px;display:none"><input type="checkbox" name="ok"> ${esc('وافق العامل كتابياً على تخفيض الأجر (ملحق عقد موقّع)')}</label></div>
-      <p class="muted small">يُحفظ التعديل في سجل الرواتب مع السبب، ويُعاد احتساب مسير الشهر غير المعتمد. الأجر شرط في العقد، فلا يُخفَّض إلا بموافقة العامل الكتابية. الفروقات عن أشهر معتمدة تُضاف مكافأةً في المسير القادم.</p>`, {
+      <label class="wide row small" id="cons" style="gap:6px;display:none"><input type="checkbox" name="ok"> ${esc('وافق العامل كتابيا على تخفيض الأجر (ملحق عقد موقّع)')}</label></div>
+      <p class="muted small">يُحفظ التعديل في سجل الرواتب مع السبب، ويُعاد احتساب مسير الشهر غير المعتمد. الأجر شرط في العقد، فلا يُخفَّض إلا بموافقة العامل الكتابية. الفروقات عن أشهر معتمدة تُضاف مكافأة في المسير القادم.</p>`, {
       ok: 'حفظ التعديل', onOk: async f => { await db.rpc('salary_change', { p_emp: e.id, p_basic: +f.b || 0, p_housing: +f.h || 0, p_transport: +f.t || 0, p_effective: f.on, p_reason: f.why, p_consent: !!f.ok }); cache.emps = null; toast('عُدّل الأجر'); route(); } });
     const sync = () => { const f = $('#mform', m); if (!$('#cons', m)) return m.removeEventListener('input', sync); $('#cons', m).style.display = !(+f.b.value < n0(e.basic) || (+f.b.value + +f.h.value + +f.t.value) < n0(e.basic) + n0(e.housing) + n0(e.transport)) ? 'none' : ''; };
     m.addEventListener('input', sync); sync(); };
@@ -189,7 +189,7 @@ async function lettersSection(page, e) {
     ${tbl(LTR_COLS, ls, { empty: 'لم يصدر خطاب بعد', onRow: true })}</div>`);
   bindRows($('#lcard', page), ls, l => location.hash = '#/letter/' + l.id);
   if ($('#lsal', page)) $('#lsal', page).onclick = () => letterDialog(e, 'salary');
-  $('#lsvc', page).onclick = () => left ? letterDialog(e, 'service') : toast('شهادة الخدمة تصدر عند انتهاء الخدمة — سجّل تاريخ نهاية الخدمة في بيانات الموظف أولاً (م64)');
+  $('#lsvc', page).onclick = () => left ? letterDialog(e, 'service') : toast('شهادة الخدمة تصدر عند انتهاء الخدمة — سجّل تاريخ نهاية الخدمة في بيانات الموظف أولا (م64)');
 }
 async function letterDialog(e, kind, req) {
   const self = !isHR(), co = LS.get('waad.enco.' + S.cid) || '';
@@ -312,7 +312,7 @@ function bulkImport({ title, intro, cols, fileName, tplRows, parse, post, dupKey
       const seen = {}; items.forEach(x => { const k = x.e && dupKey(x); if (!k) return; if (seen[k]) x.errs.push(dupMsg); seen[k] = 1; });
       const bad = items.filter(x => x.errs.length), out = bad.length ? items : send ? send(items) : items;
       const shown = (bad.length ? bad.concat(items.filter(x => !x.errs.length)) : out.concat(items.filter(x => !out.includes(x)))).slice(0, 300);
-      box.innerHTML = `<div class="${bad.length ? 'err' : out.length ? 'note' : 'note'}">${items.length} سطر في الملف${bad.length ? ` — ${bad.length} سطر فيه أخطاء، صحّحها في الملف ثم ارفعه مجدداً` : out.length ? (send ? ` — ${out.length} ${tr('موظف تتغير بياناتهم')}` : ' — جاهز للاستيراد') : ' — ' + tr('لا توجد تغييرات عن البيانات الحالية')}</div>
+      box.innerHTML = `<div class="${bad.length ? 'err' : out.length ? 'note' : 'note'}">${items.length} سطر في الملف${bad.length ? ` — ${bad.length} سطر فيه أخطاء، صحّحها في الملف ثم ارفعه مجددا` : out.length ? (send ? ` — ${out.length} ${tr('موظف تتغير بياناتهم')}` : ' — جاهز للاستيراد') : ' — ' + tr('لا توجد تغييرات عن البيانات الحالية')}</div>
         ${tbl([{ t: 'السطر', h: x => x.r._row }, { t: 'الموظف', h: x => x.e ? esc(x.e.full_name) + ` <span class="muted num">${esc(x.r.emp_no)}</span>` : `<span class="num">${esc(x.r.emp_no)}</span>` }, ...cells,
           { t: 'الملاحظات', h: x => x.errs.length ? `<span class="bad">${esc(x.errs.join('، '))}</span>` : `<span class="ok">✓</span>${x.warn ? ' <span class="small muted">' + esc(x.warn) + '</span>' : ''}` }], shown)}
         ${bad.length || !out.length ? '' : `<div class="row" style="margin-top:12px"><button type="button" class="btn pri" id="go">${esc(tr(goLabel))} ${out.length} ${esc(tr('سطر'))}</button></div><div id="ier"></div>`}`;
@@ -324,9 +324,9 @@ function bulkImport({ title, intro, cols, fileName, tplRows, parse, post, dupKey
 const activeEmps = async () => Object.values(await employeesMap(true)).filter(e => !e.end_date || e.end_date >= today()).sort((a, b) => String(a.emp_no).localeCompare(String(b.emp_no), undefined, { numeric: true }));
 function importDocsDialog() {
   bulkImport({ title: 'استيراد المستندات من Excel', cols: DOC_IMPORT_COLS, fileName: 'waad-documents.xlsx', rpc: 'import_documents',
-    intro: ['نزّل القالب: فيه سطر لكل موظف بنوع مستنده الأساسي (الهوية الوطنية للسعودي، والإقامة لغيره). أضف سطراً لكل مستند آخر للموظف نفسه.',
+    intro: ['نزّل القالب: فيه سطر لكل موظف بنوع مستنده الأساسي (الهوية الوطنية للسعودي، والإقامة لغيره). أضف سطرا لكل مستند آخر للموظف نفسه.',
       'أنواع المستندات: الإقامة، الهوية الوطنية، جواز السفر، رخصة العمل، الشهادة الصحية، رخصة القيادة، مستند آخر (مع اسمه).',
-      'التواريخ بالميلادي أو الهجري (مثل 1447-03-15) وتُحوَّل تلقائياً. إذا كان للموظف مستند من النوع نفسه يُحدَّث بدل تكراره، والخلايا الفارغة لا تمسح المحفوظ.',
+      'التواريخ بالميلادي أو الهجري (مثل 1447-03-15) وتُحوَّل تلقائيا. إذا كان للموظف مستند من النوع نفسه يُحدَّث بدل تكراره، والخلايا الفارغة لا تمسح المحفوظ.',
       'ارفع الملف وراجع المعاينة. إذا كان في أي سطر خطأ لا يُستورد شيء.'],
     tplRows: async () => (await activeEmps()).flatMap(e => e.is_saudi ? [[e.emp_no, e.full_name, DOC_T.national_id, '', '', e.national_id || '', '', '', '']]
       : [[e.emp_no, e.full_name, DOC_T.iqama, '', '', e.national_id || '', '', '', ''], [e.emp_no, e.full_name, DOC_T.work_permit, '', '', '', '', '', '']]),
@@ -347,8 +347,8 @@ function importContractsDialog() {
   bulkImport({ title: 'استيراد العقود من Excel', cols: CON_IMPORT_COLS, fileName: 'waad-contracts.xlsx', rpc: 'import_contracts',
     intro: ['نزّل القالب: فيه سطر لكل موظف على رأس العمل. اكتب بيانات العقد الساري فقط.',
       'نوع العقد: محدد المدة أو غير محدد المدة. عقد غير السعودي محدد المدة، وإذا لم تُكتب نهايته فمدته سنة (م37). العقد غير محدد المدة بلا تاريخ نهاية.',
-      'إن كان العقد مجدداً من قبل فاكتب «بداية أول عقد» و«عدد مرات التجديد» حتى تصل تنبيهات المادة 55 صحيحة.',
-      'العقد المستورد يحل محل العقد الساري. إذا بدأ في اليوم التالي لنهاية العقد الحالي يُسجَّل تجديداً له، وإذا كان مطابقاً له لا يتغير شيء.'],
+      'إن كان العقد مجددا من قبل فاكتب «بداية أول عقد» و«عدد مرات التجديد» حتى تصل تنبيهات المادة 55 صحيحة.',
+      'العقد المستورد يحل محل العقد الساري. إذا بدأ في اليوم التالي لنهاية العقد الحالي يُسجَّل تجديدا له، وإذا كان مطابقا له لا يتغير شيء.'],
     tplRows: async () => (await activeEmps()).map(e => [e.emp_no, e.full_name, e.is_saudi ? '' : CT_T.fixed, e.hire_date, '', '', '', 'شهري', 'لا', '']),
     parse: (g, raw, idx) => { const errs = [], st = impDate(raw[idx.start_date]), en = impDate(raw[idx.end_date]), fs = impDate(raw[idx.first_start]);
       const ty = yesNo(g('contract_type')), mp = yesNo(g('monthly_paid')), cl = yesNo(g('renewal_clause'));
@@ -392,8 +392,8 @@ async function updateEmployeesDialog() {
   const show = (k, v) => PROFILE_KEYS.includes(k) ? profileShow(k, v) : k === 'is_saudi' ? (v === 'true' ? 'سعودي' : 'غير سعودي') : k === 'gender' ? (v === 'f' ? 'أنثى' : 'ذكر') : k === 'manager_emp_no' && v ? (Object.values(em).find(x => x.emp_no === v) || {}).full_name || v : v;
   bulkImport({ title: 'تحديث بيانات الموظفين من Excel', cols: UPD_COLS, fileName: 'waad-employees-update.xlsx', rpc: 'update_employees', goLabel: 'تحديث',
     intro: ['نزّل القالب: فيه بيانات كل الموظفين على رأس العمل كما هي الآن. عدّل الخلايا التي تريد تغييرها فقط، ويمكنك حذف الأعمدة التي لا تحتاجها.',
-      'الخلية الفارغة لا تغيّر شيئاً، ولمسح قيمة اكتب «-». الرقم الوظيفي هو مفتاح الربط ولا يتغير من الملف.',
-      'القسم يُكتب باسمه (القسم الجديد يُنشأ تلقائياً)، والمدير المباشر برقمه الوظيفي. لا يُقبل تسلسل دائري.',
+      'الخلية الفارغة لا تغيّر شيئا، ولمسح قيمة اكتب «-». الرقم الوظيفي هو مفتاح الربط ولا يتغير من الملف.',
+      'القسم يُكتب باسمه (القسم الجديد يُنشأ تلقائيا)، والمدير المباشر برقمه الوظيفي. لا يُقبل تسلسل دائري.',
       'الرواتب والبدلات لا تُعدَّل من هنا؛ تُعدَّل من صفحة الموظف ← الأجر والبدلات حتى يُحفظ السبب في سجل الرواتب.',
       'ستظهر المعاينة بالتغييرات فقط (القيمة الحالية ← الجديدة) قبل الحفظ. إذا كان في أي سطر خطأ لا يُحدَّث شيء.'],
     tplRows: async () => (await activeEmps()).map(e => { const c = cur(e); return UPD_COLS.map(([k]) => k === 'emp_no' ? e.emp_no : k === 'manager_name' ? (c.manager_emp_no ? show('manager_emp_no', c.manager_emp_no) : '')
@@ -417,10 +417,10 @@ async function updateEmployeesDialog() {
         if (k === 'work_site' && nv && !wsOk(nv)) { x.errs.push(tr('موقع العمل غير موجود') + ': ' + nv); continue; }
         if (nv === c[k]) continue;
         if (k === 'national_id' && nv && !/^[12]\d{9}$/.test(nv)) x.errs.push('رقم الهوية/الإقامة 10 أرقام يبدأ بـ 1 أو 2');
-        if (k === 'iban' && nv && !/^SA\d{22}$/.test(nv)) x.errs.push('الآيبان يبدأ بـ SA ويليه 22 رقماً');
+        if (k === 'iban' && nv && !/^SA\d{22}$/.test(nv)) x.errs.push('الآيبان يبدأ بـ SA ويليه 22 رقما');
         if (k === 'phone' && nv && !/^(05\d{8}|\+9665\d{8})$/.test(nv)) x.errs.push('رقم الجوال بصيغة 05XXXXXXXX');
         if (k === 'email' && nv && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(nv)) x.errs.push('البريد الإلكتروني غير صحيح');
-        if (k === 'manager_emp_no' && nv) { if (nv === x.e.emp_no) x.errs.push('لا يكون الموظف مديراً لنفسه'); else if (!Object.values(em).some(y => y.emp_no === nv)) x.errs.push('المدير المباشر غير موجود'); }
+        if (k === 'manager_emp_no' && nv) { if (nv === x.e.emp_no) x.errs.push('لا يكون الموظف مديرا لنفسه'); else if (!Object.values(em).some(y => y.emp_no === nv)) x.errs.push('المدير المباشر غير موجود'); }
         x.r[k] = nv === '' ? null : nv; ch.push([k, c[k], nv]);
       }
       x.changes = ch; },
@@ -468,7 +468,7 @@ async function clearanceCard(box, e, opts = {}) {
 VIEWS['#/clearance'] = async page => {
   const em = await employeesMap(true), td = today(), lim = new Date(Date.now() - 90 * 864e5).toISOString().slice(0, 10);
   const list = Object.values(em).filter(e => e.end_date && e.end_date >= lim).sort((a, b) => a.end_date.localeCompare(b.end_date));
-  page.innerHTML = `<div class="head"><div><h1>${esc(tr('إخلاء الطرف'))}</h1><div class="muted">${esc(tr('الموظفون المنتهية خدمتهم أو قريباً (آخر 90 يوماً)'))}</div></div></div>
-    ${list.length ? list.map(e => `<div data-cl="${e.id}"><div class="muted small" style="margin:12px 4px 4px">${esc(tr('آخر يوم عمل'))}: ${fdate(e.end_date)}${e.end_date > td ? '' : ' — ' + esc(tr('انتهت'))}</div><div class="clb"></div></div>`).join('') : `<div class="note">${esc(tr('لا يوجد موظفون يغادرون حالياً.'))}</div>`}`;
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('إخلاء الطرف'))}</h1><div class="muted">${esc(tr('الموظفون المنتهية خدمتهم أو قريبا (آخر 90 يوما)'))}</div></div></div>
+    ${list.length ? list.map(e => `<div data-cl="${e.id}"><div class="muted small" style="margin:12px 4px 4px">${esc(tr('آخر يوم عمل'))}: ${fdate(e.end_date)}${e.end_date > td ? '' : ' — ' + esc(tr('انتهت'))}</div><div class="clb"></div></div>`).join('') : `<div class="note">${esc(tr('لا يوجد موظفون يغادرون حاليا.'))}</div>`}`;
   for (const e of list) clearanceCard($(`[data-cl="${e.id}"] .clb`, page), e, { title: true }).catch(() => { $(`[data-cl="${e.id}"]`, page).remove(); });
 };

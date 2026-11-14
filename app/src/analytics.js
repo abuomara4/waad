@@ -34,28 +34,28 @@ function anModel(d, lt) {
       K('هامش الربح', x.margin, 'pct'), K('هامش الربح الإجمالي', x.gross_margin, 'pct'), K('تكلفة الرواتب', x.payroll, 'money', x.payroll_prev, 1), K('الرواتب من الإيرادات', x.payroll_ratio, 'pct'),
       K('النقد في البنك والصندوق', x.cash, 'money', x.cash_prev), K('ذمم العملاء', x.ar, 'money'), K('ذمم الموردين', x.ap, 'money'), K('قيمة المخزون', x.inventory, 'money'),
       K('عدد الموظفين', x.headcount, 'num'), K('الإيراد لكل موظف', x.rev_per_emp, 'money')], notes,
-      charts: [{ t: 'الإيرادات والمصروفات شهرياً', bars: x.months.map(m => ({ label: mon(m.m), values: [m.revenue, m.expenses] })), series: ['الإيرادات', 'المصروفات'], f: 'money' }],
+      charts: [{ t: 'الإيرادات والمصروفات شهريا', bars: x.months.map(m => ({ label: mon(m.m), values: [m.revenue, m.expenses] })), series: ['الإيرادات', 'المصروفات'], f: 'money' }],
       tables: [{ t: 'الأداء الشهري', cols: [['الشهر'], ['الإيرادات', 'money'], ['المصروفات', 'money'], ['صافي الربح', 'money']], rows: x.months.map(m => [m.m, m.revenue, m.expenses, m.profit]) }] }); }
   if (d.finance) { const x = d.finance, ag = a => [n0(a && a.d30), n0(a && a.d60), n0(a && a.d90), n0(a && a.over)];
     S_.push({ k: 'finance', t: 'المالية', kpis: [K('ضريبة المخرجات', x.vat.output, 'money'), K('ضريبة المدخلات', x.vat.input, 'money'), K('صافي الضريبة المستحقة', n0(x.vat.output) - n0(x.vat.input), 'money'),
-      K('ذمم عملاء متأخرة أكثر من 90 يوماً', ag(x.ar_aging)[3], 'money', null, 1), K('ذمم موردين متأخرة أكثر من 90 يوماً', ag(x.ap_aging)[3], 'money', null, 1)],
-      charts: [{ t: 'التدفق النقدي شهرياً', bars: x.cash_flow.map(m => ({ label: mon(m.m), values: [m.in, m.out] })), series: ['داخل', 'خارج'], f: 'money' },
+      K('ذمم عملاء متأخرة أكثر من 90 يوما', ag(x.ar_aging)[3], 'money', null, 1), K('ذمم موردين متأخرة أكثر من 90 يوما', ag(x.ap_aging)[3], 'money', null, 1)],
+      charts: [{ t: 'التدفق النقدي شهريا', bars: x.cash_flow.map(m => ({ label: mon(m.m), values: [m.in, m.out] })), series: ['داخل', 'خارج'], f: 'money' },
         { t: 'أكبر المصروفات', h: x.expense_accounts.slice(0, 10).map(a => ({ label: anNm(a), v: a.amount })), f: 'money' }],
       tables: [{ t: 'المصروفات حسب الحساب', cols: [['الحساب'], ['الاسم'], ['المبلغ', 'money']], rows: x.expense_accounts.map(a => [a.code, anNm(a), a.amount]) },
-        { t: 'أعمار الذمم', cols: [['البيان'], ['حتى 30 يوماً', 'money'], ['31–60', 'money'], ['61–90', 'money'], ['أكثر من 90', 'money']], rows: [[tr('ذمم العملاء'), ...ag(x.ar_aging)], [tr('ذمم الموردين'), ...ag(x.ap_aging)]] },
+        { t: 'أعمار الذمم', cols: [['البيان'], ['حتى 30 يوما', 'money'], ['31–60', 'money'], ['61–90', 'money'], ['أكثر من 90', 'money']], rows: [[tr('ذمم العملاء'), ...ag(x.ar_aging)], [tr('ذمم الموردين'), ...ag(x.ap_aging)]] },
         { t: 'التدفق النقدي', cols: [['الشهر'], ['داخل', 'money'], ['خارج', 'money'], ['الصافي', 'money']], rows: x.cash_flow.map(m => [m.m, m.in, m.out, n0(m.in) - n0(m.out)]) }] }); }
   if (d.sales) { const x = d.sales;
     S_.push({ k: 'sales', t: 'المبيعات', kpis: [K('المبيعات قبل الضريبة', x.total, 'money', x.total_prev, 0, col(x.months, 'total')), K('عدد الفواتير', x.count, 'num'), K('متوسط الفاتورة', x.count ? x.total / x.count : null, 'money'),
       K('المرتجعات', x.returns, 'money', null, 1), K('المحصّل', x.collected, 'money')],
       notes: x.total > 0 && x.customers.length ? [['حصة أكبر عميل من المبيعات', r2(x.customers[0].total / x.total * 100), 'pct', x.customers[0].total / x.total <= .3, 30]] : [],
-      charts: [{ t: 'المبيعات شهرياً', bars: x.months.map(m => ({ label: mon(m.m), values: [m.total] })), series: ['المبيعات'], f: 'money' },
+      charts: [{ t: 'المبيعات شهريا', bars: x.months.map(m => ({ label: mon(m.m), values: [m.total] })), series: ['المبيعات'], f: 'money' },
         { t: 'أكبر العملاء', h: x.customers.map(c => ({ label: anNm(c), v: c.total })), f: 'money' }],
       tables: [{ t: 'أكبر العملاء', cols: [['العميل'], ['الفواتير', 'num'], ['المبلغ', 'money']], rows: x.customers.map(c => [anNm(c), c.n, c.total]) },
-        { t: 'الأصناف الأكثر مبيعاً', cols: [['الصنف'], ['الكمية', 'num'], ['المبلغ', 'money']], rows: x.items.map(i => [anNm(i), i.qty, i.total]) }] }); }
+        { t: 'الأصناف الأكثر مبيعا', cols: [['الصنف'], ['الكمية', 'num'], ['المبلغ', 'money']], rows: x.items.map(i => [anNm(i), i.qty, i.total]) }] }); }
   if (d.supply) { const x = d.supply;
     S_.push({ k: 'supply', t: 'المشتريات والمخزون', kpis: [K('المشتريات قبل الضريبة', x.purchases, 'money', x.purchases_prev, 1, col(x.months, 'total')), K('المدفوع للموردين', x.paid, 'money'), K('قيمة المخزون', x.stock_value, 'money'),
       K('أصناف تحت حد الطلب', x.low_stock.length, 'num', null, 1), K('أصناف راكدة', x.slow.length, 'num', null, 1)],
-      charts: [{ t: 'المشتريات شهرياً', bars: x.months.map(m => ({ label: mon(m.m), values: [m.total] })), series: ['المشتريات'], f: 'money' },
+      charts: [{ t: 'المشتريات شهريا', bars: x.months.map(m => ({ label: mon(m.m), values: [m.total] })), series: ['المشتريات'], f: 'money' },
         { t: 'أكبر الموردين', h: x.suppliers.map(c => ({ label: anNm(c), v: c.total })), f: 'money' }],
       tables: [{ t: 'أكبر الموردين', cols: [['المورد'], ['الفواتير', 'num'], ['المبلغ', 'money']], rows: x.suppliers.map(c => [anNm(c), c.n, c.total]) },
         { t: 'أصناف تحت حد الطلب', cols: [['الرمز'], ['الصنف'], ['الكمية', 'num'], ['حد الطلب', 'num']], rows: x.low_stock.map(i => [i.code, anNm(i), i.qty, i.reorder]) },
@@ -183,7 +183,7 @@ VIEWS['#/analytics'] = async page => {
   const go = o => { const q = new URLSearchParams({ p: pre, ...(pre === 'c' ? { f: from, t: to } : {}), ...(tab ? { tab } : {}), ...o }); location.hash = '#/analytics?' + q; };
   const title = tr('التحليلات') + ' — ' + S.company.name, sub = `${tr('الفترة')}: ${fdate(from)} – ${fdate(to)} · ${tr('مقارنة مع')} ${fdate(d.prev_from)} – ${fdate(d.prev_to)}`;
   const fn = ext => `waad-analytics-${from}_${to}.${ext}`;
-  const P_ = [['m', 'هذا الشهر'], ['lastm', 'الشهر الماضي'], ['q', 'هذا الربع'], ['y', 'هذه السنة'], ['ly', 'السنة الماضية'], ['l12', 'آخر 12 شهراً'], ['c', 'فترة مخصصة']];
+  const P_ = [['m', 'هذا الشهر'], ['lastm', 'الشهر الماضي'], ['q', 'هذا الربع'], ['y', 'هذه السنة'], ['ly', 'السنة الماضية'], ['l12', 'آخر 12 شهرا'], ['c', 'فترة مخصصة']];
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('التحليلات'))}</h1><div class="muted small">${esc(sub)}</div></div>
       <div class="row"><select id="anp" style="width:auto">${P_.map(([k, l]) => opt(k, tr(l), pre)).join('')}</select>
         <span id="anc" class="row" ${pre === 'c' ? '' : 'hidden'}><input type="date" id="anf" value="${from}" style="width:auto"><input type="date" id="ant" value="${to}" style="width:auto"><button class="btn" id="ango">${esc(tr('عرض'))}</button></span></div></div>

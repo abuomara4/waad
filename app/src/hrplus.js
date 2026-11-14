@@ -67,16 +67,16 @@ VIEWS['#/hrdash'] = async page => {
       ${kpi('على رأس العمل', d.active, '#/employees')}${kpi('السعوديون', `${d.saudi} <span class="small muted">(${d.active ? r2(d.saudi / d.active * 100) : 0}%)</span>`, '#/nitaqat')}
       ${kpi('حاضرون اليوم', `${n0(t.present)} / ${n0(t.expected)}`, '#/att', n0(t.present) < n0(t.expected) ? 'bad' : '')}${kpi('متأخرون اليوم', n0(t.late), '#/att', t.late ? 'bad' : '')}
       ${kpi('في إجازة اليوم', n0(t.leave), '#/leavecal')}${kpi('طلبات بانتظار الاعتماد', pend, '#/approvals', pend ? 'bad' : '')}
-      ${kpi('معدل الدوران (12 شهراً)', `${d.turnover}%`, null)}${kpi('تحت التجربة', d.probation, '#/docs')}
-      ${d.docs30 != null ? kpi('مستندات وعقود تنتهي خلال 30 يوماً', d.docs30, '#/docs', d.docs30 ? 'bad' : '') : ''}${kpi('إخلاء طرف غير مكتمل', d.clearance_open, '#/clearance', d.clearance_open ? 'bad' : '')}
+      ${kpi('معدل الدوران (12 شهرا)', `${d.turnover}%`, null)}${kpi('تحت التجربة', d.probation, '#/docs')}
+      ${d.docs30 != null ? kpi('مستندات وعقود تنتهي خلال 30 يوما', d.docs30, '#/docs', d.docs30 ? 'bad' : '') : ''}${kpi('إخلاء طرف غير مكتمل', d.clearance_open, '#/clearance', d.clearance_open ? 'bad' : '')}
       ${kpi('إقرارات سياسات ناقصة', d.policies_unacked, '#/policies', d.policies_unacked ? 'bad' : '')}${last ? kpi('تكلفة آخر مسير', money(n0(last.gross) + n0(last.employer_gosi)), '#/payroll') : ''}</div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
-      <div class="card"><h2>${esc(tr('عدد الموظفين والحركة — 12 شهراً'))}</h2>${barChart(d.months.map(m => ({ label: m.m.slice(5), values: [m.hc, m.joins, m.leaves] })), [{ name: 'العدد نهاية الشهر', color: '#2563eb' }, { name: 'منضمون', color: '#16a34a' }, { name: 'مغادرون', color: '#dc2626' }])}</div>
+      <div class="card"><h2>${esc(tr('عدد الموظفين والحركة — 12 شهرا'))}</h2>${barChart(d.months.map(m => ({ label: m.m.slice(5), values: [m.hc, m.joins, m.leaves] })), [{ name: 'العدد نهاية الشهر', color: '#2563eb' }, { name: 'منضمون', color: '#16a34a' }, { name: 'مغادرون', color: '#dc2626' }])}</div>
       <div class="card"><h2>${esc(tr('الموظفون حسب القسم'))}</h2>${hbars(d.by_dept.map(x => ({ label: x.name === '—' ? tr('بلا قسم') : nm(x), v: x.n })))}</div>
       <div class="card"><h2>${esc(tr('تكلفة الرواتب — آخر 6 مسيرات'))}</h2>${(d.payroll || []).length ? barChart(d.payroll.map(p => ({ label: p.p.slice(2), values: [p.gross, p.net, p.employer_gosi] })), [{ name: 'الإجمالي', color: '#2563eb' }, { name: 'الصافي', color: '#16a34a' }, { name: 'تأمينات المنشأة', color: '#f59e0b' }], { fmt: money }) : `<p class="muted small">${esc(tr('لا توجد مسيرات'))}</p>`}</div>
-      <div class="card"><h2>${esc(tr('أرصدة إجازات متراكمة (أكثر من 30 يوماً)'))}</h2>${att(d.leave_high, [{ t: 'الموظف', h: x => esc(nm(x)) }, { t: 'الرصيد', r: 1, h: x => `<b class="num">${Math.floor(x.days)}</b>` }])}</div>
+      <div class="card"><h2>${esc(tr('أرصدة إجازات متراكمة (أكثر من 30 يوما)'))}</h2>${att(d.leave_high, [{ t: 'الموظف', h: x => esc(nm(x)) }, { t: 'الرصيد', r: 1, h: x => `<b class="num">${Math.floor(x.days)}</b>` }])}</div>
       <div class="card"><h2>${esc(tr('عمل إضافي قريب من 720 ساعة'))}</h2>${att(d.ot_near_cap, [{ t: 'الموظف', h: x => esc(nm(x)) }, { t: 'الساعات هذه السنة', r: 1, h: x => `<b class="num ${x.hours >= 720 ? 'bad' : ''}">${x.hours}</b>` }])}</div>
-      <div class="card"><h2>${esc(tr('ساعات تعويضية تنتهي خلال 14 يوماً'))}</h2>${att(d.comp_expiring, [{ t: 'الموظف', h: x => esc(nm(x)) }, { t: 'الرصيد', r: 1, h: x => `<span class="num">${r2(x.hours)}</span>` }, { t: 'تنتهي', h: x => fdate(x.use_by) }])}</div>
+      <div class="card"><h2>${esc(tr('ساعات تعويضية تنتهي خلال 14 يوما'))}</h2>${att(d.comp_expiring, [{ t: 'الموظف', h: x => esc(nm(x)) }, { t: 'الرصيد', r: 1, h: x => `<span class="num">${r2(x.hours)}</span>` }, { t: 'تنتهي', h: x => fdate(x.use_by) }])}</div>
     </div></div>`;
   $('#dprn', page).onclick = () => printBlock($('#dsh', page), tr('لوحة الموارد البشرية'));
 };
@@ -120,7 +120,7 @@ VIEWS['#/roster'] = async (page, arg, q) => {
       <div class="wide"><label>${esc(tr('الموظفون'))}</label><div id="rse" style="max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px">${list.map(e => `<label class="row small" style="gap:6px"><input type="checkbox" name="e_${e.id}" data-dep="${e.department_id || ''}" ${dep && e.department_id === dep ? 'checked' : ''}> ${esc(e.full_name)} <span class="muted num">${esc(e.emp_no)}</span></label>`).join('')}</div></div></div>
       <p class="muted small">${esc(tr('مثال: ورديتان مع التبدل كل 7 أيام = أسبوع على الأولى وأسبوع على الثانية. اختر «راحة» ليوم أو فترة راحة ضمن التدوير.'))}</p>`, { wide: true, ok: 'تطبيق',
       onOk: async f => { const emps2 = list.filter(e => f['e_' + e.id]).map(e => e.id), sh = [0, 1, 2, 3].map(i => f['s' + i]).filter(v => v !== '-' && v !== undefined).map(v => blank(v));
-        if (!emps2.length) throw new Error(tr('اختر موظفاً واحداً على الأقل'));
+        if (!emps2.length) throw new Error(tr('اختر موظفا واحدا على الأقل'));
         const n = await db.rpc('roster_assign', { p_company: S.cid, p_emps: emps2, p_from: f.from, p_to: f.to, p_shifts: sh, p_every: +f.every || 7 }); toast(tr('تم تعيين') + ' ' + n + ' ' + tr('يوم')); route(); } });
     $('#rsd', dl).onchange = ev => $$('#rse input', dl).forEach(x => x.checked = !!ev.target.value && x.dataset.dep === ev.target.value);
   };
@@ -137,8 +137,8 @@ async function bulkRaiseDialog() {
     ${field('تاريخ السريان', `<input type="date" name="eff" value="${today()}" max="${today()}">`)}${field('السبب', inp('why', tr('الزيادة السنوية'), 'required'), 'wide')}
     <div class="wide"><div id="bre" style="max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px">${list.map(e => `<label class="row small" style="gap:6px"><input type="checkbox" name="e_${e.id}" data-dep="${e.department_id || ''}" checked> ${esc(e.full_name)} <span class="muted num">${money(e.basic)}</span></label>`).join('')}</div></div>
     <div class="wide"><p class="small" id="brp" style="margin:0"></p></div></div>
-    <p class="muted small">${esc(tr('الزيادة لا تحتاج موافقة العامل وتُسجّل في سجل الأجور. التخفيض لا يكون جماعياً — يحتاج موافقة كل عامل كتابياً.'))}</p>`, { wide: true, ok: 'تطبيق الزيادة',
-    onOk: async f => { const ids = list.filter(e => f['e_' + e.id]).map(e => e.id); if (!ids.length) throw new Error(tr('اختر موظفاً واحداً على الأقل'));
+    <p class="muted small">${esc(tr('الزيادة لا تحتاج موافقة العامل وتُسجّل في سجل الأجور. التخفيض لا يكون جماعيا — يحتاج موافقة كل عامل كتابيا.'))}</p>`, { wide: true, ok: 'تطبيق الزيادة',
+    onOk: async f => { const ids = list.filter(e => f['e_' + e.id]).map(e => e.id); if (!ids.length) throw new Error(tr('اختر موظفا واحدا على الأقل'));
       const n = await db.rpc('salary_raise_bulk', { p_company: S.cid, p_emps: ids, p_pct: +f.pct || 0, p_amount: +f.amt || 0, p_housing: f.hs === 'true', p_effective: f.eff, p_reason: f.why });
       cache.emps = null; toast(tr('زيدت رواتب') + ' ' + n); route(); } });
   const F = $('#mform', d), prev = () => { const pct = +F.pct.value || 0, amt = +F.amt.value || 0, hs = F.hs.value === 'true';
@@ -166,7 +166,7 @@ VIEWS['#/policies'] = async page => {
       ${S.emp && p.active && !mine.has(p.id) ? `<div class="row" style="margin-top:12px"><button type="button" class="btn pri" id="pack">${esc(tr('أقر بأنني اطلعت على هذه السياسة'))}</button></div>` : ''}
       ${hr ? `<h3 style="margin-top:14px;font-size:15px">${esc(tr('لم يقر بعد'))} (<span class="num">${who.length}</span>)</h3><p class="small">${who.map(e => esc(e.full_name)).join('، ') || esc(tr('الكل أقر'))}</p>
         <div class="row"><button type="button" class="btn sm" id="pedit">${esc(tr('تعديل'))}</button></div>` : ''}`, { wide: true });
-    if ($('#pack', d)) $('#pack', d).onclick = async () => { try { await db.rpc('policy_ack', { p_policy: p.id }); d.close(); toast(tr('شكراً، سُجّل إقرارك')); route(); } catch (er) { toast(er.message); } };
+    if ($('#pack', d)) $('#pack', d).onclick = async () => { try { await db.rpc('policy_ack', { p_policy: p.id }); d.close(); toast(tr('شكرا، سُجّل إقرارك')); route(); } catch (er) { toast(er.message); } };
     if ($('#pedit', d)) $('#pedit', d).onclick = () => { d.close(); policyForm(p); };
   });
   if ($('#pnew', page)) $('#pnew', page).onclick = () => policyForm(null);
@@ -194,6 +194,6 @@ async function leaveStatementCard(box, e) {
     <div class="grid" style="margin-bottom:8px"><div class="card kpi"><div class="muted small">${esc(tr('المستحق حتى اليوم'))}</div><div class="v num">${r2(b && b.accrued)}</div></div>
       <div class="card kpi"><div class="muted small">${esc(tr('المأخوذ والمحجوز'))}</div><div class="v num">${r2(b && b.taken)}</div></div>
       <div class="card kpi"><div class="muted small">${esc(tr('الرصيد'))}</div><div class="v num ${n0(b && b.balance) > 30 ? 'bad' : ''}">${Math.floor(n0(b && b.balance))}</div></div></div>
-    <p class="muted small">${esc(tr('الاستحقاق'))}: <b class="num">${yrs >= 5 ? 30 : 21}</b> ${esc(tr('يوماً في السنة (م109)'))}${n0(b && b.balance) > 30 ? ' — ' + esc(tr('رصيد متراكم: يُنصح بجدولة إجازة')) : ''}</p>
+    <p class="muted small">${esc(tr('الاستحقاق'))}: <b class="num">${yrs >= 5 ? 30 : 21}</b> ${esc(tr('يوما في السنة (م109)'))}${n0(b && b.balance) > 30 ? ' — ' + esc(tr('رصيد متراكم: يُنصح بجدولة إجازة')) : ''}</p>
     ${tbl([{ t: 'من', h: r => fdate(r.from_date) }, { t: 'إلى', h: r => fdate(r.to_date) }, { t: 'الأيام', r: 1, h: r => String(r.days) }, { t: 'الحالة', h: r => badge(r.status) }], lv, { empty: 'لا توجد إجازات سنوية' })}</div>`;
 }

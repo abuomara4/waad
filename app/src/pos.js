@@ -24,7 +24,7 @@ VIEWS['#/pos'] = async page => {
         <div id="pgrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:8px"></div></div>
       <div class="card" style="align-self:start"><div id="pcart"></div>
         <div class="fg" style="margin-top:10px">${field('العميل', `<select id="pcu"><option value="">${esc(tr(POS_CASH))}</option>${custs.filter(c => c.name !== POS_CASH).map(c => opt(c.id, c.name)).join('')}</select>`, 'wide')}
-          ${field('طريقة الدفع', `<select id="ppm">${opt('1110', tr('نقداً (الصندوق)'))}${opt('1120', tr('شبكة / بطاقة (البنك)'))}${opt('', tr('آجل — بدون قبض'))}</select>`, 'wide')}</div>
+          ${field('طريقة الدفع', `<select id="ppm">${opt('1110', tr('نقدا (الصندوق)'))}${opt('1120', tr('شبكة / بطاقة (البنك)'))}${opt('', tr('آجل — بدون قبض'))}</select>`, 'wide')}</div>
         <div id="perr"></div><button class="btn pri" id="pok" style="width:100%;margin-top:8px;min-height:48px">${esc(tr('إتمام البيع'))}</button></div></div>
     <div class="posbar" id="pbar"></div>`;
   const grid = $('#pgrid', page), draw = () => {
@@ -34,7 +34,7 @@ VIEWS['#/pos'] = async page => {
         <td class="num r">${money(r2(l.qty * l.price))}</td><td><button class="btn sm" data-x="${i}" aria-label="${esc(tr('حذف'))}">×</button></td></tr>`).join('')}</tbody></table>
       <p class="r" style="margin:8px 0 0">${esc(tr('قبل الضريبة'))} <span class="num">${money(t.net)}</span> · ${esc(tr('الضريبة'))} <span class="num">${money(t.vat)}</span></p>
       <p class="r" style="font-size:1.4em;margin:4px 0 0"><b>${esc(tr('الإجمالي'))} <span class="num">${money(t.total)}</span></b></p>`
-      : `<p class="muted">${esc(tr('السلة فارغة — اختر صنفاً.'))}</p>`;
+      : `<p class="muted">${esc(tr('السلة فارغة — اختر صنفا.'))}</p>`;
     // phones: the total and «complete sale» stay at the bottom of the screen while picking items
     $('#pbar', page).innerHTML = cart.length ? `<b>${esc(tr('الإجمالي'))} <span class="num">${money(t.total)}</span> <span class="small muted">(${cart.reduce((a, l) => a + l.qty, 0)})</span></b>
       <button type="button" class="btn pri" id="pbgo">${esc(tr('السلة والدفع'))}</button>` : '';
@@ -91,7 +91,7 @@ async function posReceipt(id, lines, acc) {
       <div style="display:flex;justify-content:space-between"><span>الإجمالي قبل الضريبة</span><span class="num">${money(doc.subtotal)}</span></div>
       <div style="display:flex;justify-content:space-between"><span>ضريبة القيمة المضافة</span><span class="num">${money(doc.vat)}</span></div>
       <div style="display:flex;justify-content:space-between;font-weight:700;font-size:12pt"><span>الإجمالي Total</span><span class="num">${money(doc.total)} SAR</span></div>
-      <div>${acc === '1110' ? 'نقداً Cash' : acc === '1120' ? 'شبكة Card' : 'آجل Credit'}</div></div>
-    <div style="text-align:center;margin-top:3mm">${zatcaQr(doc, 150)}</div><div style="text-align:center">شكراً لزيارتكم · Thank you</div>`;
+      <div>${acc === '1110' ? 'نقدا Cash' : acc === '1120' ? 'شبكة Card' : 'آجل Credit'}</div></div>
+    <div style="text-align:center;margin-top:3mm">${zatcaQr(doc, 150)}</div><div style="text-align:center">شكرا لزيارتكم · Thank you</div>`;
   printWith(w, '@page{size:80mm auto;margin:4mm}.rcpt{font-family:"IBM Plex Sans Arabic",Tahoma,Arial,sans-serif;font-size:9.5pt;color:#000;width:72mm}');
 }

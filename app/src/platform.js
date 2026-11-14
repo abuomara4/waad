@@ -10,7 +10,7 @@ const PTABS = [['home', 'الرئيسية'], ['companies', 'المنشآت'], ['
 const PV = {};   // tab id -> async (page, arg) => void   (#/company/<id> opens one company)
 const money0 = n => Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
 const MONTH0 = () => today().slice(0, 8) + '01';
-const PAY_M = { transfer: 'تحويل بنكي', card: 'بطاقة', cash: 'نقداً', other: 'أخرى' };
+const PAY_M = { transfer: 'تحويل بنكي', card: 'بطاقة', cash: 'نقدا', other: 'أخرى' };
 const CH_N = { email: ['إيميل', '✉'], whatsapp: ['واتساب', '💬'], call: ['اتصال', '📞'], meeting: ['مقابلة حضورية', '🤝'], other: ['أخرى', '📝'] };
 // quick actions on a company (list, home and company page); each re-draws the current screen
 async function quickAct(c, act, days, st) {
@@ -87,11 +87,11 @@ function adminAuthView(msg = '') {
   $('#af').onsubmit = async e => { e.preventDefault(); const f = formData(e.target), u = (f.user || '').trim().toLowerCase();
     try { await busy($('#ab'), async () => {
       if (setup) {
-        if (!/^[a-z0-9._-]{3,30}$/.test(u)) throw new Error('اسم المستخدم من ٣ إلى ٣٠ حرفاً إنجليزياً أو رقماً');
+        if (!/^[a-z0-9._-]{3,30}$/.test(u)) throw new Error('اسم المستخدم من ٣ إلى ٣٠ حرفا إنجليزيا أو رقما');
         if ((f.password || '').length < 8) throw new Error('كلمة المرور 8 أحرف على الأقل');
         if (f.password !== f.password2) throw new Error('كلمتا المرور غير متطابقتين');
         const r = await authApi.createStaff(adminEmail(u), f.password);
-        if (r.existed) throw new Error('اسم المستخدم محجوز، اختر اسماً آخر');
+        if (r.existed) throw new Error('اسم المستخدم محجوز، اختر اسما آخر');
         history.replaceState(null, '', location.pathname);
         return adminAuthView(tr('تم إنشاء الحساب') + ': ' + u + '. ' + tr('يصير أدمن بعد التفعيل، وبعدها ادخل من هنا.'));
       }
@@ -166,7 +166,7 @@ function subForm(c) {
     <p class="muted small">${esc(tr('التغيير يظهر في سجل التدقيق الخاص بالمنشأة. إغلاق قسم لا يحذف بياناته — تعود عند فتحه.'))}</p>`, {
     wide: true, onOk: async (f, d) => {
       const mods = pickMods($('#mform', d) || d.querySelector('form'));
-      if (!mods.length) throw new Error('اختر قسماً واحداً على الأقل');
+      if (!mods.length) throw new Error('اختر قسما واحدا على الأقل');
       const ends = f.days ? dayAgo(-(+f.days)) : f.ends || null;
       await db.rpc('platform_set_subscription', { p_company: c.company_id, p_plan: f.plan, p_modules: mods, p_status: f.status,
         p_trial_ends: f.status === 'trial' ? ends : null, p_max_users: f.max_users ? +f.max_users : null, p_note: f.note || null, p_sub_ends: f.status === 'active' ? ends : null });
@@ -206,14 +206,14 @@ PV.system = async page => {
   const quiet = rows.filter(c => subState(c)[1] !== 'bad' && (!c.last_sign_in || String(c.last_sign_in).slice(0, 10) <= dayAgo(14)));
   const days = Array.from({ length: 30 }, (_, i) => dayAgo(29 - i));
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('أرقام النظام'))}</h1><div class="muted">${esc(tr('من بيانات الاشتراك وآخر دخول فقط.'))}</div></div></div>
-    <div class="grid" style="margin-bottom:14px">${pkpi('تسجيلات آخر ٧ أيام', since(7))}${pkpi('تسجيلات آخر ٣٠ يوماً', since(30))}
+    <div class="grid" style="margin-bottom:14px">${pkpi('تسجيلات آخر ٧ أيام', since(7))}${pkpi('تسجيلات آخر ٣٠ يوما', since(30))}
       ${pkpi('منشآت دخلت آخر ٧ أيام', active7, rows.length ? pct(active7, rows.length) + ' ' + tr('من المنشآت') : '')}
       ${pkpi('نسبة التحويل إلى اشتراك', pct(paid, decided), 'من المنشآت اللي انتهت تجربتها أو اشتركت')}${pkpi('تجارب تنتهي خلال ٣ أيام', ending.length)}${pkpi('بانتظار القبول', rows.filter(c => c.status === 'pending').length)}</div>
-    <div class="card" style="margin-bottom:14px"><h2>${esc(tr('التسجيلات الجديدة يومياً (آخر ٣٠ يوماً)'))}</h2>${pbars(days.map(k => ({ k, v: rows.filter(c => String(c.created_at).slice(0, 10) === k).length })), 'التسجيلات الجديدة يومياً (آخر ٣٠ يوماً)')}</div>
+    <div class="card" style="margin-bottom:14px"><h2>${esc(tr('التسجيلات الجديدة يوميا (آخر ٣٠ يوما)'))}</h2>${pbars(days.map(k => ({ k, v: rows.filter(c => String(c.created_at).slice(0, 10) === k).length })), 'التسجيلات الجديدة يوميا (آخر ٣٠ يوما)')}</div>
     <div class="g2p">
-      <div class="card"><h2>${esc(tr('تجارب تنتهي قريباً'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('تواصل معهم قبل ما تنتهي التجربة.'))}</p>
+      <div class="card"><h2>${esc(tr('تجارب تنتهي قريبا'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('تواصل معهم قبل ما تنتهي التجربة.'))}</p>
         ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'نهاية التجربة', h: c => `<span class="num">${esc(c.trial_ends)}</span>` }, { t: '', h: c => c.owner_email ? `<a class="btn sm" href="${esc(gmailTo(c.owner_email, 'وعد: ' + c.name))}" target="_blank" rel="noopener">${esc(tr('مراسلة'))}</a>` : '' }], ending, { empty: 'لا توجد تجارب تنتهي خلال ٣ أيام' })}</div>
-      <div class="card"><h2>${esc(tr('منشآت ما دخلت من أسبوعين'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('اشتراكها مفتوح وما أحد دخل منها من ١٤ يوماً أو أكثر.'))}</p>
+      <div class="card"><h2>${esc(tr('منشآت ما دخلت من أسبوعين'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('اشتراكها مفتوح وما أحد دخل منها من ١٤ يوما أو أكثر.'))}</p>
         ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'آخر دخول', h: c => c.last_sign_in ? `<span class="num">${esc(String(c.last_sign_in).slice(0, 10))}</span>` : '—' }, { t: '', h: c => c.owner_email ? `<a class="btn sm" href="${esc(gmailTo(c.owner_email, 'وعد: ' + c.name))}" target="_blank" rel="noopener">${esc(tr('مراسلة'))}</a>` : '' }], quiet, { empty: 'كل المنشآت نشطة' })}</div></div>
     <h2 style="margin:18px 0 10px">${esc(tr('مين عملاؤك'))}</h2>
     <div class="g2p">${countCard('حسب المدينة', countBy(rows, 'city'))}${countCard('حسب عدد الموظفين', countBy(rows, 'size_band', SIZE_B))}
@@ -239,8 +239,8 @@ PV.site = async page => {
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('زوار الموقع'))}</h1><div class="muted">${esc(tr('عدّاد الموقع نفسه: أرقام يومية فقط، بدون كوكيز وبدون أي بيانات شخصية. زياراتك من هذا الجهاز ما تنحسب.'))}</div></div>
       <select id="sdays" style="width:auto">${[7, 30, 90].map(d => opt(d, tr('آخر') + ' ' + d + ' ' + tr('يوم'), n)).join('')}</select></div>
     <div class="grid" style="margin-bottom:14px">${pkpi('الزيارات', visits)}${pkpi('الصفحات المفتوحة', views, visits ? (views / visits).toFixed(1) + ' ' + tr('صفحة لكل زيارة') : '')}
-      ${pkpi('ضغطات «جرّبه مجاناً»', cta)}${pkpi('نسبة الضغط من الزيارات', pct(cta, visits))}</div>
-    <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الزيارات يومياً'))}</h2>${pbars(days.map(k => ({ k, v: rows.filter(r => r.day === k).reduce((a, r) => a + r.visits, 0) })), 'الزيارات يومياً')}</div>
+      ${pkpi('ضغطات «جرّبه مجانا»', cta)}${pkpi('نسبة الضغط من الزيارات', pct(cta, visits))}</div>
+    <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الزيارات يوميا'))}</h2>${pbars(days.map(k => ({ k, v: rows.filter(r => r.day === k).reduce((a, r) => a + r.visits, 0) })), 'الزيارات يوميا')}</div>
     <div class="g2p">${brk('من وين جاؤوا', 'source', SRC_N)}${brk('الصفحات', 'page', PAGE_N)}${brk('الأجهزة', 'device', DEV_N)}${brk('اللغة', 'lang', LANG_N)}</div>
     <p class="muted small">${esc(tr('الدول وسرعة الصفحات في'))} <a href="https://dash.cloudflare.com/?to=/:account/web-analytics" target="_blank" rel="noopener">Cloudflare Web Analytics</a>.</p>`;
   $('#sdays', page).onchange = e => { LS.set('waad.sitedays', +e.target.value); platformView(); };
@@ -264,7 +264,7 @@ PV.content = async page => {
   const contact = cur.contact || def.contact || {}, banner = cur.banner || {};
   let faq = (cur.faq || def.faq || []).map(x => Object.assign({ qa: '', aa: '', qe: '', ae: '' }, x));
   const changed = k => cur[k] ? `<span class="badge info">${esc(tr('معدّل من اللوحة'))}</span>` : `<span class="badge">${esc(tr('النص الأصلي'))}</span>`;
-  page.innerHTML = `<div class="head"><div><h1>${esc(tr('محتوى الموقع'))}</h1><div class="muted">${esc(tr('التعديل يظهر في الموقع فوراً، بدون نشر جديد.'))} <a href="${SITE_URL}" target="_blank" rel="noopener">${esc(tr('فتح الموقع'))}</a></div></div></div>
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('محتوى الموقع'))}</h1><div class="muted">${esc(tr('التعديل يظهر في الموقع فورا، بدون نشر جديد.'))} <a href="${SITE_URL}" target="_blank" rel="noopener">${esc(tr('فتح الموقع'))}</a></div></div></div>
     <div class="g2p">
     <form class="card" id="fcon"><h2>${esc(tr('أرقام التواصل'))} ${changed('contact')}</h2><div class="fg">
       ${field('جوال الواتساب والاتصال', inp('phone', localPhone(contact.phone), 'dir="ltr" inputmode="numeric" placeholder="05XXXXXXXX" required'))}
@@ -294,7 +294,7 @@ PV.content = async page => {
         <button type="button" class="btn sm" data-rm aria-label="${esc(tr('حذف'))}">✕</button></div>
       <div class="fg">${field('السؤال بالعربي', `<input name="qa" value="${esc(x.qa)}" maxlength="200">`)}${field('السؤال بالإنجليزي', `<input name="qe" value="${esc(x.qe)}" maxlength="200" dir="ltr">`)}
         ${field('الجواب بالعربي', `<textarea name="aa" rows="3" maxlength="800">${esc(x.aa)}</textarea>`)}${field('الجواب بالإنجليزي', `<textarea name="ae" rows="3" maxlength="800" dir="ltr">${esc(x.ae)}</textarea>`)}</div></div>`).join('')
-      : `<div class="empty">${esc(tr('ما فيه أسئلة. أضف سؤالاً.'))}</div>`;
+      : `<div class="empty">${esc(tr('ما فيه أسئلة. أضف سؤالا.'))}</div>`;
     $$('.fqi', list).forEach(d => { const i = +d.dataset.i;
       $$('[data-mv]', d).forEach(b => b.onclick = () => { read(); const j = i + +b.dataset.mv; [faq[i], faq[j]] = [faq[j], faq[i]]; draw(); });
       d.querySelector('[data-rm]').onclick = () => { read(); faq.splice(i, 1); draw(); }; });
@@ -303,7 +303,7 @@ PV.content = async page => {
   $('#faqadd', page).onclick = () => { read(); faq.push({ qa: '', aa: '', qe: '', ae: '' }); draw(); const l = $$('.fqi', list).pop(); l.scrollIntoView({ block: 'nearest' }); l.querySelector('input').focus(); };
   $('#ffaq', page).onsubmit = e => { e.preventDefault(); read();
     const out = faq.map(x => ({ qa: x.qa.trim(), aa: x.aa.trim(), qe: x.qe.trim(), ae: x.ae.trim() })).filter(x => x.qa || x.aa);
-    if (out.some(x => !x.qa || !x.aa)) return showErr($('#efaq', page), tr('كل سؤال يحتاج سؤالاً وجواباً بالعربي'));
+    if (out.some(x => !x.qa || !x.aa)) return showErr($('#efaq', page), tr('كل سؤال يحتاج سؤالا وجوابا بالعربي'));
     save('faq', out, $('#ffaq button.pri', page), $('#efaq', page)); };
 };
 
@@ -355,10 +355,10 @@ PV.team = async page => {
         ${field('كلمة المرور المؤقتة', `<input name="pw" required dir="ltr" value="${esc(pw)}">`)}</div>`, {
       ok: 'إضافة', onOk: async f => {
         const u = (f.user || '').trim().toLowerCase();
-        if (!/^[a-z0-9._-]{3,30}$/.test(u)) throw new Error('اسم المستخدم من ٣ إلى ٣٠ حرفاً إنجليزياً أو رقماً');
+        if (!/^[a-z0-9._-]{3,30}$/.test(u)) throw new Error('اسم المستخدم من ٣ إلى ٣٠ حرفا إنجليزيا أو رقما');
         if ((f.pw || '').length < 8) throw new Error('كلمة المرور 8 أحرف على الأقل');
         const r = await authApi.createStaff(adminEmail(u), f.pw);
-        if (r.existed) throw new Error('اسم المستخدم محجوز، اختر اسماً آخر');
+        if (r.existed) throw new Error('اسم المستخدم محجوز، اختر اسما آخر');
         await db.rpc('platform_add_admin', { p_username: u });
         setTimeout(() => { modal(tr('تمت إضافة العضو'), credsBox(u, f.pw)); platformView(); }, 0);
       } });
@@ -446,7 +446,7 @@ PV.company = async (page, id) => {
         <form id="nform"><div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px">
             <select name="channel" style="width:auto">${Object.entries(CH_N).map(([k, [t, i]]) => opt(k, i + ' ' + tr(t), 'call')).join('')}</select>
             <input type="date" name="on" value="${today()}" max="${today()}" style="width:auto" aria-label="${esc(tr('تاريخ التواصل'))}"></div>
-          <div class="row" style="gap:8px;align-items:flex-start"><textarea name="body" rows="2" maxlength="1000" placeholder="${esc(tr('مثلاً: اتصلت بالمالك، يبي باقة أكبر'))}" style="flex:1"></textarea><button class="btn pri">${esc(tr('إضافة'))}</button></div></form>
+          <div class="row" style="gap:8px;align-items:flex-start"><textarea name="body" rows="2" maxlength="1000" placeholder="${esc(tr('مثلا: اتصلت بالمالك، يبي باقة أكبر'))}" style="flex:1"></textarea><button class="btn pri">${esc(tr('إضافة'))}</button></div></form>
         <div id="nerr"></div>
         ${d.notes.length ? d.notes.map(x => { const [t, i] = CH_N[x.channel] || CH_N.other; return `<div class="pnote"><div><span class="badge">${i} ${esc(tr(t))}</span> <span class="num small">${esc(x.on || String(x.at).slice(0, 10))}</span></div>
           <div data-nt style="margin-top:4px">${esc(x.body)}</div><div class="small muted"><span dir="ltr">${esc(x.by || '')}</span> · <a href="#" data-dn="${esc(x.id)}">${esc(tr('حذف'))}</a></div></div>`; }).join('')
@@ -500,7 +500,7 @@ PV.billing = async page => {
       <button class="btn pri" id="padd">${esc(tr('باقة جديدة'))}</button></div>
     <div class="grid" style="margin-bottom:14px">${pkpi('هذا الشهر', money0(sumIf(p => p.paid_on >= m0)), 'ريال')}${pkpi('الشهر الماضي', money0(sumIf(p => p.paid_on >= lm && p.paid_on < m0)), 'ريال')}
       ${pkpi('هذي السنة', money0(sumIf(p => p.paid_on >= y0)), 'ريال')}${pkpi('منشآت مشتركة', paying)}</div>
-    <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الإيرادات شهرياً (آخر ١٢ شهر)'))}</h2>${pbars(months.map(k => ({ k, v: Math.round(sumIf(p => p.paid_on.slice(0, 7) === k)) })), 'الإيرادات شهرياً (آخر ١٢ شهر)')}</div>
+    <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الإيرادات شهريا (آخر ١٢ شهر)'))}</h2>${pbars(months.map(k => ({ k, v: Math.round(sumIf(p => p.paid_on.slice(0, 7) === k)) })), 'الإيرادات شهريا (آخر ١٢ شهر)')}</div>
     <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الباقات والأسعار'))}</h2>
       ${tbl([{ t: 'الباقة', h: p => `<b>${esc(p.name)}</b>` + (p.active ? '' : ` <span class="badge">${esc(tr('موقوفة'))}</span>`) }, { t: 'السعر', r: 1, h: p => money0(p.price) },
         { t: 'المدة', h: p => `<span class="num">${p.period_days}</span> ${esc(tr('يوم'))}` }, { t: 'الأقسام', h: p => p.modules.map(m => `<span class="badge">${esc(tr(MODULES[m] || m))}</span>`).join(' ') },
@@ -520,7 +520,7 @@ function planForm(p) {
       ${field('الأقسام', modChecks(p.modules || Object.keys(MODULES)), 'wide')}
       <label class="row small wide" style="gap:6px"><input type="checkbox" name="active" ${p.active === false ? '' : 'checked'} style="width:auto"> ${esc(tr('متاحة للاختيار'))}</label></div>`, {
     wide: true, onOk: async (f, d) => {
-      const mods = pickMods($('#mform', d)); if (!mods.length) throw new Error('اختر قسماً واحداً على الأقل');
+      const mods = pickMods($('#mform', d)); if (!mods.length) throw new Error('اختر قسما واحدا على الأقل');
       await db.rpc('platform_save_plan', { p: { id: p.id || null, name: f.name, price: f.price, period_days: f.period_days, max_users: f.max_users || '', modules: mods, active: f.active } });
       toast(tr('تم الحفظ')); platformView();
     } });
@@ -580,7 +580,7 @@ function ticketForm(r) {
   const ta = d.querySelector('[name=reply]');
   d.querySelectorAll('[data-cn]').forEach(bt => bt.onclick = () => { const t = cannedList()[+bt.dataset.cn][1], at = ta.selectionStart ?? ta.value.length;
     ta.value = ta.value.slice(0, at) + t + ta.value.slice(ta.selectionEnd ?? at); ta.focus(); });
-  d.querySelector('#cnsave').onclick = () => { const t = ta.value.trim(); if (t.length < 10) return toast(tr('اكتب الرد أولاً'));
+  d.querySelector('#cnsave').onclick = () => { const t = ta.value.trim(); if (t.length < 10) return toast(tr('اكتب الرد أولا'));
     const name = prompt(tr('اسم مختصر للرد الجاهز')); if (!name) return;
     const mine = LS.get('waad.canned') || []; mine.push([name.slice(0, 30), t]); LS.set('waad.canned', mine.slice(-20)); toast(tr('حُفظ الرد الجاهز على هذا الجهاز')); d.close(); ticketForm(r); };
 }

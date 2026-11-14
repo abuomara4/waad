@@ -47,7 +47,7 @@ function leadForm(l, parties, campaigns = []) {
       ${field('القيمة المتوقعة (ريال)', inp('value', v.value, 'type="number" min="0" step="0.01"'))}${field('تاريخ الإغلاق المتوقع', `<input type="date" name="expected_close" value="${esc(v.expected_close || '')}">`)}
       ${field('ملاحظات', `<textarea name="note" rows="2">${esc(v.note || '')}</textarea>`, 'wide')}</div>`, {
     wide: true, onOk: async f => {
-      if (!f.party_id && (f.prospect || '').trim().length < 2) throw new Error('اختر عميلاً أو اكتب اسم الجهة');
+      if (!f.party_id && (f.prospect || '').trim().length < 2) throw new Error('اختر عميلا أو اكتب اسم الجهة');
       const row = { title: f.title.trim(), party_id: blank(f.party_id), prospect: blank(f.prospect), contact_name: blank(f.contact_name), phone: blank(f.phone), email: blank(f.email),
         source: f.source, stage: f.stage, value: f.value === '' ? null : +f.value, expected_close: blank(f.expected_close), note: blank(f.note) };
       if (f.campaign_id !== undefined) row.campaign_id = blank(f.campaign_id);   // only when the picker was shown
@@ -101,7 +101,7 @@ VIEWS['#/rfq'] = async (page, arg) => {
   if (arg === 'new') return rfqForm(page);
   if (arg) return rfqView(page, arg);
   const rows = await db.get('rfqs', Object.assign(C(), { order: 'date.desc,no.desc', limit: 300 }));
-  page.innerHTML = `<div class="head"><div><h1>${esc(tr('طلبات عروض الأسعار'))}</h1><div class="muted">${esc(tr('اطلب عروضاً من أكثر من مورد، قارنها، ورسِّ الأفضل بأمر شراء.'))}</div></div><a class="btn pri" href="#/rfq/new">${esc(tr('طلب عروض جديد'))}</a></div>
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('طلبات عروض الأسعار'))}</h1><div class="muted">${esc(tr('اطلب عروضا من أكثر من مورد، قارنها، ورسِّ الأفضل بأمر شراء.'))}</div></div><a class="btn pri" href="#/rfq/new">${esc(tr('طلب عروض جديد'))}</a></div>
     ${tbl([{ t: 'الرقم', h: r => `<span class="num">${esc(r.no)}</span>` }, { t: 'التاريخ', h: r => fdate(r.date) }, { t: 'العنوان', k: 'title' }, { t: 'آخر موعد للرد', h: r => fdate(r.reply_by) },
       { t: 'الحالة', h: r => `<span class="badge ${RFQ_ST[r.status][1]}">${esc(tr(RFQ_ST[r.status][0]))}</span>` }], rows, { empty: 'لا توجد طلبات', onRow: true })}`;
   bindRows(page, rows, r => location.hash = '#/rfq/' + r.id);
@@ -139,7 +139,7 @@ async function rfqView(page, id) {
       ${rl.map(l => `<tr><td>${name(l)}</td><td class="r num">${qtyTxt(l.qty)}</td>${qs.map(q => { const p = price(q, l); return `<td class="r num ${n0(p) === best(l) ? 'ok' : ''}">${money(p)}</td>`; }).join('')}</tr>`).join('')}
       <tr><td colspan="2"><b>${esc(tr('الإجمالي شامل الضريبة'))}</b></td>${qs.map(q => `<td class="r num ${n0(q.total) === cheapest ? 'ok' : ''}"><b>${money(q.total)}</b></td>`).join('')}</tr>
       <tr><td colspan="2">${esc(tr('مدة التوريد (يوم)'))}</td>${qs.map(q => `<td class="r num">${q.delivery_days == null ? '—' : q.delivery_days}</td>`).join('')}</tr>
-      <tr><td colspan="2">${esc(tr('الالتزام بالمواعيد سابقاً'))}</td>${qs.map(q => `<td class="r num">${scm[q.party_id] && scm[q.party_id].on_time_pct != null ? scm[q.party_id].on_time_pct + '%' : '—'}</td>`).join('')}</tr>
+      <tr><td colspan="2">${esc(tr('الالتزام بالمواعيد سابقا'))}</td>${qs.map(q => `<td class="r num">${scm[q.party_id] && scm[q.party_id].on_time_pct != null ? scm[q.party_id].on_time_pct + '%' : '—'}</td>`).join('')}</tr>
       <tr><td colspan="2">${esc(tr('صالح حتى'))}</td>${qs.map(q => `<td class="r num">${fdate(q.valid_until)}</td>`).join('')}</tr>
       ${open ? `<tr><td colspan="2"></td>${qs.map(q => `<td class="r"><button type="button" class="btn sm" data-eq="${q.id}">${esc(tr('تعديل'))}</button> <button type="button" class="btn sm pri" data-aw="${q.id}">${esc(tr('ترسية'))}</button></td>`).join('')}</tr>`
         : `<tr><td colspan="2"></td>${qs.map(q => `<td class="r">${q.id === r.awarded_quote ? `<span class="badge ok">${esc(tr('العرض الفائز'))}</span>` : ''}</td>`).join('')}</tr>`}
@@ -154,7 +154,7 @@ async function rfqView(page, id) {
         ${rl.map(l => `<tr><td>${name(l)}</td><td class="num">${qtyTxt(l.qty)}</td><td><input name="p_${l.id}" type="number" min="0" step="0.01" value="${q ? esc(price(q, l) == null ? '' : price(q, l)) : ''}" required style="width:120px"></td>
           <td><select name="v_${l.id}" style="width:80px">${opt(15, '15%', q ? (ql.find(x => x.quote_id === q.id && x.line_id === l.id) || {}).vat_rate : 15)}${opt(0, '0%', q ? (ql.find(x => x.quote_id === q.id && x.line_id === l.id) || {}).vat_rate : 15)}</select></td></tr>`).join('')}</tbody></table></div>`, {
       wide: true, onOk: async f => {
-        if (!q && !sup.length) throw new Error('أضف مورداً أولاً');
+        if (!q && !sup.length) throw new Error('أضف موردا أولا');
         await db.rpc('rfq_quote_save', { p_rfq: id, p_doc: { party: q ? q.party_id : f.party, received_on: f.received_on, valid_until: blank(f.valid_until), delivery_days: f.delivery_days === '' ? null : +f.delivery_days, terms: blank(f.terms),
           prices: rl.map(l => ({ line: l.id, price: f['p_' + l.id] === '' ? null : +f['p_' + l.id], vat: +f['v_' + l.id] })) } });
         toast(tr('تم الحفظ')); route(); } }); };
@@ -173,7 +173,7 @@ async function rfqView(page, id) {
 function rateSupplier(po, party) {
   const stars = (n, t) => field(t, `<select name="${n}">${[5, 4, 3, 2, 1].map(k => opt(k, '★'.repeat(k), 5)).join('')}</select>`);
   modal(tr('تقييم المورد') + ': ' + (party ? party.name : ''), `<div class="fg">${stars('quality', 'الجودة')}${stars('delivery', 'الالتزام بالتوريد')}${stars('price', 'السعر')}${stars('service', 'الخدمة والتعامل')}${field('ملاحظة', inp('note'), 'wide')}</div>`, {
-    onOk: async f => { await db.ins('supplier_ratings', { company_id: S.cid, party_id: po.party_id, po_id: po.id, quality: +f.quality, delivery: +f.delivery, price: +f.price, service: +f.service, note: blank(f.note) }); toast(tr('شكراً — حُفظ التقييم')); route(); } });
+    onOk: async f => { await db.ins('supplier_ratings', { company_id: S.cid, party_id: po.party_id, po_id: po.id, quality: +f.quality, delivery: +f.delivery, price: +f.price, service: +f.service, note: blank(f.note) }); toast(tr('شكرا — حُفظ التقييم')); route(); } });
 }
 
 /* ================= inventory: where is a serial number? ================= */
@@ -220,7 +220,7 @@ VIEWS['#/insurance'] = async page => {
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('التأمين الطبي'))}</h1><div class="muted">${esc(tr('نظام الضمان الصحي التعاوني يلزم صاحب العمل بالتأمين على العامل غير السعودي وأسرته، وعلى السعودي وأسرته في القطاع الخاص.'))}</div></div>
       <div class="row"><button class="btn" id="npol">${esc(tr('وثيقة جديدة'))}</button><button class="btn pri" id="nmem" ${pols.length ? '' : 'disabled'}>${esc(tr('إضافة مؤمَّن عليه'))}</button></div></div>
     ${unins.length ? `<div class="note">${esc(tr('موظفون بلا تغطية سارية'))} (<span class="num">${unins.length}</span>): ${unins.slice(0, 15).map(a => esc((em[a.employee_id] || {}).full_name || '')).join('، ')}${unins.length > 15 ? '…' : ''}</div>` : ''}
-    ${ending.map(a => `<div class="note">${esc(tr('وثيقة تنتهي قريباً'))}: ${esc(pm[a.policy_id].provider)} <span class="num">${esc(pm[a.policy_id].policy_no)}</span> — <span class="num">${esc(a.end_date)}</span></div>`).join('')}
+    ${ending.map(a => `<div class="note">${esc(tr('وثيقة تنتهي قريبا'))}: ${esc(pm[a.policy_id].provider)} <span class="num">${esc(pm[a.policy_id].policy_no)}</span> — <span class="num">${esc(a.end_date)}</span></div>`).join('')}
     <div class="grid" style="margin-bottom:12px"><div class="card kpi"><div class="muted small">${esc(tr('المؤمَّن عليهم'))}</div><div class="v num">${act.length}</div></div>
       <div class="card kpi"><div class="muted small">${esc(tr('منهم تابعون'))}</div><div class="v num">${act.filter(m => m.relation !== 'self').length}</div></div>
       <div class="card kpi"><div class="muted small">${esc(tr('القسط السنوي'))}</div><div class="v num">${money(act.reduce((a, m) => a + n0(m.premium), 0))}</div></div></div>

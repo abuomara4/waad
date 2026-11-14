@@ -16,7 +16,7 @@ function servicePeriod(a, b) {
 function periodTxt(p, en) {
   if (en) return [[p.y, 'year'], [p.m, 'month'], [p.d, 'day']].filter(x => x[0]).map(([n, w]) => n + ' ' + w + (n === 1 ? '' : 's')).join(', ') || '0 days';
   const u = (n, one, two, few, many) => n === 1 ? one : n === 2 ? two : n <= 10 ? n + ' ' + few : n + ' ' + many;
-  return [p.y && u(p.y, 'سنة', 'سنتان', 'سنوات', 'سنة'), p.m && u(p.m, 'شهر', 'شهران', 'أشهر', 'شهراً'), p.d && u(p.d, 'يوم', 'يومان', 'أيام', 'يوماً')].filter(Boolean).join(' و') || '0';
+  return [p.y && u(p.y, 'سنة', 'سنتان', 'سنوات', 'سنة'), p.m && u(p.m, 'شهر', 'شهران', 'أشهر', 'شهرا'), p.d && u(p.d, 'يوم', 'يومان', 'أيام', 'يوما')].filter(Boolean).join(' و') || '0';
 }
 
 function letterHtml(l, { head = true } = {}) {
@@ -40,9 +40,9 @@ function letterHtml(l, { head = true } = {}) {
     const jobTxt = job ? `بوظيفة (${b(job)})` : '';
     body = svc
       ? `<p>تشهد ${b(comp)} بأن ${who}، قد ${g('عمل', 'عملت')} لديها ${jobTxt} خلال الفترة من ${b(gregOf(e.hire_date))} إلى ${b(gregOf(e.end_date))}، ومدة ${g('خدمته', 'خدمتها')} ${b(periodTxt(servicePeriod(e.hire_date, e.end_date)))}، وكان آخر أجر شهري ${g('تقاضاه', 'تقاضته')} (${sar(w.gross)}) ريال سعودي، على النحو الآتي:</p>
-         ${wageTbl}<p>وقد أُعطيت ${g('له', 'لها')} هذه الشهادة بناءً على ${g('طلبه', 'طلبها')} دون مقابل، وفقاً للمادة الرابعة والستين من نظام العمل.</p>`
-      : `<p>تفيد ${b(comp)} بأن ${who}، ${g('يعمل', 'تعمل')} لديها ${jobTxt} اعتباراً من ${b(gregOf(e.hire_date))}، ${g('ولا يزال', 'ولا تزال')} على رأس العمل حتى تاريخه${w ? `، ${g('ويتقاضى', 'وتتقاضى')} راتباً شهرياً إجمالياً قدره (${sar(w.gross)}) ريال سعودي، على النحو الآتي:` : '.'}</p>
-         ${wageTbl}<p>وقد أُعطي هذا الخطاب بناءً على ${g('طلبه', 'طلبها')} دون أدنى مسؤولية على المنشأة تجاه الغير.</p>`;
+         ${wageTbl}<p>وقد أُعطيت ${g('له', 'لها')} هذه الشهادة بناء على ${g('طلبه', 'طلبها')} دون مقابل، وفقا للمادة الرابعة والستين من نظام العمل.</p>`
+      : `<p>تفيد ${b(comp)} بأن ${who}، ${g('يعمل', 'تعمل')} لديها ${jobTxt} اعتبارا من ${b(gregOf(e.hire_date))}، ${g('ولا يزال', 'ولا تزال')} على رأس العمل حتى تاريخه${w ? `، ${g('ويتقاضى', 'وتتقاضى')} راتبا شهريا إجماليا قدره (${sar(w.gross)}) ريال سعودي، على النحو الآتي:` : '.'}</p>
+         ${wageTbl}<p>وقد أُعطي هذا الخطاب بناء على ${g('طلبه', 'طلبها')} دون أدنى مسؤولية على المنشأة تجاه الغير.</p>`;
     body = `<p>السلام عليكم ورحمة الله وبركاته، وبعد:</p>${body.replace(/ ،/g, '،')}<p class="lt-close">وتفضلوا بقبول فائق الاحترام والتقدير،</p>`;
   } else {
     const t = g('Mr.', 'Ms.'), his = g('his', 'her'), His = g('His', 'Her');
@@ -78,7 +78,7 @@ async function imgToLogo(file) {
     let d = cv.toDataURL('image/png');
     if (d.length > 190000) { const x = cv.toDataURL('image/webp', 0.9); if (x.startsWith('data:image/webp')) d = x; }
     if (d.length > 190000) { g.globalCompositeOperation = 'destination-over'; g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); d = cv.toDataURL('image/jpeg', 0.85); }
-    if (d.length > 190000) throw new Error('الصورة كبيرة جداً');
+    if (d.length > 190000) throw new Error('الصورة كبيرة جدا');
     return d;
   } finally { URL.revokeObjectURL(url); }
 }

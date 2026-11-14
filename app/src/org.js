@@ -49,9 +49,9 @@ VIEWS['#/org'] = async (page, arg, q) => {
     if (!hr) return modal('بطاقة الموظف', info + `<p class="small">${esc('المدير المباشر')}: ${e.manager_id && by[e.manager_id] ? esc(by[e.manager_id].full_name) : '—'}</p><p class="small">${esc('القسم')}: ${dm[e.department_id] ? esc(dm[e.department_id].name) : '—'}</p>`);
     const m = modal('مكان الموظف في الهيكل', info + `<div class="fg">${field('المدير المباشر', `<select name="mgr"><option value="">— ${esc('بلا مدير (أعلى الهيكل)')}</option>${emps.filter(x => x.id !== id && !desc.has(x.id)).map(x => opt(x.id, x.full_name + ' (' + x.emp_no + ')', e.manager_id || '')).join('')}</select>`)}
       ${field('القسم', `<select name="dep"><option value="">—</option>${deps.map(d => opt(d.id, d.name, e.department_id || '')).join('')}</select>`)}
-      ${reports.length ? field('عند نقل الموظف', `<select name="team">${opt('stay', 'يبقى فريقه تابعاً له')}${opt('up', 'ينتقل فريقه إلى مديره الحالي')}</select>`, 'wide') : ''}</div>
+      ${reports.length ? field('عند نقل الموظف', `<select name="team">${opt('stay', 'يبقى فريقه تابعا له')}${opt('up', 'ينتقل فريقه إلى مديره الحالي')}</select>`, 'wide') : ''}</div>
       <div class="row" style="margin-top:8px"><a class="btn sm" href="#/docs/${e.id}" onclick="document.getElementById('dlg').close()">${esc('ملف الموظف')}</a></div>
-      <p class="muted small">${esc('لا يمكن اختيار أحد أفراد فريقه مديراً له حتى لا يصير التسلسل دائرياً.')}</p>`, {
+      <p class="muted small">${esc('لا يمكن اختيار أحد أفراد فريقه مديرا له حتى لا يصير التسلسل دائريا.')}</p>`, {
       onOk: async f => {
         if (f.team === 'up' && (f.mgr || null) !== (e.manager_id || null)) for (const r of reports) await db.upd('employees', { id: 'eq.' + r.id }, { manager_id: e.manager_id || null });
         await db.upd('employees', { id: 'eq.' + id }, { manager_id: blank(f.mgr), department_id: blank(f.dep) }); cache.emps = null; toast('تم الحفظ'); route(); } });

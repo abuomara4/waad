@@ -3,7 +3,7 @@
    (leads, won deals, revenue, cost per lead, return on spend). Part of the sales module. ===== */
 
 const MKT_CHANNEL = { social: 'وسائل التواصل', google: 'إعلانات جوجل', email: 'البريد الإلكتروني', sms: 'رسائل نصية', event: 'فعالية/معرض', print: 'مطبوعات', referral: 'توصيات', influencer: 'مؤثرون', other: 'أخرى' };
-const MKT_STATUS = { planned: 'مخططة', active: 'نشطة', paused: 'متوقفة مؤقتاً', done: 'منتهية', cancelled: 'ملغاة' };
+const MKT_STATUS = { planned: 'مخططة', active: 'نشطة', paused: 'متوقفة مؤقتا', done: 'منتهية', cancelled: 'ملغاة' };
 const mktBadge = s => `<span class="badge ${s === 'active' ? 'ok' : s === 'cancelled' ? 'bad' : s === 'paused' ? 'wait' : 'info'}">${esc(tr(MKT_STATUS[s] || s))}</span>`;
 const roiCls = v => v == null ? '' : (v >= 0 ? 'ok' : 'bad');
 

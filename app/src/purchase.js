@@ -44,7 +44,7 @@ VIEWS['#/porders'] = async (page, arg, q) => {
 async function poForm(page, id, reqId, q) {
   if (!can('purch')) { page.innerHTML = '<div class="err">غير مصرح</div>'; return; }
   const L = await poLookups();
-  if (!L.parties.length) { page.innerHTML = '<div class="note">أضف مورداً أولاً. <a href="#/parties/supplier">الموردون</a></div>'; return; }
+  if (!L.parties.length) { page.innerHTML = '<div class="note">أضف موردا أولا. <a href="#/parties/supplier">الموردون</a></div>'; return; }
   let doc = null, lines = [{}], req = null;
   if (id) {
     [doc] = await db.get('purchase_orders', { id: 'eq.' + id });
@@ -89,7 +89,7 @@ async function poForm(page, id, reqId, q) {
     e.preventDefault(); const f = formData(e.target);
     if (lines.some(l => !l.what && (l.desc || '').trim())) return showErr($('#perr', page), 'اختر لكل بند الصنف أو حساب المصروف');
     const ls = lines.filter(l => l.what).map(l => { const o = { qty: +(l.qty == null ? 1 : l.qty), price: +l.price, vat: +(l.vat == null ? 15 : l.vat), desc: blank((l.desc || '').trim()) }; if (l.what.startsWith('i:')) o.item = l.what.slice(2); else o.account = l.what.slice(2); return o; });
-    if (!ls.length) return showErr($('#perr', page), 'أضف بنداً واحداً على الأقل');
+    if (!ls.length) return showErr($('#perr', page), 'أضف بندا واحدا على الأقل');
     if (ls.some(l => !(l.qty > 0) || !(l.price >= 0) || isNaN(l.price))) return showErr($('#perr', page), 'تحقق من الكميات والأسعار');
     const d = { party: f.party, date: f.date, expected: blank(f.expected), note: blank(f.note), terms: blank(f.terms), warehouse: blank(f.warehouse), lines: ls }; if (id) d.id = id; if (reqId) d.request = reqId;
     try { await busy($('#ps', page), async () => { const nid = await db.rpc('po_save_wh', { p_company: S.cid, p_doc: d }); toast('تم الحفظ'); location.hash = '#/porders/' + nid; }); } catch (er) { showErr($('#perr', page), er); }
@@ -134,7 +134,7 @@ async function poView(page, id) {
   const trk = l => l.item_id && (L.im[l.item_id] || {}).track_expiry;
   const recRows = () => `<div class="tw"><table class="lines"><thead><tr><th>البند</th><th>المتبقي</th><th>الكمية</th><th>${esc(tr('الدفعة / تاريخ الصلاحية'))}</th></tr></thead><tbody>${lines.filter(l => l.item_id && n0(l.qty) > n0(l.received)).map(l => { const m = r2(n0(l.qty) - n0(l.received));
     return `<tr><td>${esc(poLineName(L, l))}</td><td class="num">${qtyTxt(m)}</td><td><input name="r_${l.id}" type="number" min="0" step="0.001" max="${m}" value="${m}" style="width:100px"></td><td>${trk(l) ? `<input name="rb_${l.id}" placeholder="${esc(tr('الدفعة'))}" style="width:110px"> <input name="rx_${l.id}" type="date" required style="width:150px">` : ''}${(L.im[l.item_id] || {}).track_serial ? `<textarea name="rs_${l.id}" rows="2" dir="ltr" placeholder="${esc(tr('الأرقام التسلسلية — رقم في كل سطر'))}" style="min-width:200px"></textarea>` : ''}${!trk(l) && !(L.im[l.item_id] || {}).track_serial ? '<span class="muted">—</span>' : ''}</td></tr>`; }).join('')}</tbody></table></div><div style="height:10px"></div>`;
-  on('#prc', () => modal('استلام بضاعة', recRows() + `<div class="fg">${multiWh ? field('يُستلم في مستودع', `<select name="warehouse">${Object.values(wmm).filter(w => w.active).map(w => opt(w.id, whName(w), doc.warehouse_id)).join('')}</select>`) : ''}${field('تاريخ الاستلام', `<input type="date" name="date" value="${today()}" max="${today()}">`)}${field('رقم إشعار تسليم المورد', inp('supplier_doc', '', 'dir="ltr"'))}${field('ملاحظات', inp('note'), 'wide')}</div><p class="muted small">تدخل الأصناف المخزنية المخزون بسعر الأمر فوراً، فتُباع قبل وصول فاتورة المورد.</p>`, {
+  on('#prc', () => modal('استلام بضاعة', recRows() + `<div class="fg">${multiWh ? field('يُستلم في مستودع', `<select name="warehouse">${Object.values(wmm).filter(w => w.active).map(w => opt(w.id, whName(w), doc.warehouse_id)).join('')}</select>`) : ''}${field('تاريخ الاستلام', `<input type="date" name="date" value="${today()}" max="${today()}">`)}${field('رقم إشعار تسليم المورد', inp('supplier_doc', '', 'dir="ltr"'))}${field('ملاحظات', inp('note'), 'wide')}</div><p class="muted small">تدخل الأصناف المخزنية المخزون بسعر الأمر فورا، فتُباع قبل وصول فاتورة المورد.</p>`, {
     wide: true, ok: 'تسجيل الاستلام', onOk: async f => { const ls = pick(f, 'r').map(x => Object.assign(x, { batch: blank(f['rb_' + x.line]), expiry: blank(f['rx_' + x.line]), serials: snSplit(f['rs_' + x.line]) })); if (!ls.length) throw new Error('أدخل كمية مستلمة لبند واحد على الأقل');
       if (ls.some(x => trk(lines.find(l => l.id === x.line)) && !x.expiry)) throw new Error(tr('أدخل تاريخ الصلاحية للأصناف التي تتبع الصلاحية'));
       const gid = await db.rpc('grn_post_sn', { p_order: id, p_doc: { date: f.date, warehouse: blank(f.warehouse), supplier_doc: blank(f.supplier_doc), note: blank(f.note), lines: ls } }); toast('سُجّل الاستلام'); location.hash = '#/receipts/' + gid; } }));

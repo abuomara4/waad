@@ -25,7 +25,7 @@ VIEWS['#/reviews'] = async (page, arg) => {
         <div class="grid" style="margin:12px 0 4px">
           <div class="card kpi"><div class="muted small">نسبة الإنجاز</div><div class="v num">${rs.length ? Math.round(done.length / rs.length * 100) : 0}%</div><div class="muted small"><span class="num">${done.length}/${rs.length}</span> معتمد</div></div>
           <div class="card kpi"><div class="muted small">متوسط التقييم</div><div class="v num">${avg ? avg.toFixed(2) : '—'}</div><div class="muted small">من 5</div></div>
-          <div class="card kpi"><div class="muted small">الأعلى أداءً (4–5)</div><div class="v num">${done.filter(r => n0(r.overall) >= 3.5).length}</div></div>
+          <div class="card kpi"><div class="muted small">الأعلى أداء (4–5)</div><div class="v num">${done.filter(r => n0(r.overall) >= 3.5).length}</div></div>
           <div class="card kpi"><div class="muted small">يحتاج متابعة (أقل من 3)</div><div class="v num">${done.filter(r => r.overall != null && n0(r.overall) < 3).length}</div></div>
         </div>
         ${done.length ? `<div class="muted small" style="margin-bottom:6px">توزيع التقديرات (عدد الموظفين لكل درجة)</div>${barChart(bars, [{ name: 'عدد الموظفين', color: '#2563eb' }])}` : `<p class="muted small">لا توجد تقييمات معتمدة بعد في آخر دورة.</p>`}</div>`;
@@ -93,7 +93,7 @@ function reviewView(r, em, c, { decide, ack } = {}) {
     ${r.hr_comment ? `<p><b>ملاحظة الموارد البشرية:</b> ${esc(r.hr_comment)}</p>` : ''}${r.ack_at ? `<p class="muted small">اطّلع الموظف في ${fdate(r.ack_at)}${r.employee_comment ? ': ' + esc(r.employee_comment) : ''}</p>` : ''}
     ${decide ? field('ملاحظة (إلزامية عند الإعادة)', '<textarea name="note" rows="2"></textarea>') : ''}${ack ? field('تعليقك (اختياري)', '<textarea name="note" rows="2"></textarea>') : ''}`;
   const d = modal('تقييم الأداء', body, decide ? { ok: 'اعتماد', onOk: async f => { await db.rpc('decide_review', { p_id: r.id, p_approve: true, p_comment: blank(f.note) }); toast('اعتُمد التقييم'); route(); } }
-    : ack ? { ok: 'اطّلعت على التقييم', onOk: async f => { await db.rpc('acknowledge_review', { p_id: r.id, p_comment: blank(f.note) }); toast('شكراً، سُجّل اطلاعك'); route(); } } : {});
+    : ack ? { ok: 'اطّلعت على التقييم', onOk: async f => { await db.rpc('acknowledge_review', { p_id: r.id, p_comment: blank(f.note) }); toast('شكرا، سُجّل اطلاعك'); route(); } } : {});
   if (decide) {
     const rb = document.createElement('button'); rb.type = 'button'; rb.className = 'btn danger'; rb.textContent = 'إعادة للمقيّم';
     $('.df', d).insertBefore(rb, $('#mok', d));
@@ -199,12 +199,12 @@ async function hireForm(c, o, deps) {
   modal('تعيين ' + c.full_name, `<div class="fg">${field('الرقم الوظيفي', inp('emp_no', next, 'dir="ltr" required'))}${field('المسمى الوظيفي', inp('job_title', o.title))}
     ${field('القسم', `<select name="dep"><option value="">—</option>${deps.map(d => opt(d.id, d.name, o.department_id)).join('')}</select>`)}
     ${field('المدير المباشر', `<select name="mgr"><option value="">—</option>${Object.values(em).filter(e => !e.end_date).map(e => opt(e.id, e.full_name + ' (' + e.emp_no + ')')).join('')}</select>`)}
-    ${field('تاريخ المباشرة', `<input type="date" name="hd" value="${today()}">`)}${field('نهاية فترة التجربة (حد أقصى 180 يوماً — م53)', '<input type="date" name="pe">')}
+    ${field('تاريخ المباشرة', `<input type="date" name="hd" value="${today()}">`)}${field('نهاية فترة التجربة (حد أقصى 180 يوما — م53)', '<input type="date" name="pe">')}
     ${field('الراتب الأساسي', inp('basic', basic, 'type="number" step="0.01" min="0" required'))}${field('بدل السكن', inp('housing', basic ? r2(basic * 0.25) : '', 'type="number" step="0.01" min="0"'))}${field('بدل النقل', inp('transport', basic ? r2(basic * 0.10) : '', 'type="number" step="0.01" min="0"'))}</div>
-    <p class="muted small">يُنشأ سجل الموظف ببيانات المرشح (الاسم والهوية والجوال والبريد). إذا اكتمل عدد الشواغر تُغلق الوظيفة تلقائياً.</p>`, {
+    <p class="muted small">يُنشأ سجل الموظف ببيانات المرشح (الاسم والهوية والجوال والبريد). إذا اكتمل عدد الشواغر تُغلق الوظيفة تلقائيا.</p>`, {
     wide: true, ok: 'تعيين', onOk: async f => {
       if (f.basic === '' || !(+f.basic >= 0)) throw new Error('أدخل الراتب الأساسي');
-      if (f.pe && (new Date(f.pe) - new Date(f.hd)) / 864e5 > 179) throw new Error('فترة التجربة لا تزيد على 180 يوماً — م53');
+      if (f.pe && (new Date(f.pe) - new Date(f.hd)) / 864e5 > 179) throw new Error('فترة التجربة لا تزيد على 180 يوما — م53');
       await db.rpc('hire_candidate', { p_cand: c.id, p_emp: { emp_no: f.emp_no, job_title: f.job_title, department_id: f.dep, manager_id: f.mgr, hire_date: f.hd, probation_end: f.pe, basic: +f.basic, housing: +f.housing || 0, transport: +f.transport || 0 } });
       cache.emps = null; toast('عُيّن المرشح وأُنشئ سجل الموظف'); route();
     } });
@@ -222,7 +222,7 @@ VIEWS['#/training'] = async (page, arg) => {
     <div class="grid" style="margin-bottom:16px"><div class="card kpi"><div class="muted small">دورات ${y}</div><div class="v num">${thisYear.length}</div></div>
       <div class="card kpi"><div class="muted small">ساعات التدريب ${y}</div><div class="v num">${thisYear.reduce((a, t) => a + n0(t.hours) * att.filter(x => x.training_id === t.id && x.status === 'completed').length, 0)}</div></div>
       <div class="card kpi"><div class="muted small">تكلفة التدريب ${y}</div><div class="v num">${money(thisYear.reduce((a, t) => a + n0(t.cost), 0))}</div></div>
-      <div class="card kpi"><div class="muted small">شهادات تنتهي خلال 60 يوماً</div><div class="v num ${soon ? 'bad' : ''}">${soon}</div></div></div>
+      <div class="card kpi"><div class="muted small">شهادات تنتهي خلال 60 يوما</div><div class="v num ${soon ? 'bad' : ''}">${soon}</div></div></div>
     ${tbl([{ t: 'الدورة', k: 'title' }, { t: 'الجهة', h: t => esc(t.provider || '—') }, { t: 'التاريخ', h: t => fdate(t.start_date) + (t.end_date && t.end_date !== t.start_date ? ' → ' + fdate(t.end_date) : '') }, { t: 'الساعات', r: 1, h: t => t.hours == null ? '—' : t.hours }, { t: 'التكلفة', r: 1, h: t => money(t.cost) }, { t: 'المتدربون', r: 1, h: t => att.filter(a => a.training_id === t.id).length }], trs, { empty: 'لا توجد دورات بعد', onRow: true })}`;
   bindRows(page, trs, t => location.hash = '#/training/' + t.id);
   $('#nt', page).onclick = () => trainingForm(null);
@@ -255,7 +255,7 @@ async function training(page, id) {
   $('#et', page).onclick = () => trainingForm(t);
   $('#ad', page).onclick = () => { const free = Object.values(em).filter(e => !inIt.has(e.id) && (!e.end_date || e.end_date >= today()));
     modal('إضافة متدربين', free.length ? `<p class="muted small">اختر الموظفين:</p><div style="columns:2;column-gap:16px">${free.map(e => `<label style="display:flex;gap:8px;align-items:center;color:var(--ink);font-size:14px"><input type="checkbox" name="e_${e.id}"> ${esc(e.full_name)}</label>`).join('')}</div>` : '<p class="muted">كل الموظفين مسجّلون في الدورة.</p>', {
-      ok: 'إضافة', onOk: async f => { const ids = Object.keys(f).filter(k => k.startsWith('e_') && f[k]).map(k => k.slice(2)); if (!ids.length) throw new Error('اختر موظفاً واحداً على الأقل');
+      ok: 'إضافة', onOk: async f => { const ids = Object.keys(f).filter(k => k.startsWith('e_') && f[k]).map(k => k.slice(2)); if (!ids.length) throw new Error('اختر موظفا واحدا على الأقل');
         await db.ins('training_attendees', ids.map(eid => ({ training_id: id, employee_id: eid, company_id: S.cid }))); route(); } }); };
 }
 
@@ -296,13 +296,13 @@ VIEWS['#/hrreports'] = async page => {
   const tHrs = trs.filter(t => String(t.start_date).startsWith(y)).reduce((a, t) => a + n0(t.hours) * att.filter(x => x.training_id === t.id && x.status === 'completed').length, 0);
   page.innerHTML = `<div class="head"><div><h1>تقارير الموارد البشرية</h1><div class="muted">حتى ${today()}</div></div><div class="row"><button class="btn" id="xd">تصدير الأقسام CSV</button><button class="btn" id="xe">تصدير الموظفين CSV</button></div></div>
     <div class="grid" style="margin-bottom:16px">${kpi('الموظفون على رأس العمل', act.length)}${kpi('نسبة السعوديين', pct(saudi, act.length), saudi + ' سعودي · ' + (act.length - saudi) + ' غير سعودي')}${kpi('نسبة النساء', pct(women, act.length))}
-      ${kpi('متوسط مدة الخدمة', svc.toFixed(1), 'سنة')}${kpi('التعيينات (12 شهراً)', hires)}${kpi('المغادرون (12 شهراً)', leavers)}${kpi('معدل الدوران', pct(leavers, avgHc), 'المغادرون ÷ متوسط العدد')}
+      ${kpi('متوسط مدة الخدمة', svc.toFixed(1), 'سنة')}${kpi('التعيينات (12 شهرا)', hires)}${kpi('المغادرون (12 شهرا)', leavers)}${kpi('معدل الدوران', pct(leavers, avgHc), 'المغادرون ÷ متوسط العدد')}
       ${kpi('الرواتب الشهرية', money(act.reduce((a, e) => a + gross(e), 0)), 'إجمالي الأساسي والبدلات')}${isHR() ? kpi('ساعات التدريب ' + y, tHrs) : ''}</div>
     <div class="card"><h2>حسب القسم</h2>${tbl([{ t: 'القسم', k: 'n' }, { t: 'العدد', r: 1, h: g => g.l.length }, { t: 'سعودي', r: 1, h: g => g.l.filter(e => e.is_saudi).length }, { t: 'غير سعودي', r: 1, h: g => g.l.filter(e => !e.is_saudi).length }, { t: 'نسبة التوطين', r: 1, h: g => pct(g.l.filter(e => e.is_saudi).length, g.l.length) }, { t: 'الرواتب الشهرية', r: 1, h: g => money(g.l.reduce((a, e) => a + gross(e), 0)) }, { t: 'متوسط الراتب', r: 1, h: g => money(g.l.reduce((a, e) => a + gross(e), 0) / g.l.length) }], groups, { empty: 'لا يوجد موظفون' })}</div>
     <div class="card"><h2>الإجازات المعتمدة في ${y}</h2>${tbl([{ t: 'النوع', h: k => esc(ltn[k] || k) }, { t: 'الأيام', r: 1, h: k => leaveBy[k] }], Object.keys(leaveBy), { empty: 'لا توجد إجازات معتمدة هذه السنة' })}</div>
-    <div class="card"><h2>تنبيهات خلال 60 يوماً</h2>${tbl([{ t: 'التاريخ', h: a => fdate(a.d) }, { t: 'التنبيه', h: a => esc(a.t) }, { t: 'الموظف', h: a => esc(a.n) }], alerts, { empty: 'لا توجد تنبيهات' })}</div>
+    <div class="card"><h2>تنبيهات خلال 60 يوما</h2>${tbl([{ t: 'التاريخ', h: a => fdate(a.d) }, { t: 'التنبيه', h: a => esc(a.t) }, { t: 'الموظف', h: a => esc(a.n) }], alerts, { empty: 'لا توجد تنبيهات' })}</div>
     ${isHR() ? `<div class="card"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">العهد المسلّمة للموظفين</h2><span class="muted small">إجمالي القيمة: <b class="num">${money(custTotal)}</b></span></div>
-      ${tbl([{ t: 'الموظف', h: c => esc((em[c.employee_id] || {}).full_name || '—') }, { t: 'العهدة', h: c => esc((LANG === 'en' && c.name_en) || c.name) }, { t: 'الرقم التسلسلي', h: c => esc(c.serial || '—') }, { t: 'القيمة', r: 1, h: c => c.value == null ? '—' : money(c.value) }, { t: 'تاريخ التسليم', h: c => fdate(c.issued_on) }], custody, { empty: 'لا توجد عهد مسلّمة حالياً' })}</div>` : ''}
+      ${tbl([{ t: 'الموظف', h: c => esc((em[c.employee_id] || {}).full_name || '—') }, { t: 'العهدة', h: c => esc((LANG === 'en' && c.name_en) || c.name) }, { t: 'الرقم التسلسلي', h: c => esc(c.serial || '—') }, { t: 'القيمة', r: 1, h: c => c.value == null ? '—' : money(c.value) }, { t: 'تاريخ التسليم', h: c => fdate(c.issued_on) }], custody, { empty: 'لا توجد عهد مسلّمة حاليا' })}</div>` : ''}
     ${lastCyc ? `<div class="card"><h2>توزيع نتائج ${esc(lastCyc.name)}</h2>${tbl([{ t: 'التقدير', h: x => x.k + ' — ' + esc(RATING[x.k]) }, { t: 'العدد', r: 1, h: x => x.n }, { t: 'النسبة', r: 1, h: x => pct(x.n, dist.reduce((a, z) => a + z.n, 0)) }], dist)}</div>` : ''}`;
   const dl = (name, rows) => { const csv = '﻿' + rows.map(r => r.map(tr)).map(r => r.map(v => /[",\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : v).join(',')).join('\r\n');
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = name; a.click(); };
@@ -348,7 +348,7 @@ function profileCell(k, v) {
   if (k === 'marital_status') { const x = pickKey(MARITAL, v); return x === '?' ? ['', 'الحالة الاجتماعية غير صحيحة'] : [x]; }
   if (k === 'education') { const x = pickKey(EDU, v); return x === '?' ? ['', 'المؤهل الدراسي غير صحيح'] : [x]; }
   if (k === 'dependents') { v = v.replace(/\.0+$/, ''); return /^\d{1,2}$/.test(v) && +v <= 30 ? [v] : ['', 'عدد المرافقين بين 0 و30']; }
-  if (k === 'leave_open_days') { v = v.replace(/[,\s]/g, ''); return /^\d+(\.\d+)?$/.test(v) && +v <= 999 ? [v] : ['', 'رصيد الإجازة الافتتاحي بين 0 و999 يوماً']; }
+  if (k === 'leave_open_days') { v = v.replace(/[,\s]/g, ''); return /^\d+(\.\d+)?$/.test(v) && +v <= 999 ? [v] : ['', 'رصيد الإجازة الافتتاحي بين 0 و999 يوما']; }
   if (k === 'short_address') { v = v.replace(/\s/g, '').toUpperCase(); return /^[A-Z]{4}\d{4}$/.test(v) ? [v] : ['', 'العنوان المختصر 4 حروف و4 أرقام مثل RRRD2929']; }
   if (k === 'emergency_phone') { v = v.replace(/[\s-]/g, '').replace(/\.0+$/, ''); if (/^5\d{8}$/.test(v)) v = '0' + v; return /^\+?\d{7,16}$/.test(v) ? [v] : ['', 'رقم جوال الطوارئ غير صحيح']; }
   return [v];
@@ -412,7 +412,7 @@ function importRow(raw, idx, rowNo) {
   if (r.probation_end && !/^\d{4}-\d{2}-\d{2}$/.test(r.probation_end)) errs.push('نهاية فترة التجربة غير صحيحة');
   if (!/^\d+(\.\d+)?$/.test(r.basic)) errs.push('الراتب الأساسي رقم مطلوب');
   if ((r.housing && !/^\d+(\.\d+)?$/.test(r.housing)) || (r.transport && !/^\d+(\.\d+)?$/.test(r.transport))) errs.push('البدلات أرقام');
-  if (r.iban && !/^SA\d{22}$/.test(r.iban)) errs.push('الآيبان يبدأ بـ SA ويليه 22 رقماً');
+  if (r.iban && !/^SA\d{22}$/.test(r.iban)) errs.push('الآيبان يبدأ بـ SA ويليه 22 رقما');
   if (nat && !/^(سعودي|سعوديه|سعودية|saudi|ksa|نعم|yes|true|1|غير سعودي|غير سعوديه|غير سعودية|non-saudi|non saudi|expat|لا|no|false|0)$/.test(nat)) {
     const c = natCode(g('is_saudi')); if (c === '?') errs.push('الجنسية: سعودي أو غير سعودي أو اسم الدولة'); else { r.nationality = c; r.is_saudi = String(c === 'SA'); } }
   if (gd && !/^(ذكر|m|male|انثى|انثي|f|female|امراة)$/.test(gd)) errs.push('الجنس: ذكر أو أنثى');
@@ -498,8 +498,8 @@ function templateXlsx(rows) {
     ['xl/worksheets/sheet1.xml', sheet]]);
 }
 function importDialog() {
-  const d = modal('استيراد الموظفين من Excel', `<ol class="small" style="padding-inline-start:18px;margin-top:0"><li>نزّل القالب واملأ سطراً لكل موظف. الأعمدة المطلوبة: الرقم الوظيفي، الاسم الكامل، تاريخ المباشرة، الراتب الأساسي.</li>
-      <li>الأقسام غير الموجودة تُنشأ تلقائياً، والمدير المباشر يُكتب برقمه الوظيفي (من الملف أو من الموظفين الحاليين).</li><li>رصيد الإجازة الافتتاحي: رصيد الموظف من الإجازة السنوية كما في نهاية «تاريخ الرصيد الافتتاحي»، وما يُطلب بعده يُخصم منه. مركز التكلفة يُكتب برمزه، وموقع العمل باسمه.</li><li>ارفع الملف (xlsx أو CSV) وراجع المعاينة ثم اضغط استيراد. إذا كان في أي سطر خطأ لا يُستورد شيء.</li></ol>
+  const d = modal('استيراد الموظفين من Excel', `<ol class="small" style="padding-inline-start:18px;margin-top:0"><li>نزّل القالب واملأ سطرا لكل موظف. الأعمدة المطلوبة: الرقم الوظيفي، الاسم الكامل، تاريخ المباشرة، الراتب الأساسي.</li>
+      <li>الأقسام غير الموجودة تُنشأ تلقائيا، والمدير المباشر يُكتب برقمه الوظيفي (من الملف أو من الموظفين الحاليين).</li><li>رصيد الإجازة الافتتاحي: رصيد الموظف من الإجازة السنوية كما في نهاية «تاريخ الرصيد الافتتاحي»، وما يُطلب بعده يُخصم منه. مركز التكلفة يُكتب برمزه، وموقع العمل باسمه.</li><li>ارفع الملف (xlsx أو CSV) وراجع المعاينة ثم اضغط استيراد. إذا كان في أي سطر خطأ لا يُستورد شيء.</li></ol>
     <div class="row"><button type="button" class="btn" id="tpl">تنزيل القالب</button><label class="btn pri" style="margin:0;color:var(--prim-ink)">اختيار الملف<input type="file" id="imf" accept=".xlsx,.csv,text/csv" hidden></label></div>
     <div id="imp"></div>`, { wide: true });
   $('#tpl', d).onclick = () => { const a = document.createElement('a');
@@ -520,9 +520,9 @@ function importDialog() {
       if (!items.length) throw new Error('لا توجد صفوف موظفين تحت العناوين');
       const nos = {}; items.forEach(x => { if (x.r.emp_no) { if (nos[x.r.emp_no]) x.errs.push('رقم مكرر في الملف'); nos[x.r.emp_no] = 1; } });
       const existing = new Set(Object.values(await employeesMap(true)).map(e => e.emp_no));
-      items.forEach(x => { if (existing.has(x.r.emp_no)) x.errs.push('الرقم الوظيفي مسجّل مسبقاً'); if (x.r.manager_emp_no && !nos[x.r.manager_emp_no] && !existing.has(x.r.manager_emp_no)) x.errs.push('المدير المباشر غير موجود'); });
+      items.forEach(x => { if (existing.has(x.r.emp_no)) x.errs.push('الرقم الوظيفي مسجّل مسبقا'); if (x.r.manager_emp_no && !nos[x.r.manager_emp_no] && !existing.has(x.r.manager_emp_no)) x.errs.push('المدير المباشر غير موجود'); });
       const bad = items.filter(x => x.errs.length);
-      box.innerHTML = `<div class="${bad.length ? 'err' : 'note'}">${items.length} موظف في الملف${bad.length ? ` — ${bad.length} سطر فيه أخطاء، صحّحها في الملف ثم ارفعه مجدداً` : ' — جاهز للاستيراد'}</div>
+      box.innerHTML = `<div class="${bad.length ? 'err' : 'note'}">${items.length} موظف في الملف${bad.length ? ` — ${bad.length} سطر فيه أخطاء، صحّحها في الملف ثم ارفعه مجددا` : ' — جاهز للاستيراد'}</div>
         ${tbl([{ t: 'السطر', h: x => x.r._row }, { t: 'الرقم', h: x => esc(x.r.emp_no) }, { t: 'الاسم', h: x => esc(x.r.full_name) }, { t: 'القسم', h: x => esc(x.r.department || '—') }, { t: 'المباشرة', h: x => esc(x.r.hire_date) }, { t: 'الأساسي', r: 1, h: x => money(x.r.basic) }, { t: 'الملاحظات', h: x => x.errs.length ? `<span class="bad">${esc(x.errs.join('، '))}</span>` : '<span class="ok">✓</span>' }], bad.length ? bad.concat(items.filter(x => !x.errs.length)).slice(0, 200) : items.slice(0, 200))}
         ${bad.length ? '' : `<div class="row" style="margin-top:12px"><button type="button" class="btn pri" id="go">استيراد ${items.length} موظف</button></div><div id="ier"></div>`}`;
       if ($('#go', d)) $('#go', d).onclick = async () => { try { await busy($('#go', d), async () => { const n = await db.rpc('import_employees', { p_company: S.cid, p_rows: items.map(x => x.r) }); cache.emps = null; cache.deps = null; d.close(); toast('استُورد ' + n + ' موظف'); route(); }); } catch (er) { showErr($('#ier', d), er); } };

@@ -32,7 +32,7 @@ function journeyHtml(r, tl, acts) {
         : s.state === 'current' ? ` — <span class="${s.overdue ? 'bad' : 'muted'}">${esc(tr('بانتظاره'))} ${esc(waitTxt(s.since))}${s.overdue ? ' · ' + esc(tr('تجاوز المهلة')) + ' (' + tl.sla_days + ' ' + esc(tr('يوم')) + ')' : ''}</span>`
         : s.state === 'waiting' ? ` <span class="muted small">${esc(tr('لم يصل بعد'))}</span>` : ''}
         ${s.note ? `<div class="small">${esc(s.note)}</div>` : ''}</div></li>`; }))
-    .concat(r.status === 'approved' && tl.decided_at ? [`<li class="jr"><span class="jd ok">★</span><div><b>${esc(tr('اعتُمد الطلب نهائياً'))}</b> ${fdt(tl.decided_at)}</div></li>`] : [])
+    .concat(r.status === 'approved' && tl.decided_at ? [`<li class="jr"><span class="jd ok">★</span><div><b>${esc(tr('اعتُمد الطلب نهائيا'))}</b> ${fdt(tl.decided_at)}</div></li>`] : [])
     .concat(r.status === 'cancelled' ? [`<li class="jr"><span class="jd muted">—</span><div><b>${esc(tr('ألغاه الموظف'))}</b> ${fdt(tl.decided_at)}</div></li>`] : [])
     .concat((acts || []).filter(a => a.action === 'attached').map(a => `<li class="jr"><span class="jd muted">+</span><div>${esc(tr('أُرفق مستند'))} ${fdt(a.at)}</div></li>`));
   return `<div class="card" style="margin:10px 0;padding:10px 12px"><b class="small">${esc(tr('مسار الطلب'))}</b><ul class="journey">${rows.join('')}</ul></div>`;
@@ -69,7 +69,7 @@ VIEWS['#/workflows'] = async page => {
     <div class="card"><div class="tw"><table><thead><tr><th>${esc(tr('نوع الطلب'))}</th>${steps.map(s => `<th class="c">${esc(tr(STEP[s]))}</th>`).join('')}<th></th></tr></thead><tbody>
       ${WF_KINDS.map(k => { const rt = cur[k] || DEF_ROUTE[k].split(''); return `<tr data-wk="${k}"><td>${esc(tr(KIND[k]))}${cur[k] ? '' : ` <span class="muted small">(${esc(tr('افتراضي'))})</span>`}</td>${steps.map(s => `<td class="c"><input type="checkbox" data-st="${s}" style="width:auto" ${rt.includes(s) ? 'checked' : ''}></td>`).join('')}
         <td><button class="btn sm" data-wsave="${k}">${esc(tr('حفظ'))}</button>${cur[k] ? ` <button class="btn sm" data-wreset="${k}">${esc(tr('الافتراضي'))}</button>` : ''}</td></tr>`; }).join('')}</tbody></table></div>
-      <p class="muted small">${esc(tr('المدير المباشر يُتخطى لمن ليس له مدير، والمدير العام لا يعتمد طلبه بنفسه، ومرحلة مدير الموارد البشرية تُتخطى إن لم يُعيَّن. الإجازة التي فيها تذكرة تمر على المالية تلقائياً. إذا لم يكن في المنشأة مدير مالي يعتمد المالك مرحلة المالية.'))}</p></div>`;
+      <p class="muted small">${esc(tr('المدير المباشر يُتخطى لمن ليس له مدير، والمدير العام لا يعتمد طلبه بنفسه، ومرحلة مدير الموارد البشرية تُتخطى إن لم يُعيَّن. الإجازة التي فيها تذكرة تمر على المالية تلقائيا. إذا لم يكن في المنشأة مدير مالي يعتمد المالك مرحلة المالية.'))}</p></div>`;
   $('#whm', page).onchange = async ev => { try { await db.rpc('hr_manager_set', { p_company: S.cid, p_user: blank(ev.target.value) }); await loadContext(); toast(tr('تم الحفظ')); } catch (er) { toast(er.message); route(); } };
   $('#wprb', page).onclick = async () => { try { await db.rpc('purchase_requesters_set', { p_company: S.cid, p_mode: $('#wpr', page).value }); await loadContext(); toast(tr('تم الحفظ')); } catch (er) { toast(er.message); } };
   $('#wslb', page).onclick = async () => { const v = $('#wsla', page).value; try { await db.rpc('request_sla_set', { p_company: S.cid, p_days: v ? +v : null }); await loadContext(); toast(tr('تم الحفظ')); } catch (er) { toast(er.message); } };

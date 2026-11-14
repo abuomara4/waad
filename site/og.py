@@ -13,7 +13,7 @@ padding:70px 80px;display:flex;flex-direction:column;justify-content:space-betwe
 p{font-size:30px;color:#cbd5e1;margin-top:18px;line-height:1.6}.tags{display:flex;gap:14px;flex-wrap:wrap}
 .tags span{border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:8px 22px;font-size:24px;color:#e2e8f0}</style></head><body>
 <div class="top"><img src="LOGO"><div class="tag">حلول دقيقة.. لوعد موثوق</div></div>
-<div><h1>منشأتك كاملة، في <b>نظام واحد</b></h1><p>نظام سعودي للمنشآت الصغيرة والمتوسطة. جرّبه 7 أيام مجاناً.</p></div>
+<div><h1>منشأتك كاملة، في <b>نظام واحد</b></h1><p>نظام سعودي للمنشآت الصغيرة والمتوسطة. جرّبه 7 أيام مجانا.</p></div>
 <div class="tags"><span>نظام العمل</span><span>ضريبة القيمة المضافة</span><span>حماية الأجور</span><span>عربي وإنجليزي</span></div>
 </body></html>'''.replace('LOGO', logo)
 with sync_playwright() as p:

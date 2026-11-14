@@ -46,7 +46,7 @@ async function soForm(page, kind, id, q) {
   const K = SK[kind];
   if (!can('sales')) { page.innerHTML = '<div class="err">غير مصرح</div>'; return; }
   const L = await soLookups();
-  if (!L.parties.length) { page.innerHTML = '<div class="note">أضف عميلاً أولاً. <a href="#/parties/customer">العملاء</a></div>'; return; }
+  if (!L.parties.length) { page.innerHTML = '<div class="note">أضف عميلا أولا. <a href="#/parties/customer">العملاء</a></div>'; return; }
   let doc = null, lines = [{}];
   if (id) {
     [[doc]] = await Promise.all([db.get('sales_orders', { id: 'eq.' + id })]);
@@ -83,7 +83,7 @@ async function soForm(page, kind, id, q) {
   $('#sf', page).onsubmit = async e => {
     e.preventDefault(); const f = formData(e.target);
     const ls = lines.filter(l => l.item).map(l => ({ item: l.item, qty: +(l.qty == null ? 1 : l.qty), price: +l.price, disc: +(l.disc || 0), vat: +(l.vat == null ? 15 : l.vat), desc: blank((l.desc || '').trim()) }));
-    if (!ls.length) return showErr($('#serr', page), 'أضف بنداً واحداً على الأقل');
+    if (!ls.length) return showErr($('#serr', page), 'أضف بندا واحدا على الأقل');
     if (ls.some(l => !(l.qty > 0) || !(l.price >= 0) || isNaN(l.price))) return showErr($('#serr', page), 'تحقق من الكميات والأسعار');
     if (ls.some(l => l.disc < 0 || l.disc > 100)) return showErr($('#serr', page), 'نسبة الخصم بين 0 و 100');
     const d = { kind, party: f.party, date: f.date, note: blank(f.note), terms: blank(f.terms), warehouse: blank(f.warehouse), lines: ls }; if (id) d.id = id; if (kind === 'quote') d.valid_until = f.valid_until;

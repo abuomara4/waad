@@ -27,19 +27,19 @@ async function setupSteps() {
     modOn('sales') ? cnt('sales_invoices') : 0, modOn('sales') && co.vat_no ? db.get('zatca_settings', { company_id: 'eq.' + S.cid, select: 'enabled' }).catch(() => []) : []]);
   const z = zs[0];
   return [
-    { k: 'co', t: 'أكمل بيانات المنشأة', d: 'السجل التجاري والعنوان الوطني (والرقم الضريبي إن كنت مسجّلاً) — تظهر في الفواتير والخطابات.', ok: !!(co.cr_no && co.city && co.street), h: '#/settings' },
+    { k: 'co', t: 'أكمل بيانات المنشأة', d: 'السجل التجاري والعنوان الوطني (والرقم الضريبي إن كنت مسجّلا) — تظهر في الفواتير والخطابات.', ok: !!(co.cr_no && co.city && co.street), h: '#/settings' },
     { k: 'logo', t: 'ارفع شعار المنشأة', d: 'يظهر أعلى الفواتير والخطابات والنماذج المطبوعة.', ok: !!co.logo, h: '#/settings' },
     ...(modOn('hr') ? [{ k: 'me', t: 'أضف نفسك كموظف', d: 'ليظهر لك نظام الطلبات وقسائم الراتب، ويُعرف أنك المدير العام في مسارات الاعتماد.', ok: !!S.emp, btn: 'me' },
       { k: 'emps', t: 'أضف الموظفين', d: 'سجلات الموظفين ورواتبهم ومديريهم المباشرين — أو استوردهم من Excel.', ok: emps >= 2, h: '#/employees' }] : []),
     { k: 'team', t: 'أعطِ فريقك الدخول', d: 'الموظف من سجله في «الموظفون» ← «إنشاء دخول للموظف»، والمدراء من «المستخدمون والدعوات».', ok: mem >= 2, h: '#/users', code: true },
     { k: 'mfa', t: 'فعّل التحقق بخطوتين', d: 'حتى لا تكفي كلمة المرور وحدها للدخول إلى الرواتب والأموال.', ok: !!(S.mfa && S.mfa.enrolled), btn: 'mfa' },
     ...(modOn('hr') ? [{ k: 'pay', t: 'جهّز أول مسير رواتب', d: 'يُحسب الراتب والتأمينات، ويعتمده المالك، ويُخرج ملف حماية الأجور.', ok: runs > 0, h: '#/payroll' }] : []),
-    ...(modOn('sales') ? [{ k: 'inv', t: 'أصدر أول فاتورة', d: 'فاتورة ضريبية أو مبسطة فيها رمز QR، وتُرحّل في الحسابات تلقائياً.', ok: inv > 0, h: '#/sales' }] : []),
-    ...(modOn('sales') && co.vat_no ? [{ k: 'zatca', t: 'اربط منشأتك بـ «فاتورة» (زاتكا)', d: 'لترسل فواتيرك لزاتكا تلقائياً كما تشترط المرحلة الثانية.', ok: !!(z && z.enabled), h: '#/settings' }] : [])];
+    ...(modOn('sales') ? [{ k: 'inv', t: 'أصدر أول فاتورة', d: 'فاتورة ضريبية أو مبسطة فيها رمز QR، وتُرحّل في الحسابات تلقائيا.', ok: inv > 0, h: '#/sales' }] : []),
+    ...(modOn('sales') && co.vat_no ? [{ k: 'zatca', t: 'اربط منشأتك بـ «فاتورة» (زاتكا)', d: 'لترسل فواتيرك لزاتكا تلقائيا كما تشترط المرحلة الثانية.', ok: !!(z && z.enabled), h: '#/settings' }] : [])];
 }
 VIEWS['#/welcome'] = async page => {
   const st = await setupSteps(), done = st.filter(s => s.ok).length;
-  page.innerHTML = `<div class="head"><div><h1>${esc(tr('ابدأ هنا'))}</h1><div class="muted">${esc(tr('خطوات تجهيز منشأتك، وكل خطوة تنتهي تتعلّم تلقائياً.'))}</div></div></div>
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('ابدأ هنا'))}</h1><div class="muted">${esc(tr('خطوات تجهيز منشأتك، وكل خطوة تنتهي تتعلّم تلقائيا.'))}</div></div></div>
     <div class="card"><b>${esc(tr('تم'))} <span class="num">${done}</span> ${esc(tr('من'))} <span class="num">${st.length}</span></b>
       <div style="height:8px;background:var(--line);border-radius:6px;margin-top:8px;overflow:hidden"><div style="height:100%;width:${Math.round(done / st.length * 100)}%;background:var(--ok, #16a34a)"></div></div></div>
     ${st.map((s, i) => `<div class="card setstep" data-k="${s.k}" style="${s.ok ? 'opacity:.7' : ''}"><div class="row" style="justify-content:space-between;align-items:flex-start;gap:10px">

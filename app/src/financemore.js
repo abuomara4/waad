@@ -10,14 +10,14 @@ async function chequeForm({ dir, party, doc, amount }) {
   const D = dir === 'in' ? DOCS.sales : DOCS.purchases;
   const [parties, open] = await Promise.all([db.get('parties', Object.assign(C(), { kind: 'eq.' + D.party, order: 'name' })), db.get(D.table, Object.assign(C(), { status: 'eq.posted', order: 'date', select: 'id,no,party_id,total,currency' }))]);
   const paid = await paidMap(D, open.map(o => o.id)), openDocs = open.filter(o => !o.currency && n0(o.total) - n0(paid[o.id]) > 0.001);
-  if (!parties.length) return toast(dir === 'in' ? 'أضف عميلاً أولاً' : 'أضف مورداً أولاً');
+  if (!parties.length) return toast(dir === 'in' ? 'أضف عميلا أولا' : 'أضف موردا أولا');
   const d = modal(dir === 'in' ? 'شيك وارد من عميل' : 'شيك صادر لمورد', `<div class="fg">${field(dir === 'in' ? 'العميل' : 'المورد', `<select name="party" id="cqp">${parties.map(p => opt(p.id, p.name, party)).join('')}</select>`)}
       ${field('مقابل فاتورة', '<select name="doc" id="cqd"></select>')}${field('رقم الشيك', inp('cheque_no', '', 'dir="ltr" maxlength="30" required'))}${field('البنك', inp('bank', ''))}
       ${field('المبلغ', inp('amount', amount || '', 'type="number" step="0.01" min="0.01" id="cqa" required'))}
       ${field(dir === 'in' ? 'تاريخ الاستلام' : 'تاريخ التسليم', `<input type="date" name="issue_date" value="${today()}" max="${today()}">`)}${field('تاريخ الاستحقاق (المكتوب على الشيك)', `<input type="date" name="due_date" value="${today()}">`)}
       ${field('ملاحظات', inp('note'), 'wide')}</div>
     <p class="muted small">${esc(tr(dir === 'in' ? 'يُسدَّد العميل الآن، ويبقى المبلغ في «شيكات برسم التحصيل» حتى يحصّله البنك. إن ارتجع الشيك تعود المديونية.' : 'يُسدَّد المورد الآن، ويبقى المبلغ في «شيكات صادرة مؤجلة» حتى يصرفه البنك.'))}</p>`, {
-    ok: 'حفظ الشيك', onOk: async f => { if (!(+f.amount > 0)) throw new Error('أدخل مبلغاً أكبر من صفر');
+    ok: 'حفظ الشيك', onOk: async f => { if (!(+f.amount > 0)) throw new Error('أدخل مبلغا أكبر من صفر');
       await db.rpc('cheque_save', { p_company: S.cid, p_doc: { direction: dir, party: f.party, [D.payKey]: f.doc || '', cheque_no: f.cheque_no, bank: blank(f.bank), amount: +f.amount, issue_date: f.issue_date, due_date: f.due_date, note: blank(f.note) } });
       toast(tr('حُفظ الشيك')); route(); } });
   const fill = () => { const p = $('#cqp', d).value; $('#cqd', d).innerHTML = `<option value="">${esc(tr('— دفعة على الحساب —'))}</option>` + openDocs.filter(o => o.party_id === p).map(o => opt(o.id, o.no + ' — ' + tr('متبقي') + ' ' + money(n0(o.total) - n0(paid[o.id])), doc)).join(''); };
@@ -31,7 +31,7 @@ async function fxPaymentForm({ key, doc, rem }) {
   const fxrem = r2(n0(doc.fx_total) * rem / n0(doc.total));
   modal((key === 'sales' ? tr('قبض') : tr('صرف')) + ' — ' + doc.no, `<div class="fg">${field(tr('المبلغ بالعملة') + ' (' + doc.currency + ')', inp('fx', fxrem, 'type="number" step="0.01" min="0.01" required'))}${field('سعر الصرف اليوم (ريال لكل وحدة)', inp('rate', cur.rate || doc.fx_rate, 'type="number" step="0.000001" min="0.000001" required'))}
       ${field(key === 'sales' ? 'إلى حساب' : 'من حساب', `<select name="acc">${cash.map(a => opt(a.code, a.name, '1120')).join('')}</select>`)}${field('التاريخ', `<input type="date" name="date" value="${today()}" max="${today()}">`)}${field('ملاحظات', inp('note'), 'wide')}</div>
-    <p class="muted small">${esc(tr('سعر الفاتورة'))} <span class="num">${doc.fx_rate}</span> — ${esc(tr('الفرق بين سعر الفاتورة وسعر اليوم يُقيد ربحاً (4950) أو خسارة (5950) فروقات عملة.'))}</p>`, {
+    <p class="muted small">${esc(tr('سعر الفاتورة'))} <span class="num">${doc.fx_rate}</span> — ${esc(tr('الفرق بين سعر الفاتورة وسعر اليوم يُقيد ربحا (4950) أو خسارة (5950) فروقات عملة.'))}</p>`, {
     ok: 'حفظ السند', onOk: async f => { await db.rpc('record_payment_fx', { p_company: S.cid, p_doc: { direction: D.payDir, [D.payKey]: doc.id, fx_amount: +f.fx, fx_rate: +f.rate, account: f.acc, date: f.date, note: blank(f.note) } }); toast('حُفظ السند'); route(); } });
 }
 
@@ -48,7 +48,7 @@ VIEWS['#/cheques'] = async (page, arg, q) => {
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))"><div class="card"><div class="muted small">${esc(tr('برسم التحصيل'))}</div><b class="num">${money(sum('in'))}</b></div>
       <div class="card"><div class="muted small">${esc(tr('صادرة لم تُصرف'))}</div><b class="num">${money(sum('out'))}</b></div>
       <div class="card"><div class="muted small">${esc(tr('مستحقة خلال 7 أيام أو متأخرة'))}</div><b class="num ${rows.some(c => c.status === 'open' && c.due_date < td) ? 'bad' : ''}">${rows.filter(c => c.status === 'open' && c.due_date <= soon).length}</b></div></div>
-    <div class="seg" style="margin-bottom:12px">${[['due', 'المستحقة قريباً'], ['in', 'الواردة'], ['out', 'الصادرة'], ['all', 'الكل']].map(t => `<a href="#/cheques?v=${t[0]}" class="${t[0] === v ? 'on' : ''}">${esc(tr(t[1]))}</a>`).join('')}</div>
+    <div class="seg" style="margin-bottom:12px">${[['due', 'المستحقة قريبا'], ['in', 'الواردة'], ['out', 'الصادرة'], ['all', 'الكل']].map(t => `<a href="#/cheques?v=${t[0]}" class="${t[0] === v ? 'on' : ''}">${esc(tr(t[1]))}</a>`).join('')}</div>
     ${tbl([{ t: 'الرقم', h: c => `<span class="num">${esc(c.no)}</span>` }, { t: 'النوع', h: c => esc(tr(c.direction === 'in' ? 'وارد' : 'صادر')) }, { t: 'الطرف', h: c => esc(pm[c.party_id] || '') },
       { t: 'رقم الشيك', h: c => `<span class="num">${esc(c.cheque_no)}</span>${c.bank ? ` <span class="muted small">${esc(c.bank)}</span>` : ''}` },
       { t: 'الاستحقاق', h: c => `<span class="${c.status === 'open' && c.due_date < td ? 'bad' : ''}">${fdate(c.due_date)}</span>` }, { t: 'المبلغ', r: 1, h: c => money(c.amount) }, { t: 'الحالة', h: chqBadge }],
@@ -73,7 +73,7 @@ VIEWS['#/currencies'] = async page => {
   const rows = await currencies(true);
   page.innerHTML = `<div class="head"><div><h1>العملات</h1><div class="muted small">العملة الأساسية الريال السعودي. أضف العملات التي تبيع أو تشتري بها، وحدّث سعر الصرف عند الحاجة — كل فاتورة تحفظ سعرها</div></div>${can('coa') ? '<button class="btn pri" id="ncu">عملة جديدة</button>' : ''}</div>
     ${tbl([{ t: 'الرمز', h: c => `<span class="num">${esc(c.code)}</span>` }, { t: 'العملة', h: c => esc((LANG === 'en' && c.name_en) || c.name) }, { t: 'سعر الصرف (ريال)', r: 1, h: c => `<span class="num">${+c.rate}</span>` }, { t: 'آخر تحديث', h: c => fdate(c.updated_at) }], rows, { empty: 'لا توجد عملات — كل المعاملات بالريال', onRow: can('coa') })}`;
-  const form = c => modal(c ? tr('تحديث') + ' ' + c.code : 'عملة جديدة', `<div class="fg">${field('الرمز (ISO)', inp('code', c ? c.code : '', `dir="ltr" maxlength="3" placeholder="USD" ${c ? 'readonly' : ''} required`))}${field('الاسم', inp('name', c && c.name, 'required'))}${enF('name_en', c && c.name_en)}${field('سعر الصرف: كم ريالاً للوحدة', inp('rate', c && +c.rate, 'type="number" step="0.000001" min="0.000001" required'))}</div>`, {
+  const form = c => modal(c ? tr('تحديث') + ' ' + c.code : 'عملة جديدة', `<div class="fg">${field('الرمز (ISO)', inp('code', c ? c.code : '', `dir="ltr" maxlength="3" placeholder="USD" ${c ? 'readonly' : ''} required`))}${field('الاسم', inp('name', c && c.name, 'required'))}${enF('name_en', c && c.name_en)}${field('سعر الصرف: كم ريالا للوحدة', inp('rate', c && +c.rate, 'type="number" step="0.000001" min="0.000001" required'))}</div>`, {
     onOk: async f => { await db.rpc('currency_save', { p_company: S.cid, p_code: f.code, p_name: f.name, p_name_en: blank(f.name_en), p_rate: +f.rate }); cache.cur = null; toast('تم الحفظ'); route(); } });
   if ($('#ncu', page)) $('#ncu', page).onclick = () => form(null);
   if (can('coa')) bindRows(page, rows, form);
@@ -89,7 +89,7 @@ VIEWS['#/opening'] = async page => {
   page.innerHTML = `<div class="head"><div><h1>الأرصدة الافتتاحية</h1><div class="muted small">انقل أرصدتك من النظام السابق مرة واحدة: الحسابات، ومديونية كل عميل، ودائنية كل مورد، وكميات الأصناف وتكلفتها</div></div></div>
     ${b ? `<div class="card"><h2>${esc(tr('مُدخلة بتاريخ'))} ${fdate(b.date)}</h2><p>${esc(tr('حسابات'))} <b class="num">${s.accounts || 0}</b> · ${esc(tr('عملاء'))} <b class="num">${s.customers || 0}</b> (${money(s.ar || 0)}) · ${esc(tr('موردون'))} <b class="num">${s.suppliers || 0}</b> (${money(s.ap || 0)}) · ${esc(tr('أصناف'))} <b class="num">${s.items || 0}</b> (${money(s.stock || 0)})${n0(s.to_equity) ? ` · ${esc(tr('فرق مُرحّل إلى 3900'))} <b class="num">${money(s.to_equity)}</b>` : ''}</p>
         <button class="btn danger" id="obu">${esc(tr('إلغاء الأرصدة الافتتاحية'))}</button> <span class="muted small">${esc(tr('متاح فقط قبل تسجيل أي عملية أخرى.'))}</span></div>`
-    : `<div class="card"><ol class="small" style="line-height:2"><li>${esc(tr('نزّل القالب واملأه: سطر لكل حساب أو عميل أو مورد أو صنف.'))}</li><li>${esc(tr('العملاء والموردون بأسمائهم — يُنشأ الطرف إن لم يكن موجوداً. الأصناف برموزها (يجب أن تكون معرّفة).'))}</li>
+    : `<div class="card"><ol class="small" style="line-height:2"><li>${esc(tr('نزّل القالب واملأه: سطر لكل حساب أو عميل أو مورد أو صنف.'))}</li><li>${esc(tr('العملاء والموردون بأسمائهم — يُنشأ الطرف إن لم يكن موجودا. الأصناف برموزها (يجب أن تكون معرّفة).'))}</li>
         <li>${esc(tr('لا تكتب أرصدة العملاء (1200) والموردين (2100) والمخزون (1300) كأرقام حسابات — تُحسب من التفاصيل.'))}</li><li>${esc(tr('تاريخ الأرصدة يسبق أول عملية في النظام، وعادة نهاية السنة السابقة.'))}</li></ol>
         <div class="row"><button class="btn" id="obt">تنزيل القالب</button><label class="btn pri" style="margin:0;color:var(--prim-ink)">اختيار الملف<input type="file" id="obf" accept=".xlsx,.csv" hidden></label></div></div><div id="obp"></div>`}`;
   if ($('#obu', page)) $('#obu', page).onclick = async () => { if (!await confirmBox('إلغاء الأرصدة الافتتاحية', tr('يُعكس القيد وحركات المخزون، وتُلغى أرصدة العملاء والموردين الافتتاحية.'), 'إلغاء')) return;
@@ -117,7 +117,7 @@ VIEWS['#/opening'] = async page => {
       p.innerHTML = `<div class="card"><h2>${esc(tr('مراجعة قبل الترحيل'))}</h2>
         ${tbl([{ t: 'النوع', h: r => esc(tr({ acc: 'حساب', cust: 'عميل', supp: 'مورد', item: 'صنف' }[r.t])) }, { t: 'الرمز أو الاسم', h: r => esc(r.a || r.name || r.code) }, { t: 'مدين', r: 1, h: r => money(r.t === 'acc' ? r.d : r.t === 'cust' ? r.amount : r.t === 'item' ? r.qty * r.cost : 0) }, { t: 'دائن', r: 1, h: r => money(r.t === 'acc' ? r.c : r.t === 'supp' ? r.amount : 0) }], rows,
           { foot: `<td colspan="2">${esc(tr('الإجمالي'))} ${Math.abs(diff) < 0.005 ? `<span class="badge ok">${esc(tr('متوازن'))}</span>` : `<span class="badge bad">${esc(tr('الفرق'))} ${money(diff)}</span>`}</td><td class="r num">${money(dr)}</td><td class="r num">${money(cr)}</td>` })}
-        <div class="fg" style="margin-top:12px">${field('تاريخ الأرصدة', `<input type="date" id="obd" value="${lastYear}" max="${today()}">`)}${Math.abs(diff) >= 0.005 ? `<label class="row small wide" style="gap:6px"><input type="checkbox" id="obe" style="width:auto">${esc(tr('رحّل الفرق إلى حساب «أرصدة افتتاحية» 3900 لمراجعته لاحقاً'))}</label>` : ''}</div>
+        <div class="fg" style="margin-top:12px">${field('تاريخ الأرصدة', `<input type="date" id="obd" value="${lastYear}" max="${today()}">`)}${Math.abs(diff) >= 0.005 ? `<label class="row small wide" style="gap:6px"><input type="checkbox" id="obe" style="width:auto">${esc(tr('رحّل الفرق إلى حساب «أرصدة افتتاحية» 3900 لمراجعته لاحقا'))}</label>` : ''}</div>
         <div class="row" style="margin-top:12px"><button class="btn pri" id="obg">${esc(tr('ترحيل الأرصدة'))}</button></div></div>`;
       $('#obg', p).onclick = async ev => { try { await busy(ev.target, () => db.rpc('opening_post', { p_company: S.cid, p_date: $('#obd', p).value, p_rows: rows, p_to_equity: !!($('#obe', p) && $('#obe', p).checked) })); toast(tr('رُحّلت الأرصدة الافتتاحية')); route(); } catch (er) { toast(er.message); } };
     } catch (er) { $('#obp', page).innerHTML = `<div class="err">${esc(er.message)}</div>`; }
@@ -137,7 +137,7 @@ VIEWS['#/petty'] = async page => {
       { t: 'الحالة', h: f => f.status === 'active' ? `<span class="badge ok">${esc(tr('قائمة'))}</span>` : `<span class="badge">${esc(tr('مقفلة'))} ${fdate(f.closed_on)}</span>` }], funds, { empty: 'لا توجد عهد نقدية', onRow: true })}</div>`;
   const ce = Object.values(em).filter(e => !e.end_date && !funds.some(f => f.employee_id === e.id && f.status === 'active'));
   $('#npf', page).onclick = () => modal('عهدة نقدية جديدة', `<div class="fg">${field('الموظف', `<select name="emp">${ce.map(e => opt(e.id, e.emp_no + ' — ' + pEmp(e))).join('')}</select>`)}${field('المبلغ المصروف الآن', inp('amount', '', 'type="number" step="0.01" min="0.01" required'))}
-      ${field('سقف العهدة', inp('ceiling', '', 'type="number" step="0.01" min="0.01" placeholder="' + esc(tr('يساوي المبلغ إن تُرك فارغاً')) + '"'))}${field('من حساب', `<select name="from">${cash.map(a => opt(a.code, a.name, '1110')).join('')}</select>`)}${field('التاريخ', `<input type="date" name="date" value="${today()}" max="${today()}">`)}</div>`, {
+      ${field('سقف العهدة', inp('ceiling', '', 'type="number" step="0.01" min="0.01" placeholder="' + esc(tr('يساوي المبلغ إن تُرك فارغا')) + '"'))}${field('من حساب', `<select name="from">${cash.map(a => opt(a.code, a.name, '1110')).join('')}</select>`)}${field('التاريخ', `<input type="date" name="date" value="${today()}" max="${today()}">`)}</div>`, {
     ok: 'صرف العهدة', onOk: async f => { await db.rpc('petty_open', { p_company: S.cid, p_employee: f.emp, p_amount: +f.amount, p_from: f.from, p_ceiling: f.ceiling ? +f.ceiling : null, p_date: f.date }); cache.acc = null; toast('تم'); route(); } });
   if ($('#pcw', page)) bindRows($('#pcw', page), pend, c => { const d = modal(tr('تسوية') + ' ' + c.no, `<p>${en((fm[c.fund_id] || {}).employee_id)} · ${fdate(c.date)} · <b class="num">${money(c.total)}</b> · ${esc(tr('رصيد العهدة'))} <span class="num">${money((fm[c.fund_id] || {}).balance)}</span></p><p class="small">${pettyLines(c.lines, am)}</p>
       <div class="row"><button type="button" class="btn pri" id="pca">اعتماد وقيد</button><button type="button" class="btn danger" id="pcr">رفض</button></div>`);
@@ -167,7 +167,7 @@ async function pettyClaimForm(fund) {
     wide: true, ok: 'إرسال التسوية', onOk: async f => {
       const lines = $$('#pcl tr', d).map(tr0 => { const o = {}; $$('[data-k]', tr0).forEach(x => o[x.dataset.k] = x.value.trim()); return o; }).filter(l => l.desc || +l.amount)
         .map(l => ({ desc: l.desc, a: l.a, amount: +l.amount, vat: +l.vat || 0, vat_no: l.vat_no || null, ref: l.ref || null }));
-      if (!lines.length) throw new Error('أضف بنداً واحداً على الأقل');
+      if (!lines.length) throw new Error('أضف بندا واحدا على الأقل');
       await db.rpc('petty_claim_submit', { p_fund: fund, p_date: f.date, p_lines: lines }); toast(tr('أُرسلت التسوية')); route(); } });
   $('#pca2', d).onclick = () => $('#pcl', d).insertAdjacentHTML('beforeend', row());
   $('#pcl', d).addEventListener('input', e => { if (e.target.dataset.k === 'amount') { const v = $('[data-k=vat]', e.target.closest('tr')); if (!v.dataset.touched) v.value = ''; } if (e.target.dataset.k === 'vat') e.target.dataset.touched = '1'; });

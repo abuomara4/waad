@@ -85,7 +85,7 @@ with sync_playwright() as pw:
     add_emp('5001', 'خالد الدوسري', 12000, mgr='عبدالله الراشد (1000)', hire='2020-02-01', nid='1000000001')
     add_emp('5000', 'محمد العتيبي', 8000, mgr='خالد الدوسري (5001)', nid='1000000002')
     go(o, '#/employees'); o.click('#ne'); o.fill('#dlg input[name=emp_no]', '5000'); o.fill('#dlg input[name=full_name]', 'مكرر'); o.fill('#dlg input[name=basic]', '1'); o.click('#mok')
-    o.wait_for_selector('#merr .err'); ok('مستخدم مسبقاً' in o.inner_text('#merr'), 'duplicate employee number shows Arabic error'); o.click('#mx')
+    o.wait_for_selector('#merr .err'); ok('مستخدم مسبقا' in o.inner_text('#merr').replace('\u064b', ''), 'duplicate employee number shows Arabic error'); o.click('#mx')
     go(o, '#/employees'); ok(o.locator('tbody tr').count() == 3, 'employees list shows 3')
 
     # invites
@@ -153,7 +153,7 @@ with sync_playwright() as pw:
     o.click('#pd'); modal_ok(o); o.wait_for_timeout(400); ok('مصروف' in o.inner_text('h1'), 'payroll marked paid')
     ok(o.locator('#wps').count() == 1, 'WPS export available after approval')
     o.click('#wps'); o.wait_for_selector('#wx')
-    ok('يحتاج تصحيحاً' in o.inner_text('#dlg') or 'كل السطور سليمة' in o.inner_text('#dlg'), 'WPS export validates IDs, IBANs and net before download')
+    ok('يحتاج تصحيحا' in o.inner_text('#dlg').replace('\u064b', '') or 'كل السطور سليمة' in o.inner_text('#dlg'), 'WPS export validates IDs, IBANs and net before download')
     with o.expect_download() as dl: o.click('#wx')
     wp = os.path.join(tempfile.mkdtemp(), 'w.xlsx'); dl.value.save_as(wp); ws = openpyxl.load_workbook(wp).active
     hdr = [c.value for c in ws[1]]; r2_ = [c.value for c in ws[2]]
@@ -280,7 +280,7 @@ with sync_playwright() as pw:
     ok(sql("select is_saudi::text from employees where emp_no='7003'") == 'false', 'import: nationality mapped')
     cf = os.path.join(tempfile.mkdtemp(), 'bad.csv'); open(cf, 'w', encoding='utf-8').write('Employee number,Full name,Hire date,Basic\n5000,Duplicate Person,2025-01-01,5000\n7100,Bad Date,31-31-2025,x\n')
     o.click('#imx'); o.set_input_files('#imf', cf); o.wait_for_selector('#imp .err')
-    t = o.inner_text('#imp'); ok('مسجّل مسبقاً' in t and 'الراتب الأساسي' in t and o.locator('#go').count() == 0, 'CSV with English headers validated; errors block import')
+    t = o.inner_text('#imp').replace('\u064b', ''); ok('مسجّل مسبقا' in t and 'الراتب الأساسي' in t and o.locator('#go').count() == 0, 'CSV with English headers validated; errors block import')
     rt = o.evaluate("(async () => { const rows = await readXlsx(await templateXlsx([['أ','ب'],['1','2']]).arrayBuffer()); return JSON.stringify(rows); })()")
     ok(rt == '[["أ","ب"],["1","2"]]', 'downloadable template round-trips through the reader'); o.click('#mx')
     # documents and contracts from Excel
@@ -523,7 +523,7 @@ with sync_playwright() as pw:
     SH = os.environ.get('SHOTS')
     if SH: o.screenshot(path=SH + '/docs_emp.png', full_page=True)
     go(o, '#/docs'); o.wait_for_selector('#page .tw'); t = o.inner_text('#page .tw >> nth=0')
-    ok('الهوية الوطنية' in t and 'عقد العمل' in t and 'خلال 30 يوماً' in t, 'ID and contract expiring within 30 days are alerted')
+    ok('الهوية الوطنية' in t and 'عقد العمل' in t and 'خلال 30 يوما' in t.replace('\u064b', ''), 'ID and contract expiring within 30 days are alerted')
     if SH: o.screenshot(path=SH + '/docs_alerts.png', full_page=True)
     wa = o.locator('#page .tw >> nth=0').locator('a.wa').first.get_attribute('href'); ok('wa.me/' in wa and 'الهوية' in urllib.parse.unquote(wa), 'WhatsApp reminder to the employee for an expiring document')
     go(o, '#/docs/' + sql("select id from employees where emp_no='5000'")); o.wait_for_selector('#crn'); o.click('#crn'); o.fill('#dlg input[name=en]', later); modal_ok(o); o.wait_for_timeout(400)

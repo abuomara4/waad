@@ -43,7 +43,7 @@ VIEWS['#/items'] = async page => {
       ${field('الأرقام التسلسلية', `<select name="track_serial" ${it && st[it.id] ? 'disabled' : ''}>${opt('false', tr('لا'), String(!!(it && it.track_serial)))}${opt('true', tr('نعم — رقم لكل قطعة'), String(!!(it && it.track_serial)))}</select>`)}
       ${it ? `<div class="wide"><label>${esc(tr('وحدات أخرى'))}</label><div id="iul" class="small muted">${esc(tr('جارٍ التحميل…'))}</div>
         <div class="row" style="gap:6px;margin-top:6px"><input id="iun" placeholder="${esc(tr('الوحدة، مثل كرتون'))}" style="max-width:150px"><input id="iuf" type="number" min="0.0001" step="0.0001" placeholder="${esc(tr('كم') + ' ' + (it.unit || tr('وحدة')))}" style="max-width:120px"><input id="iub" dir="ltr" placeholder="${esc(tr('باركود (اختياري)'))}" style="max-width:170px"><button type="button" class="btn sm" id="iua">${esc(tr('إضافة'))}</button></div><div id="iuerr"></div></div>` : ''}</div>
-      <p class="muted small">${esc(tr('عند تتبع الصلاحية يُطلب تاريخ الانتهاء عند الاستلام، ويُصرف الأقرب انتهاءً أولاً.'))}</p>`, {
+      <p class="muted small">${esc(tr('عند تتبع الصلاحية يُطلب تاريخ الانتهاء عند الاستلام، ويُصرف الأقرب انتهاء أولا.'))}</p>`, {
     onOk: async f => { if (!f.code || f.name.length < 2) throw new Error('أدخل الرمز والاسم');
       const row = { code: f.code, name: f.name, name_en: blank((f.name_en || '').trim()), unit: blank(f.unit), sale_price: +f.sale_price || 0, reorder_level: +f.reorder_level || 0, reorder_qty: +f.reorder_qty || 0, track_expiry: f.track_expiry === 'true',
         category: blank(f.category), barcode: blank(f.barcode), purchase_price: f.purchase_price === '' ? null : +f.purchase_price, vat_rate: +f.vat_rate,
@@ -61,7 +61,7 @@ VIEWS['#/items'] = async page => {
   if (can('items')) bindRows(page, items, formU);
   if ($('#adj', page)) $('#adj', page).onclick = async () => { const wf = await whField();
     modal('تسوية مخزون', `<div class="fg">${field('الصنف', `<select name="item">${items.filter(i => i.type === 'stock').map(i => opt(i.id, i.code + ' — ' + i.name)).join('')}</select>`, 'wide')}${wf}${field('الكمية (+ زيادة / − عجز)', inp('qty', '', 'type="number" step="0.001"'))}${field('تكلفة الوحدة (للزيادة)', inp('cost', '', 'type="number" step="0.01" min="0"'))}${field('تاريخ الصلاحية (للزيادة في صنف بصلاحية)', '<input type="date" name="exp">')}${field('التاريخ', `<input type="date" name="d" value="${today()}">`)}${field('السبب', inp('reason'), 'wide')}
-      <label class="row small wide" style="gap:6px;align-items:flex-start"><input type="checkbox" name="opening" style="width:auto;margin-top:4px"> <span>${esc(tr('رصيد افتتاحي (أول إدخال لكمية موجودة عندك) — يُسجَّل في الأرصدة الافتتاحية، ولا يُحسب ربحاً أو خسارة'))}</span></label></div>`, {
+      <label class="row small wide" style="gap:6px;align-items:flex-start"><input type="checkbox" name="opening" style="width:auto;margin-top:4px"> <span>${esc(tr('رصيد افتتاحي (أول إدخال لكمية موجودة عندك) — يُسجَّل في الأرصدة الافتتاحية، ولا يُحسب ربحا أو خسارة'))}</span></label></div>`, {
       onOk: async f => { await db.rpc('stock_adjust', { p_company: S.cid, p_item: f.item, p_date: f.d, p_qty: +f.qty, p_unit_cost: f.cost === '' ? null : +f.cost, p_reason: f.reason, p_warehouse: blank(f.warehouse), p_expiry: blank(f.exp), p_opening: !!f.opening }); toast('سُجلت التسوية'); route(); } }); };
 };
 
@@ -82,7 +82,7 @@ const ITEM_COLS = [['code', 'رمز الصنف', 'code|item code|الرمز|رم
   ['sale_price', 'سعر البيع', 'sale price|price|سعر البيع'], ['purchase_price', 'سعر الشراء', 'purchase price|cost|سعر الشراء'], ['vat_rate', 'نسبة الضريبة (0 أو 15)', 'vat|vat rate|الضريبة|نسبة الضريبة'],
   ['reorder_level', 'حد إعادة الطلب', 'reorder level|حد إعادة الطلب']];
 function itemImport() {
-  const d = modal(tr('استيراد الأصناف من Excel'), `<ol class="small" style="padding-inline-start:18px;margin-top:0"><li>${esc(tr('نزّل القالب واملأ سطراً لكل صنف — الرمز مطلوب، والاسم مطلوب للصنف الجديد.'))}</li>
+  const d = modal(tr('استيراد الأصناف من Excel'), `<ol class="small" style="padding-inline-start:18px;margin-top:0"><li>${esc(tr('نزّل القالب واملأ سطرا لكل صنف — الرمز مطلوب، والاسم مطلوب للصنف الجديد.'))}</li>
     <li>${esc(tr('الرمز الموجود تُحدَّث بياناته من الخانات المعبأة فقط، والجديد يُضاف. نوع الصنف لا يتغير بعد إنشائه.'))}</li><li>${esc(tr('الكميات الافتتاحية تُدخل من «الأرصدة الافتتاحية».'))}</li></ol>
     <div class="row"><button type="button" class="btn" id="itpl">${esc(tr('تنزيل القالب'))}</button><label class="btn pri" style="margin:0;color:var(--prim-ink)">${esc(tr('اختيار الملف'))}<input type="file" id="iimf" accept=".xlsx,.csv,text/csv" hidden></label></div><div id="iimp"></div>`, { wide: true });
   $('#itpl', d).onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(templateXlsx([ITEM_COLS.map(c => tr(c[1]) + (c[3] ? ' *' : ''))])); a.download = 'waad-items.xlsx'; a.click(); };
@@ -100,7 +100,7 @@ function itemImport() {
         if (x.vat_rate && !['0', '15'].includes(x.vat_rate.replace('%', ''))) errs.push(tr('نسبة الضريبة 0 أو 15'));
         return { x, errs }; });
       const bad = rows.filter(i => i.errs.length);
-      box.innerHTML = `<div class="${bad.length ? 'err' : 'note'}">${rows.length} ${esc(tr('سطر في الملف'))}${bad.length ? ` — ${bad.length} ${esc(tr('سطر فيه أخطاء، صحّحها في الملف ثم ارفعه مجدداً'))}` : ' — ' + esc(tr('جاهز للاستيراد'))}</div>
+      box.innerHTML = `<div class="${bad.length ? 'err' : 'note'}">${rows.length} ${esc(tr('سطر في الملف'))}${bad.length ? ` — ${bad.length} ${esc(tr('سطر فيه أخطاء، صحّحها في الملف ثم ارفعه مجددا'))}` : ' — ' + esc(tr('جاهز للاستيراد'))}</div>
         ${tbl([{ t: 'السطر', h: i => i.x._row }, { t: 'الرمز', h: i => `<span class="num">${esc(i.x.code || '')}</span>` }, { t: 'الاسم', h: i => esc(i.x.name || '') }, { t: 'سعر البيع', r: 1, h: i => esc(i.x.sale_price || '') },
           { t: 'الملاحظات', h: i => i.errs.length ? `<span class="bad">${esc(i.errs.join('، '))}</span>` : '<span class="ok">✓</span>' }], (bad.length ? bad : rows).slice(0, 300))}
         ${bad.length ? '' : `<div class="row" style="margin-top:12px"><button type="button" class="btn pri" id="igo">${esc(tr('استيراد'))} ${rows.length} ${esc(tr('سطر'))}</button></div><div id="iier"></div>`}`;
@@ -133,7 +133,7 @@ VIEWS['#/transfers'] = async (page, arg) => {
   if (arg) return trView(page, arg);
   const [rows, wm] = await Promise.all([db.get('stock_transfers', Object.assign(C(), { order: 'date.desc,no.desc', limit: 300 })), whMap()]);
   page.innerHTML = `<div class="head"><div><h1>تحويلات المخزون</h1><div class="muted small">نقل كميات بين المستودعات بالتكلفة نفسها، مع دفعاتها وتواريخ صلاحيتها</div></div>${can('stock') && Object.keys(wm).length > 1 ? '<a class="btn pri" href="#/transfers/new">تحويل جديد</a>' : ''}</div>
-    ${Object.keys(wm).length < 2 ? `<div class="note">${esc(tr('أضف مستودعاً ثانياً لتحويل الكميات بينهما.'))} <a href="#/warehouses">${esc(tr('المستودعات'))}</a></div>` : ''}
+    ${Object.keys(wm).length < 2 ? `<div class="note">${esc(tr('أضف مستودعا ثانيا لتحويل الكميات بينهما.'))} <a href="#/warehouses">${esc(tr('المستودعات'))}</a></div>` : ''}
     ${tbl([{ t: 'الرقم', h: r => `<span class="num">${esc(r.no)}</span>` }, { t: 'التاريخ', h: r => fdate(r.date) }, { t: 'من', h: r => esc(whName(wm[r.from_wh])) }, { t: 'إلى', h: r => esc(whName(wm[r.to_wh])) }, { t: 'ملاحظات', h: r => esc(r.note || '') }],
       rows, { empty: 'لا توجد تحويلات', onRow: true })}`;
   bindRows(page, rows, r => location.hash = '#/transfers/' + r.id);
@@ -154,7 +154,7 @@ async function trForm(page) {
   $('#lb', page).addEventListener('click', e => { if (e.target.matches('[data-rm]')) { lines.splice(+e.target.closest('tr').dataset.i, 1); if (!lines.length) lines.push({}); draw(); } });
   $('[name=from]', page).onchange = draw; $('#al', page).onclick = () => { lines.push({}); draw(); }; draw();
   $('#tf', page).onsubmit = async e => { e.preventDefault(); const f = formData(e.target); const ls = lines.filter(l => l.item && +l.qty > 0).map(l => ({ item: l.item, qty: +l.qty }));
-    if (!ls.length) return showErr($('#terr', page), 'أضف بنداً واحداً على الأقل');
+    if (!ls.length) return showErr($('#terr', page), 'أضف بندا واحدا على الأقل');
     try { await busy($('#ts', page), async () => { const id = await db.rpc('stock_transfer', { p_company: S.cid, p_doc: { from: f.from, to: f.to, date: f.date, note: blank(f.note), lines: ls } }); toast('رُحّل التحويل'); location.hash = '#/transfers/' + id; }); } catch (er) { showErr($('#terr', page), er); } };
 }
 async function trView(page, id) {
@@ -196,7 +196,7 @@ async function countView(page, id) {
         <td class="r">${draft ? `<input data-c type="number" min="0" step="0.001" value="${l.counted == null ? '' : +l.counted}" style="width:100px">` : `<span class="num">${l.counted == null ? '—' : qtyTxt(l.counted)}</span>`}</td>
         ${c.status === 'posted' ? `<td class="r num ${n0(l.diff) < 0 ? 'bad' : n0(l.diff) > 0 ? 'ok' : ''}">${l.diff == null ? '—' : qtyTxt(l.diff)}</td><td class="r num">${l.value == null ? '—' : money(l.value)}</td>`
           : `<td>${(im[l.item_id] || {}).track_expiry && draft ? `<input data-b placeholder="${esc(tr('الدفعة'))}" value="${esc(l.batch || '')}" style="width:110px"> <input data-x type="date" value="${l.expiry || ''}" style="width:150px">` : ''}</td>`}</tr>`).join('')}</tbody></table></div>
-      <p class="muted small">${esc(tr('اترك المعدود فارغاً للأصناف التي لم تُعد؛ لا تتغير. الفرق يُحسب على الكمية في النظام لحظة الترحيل.'))}</p></div>`;
+      <p class="muted small">${esc(tr('اترك المعدود فارغا للأصناف التي لم تُعد؛ لا تتغير. الفرق يُحسب على الكمية في النظام لحظة الترحيل.'))}</p></div>`;
   const collect = () => $$('tr[data-l]', page).map(tr => ({ id: +tr.dataset.l, counted: $('[data-c]', tr).value, batch: $('[data-b]', tr) ? $('[data-b]', tr).value : null, expiry: $('[data-x]', tr) ? $('[data-x]', tr).value : null }));
   const on = (s, fn) => { const b = $(s, page); if (b) b.onclick = fn; };
   // scanning: each scan adds one piece (or a carton's worth when its unit barcode is scanned) to the counted quantity
@@ -254,7 +254,7 @@ VIEWS['#/reorder'] = async page => {
     <p class="muted small">${esc(tr('حدد حد إعادة الطلب وكميته من بطاقة الصنف. الكمية المقترحة = كمية إعادة الطلب، أو ما يرفع الرصيد إلى ضعف الحد.'))}</p>`;
   if ($('#rpo', page)) $('#rpo', page).onclick = () => {
     const pick = $$('tr[data-it]', page).filter(tr => $('[data-pick]', tr).checked).map(tr => [tr.dataset.it, +$('[data-q]', tr).value || 0, $('[data-p]', tr).dataset.p || ''].join(':')).filter(x => !/:0:/.test(x));
-    if (!pick.length) return toast(tr('حدد صنفاً واحداً على الأقل'));
+    if (!pick.length) return toast(tr('حدد صنفا واحدا على الأقل'));
     location.hash = '#/porders/new?sup=' + $('#rsup', page).value + '&items=' + encodeURIComponent(pick.join(','));
   };
 };
