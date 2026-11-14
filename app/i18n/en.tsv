@@ -4594,6 +4594,8 @@
 نقطة البيع لمن لديه صلاحية المبيعات	The point of sale is for users with sales permission
 نقل كميات بين المستودعات بالتكلفة نفسها	Move quantities between warehouses at the same cost
 نماذج جاهزة تتعبّى من بيانات الموظف أو العميل أو المورد	Ready-made forms filled from the employee, customer or supplier record
+نماذج جاهزة تُعبّأ تلقائياً من بيانات الموظف أو العميل أو المورد	Ready-made forms that fill in automatically from the employee, customer or supplier record
+نماذج جاهزة تُعبّأ تلقائياً من بيانات الموظف أو العميل أو المورد، وتُطبع بترويسة منشأتك وبرقم مسلسل	Ready-made forms that fill in automatically from the employee, customer or supplier record, printed on your letterhead with a serial number
 نموذج جديد	New form
 نموذج منشأتك	Your company's form
 نهاري	light
@@ -4746,6 +4748,7 @@
 وتُصحّح بإشعار دائن	they are corrected with a credit note
 وتُصرف له أيام أكتوبر في مسير نوفمبر كمستحقات الشهر السابق مع راتب نوفمبر كاملاً	and is paid the October days in the November payroll as previous month's dues, with the full November wage
 وتُضاف لرصيد الإجازة التعويضية للموظف	and are added to the employee's compensatory leave balance
+وتُطبع بترويسة منشأتك وبرقم مسلسل	printed on your letterhead with a serial number
 وتُعطى دون مقابل	is free of charge
 وتُلغى أرصدة العملاء والموردين الافتتاحية	and the opening customer and supplier balances are voided
 وتُمدَّد الإجازة بقدرها	and the leave is extended by them

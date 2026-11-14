@@ -22,7 +22,7 @@ VIEWS['#/forms'] = async page => {
     db.get('form_issues', { company_id: 'eq.' + S.cid, order: 'issued_at.desc', limit: 30 }).catch(() => [])]);
   const list = [...FORM_LIB.filter(x => x.dept === cur).map(libAsTpl), ...mine.filter(r => r.dept === cur).map(dbAsTpl)];
   const subjN = { employee: 'موظف', customer: 'عميل', supplier: 'مورد', party: 'عميل أو مورد', none: 'عام' };
-  page.innerHTML = `<div class="head"><div><h1>${esc(tr('النماذج'))}</h1><div class="muted">${esc(tr('نماذج جاهزة تتعبّى من بيانات الموظف أو العميل أو المورد، وتنطبع بترويسة منشأتك برقم مسلسل.'))}</div></div>
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('النماذج'))}</h1><div class="muted">${esc(tr('نماذج جاهزة تُعبّأ تلقائياً من بيانات الموظف أو العميل أو المورد، وتُطبع بترويسة منشأتك وبرقم مسلسل'))}</div></div>
       ${formCanWrite() ? `<button class="btn pri" id="fnew">${esc(tr('نموذج جديد'))}</button>` : ''}</div>
     <div class="ptabs pfil">${depts.map(d => `<a href="#" data-fd="${d}" data-nt${d === cur ? ' aria-current="page"' : ''}>${esc(fT(...FORM_DEPTS[d]))}</a>`).join('')}</div>
     <div class="fgrid">${list.map((t, i) => `<button type="button" class="card fcard" data-fi="${i}"><b data-nt>${esc(fT(t.title_ar, t.title_en))}</b>
