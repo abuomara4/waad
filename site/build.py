@@ -1,6 +1,7 @@
 """Builds the public website from site/layout.html (shared head, header, footer, script) + site/pages/*.html (page bodies):
   site/index.html     home        site/modules.html   modules
   site/trust.html     compliance + security             site/contact.html   FAQ + contact
+  site/pricing.html   plans + prices
 The official Waad logos are inlined straight from the system's source so they stay identical."""
 import re, os
 D = os.path.dirname(os.path.abspath(__file__))
@@ -20,6 +21,8 @@ PAGES = [  # page, output file, title, description
      'أقسام وعد الستة بالتفصيل: الموارد البشرية والرواتب، المالية والمحاسبة، المبيعات والتسويق، المشتريات، المخزون، والمشاريع.'),
     ('trust', 'trust.html', 'التوافق والأمان | وعد',
      'كيف يحسب وعد نظام العمل ونطاقات وضريبة القيمة المضافة والتأمينات وحماية الأجور والتأمين الطبي، وكيف يحمي بيانات كل منشأة.'),
+    ('pricing', 'pricing.html', 'الباقات والأسعار | وعد',
+     'باقات وعد الثلاث: أساس ونمو وريادة. اشتراك سنوي يُدفع مقدما بسعر 10 أشهر أو على أقساط شهرية، مع تجربة مجانية 7 أيام.'),
     ('contact', 'contact.html', 'أسئلة وتواصل | وعد',
      'أسئلة شائعة عن وعد والتجربة المجانية، وطرق التواصل معنا بالواتساب أو الإيميل.'),
 ]
