@@ -140,6 +140,10 @@ with sync_playwright() as pw:
 
     # owner (GM) acts on the advance at its 'g' step only after m/p/f; check owner sees nothing at step p
     go(o, '#/approvals'); o.wait_for_timeout(400); ok(o.locator('tbody tr', has_text='إجازة').count() == 1, 'no HR user in the company yet → the leave waiting for HR reaches the owner (0085)')
+    go(o, '#/approvals?t=all'); o.wait_for_selector('.rpath'); t = o.inner_text('#page'); row = o.locator('tbody tr', has_text='إجازة').first.inner_text()
+    ok('متابعة كل الطلبات' in t and 'المالك' in row and 'لا يوجد مستخدم موارد بشرية' in row and o.locator('tbody tr', has_text='إجازة').first.locator('.rstep.now').inner_text().strip() == 'الموارد البشرية' and '✓' in row,
+       'track all requests: the owner sees where the leave is (HR step, manager step done) and who has it')
+    go(m, '#/approvals?t=all'); m.wait_for_timeout(500); ok(m.locator('.rpath').count() == 0, 'track all requests: a direct manager only sees his own queue')
 
     # ---------- payroll ----------
     go(o, '#/payroll'); o.click('#np'); o.fill('#dlg input[name=y]', '2026'); o.select_option('#dlg select[name=m]', '10'); modal_ok(o)

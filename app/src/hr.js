@@ -212,15 +212,44 @@ async function requestDetail(r, { decide } = {}) {
 }
 
 /* ===== approvals ===== */
-VIEWS['#/approvals'] = async page => {
+VIEWS['#/approvals'] = async (page, arg, q) => {
+  const boss = has('owner', 'admin', 'hr'), all = boss && q && q.get('t') === 'all';
+  if (all) return approvalsTrack(page);
   const mine = await pendingForMe(); NAVC.approvals = mine.length; drawNav();
   const lt = await LEAVE_TYPES(); const ltn = {}; lt.forEach(l => ltn[l.code] = l.name_ar);
-  page.innerHTML = `<div class="head"><div><h1>الاعتمادات</h1><div class="muted">الطلبات التي تنتظر قرارك</div></div></div>
+  page.innerHTML = `<div class="head"><div><h1>الاعتمادات</h1><div class="muted">الطلبات التي تنتظر قرارك</div></div></div>${boss ? apprTabs('mine') : ''}
    ${tbl([{ t: 'الموظف', h: r => esc(r._emp ? r._emp.full_name : '') }, { t: 'النوع', h: r => esc(KIND[r.kind] + (r.sub ? ' — ' + (ltn[r.sub] || r.sub) : '')) },
      { t: 'الفترة/المبلغ', h: r => r.amount != null ? `<span class="num">${money(r.amount)}</span>` : r.from_date ? fdate(r.from_date) + ' → ' + fdate(r.to_date) : '—' },
      { t: 'مرحلتك', h: r => esc(STEP[r.route[r.step]]) }, { t: 'تاريخ الطلب', h: r => fdate(r.created_at) }, { t: 'بانتظارك منذ', h: r => `<span class="${slaLate(r) ? 'bad' : 'muted'} small">${esc(waitTxt(r.step_at))}${slaLate(r) ? ' · ' + esc(tr('متأخر')) : ''}</span>` }], mine, { empty: 'لا شيء بانتظارك', onRow: true })}`;
   bindRows(page, mine, r => requestDetail(r, { decide: true }));
 };
+
+const apprTabs = cur => `<div class="tabs" style="max-width:420px"><button type="button" class="${cur === 'mine' ? 'on' : ''}" onclick="location.hash='#/approvals'">${esc(tr('بانتظاري'))}</button><button type="button" class="${cur === 'all' ? 'on' : ''}" onclick="location.hash='#/approvals?t=all'">${esc(tr('متابعة كل الطلبات'))}</button></div>`;
+// for the owner, admins and HR: every request still in progress, the step it is at, who has it now, and for how long
+async function approvalsTrack(page) {
+  const [reqs, em, ms, lt] = await Promise.all([db.get('requests', { company_id: 'eq.' + S.cid, status: 'eq.pending', order: 'step_at' }), employeesMap(),
+    db.get('members', { company_id: 'eq.' + S.cid, select: 'user_id,role,extra_roles,employee_id' }).catch(() => []), LEAVE_TYPES()]);
+  const ltn = {}; lt.forEach(l => ltn[l.code] = l.name_ar);
+  const hasR = rs => ms.some(m => rs.includes(m.role) || (m.extra_roles || []).some(x => rs.includes(x))), linked = new Set(ms.map(m => m.employee_id).filter(Boolean));
+  const owner = tr('المالك'), standIn = t => `${esc(owner)} <span class="muted small">(${esc(tr(t))})</span>`;
+  const who = r => { const st = r.route[r.step], e = em[r.employee_id] || {};
+    if (st === 'm') { const m = em[e.manager_id]; return m && linked.has(m.id) ? esc(m.full_name) : standIn(m ? 'المدير المباشر بلا دخول' : 'لا يوجد مدير مباشر'); }
+    if (st === 'p') return hasR(['hr', 'admin']) ? esc(tr('الموارد البشرية')) : standIn('لا يوجد مستخدم موارد بشرية');
+    if (st === 'h') { const hm = ms.find(m => m.user_id === (S.company || {}).hr_manager); return hm && em[hm.employee_id] ? esc(em[hm.employee_id].full_name) : esc(tr('مدير الموارد البشرية')); }
+    if (st === 'f') return hasR(['finance']) ? esc(tr('المالية')) : standIn('لا يوجد مستخدم مالية');
+    if (st === 'g') return esc(owner);
+    return '—'; };
+  const path = r => `<span class="rpath">${r.route.map((st, i) => `<span class="rstep ${i < r.step ? 'done' : i === r.step ? 'now' : ''}">${i < r.step ? '✓ ' : ''}${esc(tr(STEP[st] || st))}</span>`).join('<span class="muted">←</span>')}</span>`;
+  const late = reqs.filter(slaLate).length, byStep = {}; reqs.forEach(r => { const k = r.route[r.step]; byStep[k] = (byStep[k] || 0) + 1; });
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('الاعتمادات'))}</h1><div class="muted">${esc(tr('كل طلبات الموظفين التي لم يُبت فيها بعد: أين وصلت، وعند من، ومنذ متى'))}</div></div></div>${apprTabs('all')}
+    <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:12px"><span class="badge">${esc(tr('قيد الاعتماد'))}: <b class="num">${reqs.length}</b></span>${Object.entries(byStep).map(([k, n]) => `<span class="badge">${esc(tr('عند'))} ${esc(tr(STEP[k] || k))}: <b class="num">${n}</b></span>`).join('')}${late ? `<span class="badge bad">${esc(tr('متأخر'))}: <b class="num">${late}</b></span>` : ''}</div>
+    ${tbl([{ t: 'الموظف', h: r => { const e = em[r.employee_id]; return e ? esc(e.full_name) + ` <span class="muted small num">${esc(e.emp_no)}</span>` : '—'; } },
+      { t: 'النوع', h: r => esc(tr(KIND[r.kind] || r.kind) + (r.sub ? ' — ' + (ltn[r.sub] || r.sub) : '')) },
+      { t: 'عند', h: who }, { t: 'المسار', h: path },
+      { t: 'بانتظار منذ', h: r => `<span class="${slaLate(r) ? 'bad' : 'muted'} small">${esc(waitTxt(r.step_at))}${slaLate(r) ? ' · ' + esc(tr('متأخر')) : ''}</span>` },
+      { t: 'تاريخ الطلب', h: r => fdate(r.created_at) }], reqs, { empty: 'لا توجد طلبات قيد الاعتماد', onRow: true })}`;
+  bindRows(page, reqs, r => requestDetail(Object.assign(r, { _emp: em[r.employee_id] }), { decide: canAct(r, em[r.employee_id]) }));
+}
 
 /* ===== payslips ===== */
 VIEWS['#/payslips'] = async page => {

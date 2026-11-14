@@ -339,6 +339,7 @@
 أيام من تاريخ الولادة	days of the birth
 أيام من تقديمها	days of submitting it
 أيام من تقديمها فقط	days of submitting it
+أين وصلت	where it has reached
 أُبلغت أو اعتُمدت	Reported or cleared
 أُبلغت زاتكا	Reported to ZATCA
 أُجّل قبول الاستقالة	Resignation acceptance deferred
@@ -1821,6 +1822,7 @@
 المدير المالي	Finance Manager
 المدير المالي والمالك يرون كل شيء	The finance manager and owner see everything
 المدير المباشر	Direct manager
+المدير المباشر بلا دخول	the direct manager has no login
 المدير المباشر ثم الموارد البشرية ثم مدير الموارد البشرية ثم المالية ثم المدير العام	direct manager, then HR, then HR manager, then finance, then general manager
 المدير المباشر غير موجود	Direct manager not found
 المدير المباشر ليس من موظفي المنشأة	The direct manager is not an employee of this company
@@ -1856,6 +1858,7 @@
 المركز	Center
 المركز المالي	Balance sheet
 المسؤول	Contact person
+المسار	Route
 المسافرون	Travellers
 المستحق حتى اليوم	Accrued to date
 المستحقة	payable
@@ -2150,8 +2153,10 @@
 بانتظار الصرف	Awaiting payment
 بانتظار القبول	Awaiting approval
 بانتظار صرف البدل من المالية	Waiting for finance to pay the allowance
+بانتظار منذ	Waiting for
 بانتظارك منذ	Waiting for you
 بانتظاره	waiting
+بانتظاري	Waiting for me
 بتاريخ	on
 بتواريخ استحقاقها	with their due dates
 بتوقيت الرياض	Riyadh time
@@ -3951,6 +3956,7 @@
 قوى	Qiwa
 قيد	Entry
 قيد الاستخدام	In use
+قيد الاعتماد	In approval
 قيد التحقيق	Under investigation
 قيد التنفيذ	In progress
 قيد العد	Counting
@@ -3996,6 +4002,8 @@
 كل سنة أو سنتين	every year or two
 كل سنتين	Every two years
 كل شيء عدا ملكية المنشأة	everything except company ownership
+كل طلبات الموظفين التي لم يُبت فيها بعد	All employee requests not decided yet
+كل طلبات الموظفين التي لم يُبت فيها بعد: أين وصلت، وعند من، ومنذ متى	All employee requests not decided yet: where each has reached, who has it, and since when
 كل عضو يدخل اللوحة باسم مستخدم وكلمة مرور	Each member signs in with a username and password
 كل فاتورة تحفظ سعرها	each invoice keeps its own rate
 كل فاتورة مبيعات وإشعار دائن أو مدين يُرسل تلقائيا بعد ترحيله	Every sales invoice, credit note and debit note is sent automatically once posted
@@ -4092,6 +4100,7 @@
 لا توجد طلبات	No requests
 لا توجد طلبات بعد	No requests yet
 لا توجد طلبات شراء معتمدة	No approved purchase requests
+لا توجد طلبات قيد الاعتماد	No requests in approval
 لا توجد عروض أسعار	No quotations
 لا توجد عطل	No holidays
 لا توجد عملات	No currencies
@@ -4186,7 +4195,10 @@
 لا يوجد مؤمَّن عليهم	No insured people
 لا يوجد ما يُفوتر	Nothing to invoice
 لا يوجد ما يُهلك في هذا الشهر	Nothing to depreciate this month
+لا يوجد مدير مباشر	no direct manager
 لا يوجد مرشحون بعد	No candidates yet
+لا يوجد مستخدم مالية	no finance user
+لا يوجد مستخدم موارد بشرية	no HR user
 لا يوجد موظفون	No employees
 لا يوجد موظفون على رأس العمل في الاختيار	No active employees in the selection
 لا يوجد موظفون على رأس العمل في هذه الفترة	No active employees in this period
@@ -4394,6 +4406,7 @@
 متابعات مستحقة	Follow-ups due
 متابعة	Continue
 متابعة جديدة	New follow-up
+متابعة كل الطلبات	Track all requests
 متاح فقط قبل تسجيل أي عملية أخرى	Available only before any other transaction is recorded.
 متاحة للاختيار	Available to choose
 متبقي	remaining
@@ -5085,6 +5098,7 @@
 وعليه نأمل منك الرد كتابياً وحضور التحقيق لسماع أقوالك وتحقيق دفاعك	Accordingly, please reply in writing and attend the investigation to give your statement and defence
 وعند الترحيل تُقيد الفروقات بمتوسط التكلفة	posting books the differences at average cost
 وعند قبوله يتحول إلى أمر بيع بضغطة	once accepted it becomes a sales order in one click
+وعند من	who has it
 وعيد الأضحى	and Eid al-Adha
 وفريق وعد يراجع الطلب ويفعّل لك التجربة قريبا	and the Waad team will review it and start your trial soon
 وفريق وعد يراجع الطلب ويفعّل لك التجربة قريباً	and the Waad team will review it and start your trial soon
@@ -5125,6 +5139,7 @@
 ومديونية كل عميل	what each customer owes
 ومرحلة مدير الموارد البشرية تُتخطى إن لم يُعيَّن	and the HR-manager step is skipped if none is appointed
 ومقارنتها بالفعلي	compared with actuals
+ومنذ متى	and since when
 وموقع العمل باسمه	and the work site by its name
 ونرد عليك قريبا	and we'll reply soon
 ونرد عليك قريباً	and we'll reply soon
