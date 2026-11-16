@@ -502,17 +502,17 @@ PV.billing = async page => {
     <div class="grid" style="margin-bottom:14px">${pkpi('هذا الشهر', money0(sumIf(p => p.paid_on >= m0)), 'ريال')}${pkpi('الشهر الماضي', money0(sumIf(p => p.paid_on >= lm && p.paid_on < m0)), 'ريال')}
       ${pkpi('هذه السنة', money0(sumIf(p => p.paid_on >= y0)), 'ريال')}${pkpi('منشآت مشتركة', paying)}</div>
     <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الإيرادات شهريا (آخر ١٢ شهر)'))}</h2>${pbars(months.map(k => ({ k, v: Math.round(sumIf(p => p.paid_on.slice(0, 7) === k)) })), 'الإيرادات شهريا (آخر ١٢ شهر)')}</div>
-    <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الباقات والأسعار'))}</h2>
+    <div class="card" id="cplans" style="margin-bottom:14px"><h2>${esc(tr('الباقات والأسعار'))}</h2><p class="muted small" style="margin-top:-4px">${esc(tr('اضغط أي باقة لتعديل اسمها أو سعرها أو مدتها أو أقسامها أو حد الموظفين.'))}</p>
       ${tbl([{ t: 'الباقة', h: p => `<b>${esc(p.name)}</b>` + (p.active ? '' : ` <span class="badge">${esc(tr('موقوفة'))}</span>`) }, { t: 'السعر', r: 1, h: p => money0(p.price) },
         { t: 'المدة', h: p => `<span class="num">${p.period_days}</span> ${esc(tr('يوم'))}` }, { t: 'الأقسام', h: p => p.modules.map(m => `<span class="badge">${esc(tr(MODULES[m] || m))}</span>`).join(' ') },
-        { t: 'المستخدمون', r: 1, h: p => p.max_users || '—' }, { t: 'الموظفون', r: 1, h: p => p.max_employees || '—' }], plans, { empty: 'لا توجد باقات. أضف أول باقة.', onRow: true })}</div>
-    <div class="card"><h2>${esc(tr('آخر الدفعات'))}</h2>
+        { t: 'المستخدمون', r: 1, h: p => p.max_users || '—' }, { t: 'الموظفون', r: 1, h: p => p.max_employees || '—' }, { t: '', h: () => `<span class="btn sm">${esc(tr('تعديل'))}</span>` }], plans, { empty: 'لا توجد باقات. أضف أول باقة.', onRow: true })}</div>
+    <div class="card" id="cpays"><h2>${esc(tr('آخر الدفعات'))}</h2>
       ${tbl([{ t: 'التاريخ', h: p => `<span class="num">${esc(p.paid_on)}</span>` }, { t: 'المنشأة', h: p => esc(p.company) }, { t: 'المبلغ', r: 1, h: p => money0(p.amount) },
         { t: 'الباقة', h: p => esc(p.plan || '—') }, { t: 'الطريقة', h: p => esc(tr(PAY_M[p.method] || p.method)) }], pays.slice(0, 50), { empty: 'لا توجد دفعات', onRow: true })}</div>`;
   $('#padd', page).onclick = () => planForm({});
   const cards = $$('.card', page);
-  bindRows(cards[2], plans, planForm);
-  bindRows(cards[3], pays.slice(0, 50), p => { location.hash = '#/company/' + p.company_id; });
+  bindRows($('#cplans', page), plans, planForm);
+  bindRows($('#cpays', page), pays.slice(0, 50), p => { location.hash = '#/company/' + p.company_id; });
 };
 function planForm(p) {
   modal(p.id ? tr('تعديل الباقة') : tr('باقة جديدة'), `<div class="fg">${field('اسم الباقة', inp('name', p.name, 'maxlength="40" required'))}
