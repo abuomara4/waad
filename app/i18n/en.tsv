@@ -4397,8 +4397,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا ينص العقد على تذكرة	No ticket in the contract
 لا يوجد	None
 لا يوجد آيبان	No IBAN
+لا يوجد أعضاء	No members
+لا يوجد أي تغيير	No changes
 لا يوجد إهلاك	No depreciation
 لا يوجد استلام بضاعة	No goods receipts
+لا يوجد بريد إلكتروني للمالك	No owner e-mail
 لا يوجد تسجيل حضور في هذا اليوم	There is no attendance record on this day
 لا يوجد تطبيق مصادقة مربوط	No authenticator app is linked
 لا يوجد تظلم قائم	There is no pending grievance
@@ -4411,6 +4414,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يوجد شرح لهذه الصفحة بعد	No guide for this page yet
 لا يوجد شعار	No logo
 لا يوجد شعار للمنشأة	The company has no logo
+لا يوجد شيء	Nothing
 لا يوجد صنف بهذا الباركود أو الرمز	No item with this barcode or code
 لا يوجد عقد مسجّل لهذا الموظف	No contract recorded for this employee
 لا يوجد عملاء بعد	No customers yet
@@ -4619,6 +4623,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ما لقيت جوابك	Didn't find your answer
 ما نُسب للعامل وأقواله ودفاعه	the charge, the worker's statement and defence
 ما نُسب للعامل ودفاعه	the charge and the worker's defence
+ما يحتاج متابعتك اليوم	What needs your attention today
+ما يحتاج متابعتك اليوم، وأهم الأرقام.	What needs your attention today, and the key figures.
 ما يقدر يدخل اللوحة بعدها	They will no longer be able to sign in
 ما يمدّد	no extension
 ماجستير	Master's
@@ -5238,7 +5244,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وأرفق نص رسالة الخطأ إن وجدت	and include the error message if there is one
 وأعلى	maximum
 وأنه لا توجد لي أي مطالبات أخرى لدى المنشأة	and that I have no other claims on the company
-وأهم الأرقام	and the key numbers
+وأهم الأرقام	and the key figures
 وإذا فيه رسالة خطأ اكتبها	and if there is an error message, write it
 وإذا كان مطابقا له لا يتغير شيء	and if it matches nothing changes
 وإذا كان مطابقاً له لا يتغير شيء	and if it matches nothing changes

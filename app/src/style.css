@@ -387,3 +387,7 @@ button,input,select,textarea,optgroup{font-family:inherit}
 .back::before{content:"→ "}[dir=ltr] .back::before{content:"← "}
 /* figure cards: the last row stretches to the full width instead of leaving one card alone with empty gaps */
 .grid:has(> .card.kpi){display:flex;flex-wrap:wrap}.grid:has(> .card.kpi) > *{flex:1 1 200px;min-width:0}@media(max-width:600px){.grid:has(> .card.kpi) > *{flex-basis:150px}}
+/* the Waad logo always shows: in the side menu on wide screens, in the top bar when the menu is folded away (phones, tablets) */
+.tlogo{display:none;flex:none}.tlogo .wlogo{height:30px}
+@media(max-width:860px){.tlogo{display:inline-flex;align-items:center}}
+.btn.menu .bi{display:block}

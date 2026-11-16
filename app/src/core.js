@@ -623,6 +623,7 @@ function shell() {
   const multi = S.companies.length > 1; // one account = one company (subscription); the switcher only appears for someone invited into more than one
   $('#app').innerHTML = `<div class="shell"><aside class="side" id="side">${brand()}<nav class="nav" id="nav"></nav></aside>
     <div class="main"><header class="top"><button class="btn sm menu" id="mb" aria-label="القائمة"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <a href="#/home" class="tlogo" aria-label="وعد Waad"><img class="wlogo wl-d" src="${LOGO_D}" alt="وعد Waad"><img class="wlogo wl-l" src="${LOGO_L}" alt="وعد Waad"></a>
       <div class="cname"><b>${esc(S.company ? S.company.name : '')}</b> <span class="badge info">${esc(ROLES[S.role] || S.role)}</span></div><div class="sp"></div>
       ${multi ? `<select id="cs" style="width:auto;min-height:32px">${S.companies.map(c => opt(c.company_id, c.name, S.cid)).join('')}</select>` : ''}
       ${ADMIN ? '' : '<button class="btn sm" id="hb" aria-label="مساعدة" title="مساعدة" style="min-width:34px">؟</button>'}

@@ -42,7 +42,7 @@ const phoneBtns = p => p ? `<a class="btn sm pri" href="${esc(waTo(p))}" target=
 const gmailTo = (to, su) => 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(to) + (su ? '&su=' + encodeURIComponent(su) : '');
 const mailBtns = (to, su) => to ? `<a class="btn sm pri" href="${esc(gmailTo(to, su))}" target="_blank" rel="noopener">${esc(tr('مراسلة عبر Gmail'))}</a>
   <a class="btn sm" href="mailto:${esc(to)}${su ? '?subject=' + encodeURIComponent(su) : ''}">${esc(tr('تطبيق البريد'))}</a>
-  <button type="button" class="btn sm" data-copymail="${esc(to)}">${esc(tr('نسخ الإيميل'))}</button>` : `<span class="muted small">${esc(tr('لا توجد إيميل للمالك'))}</span>`;
+  <button type="button" class="btn sm" data-copymail="${esc(to)}">${esc(tr('نسخ الإيميل'))}</button>` : `<span class="muted small">${esc(tr('لا يوجد بريد إلكتروني للمالك'))}</span>`;
 function bindCopy(root) {
   $$('[data-copymail]', root).forEach(b => b.onclick = async () => {
     try { await navigator.clipboard.writeText(b.dataset.copymail); toast(tr('تم النسخ')); } catch (e) { prompt('', b.dataset.copymail); } });
@@ -348,7 +348,7 @@ PV.team = async page => {
     ${tbl([{ t: 'اسم المستخدم', h: a => `<b dir="ltr">${esc(a.username || a.email)}</b>` + (a.is_me ? ` <span class="badge info">${esc(tr('أنت'))}</span>` : '') },
       { t: 'آخر دخول', h: a => a.last_sign_in ? `<span class="num">${esc(String(a.last_sign_in).slice(0, 10))}</span>` : '—' },
       { t: 'التحقق بخطوتين', h: a => `<span class="badge ${a.mfa ? 'ok' : 'wait'}">${esc(tr(a.mfa ? 'مفعّل' : 'غير مفعّل'))}</span>` },
-      { t: 'كلمة المرور', h: a => a.must_change ? `<span class="badge wait">${esc(tr('مؤقتة'))}</span>` : `<span class="muted small">${esc(tr('خاصة به'))}</span>` }], rows, { empty: 'لا توجد أعضاء', onRow: true })}
+      { t: 'كلمة المرور', h: a => a.must_change ? `<span class="badge wait">${esc(tr('مؤقتة'))}</span>` : `<span class="muted small">${esc(tr('خاصة به'))}</span>` }], rows, { empty: 'لا يوجد أعضاء', onRow: true })}
     <p class="muted small">${esc(tr('اضغط على عضو لإعادة تعيين كلمة مروره أو حذفه من الفريق.'))}</p>`;
   $('#tadd', page).onclick = () => {
     const pw = tempPw();
@@ -391,10 +391,10 @@ PV.home = async page => {
   const ended = rows.filter(c => subState(c)[1] === 'bad' && c.status !== 'suspended');
   const sum = (a, k) => a.reduce((x, r) => x + (+r[k] || 0), 0);
   const list = (title, sub, items, cols) => `<div class="card"><h2>${esc(tr(title))} <span class="badge${items.length ? ' info' : ''} num">${items.length}</span></h2>
-    ${sub ? `<p class="muted small" style="margin-top:0">${esc(tr(sub))}</p>` : ''}${tbl(cols, items, { empty: 'لا توجد شي', onRow: true })}</div>`;
+    ${sub ? `<p class="muted small" style="margin-top:0">${esc(tr(sub))}</p>` : ''}${tbl(cols, items, { empty: 'لا يوجد شيء', onRow: true })}</div>`;
   const nameCol = { t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` };
   const endCol = { t: 'ينتهي', h: c => `<span class="num">${esc(subEnd(c) || '')}</span>` }, actCol = { t: '', h: c => `<div class="row" style="gap:4px">${quickBtns(c)}</div>` };
-  page.innerHTML = `<div class="head"><div><h1>${esc(tr('الرئيسية'))}</h1><div class="muted">${esc(tr('التي يحتاج منك اليوم، وأهم الأرقام.'))}</div></div></div>
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('الرئيسية'))}</h1><div class="muted">${esc(tr('ما يحتاج متابعتك اليوم، وأهم الأرقام.'))}</div></div></div>
     ${tks.length ? `<a class="note" href="#/support" style="display:block">${esc(tr('طلبات دعم تنتظر ردك'))}: <b class="num">${tks.length}</b></a>` : ''}
     <div class="grid" style="margin-bottom:14px">${pkpi('بانتظار القبول', pending.length)}${pkpi('طلبات دعم مفتوحة', tks.length)}${pkpi('منشآت مشتركة', rows.filter(c => c.status === 'active' && subState(c)[1] !== 'bad').length)}
       ${pkpi('تجارب شغّالة', rows.filter(c => c.status === 'trial' && subState(c)[1] !== 'bad').length)}${pkpi('إيرادات هذا الشهر', money0(sum(pays, 'amount')), 'ريال')}
@@ -457,7 +457,7 @@ PV.company = async (page, id) => {
         { t: 'المدة', h: p => p.days ? `<span class="num">${p.days}</span> ${esc(tr('يوم'))}` : '—' }, { t: 'ملاحظة', h: p => `<span data-nt>${esc(p.note || '')}</span>` },
         { t: '', h: p => `<a href="#" data-rc="${esc(p.id)}">${esc(tr('إيصال'))}</a> · <a href="#" data-dp="${esc(p.id)}">${esc(tr('حذف'))}</a>` }], d.payments, { empty: 'لا توجد دفعات' })}</div>
     <div class="card"><h2>${esc(tr('سجل الاشتراك'))}</h2>
-      ${tbl([{ t: 'التاريخ', h: h => `<span class="num">${esc(String(h.at).slice(0, 16).replace('T', ' '))}</span>` }, { t: 'الحالة بعد التغيير', h: h => esc(histTxt(h)) }], d.history, { empty: 'لا توجد تغييرات' })}</div>`;
+      ${tbl([{ t: 'التاريخ', h: h => `<span class="num">${esc(String(h.at).slice(0, 16).replace('T', ' '))}</span>` }, { t: 'الحالة بعد التغيير', h: h => esc(histTxt(h)) }], d.history, { empty: 'لا يوجد أي تغيير' })}</div>`;
   bindCopy(page); bindQuick(page, [c], st);
   if ($('#capp', page)) $('#capp', page).onclick = () => approveForm(c, st);
   $('#csub', page).onclick = () => subForm(c);
