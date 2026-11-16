@@ -1,3 +1,4 @@
+PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Word or image — up to 3 MB per file
 ء	ء
 آجل	Credit
 آخر	Last
@@ -24,6 +25,7 @@
 آلات	machines
 أبها	Abha
 أثاث	furniture
+أثاث مكتبي	Office furniture
 أجب عن الأسئلة	Answer the questions
 أجب عن كل الأسئلة	Answer every question
 أجبت عن كل الأسئلة إجابة صحيحة	you answered every question correctly
@@ -41,6 +43,7 @@
 أحمر	Red
 أخت	sister
 أخرى	Other
+أخرى — اكتب اسما جديدا	Other — type a new name
 أخصائي مبيعات	Sales Specialist
 أخضر متوسط	Mid green
 أخضر مرتفع	High green
@@ -203,6 +206,7 @@
 أضف وردية افتراضية قبل تفعيل الحضور	Add a default shift before enabling attendance
 أضفها أول	Add them first
 أضفها أولا	add them first
+أضفها إلى القائمة لاستخدامها لاحقا	Add it to the list for later
 أضيفه لاحقا	add it later
 أطفئ خيار	Turn off the
 أعد الاختبار	Retake the quiz
@@ -835,6 +839,7 @@
 اسم الطرف مطلوب	Party name is required
 اسم العامل	Worker name
 اسم العميل	Customer name
+اسم العهدة	Item name
 اسم القسم	Department name
 اسم المدير	manager name
 اسم المستخدم	Username
@@ -949,6 +954,7 @@
 اكتب اسم العهدة	Enter the item name
 اكتب اسم المستند الآخر	Enter the name of the other document
 اكتب اسم الوحدة وكم تساوي من الوحدة الأساسية	Type the unit name and how many base units it equals
+اكتب اسما جديدا	type a new name
 اكتب الرد	Write the reply
 اكتب الرد أولا	Write the reply first
 اكتب الرد أولاً	Write the reply first
@@ -999,6 +1005,7 @@
 اكتب وصف كل بند	Describe each line
 اكتب وقت الحضور	enter the check-in time
 اكتب وقت الحضور أو الانصراف	Enter the check-in or check-out time
+اكتبها	type it
 اكتملت التسوية	Reconciliation completed
 الآيبان	IBAN
 الآيبان السعودي يبدأ بـ	A Saudi IBAN starts with
@@ -1222,6 +1229,7 @@
 البنك العربي الوطني	Arab National Bank
 البنك غير معروف من الآيبان	Bank not recognised from the IBAN
 البنود	Lines
+البنوك	Banks
 البيئة	Environment
 البيان	Description
 البيانات	Details
@@ -1343,6 +1351,7 @@
 الثالثة	third
 الثانية	second
 الثلاثاء	Tuesday
+الجامعة	University
 الجبيل	Jubail
 الجداول	Tables
 الجديدة	new
@@ -1356,6 +1365,7 @@
 الجنسية	Nationality
 الجنسية غير معروفة	Unknown nationality
 الجهة	Provider
+الجهة المرسل إليها	Addressee
 الجهة المقدمة	Provider
 الجواب بالإنجليزي	Answer in English
 الجواب بالإنجليزية	Answer in English
@@ -1553,6 +1563,7 @@
 السعوديه	Saudi
 السعوديون	Saudis
 السعوديون المحتسبون	Saudis counted
+السفارات	Embassies
 السفر	Travel
 السفر مع الإجازة	Travel with the leave
 السقف	Ceiling
@@ -1799,6 +1810,9 @@
 اللوحة لفريق وعد فقط	The admin site is for the Waad team only
 اللي يحتاج منك اليوم	What needs you today
 المأخوذ والمحجوز	Taken and booked
+المؤجر	Landlord
+المؤجر / مكتب العقار	Landlord / real estate office
+المؤسسة العامة للتأمينات الاجتماعية	General Organization for Social Insurance
 المؤشر	Indicator
 المؤمَّن عليه	Insured person
 المؤمَّن عليهم	Insured people
@@ -1868,6 +1882,8 @@
 المدة من يوم إلى	The length is from one day to
 المدراء	Managers
 المدراء وموظفون محددون	Managers and selected employees
+المدرسة	School
+المدرسة / الجامعة	School / University
 المدفوع للموردين	Paid to suppliers
 المدير	Manager
 المدير العام	General Manager
@@ -1880,6 +1896,7 @@
 المدير المباشر ليس من موظفي المنشأة	The direct manager is not an employee of this company
 المدير المباشر يُتخطى لمن ليس له مدير	The direct manager step is skipped for those without a manager
 المدير المختار يتبع هذا الموظف في الهيكل	the chosen manager reports to this employee
+المديرية العامة للجوازات	General Directorate of Passports
 المدين	Debit
 المدينة	City
 المدينة المنورة	Madinah
@@ -1905,6 +1922,7 @@
 المرفق صورة أو	Attachments are images or
 المرفق غير موجود	Attachment not found
 المرفقات	Attachments
+المرفقات (اختياري)	Attachments (optional)
 المرفقات والشعار غير مضمّنة في	Attachments and the logo are not included in
 المرفقات والشعار غير مضمّنة في Excel — نزّل ملف JSON الكامل للحصول عليها.	Attachments and the logo are not in Excel — download the full JSON file to get them.
 المركز	Center
@@ -1922,6 +1940,7 @@
 المستخدم والمحجوز	Used and reserved
 المستخدمون	Users
 المستخدمون والدعوات	Users and invitations
+المستشفى	Hospital
 المستلم	Receiver
 المستلم ناقص المفوتر	received minus billed
 المستند	Document
@@ -2292,6 +2311,7 @@
 بضاعة مستلمة لم تصل فاتورتها	Goods received not invoiced
 بطاقة	Card
 بطاقة الموظف	Employee card
+بطاقة دخول	Access card
 بعد إبلاغك كتابة بالمخالفة المنسوبة إليك	After you were notified in writing of the violation attributed to you
 بعد إبلاغك كتابةً بالمخالفة المنسوبة إليك	After you were notified in writing of the violation attributed to you
 بعد اعتماده يغطي الاستئذان التأخير أو الخروج المبكر في يومه بقدر ساعاته	Once approved, a permit covers lateness or early leave on its day up to its hours
@@ -2948,7 +2968,16 @@
 جزائري	Algerian
 جميع الموظفين	All employees
 جنوب أفريقي	South African
+جهات أخرى	Other bodies
+جهات حكومية	Government bodies
+جهاز إنترنت متنقل	Mobile internet router
+جهاز عرض	Projector
+جهاز كمبيوتر مكتبي	Desktop computer
+جهاز لوحي	Tablet
+جهاز لوحي (تابلت)	Tablet
 جهاز نقطة بيع	POS terminal
+جهة أخرى	Another body
+جهة أخرى — اكتبها	Another body — type it
 جهة اتصال الطوارئ	Emergency contact
 جهّز أول مسير رواتب	Prepare the first payroll run
 جهّز منشأتك	Set up your company
@@ -2965,6 +2994,7 @@
 جُدّد	Renewed
 حائل	Hail
 حاسب محمول	Laptop
+حاسب محمول (لابتوب)	Laptop
 حاضر	Present
 حاضرون	Present
 حاضرون اليوم	Present today
@@ -3421,6 +3451,7 @@
 زاتكا	ZATCA
 زاتكا تقبل الفاتورة بدونه لكن مع ملاحظة	ZATCA accepts the invoice without it, but with a warning
 زوار الموقع	Website visitors
+زي العمل	Work uniform
 زيادة	Increase
 زيادة التكلفة الشهرية	Monthly cost increase
 زيادة جماعية	Bulk raise
@@ -3544,6 +3575,26 @@
 سعوديه	saudi
 سعوديون لا يُحتسبون كاملا	Saudis not counted in full
 سعوديون لا يُحتسبون كاملاً	Saudis not counted in full
+سفارة أستراليا	Australian Embassy
+سفارة ألمانيا	Embassy of Germany
+سفارة إسبانيا	Embassy of Spain
+سفارة إيطاليا	Embassy of Italy
+سفارة الأردن	Embassy of Jordan
+سفارة الصين	Embassy of China
+سفارة الفلبين	Embassy of the Philippines
+سفارة المملكة المتحدة	British Embassy
+سفارة الهند	Embassy of India
+سفارة الولايات المتحدة الأمريكية	Embassy of the United States of America
+سفارة اليابان	Embassy of Japan
+سفارة باكستان	Embassy of Pakistan
+سفارة تركيا	Embassy of Türkiye
+سفارة سويسرا	Embassy of Switzerland
+سفارة فرنسا	Embassy of France
+سفارة كندا	Embassy of Canada
+سفارة كوريا الجنوبية	Embassy of the Republic of Korea
+سفارة ماليزيا	Embassy of Malaysia
+سفارة مصر	Embassy of Egypt
+سفارة هولندا	Embassy of the Netherlands
 سقف العهدة	Fund ceiling
 سكاكا	Sakaka
 سكن	Housing
@@ -3554,6 +3605,7 @@
 سليمة	Intact
 سلّم رواتب بحد أدنى وأعلى للراتب الأساسي لكل درجة	A pay scale with a minimum and maximum basic salary for each grade
 سلّمها	Delivered by
+سماعة رأس	Headset
 سناب شات	Snapchat
 سنة	years
 سنة خدمة	year(s) of service
@@ -3602,6 +3654,7 @@
 سُجّلت عمليات بعد الأرصدة الافتتاحية	Transactions were recorded after the opening balances
 سُجّلت هذه التذكرة من قبل أو أُلغيت	This ticket was already recorded or cancelled
 سُلّمت التذكرة	Ticket delivered
+شاشة كمبيوتر	Computer monitor
 شاغر	position(s)
 شبكة	Card
 شراء أصل ثابت	Fixed asset purchase
@@ -3611,8 +3664,10 @@
 شرط تجديد تلقائي	Auto-renewal clause
 شركة الأفق للتجارة	Al-Ufuq Trading Co.
 شركة التأمين	Insurer
+شركة التمويل	Finance company
 شروط الاستخدام	Terms of Use
 شروط الدفع والتسليم	Payment and delivery terms
+شريحة اتصال	SIM card
 شريط تنبيه أعلى الموقع	Notice bar at the top of the website
 شعار المنشأة	Company logo
 شغّل الإهلاك بالترتيب	run depreciation in order
@@ -3703,6 +3758,9 @@
 صلاحية مخصصة	custom permissions
 صلة القرابة	Relationship
 صناعة	Manufacturing
+صندوق التنمية العقارية	Real Estate Development Fund
+صندوق تنمية الموارد البشرية	Human Resources Development Fund
+صندوق تنمية الموارد البشرية (هدف)	Human Resources Development Fund (HRDF)
 صندوق صغير لموظف يصرف منه المصروفات النثرية	A small fund an employee spends incidental expenses from
 صنف	Item
 صنف أو حساب مصروف	Item or expense account
@@ -3727,6 +3785,7 @@
 ضريبية	Standard tax invoice
 ضغطات	Clicks
 ضغطات التجربة	Trial clicks
+طابعة	Printer
 طابعة فواتير	Receipt printer
 طابق حركات البنك في الدفاتر مع كشف الحساب	Match bank lines in the books against the bank statement
 طباعة	Print
@@ -3781,6 +3840,7 @@
 عجز	Shortage
 عدا أيام العطل الرسمية	excluding public holidays
 عدا اختبارات السنة المعادة فبدون أجر	except a repeated year's exams, which are unpaid
+عدة وأدوات	Tools
 عدد	number
 عدد الأقساط	Number of installments
 عدد الأقساط حتى	Installments: up to
@@ -4107,6 +4167,7 @@
 كافيهات الركن	Al-Rukn Cafes
 كامل	Full pay
 كاملة أو على دفعات	in full or in parts
+كاميرا	Camera
 كان	was
 كسبناها	Won
 كشف بتاريخ	Statement dated
@@ -4393,6 +4454,7 @@
 لا يُلغى كفاتورة	it cannot be voided like an invoice
 لا يُوقف المستودع الافتراضي	The default warehouse cannot be deactivated
 لا يُوقف مستودع فيه رصيد	A warehouse with stock cannot be deactivated
+لابتوب	laptop
 لاسترداد الضريبة أدخل الرقم الضريبي للمورد	To reclaim VAT enter the supplier VAT number
 لبناني	Lebanese
 لترسل فواتيرك لزاتكا تلقائيا كما تشترط المرحلة الثانية	to send your invoices to ZATCA automatically, as Phase 2 requires
@@ -4514,6 +4576,7 @@
 لوحة الإدارة لفريق وعد فقط	The admin site is for the Waad team only
 لوحة المالية	Finance dashboard
 لوحة الموارد البشرية	HR dashboard
+لوحة مفاتيح وفأرة	Keyboard and mouse
 لوعد موثوق	a promise you can trust
 ليبي	Libyan
 ليس صورة أو	is not an image or
@@ -4610,6 +4673,7 @@
 مثل	such as
 مثل كرتون	e.g. carton
 مثل: إيجار المكتب لشهر نوفمبر	e.g. office rent for November
+مثل: جهاز عرض	e.g. Projector
 مثل: مصروفات الفرع، مشتريات صغيرة	e.g. branch expenses, small purchases
 مثلا	e.g.
 مثلاً	e.g.
@@ -4803,6 +4867,7 @@
 معتمد	Approved
 معتمدة	Active
 معدات	equipment
+معدات السلامة	Safety equipment
 معدل الدوران	Turnover rate
 معدل الدوران في الفترة	Turnover in the period
 معدّل من اللوحة	Changed from admin
@@ -4819,6 +4884,7 @@
 مغلق	Closed
 مغلقة	Closed
 مفاتيح	keys
+مفاتيح المكتب	Office keys
 مفتوح	Open
 مفتوحة	Open
 مفردة أو متعددة	single or multiple
@@ -4853,6 +4919,7 @@
 مكافأة نهاية الخدمة والمخالصة	End-of-service award and settlement
 مكان الموظف في الهيكل	Position in the chart
 مكة المكرمة	Makkah
+مكتب العقار	real estate office
 مكتمل	Completed
 مكتملة	Completed
 مكرر	Duplicate
@@ -4992,6 +5059,7 @@
 موقوفة أو انتهت تجربتها	suspended or trial ended
 ميانماري	Myanmar
 ميجابايت	MB
+ميجابايت لكل ملف	MB per file
 ميجابايت للملف	MB per file
 ميزان المراجعة	Trial balance
 مين عملاؤك	Who your customers are
@@ -5277,6 +5345,12 @@
 ورسِّ الأفضل بأمر شراء	and award the best with a purchase order
 ورقة جرد	Stock count sheet
 ورقة عد لكل مستودع بالكمية في النظام	A count sheet per warehouse with the system quantity
+وزارة التعليم	Ministry of Education
+وزارة الخارجية	Ministry of Foreign Affairs
+وزارة الداخلية	Ministry of Interior
+وزارة الصحة	Ministry of Health
+وزارة العدل	Ministry of Justice
+وزارة الموارد البشرية والتنمية الاجتماعية	Ministry of Human Resources and Social Development
 وزن الهدف	Weight of goal
 وسائل التواصل	Social media
 وسجّل بالبريد	and sign up with the email

@@ -12,6 +12,22 @@ const noticeTxt = c => c.contract_type === 'fixed' ? 'ينتهي بانتهاء 
 async function docAlertCount() { try { return (await db.rpc('doc_alerts', { p_company: S.cid, p_within: 30 })).filter(a => a.level === 'expired' || a.level === 'd30').length; } catch (e) { return 0; } }
 const docWaMsg = (a, e) => 'السلام عليكم ' + String(e.full_name || '').split(' ')[0] + '،\n' + (a.days_left < 0 ? 'انتهت ' : 'تنتهي ') + DOC_T[a.label] + (a.ref_no ? ' رقم ' + a.ref_no : '') + ' بتاريخ ' + a.due + '.\nنأمل تجهيز متطلبات التجديد والتواصل مع الموارد البشرية.\n' + S.company.name;
 // #9/#10 attachments widget: list, open, upload and delete files for one parent row (document or contract)
+// files chosen in a «new» form go up right after the record is saved (same limits as the attachments box)
+const filePick = () => `<div class="wide"><label>${esc(tr('المرفقات (اختياري)'))}</label><input type="file" name="files" multiple accept=".pdf,.doc,.docx,image/*"><div class="small muted">${esc(tr('PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف'))}</div></div>`;
+async function attachFiles(table, key, id, files) {
+  for (const file of [...(files || [])].slice(0, 5)) {
+    let a;
+    if (/\.(docx?)$/i.test(file.name)) { if (file.size > 3 * 1048576) throw new Error(tr('حجم الملف أكبر من 3 ميجابايت') + ': ' + file.name);
+      a = { name: file.name, mime: /\.docx$/i.test(file.name) ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/msword', data: await blobB64(file) }; }
+    else a = await readAttachment(file);
+    await db.ins(table, Object.assign({ company_id: S.cid, file_name: a.name, mime: a.mime, size: Math.round(a.data.length * 3 / 4), data: a.data }, { [key]: id }));
+  }
+}
+// the custody items list: built in (Arabic and English; a desktop computer is not a laptop), plus the company's own names
+const CUSTODY_LIB = [['جهاز كمبيوتر مكتبي', 'Desktop computer'], ['حاسب محمول (لابتوب)', 'Laptop'], ['جهاز لوحي (تابلت)', 'Tablet'], ['شاشة كمبيوتر', 'Computer monitor'],
+  ['لوحة مفاتيح وفأرة', 'Keyboard and mouse'], ['طابعة', 'Printer'], ['جوال', 'Mobile phone'], ['شريحة اتصال', 'SIM card'], ['جهاز إنترنت متنقل', 'Mobile internet router'],
+  ['سماعة رأس', 'Headset'], ['كاميرا', 'Camera'], ['جهاز نقطة بيع', 'POS device'], ['سيارة', 'Car'], ['مفاتيح المكتب', 'Office keys'], ['بطاقة دخول', 'Access card'],
+  ['زي العمل', 'Work uniform'], ['معدات السلامة', 'Safety equipment'], ['عدة وأدوات', 'Tools'], ['أثاث مكتبي', 'Office furniture']];
 async function fileBox(box, table, key, id) {
   const draw = async () => {
     const fs = await db.get(table, Object.assign({ select: 'id,file_name,size', order: 'created_at' }, { [key]: 'eq.' + id })).catch(() => []);
@@ -92,11 +108,11 @@ async function docsEmployee(page, id) {
     const m = modal(d ? 'تعديل مستند' : 'مستند جديد', `<div class="fg">${field('نوع المستند', `<select name="t">${Object.entries(DOC_T).filter(([k]) => k !== 'contract').map(([k, t]) => opt(k, t, v.doc_type)).join('')}</select>`)}
       <div data-o>${field('اسم المستند', inp('title', v.title))}</div><div data-o>${enF('title_en', v.title_en)}</div>${field('رقم المستند', inp('no', v.doc_no, 'dir="ltr"'))}
       ${field('تاريخ الإصدار', `<input type="date" name="is" value="${esc(v.issue_date || '')}">`)}${field('تاريخ الانتهاء', `<input type="date" name="ex" value="${esc(v.expiry_date || '')}">`)}
-      ${field('ملاحظات', inp('notes', v.notes), 'wide')}${d ? '<div class="wide" id="dfiles" style="border-top:1px solid var(--line3);padding-top:10px"></div><div class="wide"><button type="button" class="btn sm danger" id="ddel">حذف المستند</button></div>' : ''}</div>
+      ${field('ملاحظات', inp('notes', v.notes), 'wide')}${d ? '' : filePick()}${d ? '<div class="wide" id="dfiles" style="border-top:1px solid var(--line3);padding-top:10px"></div><div class="wide"><button type="button" class="btn sm danger" id="ddel">حذف المستند</button></div>' : ''}</div>
       <p class="muted small">التنبيه يظهر قبل الانتهاء بـ90 و60 و30 يوما. عند التجديد عدّل تاريخ الانتهاء أو أضف المستند الجديد.</p>`, {
       onOk: async f => { if (f.t === 'other' && (f.title || '').trim().length < 2) throw new Error('أدخل اسم المستند'); if (f.is && f.ex && f.ex < f.is) throw new Error('تاريخ الانتهاء قبل الإصدار');
         const row = { doc_type: f.t, title: f.t === 'other' ? f.title.trim() : null, title_en: f.t === 'other' ? blank((f.title_en || '').trim()) : null, doc_no: blank(f.no), issue_date: blank(f.is), expiry_date: blank(f.ex), notes: blank(f.notes) };
-        if (d) await db.upd('employee_documents', { id: 'eq.' + d.id }, row); else await db.ins('employee_documents', Object.assign(row, { company_id: S.cid, employee_id: id })); toast('تم الحفظ'); route(); } });
+        if (d) await db.upd('employee_documents', { id: 'eq.' + d.id }, row); else { const [nd] = await db.ins('employee_documents', Object.assign(row, { company_id: S.cid, employee_id: id })); await attachFiles('document_files', 'document_id', nd.id, $('#mform').files.files); } toast('تم الحفظ'); route(); } });
     const sync = () => $$('[data-o]', m).forEach(x => x.hidden = $('select[name=t]', m).value !== 'other'); $('select[name=t]', m).onchange = sync; sync();
     if (d) fileBox($('#dfiles', m), 'document_files', 'document_id', d.id).catch(() => {});
     if (d) $('#ddel', m).onclick = async () => { try { await db.del('employee_documents', { id: 'eq.' + d.id }); m.close(); route(); } catch (er) { showErr($('#merr', m), er); } }; };
@@ -105,9 +121,9 @@ async function docsEmployee(page, id) {
   $('#cnew', page).onclick = () => { const m = modal('عقد جديد', `<div class="fg">${field('نوع العقد', `<select name="ty">${e.is_saudi ? opt('indefinite', CT_T.indefinite) : ''}${opt('fixed', CT_T.fixed, 'fixed')}</select>`)}
       ${field('تاريخ البداية', `<input type="date" name="st" value="${cur ? '' : esc(e.hire_date)}">`)}<div data-f>${field('تاريخ النهاية', `<input type="date" name="en">`)}</div>
       ${field('الأجر', `<select name="mp">${opt('true', 'شهري')}${opt('false', 'غير شهري')}</select>`)}<div data-f>${field('هل يتضمن شرط تجديد تلقائي؟', `<select name="cl">${opt('false', 'لا')}${opt('true', 'نعم')}</select>`)}</div>${field('ملاحظات', inp('notes', ''), 'wide')}</div>
-      <p class="muted small">${e.is_saudi ? 'العقد المحدد المدة إذا استمر الطرفان بعد نهايته صار غير محدد المدة (م55).' : 'عقد غير السعودي محدد المدة؛ إذا لم تُحدد النهاية فمدته سنة من تاريخ البداية (م37).'}${cur ? ' سيُغلق العقد الحالي.' : ''}</p>`, {
+      <p class="muted small">${e.is_saudi ? 'العقد المحدد المدة إذا استمر الطرفان بعد نهايته صار غير محدد المدة (م55).' : 'عقد غير السعودي محدد المدة؛ إذا لم تُحدد النهاية فمدته سنة من تاريخ البداية (م37).'}${cur ? ' سيُغلق العقد الحالي.' : ''}</p>${filePick()}`, {
       onOk: async f => { if (!f.st) throw new Error('أدخل تاريخ بداية العقد'); if (f.ty === 'fixed' && f.en && f.en < f.st) throw new Error('تاريخ النهاية قبل البداية');
-        await db.rpc('contract_add', { p_company: S.cid, p_emp: id, p_type: f.ty, p_start: f.st, p_end: f.ty === 'fixed' ? blank(f.en) : null, p_monthly: f.mp === 'true', p_clause: f.cl === 'true', p_notes: blank(f.notes) }); toast('تم الحفظ'); route(); } });
+        const cid2 = await db.rpc('contract_add', { p_company: S.cid, p_emp: id, p_type: f.ty, p_start: f.st, p_end: f.ty === 'fixed' ? blank(f.en) : null, p_monthly: f.mp === 'true', p_clause: f.cl === 'true', p_notes: blank(f.notes) }); await attachFiles('contract_files', 'contract_id', cid2, $('#mform').files.files); toast('تم الحفظ'); route(); } });
     const sync = () => $$('[data-f]', m).forEach(x => x.hidden = $('select[name=ty]', m).value !== 'fixed'); $('select[name=ty]', m).onchange = sync; sync(); };
   if ($('#crn', page)) $('#crn', page).onclick = () => { const def = new Date(new Date(cur.end_date).getTime() + (new Date(cur.end_date) - new Date(cur.start_date)) + 864e5).toISOString().slice(0, 10);
     modal('تجديد العقد', `<p class="small">يبدأ التجديد من <b class="num">${fdate(new Date(new Date(cur.end_date).getTime() + 864e5).toISOString())}</b>، اليوم التالي لنهاية العقد الحالي.</p>${field('نهاية العقد الجديد', `<input type="date" name="en" value="${def}">`)}
@@ -191,11 +207,27 @@ async function lettersSection(page, e) {
   if ($('#lsal', page)) $('#lsal', page).onclick = () => letterDialog(e, 'salary');
   $('#lsvc', page).onclick = () => left ? letterDialog(e, 'service') : toast('شهادة الخدمة تصدر عند انتهاء الخدمة — سجّل تاريخ نهاية الخدمة في بيانات الموظف أولا (م64)');
 }
+// who a salary / service letter is addressed to: common Saudi bodies in Arabic and English (the letter's language picks one)
+const LETTER_TO = [
+  ['جهات حكومية', [['وزارة الموارد البشرية والتنمية الاجتماعية', 'Ministry of Human Resources and Social Development'], ['وزارة الداخلية', 'Ministry of Interior'],
+    ['المديرية العامة للجوازات', 'General Directorate of Passports'], ['وزارة الخارجية', 'Ministry of Foreign Affairs'], ['وزارة العدل', 'Ministry of Justice'],
+    ['وزارة التعليم', 'Ministry of Education'], ['وزارة الصحة', 'Ministry of Health'], ['المؤسسة العامة للتأمينات الاجتماعية', 'General Organization for Social Insurance'],
+    ['صندوق التنمية العقارية', 'Real Estate Development Fund'], ['صندوق تنمية الموارد البشرية (هدف)', 'Human Resources Development Fund (HRDF)']]],
+  ['البنوك', [['البنك الأهلي السعودي', 'Saudi National Bank'], ['مصرف الراجحي', 'Al Rajhi Bank'], ['بنك الرياض', 'Riyad Bank'], ['البنك السعودي الأول', 'Saudi Awwal Bank'],
+    ['البنك العربي الوطني', 'Arab National Bank'], ['البنك السعودي الفرنسي', 'Banque Saudi Fransi'], ['البنك السعودي للاستثمار', 'Saudi Investment Bank'],
+    ['مصرف الإنماء', 'Alinma Bank'], ['بنك البلاد', 'Bank Albilad'], ['بنك الجزيرة', 'Bank AlJazira']]],
+  ['السفارات', [['سفارة الولايات المتحدة الأمريكية', 'Embassy of the United States of America'], ['سفارة المملكة المتحدة', 'British Embassy'], ['سفارة فرنسا', 'Embassy of France'],
+    ['سفارة ألمانيا', 'Embassy of Germany'], ['سفارة كندا', 'Embassy of Canada'], ['سفارة أستراليا', 'Australian Embassy'], ['سفارة إيطاليا', 'Embassy of Italy'],
+    ['سفارة إسبانيا', 'Embassy of Spain'], ['سفارة هولندا', 'Embassy of the Netherlands'], ['سفارة سويسرا', 'Embassy of Switzerland'], ['سفارة اليابان', 'Embassy of Japan'],
+    ['سفارة كوريا الجنوبية', 'Embassy of the Republic of Korea'], ['سفارة الصين', 'Embassy of China'], ['سفارة الهند', 'Embassy of India'], ['سفارة باكستان', 'Embassy of Pakistan'],
+    ['سفارة مصر', 'Embassy of Egypt'], ['سفارة الأردن', 'Embassy of Jordan'], ['سفارة الفلبين', 'Embassy of the Philippines'], ['سفارة تركيا', 'Embassy of Türkiye'], ['سفارة ماليزيا', 'Embassy of Malaysia']]],
+  ['جهات أخرى', [['شركة التمويل', 'Finance company'], ['المؤجر / مكتب العقار', 'Landlord / real estate office'], ['المدرسة / الجامعة', 'School / University'], ['المستشفى', 'Hospital']]]];
 async function letterDialog(e, kind, req) {
   const self = !isHR(), co = LS.get('waad.enco.' + S.cid) || '';
   const prev = ((await db.get('letters', { employee_id: 'eq.' + e.id, lang: 'eq.en', order: 'issued_at.desc', limit: 1 }).catch(() => []))[0] || { data: {} }).data.en || {};
   const m = modal(kind === 'service' ? 'شهادة خدمة (م64)' : 'خطاب تعريف بالراتب', `<div class="fg">
     ${field('لغة الخطاب', `<select name="lang">${opt('ar', 'عربي')}${opt('en', 'إنجليزي')}</select>`)}
+    ${field('الجهة المرسل إليها', `<select name="tolist"><option value="">${esc(tr('إلى من يهمه الأمر'))}</option>${LETTER_TO.map(([g, xs]) => `<optgroup label="${esc(tr(g))}">${xs.map(([a, en]) => `<option value="${esc(a)}" data-en="${esc(en)}">${esc(LANG === 'en' ? en : a)}</option>`).join('')}</optgroup>`).join('')}<option value="__other">${esc(tr('جهة أخرى — اكتبها'))}</option></select>`)}
     ${field('موجّه إلى', inp('to', '', 'placeholder="إلى من يهمه الأمر"'))}
     ${kind === 'salary' ? field('الراتب', `<select name="sal">${opt('true', 'يظهر الراتب وتفاصيله')}${opt('false', 'بدون راتب')}</select>`) : ''}
     ${!self && !e.is_saudi ? field('الجنسية', inp('nat', '')) : ''}
@@ -209,6 +241,10 @@ async function letterDialog(e, kind, req) {
         p_en: en ? { name: f.en_name || '', job: f.en_job || '', company: f.en_co || '' } : null };
       Object.keys(p).forEach(k => p[k] == null && delete p[k]);
       const l = await db.rpc('issue_letter', p); toast('صدر الخطاب ' + l.ref_no); location.hash = '#/letter/' + l.id; } });
+  { const fm = $('#mform', m), toF = fm.to, pick = () => { const o = fm.tolist.selectedOptions[0]; if (!fm.tolist.value) { toF.value = ''; toF.dataset.auto = '1'; return; }
+      if (fm.tolist.value === '__other') { toF.value = ''; delete toF.dataset.auto; toF.focus(); return; }
+      toF.value = fm.lang.value === 'en' ? o.dataset.en : fm.tolist.value; toF.dataset.auto = '1'; };
+    fm.tolist.onchange = pick; fm.lang.addEventListener('change', () => { if (toF.dataset.auto) pick(); }); toF.addEventListener('input', () => { delete toF.dataset.auto; }); }
   const sync = () => $$('.en-only', m).forEach(x => x.hidden = $('select[name=lang]', m).value !== 'en'); $('select[name=lang]', m).onchange = sync; sync();
 }
 async function myLettersHtml() {
@@ -443,10 +479,21 @@ async function custodyCard(box, e) {
       { t: '', h: x => isHR() && x.status === 'held' ? `<button class="btn sm" data-cret="${x.id}">${esc(tr('استلام'))}</button>` : '' }], items, { empty: 'لا توجد عهد مسجلة', onRow: isHR() })}
     ${held.length ? `<p class="small muted">${esc(tr('لدى الموظف'))} <b class="num">${held.length}</b> ${esc(tr('عهدة بقيمة'))} <b class="num">${money(held.reduce((a, x) => a + n0(x.value), 0))}</b></p>` : ''}</div>`;
   if (!isHR()) return;
-  const form = x => { const v = x || { issued_on: today() };
-    modal(x ? tr('تعديل عهدة') : tr('تسليم عهدة'), `<div class="fg">${field('العهدة', inp('name', v.name, 'required placeholder="' + esc(tr('حاسب محمول، جوال، سيارة، مفاتيح…')) + '"'))}${enF('name_en', v.name_en)}${field('الرقم التسلسلي / اللوحة', inp('serial', v.serial, 'dir="ltr"'))}
-      ${field('القيمة التقديرية', inp('value', v.value, 'type="number" step="0.01" min="0"'))}${field('تاريخ التسليم', `<input type="date" name="iss" value="${esc(v.issued_on)}">`)}${field('ملاحظات', inp('note', v.note), 'wide')}</div>`,
-      { onOk: async f => { await db.rpc('custody_save', { p_id: x ? x.id : null, p_emp: e.id, p_name: f.name, p_name_en: blank(f.name_en), p_serial: blank(f.serial), p_value: f.value === '' ? null : +f.value, p_issued: f.iss, p_note: blank(f.note) }); toast('تم الحفظ'); route(); } }); };
+  const own = await db.get('custody_names', { company_id: 'eq.' + S.cid, order: 'name' }).catch(() => []);
+  const lib = CUSTODY_LIB.concat(own.map(o => [o.name, o.name_en || ''])).filter((x, i, a) => a.findIndex(y => y[0] === x[0]) === i);
+  const form = x => { const v = x || { issued_on: today() }, known = lib.find(l => l[0] === v.name);
+    const m = modal(x ? tr('تعديل عهدة') : tr('تسليم عهدة'), `<div class="fg">${field('العهدة', `<select name="pick">${lib.map(([a, en]) => `<option value="${esc(a)}" data-en="${esc(en)}"${known && known[0] === a ? ' selected' : ''}>${esc(LANG === 'en' && en ? en : a)}</option>`).join('')}<option value="__new"${x && !known ? ' selected' : ''}>${esc(tr('أخرى — اكتب اسما جديدا'))}</option></select>`)}
+      <div data-new class="wide fg" style="padding:0">${field('اسم العهدة', inp('name', known ? '' : v.name, 'placeholder="' + esc(tr('مثل: جهاز عرض')) + '"'))}${enF('name_en', known ? '' : v.name_en)}
+        <label class="row small" style="gap:6px"><input type="checkbox" name="keep" style="width:auto" checked> ${esc(tr('أضفها إلى القائمة لاستخدامها لاحقا'))}</label></div>${field('الرقم التسلسلي / اللوحة', inp('serial', v.serial, 'dir="ltr"'))}
+      ${field('القيمة التقديرية', inp('value', v.value, 'type="number" step="0.01" min="0"'))}${field('تاريخ التسليم', `<input type="date" name="iss" value="${esc(v.issued_on)}">`)}${field('ملاحظات', inp('note', v.note), 'wide')}${x ? '<div class="wide" id="cufiles" style="border-top:1px solid var(--line3);padding-top:10px"></div>' : filePick()}</div>`,
+      { onOk: async f => { const isNew = f.pick === '__new', nm = isNew ? (f.name || '').trim() : f.pick, ne = isNew ? (f.name_en || '').trim() : ($('select[name=pick]', m).selectedOptions[0].dataset.en || '');
+          if (nm.length < 2) throw new Error('اكتب اسم العهدة');
+          const cuid = await db.rpc('custody_save', { p_id: x ? x.id : null, p_emp: e.id, p_name: nm, p_name_en: blank(ne), p_serial: blank(f.serial), p_value: f.value === '' ? null : +f.value, p_issued: f.iss, p_note: blank(f.note) });
+          if (isNew && f.keep && !lib.some(l => l[0] === nm)) await db.ins('custody_names', { company_id: S.cid, name: nm, name_en: blank(ne) }).catch(() => {});
+          if (!x) await attachFiles('custody_files', 'custody_id', cuid, $('#mform').files.files);
+          toast('تم الحفظ'); route(); } });
+    const sync = () => { $('[data-new]', m).hidden = $('select[name=pick]', m).value !== '__new'; }; $('select[name=pick]', m).onchange = sync; sync();
+    if (x) fileBox($('#cufiles', m), 'custody_files', 'custody_id', x.id).catch(() => {}); };
   $('#cunew', box).onclick = () => form(null);
   bindRows(box, items, x => form(x));
   $$('[data-cret]', box).forEach(b => b.onclick = ev => { ev.stopPropagation(); const x = items.find(i => i.id === b.dataset.cret);

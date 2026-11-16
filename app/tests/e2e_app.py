@@ -365,8 +365,14 @@ with sync_playwright() as pw:
 
     # ---------- custody, clearance, Ramadan ----------
     e5000 = sql("select id from employees where emp_no='5000'")
-    go(o, '#/home'); go(o, '#/docs/' + e5000); o.wait_for_selector('#cunew'); o.click('#cunew'); o.fill('#dlg input[name=name]', 'حاسب محمول'); o.fill('#dlg input[name=value]', '3500'); modal_ok(o); o.wait_for_selector('[data-cret]')
+    go(o, '#/home'); go(o, '#/docs/' + e5000); o.wait_for_selector('#cunew'); o.click('#cunew'); o.wait_for_selector('#dlg select[name=pick]'); o.select_option('#dlg select[name=pick]', 'حاسب محمول (لابتوب)'); o.fill('#dlg input[name=value]', '3500'); modal_ok(o); o.wait_for_selector('[data-cret]')
     ok(sql(f"select status from custody_items where employee_id='{e5000}'") == 'held', 'HR hands an item to the employee')
+    ok(sql(f"select name || '|' || name_en from custody_items where employee_id='{e5000}'") == 'حاسب محمول (لابتوب)|Laptop', 'custody: picked from the list, with its English name (a laptop, not a desktop computer)')
+    o.click('#cunew'); o.wait_for_selector('#dlg select[name=pick]'); o.select_option('#dlg select[name=pick]', '__new'); o.fill('#dlg input[name=name]', 'جهاز عرض'); o.fill('#dlg input[name=name_en]', 'Projector')
+    o.set_input_files('#dlg input[name=files]', files=[{'name': 'handover.pdf', 'mimeType': 'application/pdf', 'buffer': b'%PDF-1.4 test'}]); modal_ok(o); o.wait_for_timeout(800)
+    ok(sql("select count(*) from custody_names where name='جهاز عرض' and name_en='Projector'") == '1' and sql(f"select count(*) from custody_files f join custody_items c on c.id=f.custody_id where c.employee_id='{e5000}' and c.name='جهاز عرض'") == '1',
+       'custody: a new name joins the company list, and the file chosen in the form is attached')
+    sqlx(f"delete from custody_items where employee_id='{e5000}' and name='جهاز عرض'")
     ok('عهد لم تُسلَّم' in o.inner_text('#clrbox'), 'the clearance shows the item not yet returned')
     go(o, '#/eos'); o.select_option('#ef select[name=e]', e5000); o.click('#eb'); o.wait_for_selector('#er table')
     ok('إخلاء الطرف غير مكتمل' in o.inner_text('#er'), 'the end-of-service page warns that clearance is incomplete')
@@ -569,7 +575,10 @@ with sync_playwright() as pw:
     lw = o.evaluate("new Promise(r=>{const i=new Image();i.onload=()=>r([i.naturalWidth,i.naturalHeight]);i.src=document.querySelector('#logocard img').src})")
     ok(lw[0] <= 800 and lw[1] <= 300, 'logo resized to fit 800×300: %s' % lw)
     eid = sql("select id from employees where emp_no='5000'")
-    go(o, '#/docs/' + eid); o.wait_for_selector('#lsal'); o.click('#lsal'); o.wait_for_selector('#dlg[open] input[name=en_name]', state='attached'); o.fill('#dlg input[name=to]', 'بنك الراجحي'); modal_ok(o)
+    go(o, '#/docs/' + eid); o.wait_for_selector('#lsal'); o.click('#lsal'); o.wait_for_selector('#dlg[open] input[name=en_name]', state='attached')
+    o.select_option('#dlg select[name=tolist]', 'السفارات' and 'سفارة كندا'); ar_to = o.input_value('#dlg input[name=to]'); o.select_option('#dlg select[name=lang]', 'en'); en_to = o.input_value('#dlg input[name=to]'); o.select_option('#dlg select[name=lang]', 'ar')
+    ok(ar_to == 'سفارة كندا' and en_to == 'Embassy of Canada', 'salary letter: the addressee comes from the list (ministries, banks, embassies) in the letter language')
+    o.select_option('#dlg select[name=tolist]', '__other'); o.fill('#dlg input[name=to]', 'بنك الراجحي'); modal_ok(o)
     o.wait_for_selector('.a4wrap .a4'); o.wait_for_timeout(300)
     lt = o.inner_text('.a4')
     gross = sql("select to_char(basic+housing+transport,'FM999,999,990.00') from employees where emp_no='5000'")
