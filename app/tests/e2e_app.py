@@ -1353,8 +1353,12 @@ with sync_playwright() as pw:
     o.reload(); o.wait_for_selector('#nav'); ok(o.locator('#nav a[href="#/sales"]').count() == 1, 'reopened module is back with its data')
     # a company that ended 61 days ago waits for the admin's decision; deleting needs its exact name
     sqlx("insert into companies(name) values ('منشأة غادرت')")
-    sqlx("update company_subscriptions set status = 'active', sub_ends = current_date - 61 where company_id = (select id from companies where name = 'منشأة غادرت')")
+    sqlx("update company_subscriptions set status = 'active', sub_ends = current_date - 20 where company_id = (select id from companies where name = 'منشأة غادرت')")
     go(pp, '#/home'); pp.wait_for_selector('#ppage .g2p')
+    t = pp.locator('#ppage .card', has_text='انتهت ولم تُجدَّد').inner_text()
+    ok('منشأة غادرت' in t and 'قرار الحذف' in t and '40' in t and 'بانتظار قرار الحذف' not in pp.inner_text('#ppage'), 'admin site: an ended company shows the days left before the deletion decision, so the team can contact it')
+    sqlx("update company_subscriptions set sub_ends = current_date - 61 where company_id = (select id from companies where name = 'منشأة غادرت')")
+    go(pp, '#/system'); go(pp, '#/home'); pp.wait_for_selector('#ppage .g2p')
     ok('بانتظار قرار الحذف' in pp.inner_text('#ppage') and 'منشأة غادرت' in pp.inner_text('#ppage'), 'admin site: 60 days after the end the company shows under «awaiting deletion decision»')
     pp.locator('#ppage .card', has_text='بانتظار قرار الحذف').locator('tbody tr', has_text='منشأة غادرت').click(); pp.wait_for_selector('#ppurge')
     pp.click('#ppurge'); pp.wait_for_selector('#dlg[open] input[name=confirm]'); pp.fill('#dlg input[name=confirm]', 'اسم خطأ'); pp.click('#mok'); pp.wait_for_timeout(400)

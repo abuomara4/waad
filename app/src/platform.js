@@ -435,12 +435,16 @@ PV.home = async page => {
       ${list('طلبات تنتظر قبولك', 'اقبلها كتجربة بضغطة، أو افتح المنشأة لتختار اشتراك ومدة.', pending, [nameCol, { t: 'التسجيل', h: c => `<span class="num">${esc(String(c.created_at).slice(0, 10))}</span>` }, actCol])}
       ${list('تجارب تنتهي خلال ٣ أيام', 'تواصل معهم قبل ما تنتهي.', trialEnd, [nameCol, endCol, actCol])}
       ${list('اشتراكات تنتهي خلال ٧ أيام', 'ذكّرهم بالتجديد.', subEnd7, [nameCol, endCol, actCol])}
-      ${list('انتهت ولم تُجدَّد', 'أقسامها مقفلة الحين.', ended, [nameCol, endCol, actCol])}
+      ${list('انتهت ولم تُجدَّد', 'أقسامها مقفلة وبياناتها محفوظة. تواصل معهم قبل موعد قرار الحذف (٦٠ يوما بعد الانتهاء).', ended, [nameCol, endCol,
+        { t: 'قرار الحذف', h: c => { const q = pq.find(x => x.company_id === c.company_id); if (!q) return '—'; const n = daysLeft(q.purge_on);
+          return `<span class="num">${esc(q.purge_on)}</span><div class="small ${n <= 7 ? 'bad' : 'muted'}">${n > 0 ? `<span class="num">${n}</span> ` + esc(tr('يوم متبقي')) : esc(tr('حان موعده'))}</div>`; } },
+        { t: 'التواصل', h: c => `<div class="row" style="gap:4px;flex-wrap:wrap">${phoneBtns(c.owner_phone)}${c.owner_email ? `<a class="btn sm" href="${esc(gmailTo(c.owner_email, 'وعد: ' + c.name))}" target="_blank" rel="noopener">${esc(tr('إيميل'))}</a>` : ''}</div>` }, actCol])}
       ${purgeDue.length ? list('بانتظار قرار الحذف', 'مرّ ٦٠ يوما على انتهائها دون تجديد، ونبّهنا المالك قبلها بالإيميل. لا يُحذف شيء إلا بقرارك: افتح المنشأة واحذفها أو مدّد المهلة.', purgeDue,
         [nameCol, { t: 'انتهت', h: c => `<span class="num">${esc(c.ended_on)}</span>` }]) : ''}</div>`;
   const all = [...pending, ...trialEnd, ...subEnd7, ...ended];
   $$('.g2p .card', page).forEach((card, i) => bindRows(card, [pending, trialEnd, subEnd7, ended, purgeDue][i], c => { location.hash = '#/company/' + c.company_id; }));
   bindQuick(page, all, st);
+  $$('.g2p a.btn', page).forEach(a => a.addEventListener('click', ev => ev.stopPropagation()));   // contact links do not open the company
 };
 
 /* ---------- one company: subscription, quick actions, payments, notes, history ---------- */

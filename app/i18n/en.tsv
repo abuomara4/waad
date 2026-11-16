@@ -255,6 +255,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أقسام بلا رئيس	Departments without a head
 أقسام فيها بيانات	Modules with data
 أقسامها مقفلة الحين	their modules are closed now
+أقسامها مقفلة وبياناتها محفوظة	Its modules are closed and its data is kept
+أقسامها مقفلة وبياناتها محفوظة. تواصل معهم قبل موعد قرار الحذف (٦٠ يوما بعد الانتهاء).	Its modules are closed and its data is kept. Contact them before the deletion decision date (60 days after the end).
 أقفل السنوات بالترتيب	Close years in order
 أقل سعر للبند ولإجمالي العرض	lowest price per line and per offer total
 أقل عدد أقساط لهذا المبلغ	Minimum installments for this amount
@@ -2974,6 +2976,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تواصل معنا بالواتساب إذا الأمر عاجل	contact us on WhatsApp if it is urgent
 تواصل معهم قبل ما تنتهي	Contact them before it ends
 تواصل معهم قبل ما تنتهي التجربة	Contact them before the trial ends
+تواصل معهم قبل موعد قرار الحذف	contact them before the deletion decision date
 توجد تسويات معلقة	There are pending settlements
 توجد تسوية مفتوحة لهذا الحساب	There is an open reconciliation for this account
 توريد أجهزة	Equipment supply
@@ -3137,6 +3140,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حالة الدراسة	Study status
 حالة غير معروفة	Unknown status
 حان موعد قرار الحذف منذ	Deletion decision due since
+حان موعده	Due now
 حاول بعد ربع ساعة	try again in 15 minutes
 حاولت التصدير كثيرا	Too many exports
 حاولت التصدير كثيرا — انتظر ساعة ثم أعد المحاولة	Too many exports — wait an hour and try again
@@ -4331,6 +4335,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قدّم الطلب قبل	Submit the request
 قدّم تسوية بما صرفته من العهدة مع أرقام الفواتير	Submit a settlement of what you spent from the fund with the invoice numbers
 قرار التظلم	Grievance decision
+قرار الحذف	Deletion decision
 قرار توقيع جزاء تأديبي	Disciplinary penalty decision
 قرّر التثبيت أو الإنهاء قبل نهايتها	decide on confirmation or termination before it ends
 قسائم الراتب	Payslips
@@ -5901,6 +5906,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يوم التأسيس	Founding Day
 يوم التعويض	Compensation day
 يوم بأجر جزئي	days with partial pay
+يوم متبقي	days left
 يوم من العطلة في يوم الراحة الأسبوعية	holiday day(s) on the weekly rest day
 يوم واحد	1 day
 يوما	days
@@ -5913,6 +5919,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يوما بثلاثة أرباع الأجر	days at three-quarters pay
 يوما بدون أجر	days unpaid
 يوما بدون أجر خلال سنة الإجازة المرضية	days unpaid within the sick-leave year
+يوما بعد الانتهاء	days after the end
 يوما تُعد مقبولة	days, it is deemed accepted
 يوما دون رد	days without a reply
 يوما عدا العطل الرسمية	days excluding public holidays
