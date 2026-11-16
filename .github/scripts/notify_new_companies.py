@@ -3,7 +3,8 @@
  2. remind each customer by e-mail 3 days before its trial or subscription ends (once per end date);
  3. tell the team about new support requests; 4. e-mail the team's reply to the customer who asked;
  5. send the welcome e-mail once a company is accepted;
- 6. on the 1st–3rd of each month, e-mail each owner a summary of last month (once; they can switch it off in settings).
+ 6. on the 1st–3rd of each month, e-mail each owner a summary of last month (once; they can switch it off in settings);
+ 7. a company that ended and was not renewed: e-mail its owner 30 and 7 days before the deletion decision (day 60).
 Channels (each optional, set as repository secrets):
   e-mail   : NOTIFY_GMAIL_USER + NOTIFY_GMAIL_APP_PASSWORD (a Google «App password»); team mail goes to NOTIFY_EMAIL_TO or to itself
   WhatsApp : CALLMEBOT_PHONE + CALLMEBOT_APIKEY (free CallMeBot key for your own number) — team notices only
@@ -93,6 +94,29 @@ def remind():
         if mail(r['email'], subject, body):
             psql("update public.company_subscriptions set reminded_end = '%s' where company_id = '%s'" % (r['ends'], r['company_id'])); done.append(r['name'])
     print('reminded %d of %d' % (len(done), len(rows)) if done else '::warning::%d reminder(s) due but none sent — check the e-mail secrets' % len(rows))
+
+# ---------- 7. a company that ended and was not renewed: 30 and 7 days before the deletion decision (0101) ----------
+def purge_notices():
+    rows = json.loads(psql("select coalesce(json_agg(x), '[]') from (select * from public.purge_notices_due()) x"))
+    if not rows:
+        print('purge notices: none due'); return
+    phone, cmail = contact()
+    n = 0
+    for r in rows:
+        if not r.get('email'): continue
+        last = r['stage'] == 2
+        subject = 'وعد: %s بيانات منشأتك «%s»' % ('تنبيه أخير قبل حذف' if last else 'تنبيه قبل حذف', r['name'])
+        body = ('السلام عليكم،\n\nانتهى اشتراك منشأة «%s» في نظام وعد بتاريخ %s ولم يُجدَّد، وبياناتها ما زالت محفوظة كما هي.\n'
+                'ستُحذف بيانات المنشأة نهائيا من خوادمنا ابتداء من %s.\n\n'
+                'قبل هذا التاريخ تقدر:\n• تجدّد الاشتراك فيرجع كل شيء كما كان، أو\n• تدخل النظام بحساب المالك وتنزّل نسخة كاملة من بياناتك (Excel وJSON) من «إعدادات المنشأة».\n\n'
+                'ننبهك أن حفظ السجلات المحاسبية والفواتير للمدة النظامية مسؤولية المنشأة، فنزّل نسختك قبل الحذف.\n\n'
+                'تواصل معنا: %s · %s\n%scontact.html\n\nفريق وعد\n\n— — —\n'
+                'Your Waad subscription for «%s» ended on %s and was not renewed. Its data is kept as is until %s, then deleted from our servers. '
+                'Renew, or sign in as the owner and download a full copy (Excel and JSON) from the company settings first. Contact: %s · %s') % (
+            r['name'], r['ended_on'], r['purge_on'], phone, cmail, SITE, r['name'], r['ended_on'], r['purge_on'], phone, cmail)
+        if mail(r['email'], subject, body):
+            psql("select public.purge_notice_sent('%s', %d, '%s')" % (r['company_id'], int(r['stage']), r['purge_on'])); n += 1
+    print('purge notices: sent %d of %d' % (n, len(rows)) if n else '::warning::%d purge notice(s) due but none sent — check the e-mail secrets' % len(rows))
 
 def contact():
     c = json.loads(psql("select coalesce((select value from public.site_content where key = 'contact'), '{}')") or '{}')
@@ -195,4 +219,4 @@ def monthly():
 
 team()
 if not TEST:
-    remind(); support_team(); support_replies(); welcome(); monthly()
+    remind(); support_team(); support_replies(); welcome(); monthly(); purge_notices()

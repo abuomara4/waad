@@ -129,7 +129,7 @@ PV.companies = async page => {
       ${pkpi('المستخدمون', rows.reduce((a, c) => a + (c.users || 0), 0))}</div>
     <div class="ptabs pfil" role="tablist">${Object.entries(BUCKET).map(([k, [t, f]]) => `<a href="#" data-f="${k}"${k === fk ? ' aria-current="page"' : ''}>${esc(tr(t))} <span class="num">${rows.filter(f).length}</span></a>`).join('')}</div>
     <div class="row" style="margin-bottom:10px;gap:8px;flex-wrap:wrap"><input id="pq" placeholder="${esc(tr('بحث بالاسم أو البريد أو الباقة'))}" value="${esc(q)}" style="max-width:320px">
-      <div class="sp"></div><button type="button" class="btn sm" data-copymail="${esc([...new Set(shown.map(c => c.owner_email).filter(Boolean))].join(', '))}">${esc(tr('نسخ إيميلات المنشآت الظاهرة'))}</button></div>
+      <div class="sp"></div><button type="button" class="btn sm" id="pdlog">${esc(tr('سجل المنشآت المحذوفة'))}</button><button type="button" class="btn sm" data-copymail="${esc([...new Set(shown.map(c => c.owner_email).filter(Boolean))].join(', '))}">${esc(tr('نسخ إيميلات المنشآت الظاهرة'))}</button></div>
     ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'الباقة', h: c => esc(c.plan) },
       { t: 'المدينة', h: c => esc(c.city || '—') + (c.size_band ? `<div class="small muted">${esc(tr(SIZE_B[c.size_band] || c.size_band))}</div>` : '') },
       { t: 'يستخدم', h: c => { const u = c.usage || {}; return `<span class="num">${u.employees || 0}${c.max_employees ? ' / ' + c.max_employees : ''}</span> ${esc(tr('موظف'))}<div class="small muted">${(u.modules || []).map(m => esc(tr(MODULES[m] || m))).join('، ') || '—'}</div>`; } },
@@ -145,6 +145,7 @@ PV.companies = async page => {
       <div class="wide"><div id="pserr"></div><button class="btn pri" id="psb">${esc(tr('حفظ'))}</button></div></form></div>`;
   $('#pq', page).oninput = e => { LS.set('waad.platq', e.target.value); clearTimeout(platformView.t); platformView.t = setTimeout(platformView, 400); };
   bindRows(page, shown, c => { location.hash = '#/company/' + c.company_id; }); bindCopy(page); bindQuick(page, shown, st);
+  $('#pdlog', page).onclick = deletionsLog;
   $$('[data-f]', page).forEach(a => a.onclick = e => { e.preventDefault(); LS.set('waad.platf', a.dataset.f); platformView(); });
   $('#psf', page).onsubmit = async e => { e.preventDefault(); const f = e.target;
     try { await busy($('#psb', page), async () => { await db.rpc('platform_set_settings', { p_modules: pickMods(f), p_trial_days: +f.days.value || 7, p_require_approval: f.approval.checked }); toast(tr('تم الحفظ')); }); }
@@ -381,10 +382,41 @@ PV.team = async page => {
   });
 };
 
+/* ---------- deleting a company that left (0101): never automatic; 60 days after the end it waits for the admin ---------- */
+function purgeCard(c, q) {
+  if (!(q || c.status === 'suspended' || c.status === 'pending')) return '';
+  const warned = q && q.warned ? (q.warned === 2 ? tr('أُرسل للمالك التنبيهان: قبل ٣٠ يوما وقبل ٧ أيام.') : tr('أُرسل للمالك التنبيه الأول قبل ٣٠ يوما.')) : '';
+  return `<div class="card" id="purgecard" style="margin-top:14px"><h2>${esc(tr('حذف بيانات المنشأة'))}</h2>
+    <p class="muted small" style="margin-top:0">${q ? `${esc(tr('انتهت في'))} <span class="num">${esc(q.ended_on)}</span> · ${esc(tr(q.due ? 'حان موعد قرار الحذف منذ' : 'موعد قرار الحذف'))} <span class="num">${esc(q.purge_on)}</span>. ${esc(warned)}`
+      : esc(tr('المنشأة موقوفة أو لم تُقبل بعد، فيمكن حذفها عند طلب المالك.'))}</p>
+    <p class="small" style="margin-top:0">${esc(tr('الحذف نهائي: تُحذف كل بيانات المنشأة وحسابات دخول موظفيها، ويبقى في وعد سجل مختصر بالحذف ودفعات الاشتراك فقط. النسخ الاحتياطية المشفّرة تُمسح تلقائيا خلال ٣٠ يوما.'))}</p>
+    <div class="row" style="gap:6px;flex-wrap:wrap">${q ? `<button class="btn" id="pext">${esc(tr('تمديد المهلة ٣٠ يوما'))}</button>` : ''}<button class="btn danger" id="ppurge">${esc(tr('حذف المنشأة نهائيا…'))}</button></div></div>`;
+}
+function bindPurge(page, c) {
+  if ($('#pext', page)) $('#pext', page).onclick = async () => { const d = await db.rpc('platform_purge_extend', { p_company: c.company_id, p_days: 30 }); toast(tr('موعد قرار الحذف الجديد') + ' ' + d); platformView(); };
+  if ($('#ppurge', page)) $('#ppurge', page).onclick = () => modal(tr('حذف المنشأة نهائيا'), `
+    <div class="err" style="margin-bottom:10px">${esc(tr('لا يمكن التراجع عن هذا الحذف. تأكد أن المالك نزّل نسخة من بياناته قبل الحذف.'))}</div>
+    <p>${esc(tr('للتأكيد اكتب اسم المنشأة كما هو:'))} <b>${esc(c.name)}</b></p>
+    <div class="fg">${field('اسم المنشأة', inp('confirm', '', 'autocomplete="off"'), 'wide')}${field('السبب', `<select name="reason">${['انتهت ولم تُجدَّد', 'طلب المالك', 'طلب لم يُقبل'].map(x => opt(x, tr(x), '')).join('')}</select>`, 'wide')}</div>`,
+    { ok: tr('حذف نهائي'), onOk: async f => {
+      if ((f.confirm || '').trim() !== c.name.trim()) throw new Error('اكتب اسم المنشأة كما هو للتأكيد');
+      await db.rpc('platform_company_purge', { p_company: c.company_id, p_confirm: f.confirm, p_reason: f.reason });
+      toast(tr('حُذفت المنشأة نهائيا')); location.hash = '#/companies'; } });
+}
+async function deletionsLog() {
+  const rows = await db.rpc('platform_deletions');
+  modal(tr('سجل المنشآت المحذوفة'), `<p class="muted small" style="margin-top:0">${esc(tr('يثبت أن البيانات حُذفت ومتى، دون أي بيانات من داخل المنشأة.'))}</p>
+    ${tbl([{ t: 'المنشأة', h: r => esc(r.company_name) }, { t: 'انتهت', h: r => `<span class="num">${esc(r.ended_on || '—')}</span>` },
+      { t: 'حُذفت', h: r => `<span class="num">${esc(String(r.deleted_at).slice(0, 16).replace('T', ' '))}</span><div class="small muted" dir="ltr">${esc(r.deleted_by_email || '')}</div>` },
+      { t: 'السبب', h: r => esc(tr(r.reason || '—')) }, { t: 'حسابات الدخول', r: 1, h: r => r.users_removed }], rows, { empty: 'لم تُحذف أي منشأة' })}`, { wide: true });
+}
+
 /* ---------- home: what needs the team today ---------- */
 PV.home = async page => {
-  const [rows, st, visits, pays, tks] = await Promise.all([db.rpc('platform_companies'), db.rpc('platform_get_settings'),
-    db.rpc('platform_site_stats', { p_days: 7 }).catch(() => []), db.rpc('platform_payments_list', { p_from: MONTH0(), p_to: today() }).catch(() => []), db.rpc('platform_tickets', { p_status: 'open' }).catch(() => [])]);
+  const [rows, st, visits, pays, tks, pq] = await Promise.all([db.rpc('platform_companies'), db.rpc('platform_get_settings'),
+    db.rpc('platform_site_stats', { p_days: 7 }).catch(() => []), db.rpc('platform_payments_list', { p_from: MONTH0(), p_to: today() }).catch(() => []), db.rpc('platform_tickets', { p_status: 'open' }).catch(() => []),
+    db.rpc('platform_purge_queue').catch(() => [])]);
+  const purgeDue = pq.filter(x => x.due).map(x => Object.assign({}, rows.find(c => c.company_id === x.company_id) || { company_id: x.company_id, name: x.name }, { ended_on: x.ended_on, purge_on: x.purge_on }));
   const t0 = today(), pending = rows.filter(c => c.status === 'pending');
   const trialEnd = rows.filter(c => c.status === 'trial' && c.trial_ends && c.trial_ends >= t0 && c.trial_ends <= dayAgo(-3));
   const subEnd7 = rows.filter(c => c.status === 'active' && c.sub_ends && c.sub_ends >= t0 && c.sub_ends <= dayAgo(-7));
@@ -403,15 +435,17 @@ PV.home = async page => {
       ${list('طلبات تنتظر قبولك', 'اقبلها كتجربة بضغطة، أو افتح المنشأة لتختار اشتراك ومدة.', pending, [nameCol, { t: 'التسجيل', h: c => `<span class="num">${esc(String(c.created_at).slice(0, 10))}</span>` }, actCol])}
       ${list('تجارب تنتهي خلال ٣ أيام', 'تواصل معهم قبل ما تنتهي.', trialEnd, [nameCol, endCol, actCol])}
       ${list('اشتراكات تنتهي خلال ٧ أيام', 'ذكّرهم بالتجديد.', subEnd7, [nameCol, endCol, actCol])}
-      ${list('انتهت ولم تُجدَّد', 'أقسامها مقفلة الحين.', ended, [nameCol, endCol, actCol])}</div>`;
+      ${list('انتهت ولم تُجدَّد', 'أقسامها مقفلة الحين.', ended, [nameCol, endCol, actCol])}
+      ${purgeDue.length ? list('بانتظار قرار الحذف', 'مرّ ٦٠ يوما على انتهائها دون تجديد، ونبّهنا المالك قبلها بالإيميل. لا يُحذف شيء إلا بقرارك: افتح المنشأة واحذفها أو مدّد المهلة.', purgeDue,
+        [nameCol, { t: 'انتهت', h: c => `<span class="num">${esc(c.ended_on)}</span>` }]) : ''}</div>`;
   const all = [...pending, ...trialEnd, ...subEnd7, ...ended];
-  $$('.g2p .card', page).forEach((card, i) => bindRows(card, [pending, trialEnd, subEnd7, ended][i], c => { location.hash = '#/company/' + c.company_id; }));
+  $$('.g2p .card', page).forEach((card, i) => bindRows(card, [pending, trialEnd, subEnd7, ended, purgeDue][i], c => { location.hash = '#/company/' + c.company_id; }));
   bindQuick(page, all, st);
 };
 
 /* ---------- one company: subscription, quick actions, payments, notes, history ---------- */
 PV.company = async (page, id) => {
-  const [d, st, plans] = await Promise.all([db.rpc('platform_company', { p_company: id }), db.rpc('platform_get_settings'), db.rpc('platform_plans_list')]);
+  const [d, st, plans, pq] = await Promise.all([db.rpc('platform_company', { p_company: id }), db.rpc('platform_get_settings'), db.rpc('platform_plans_list'), db.rpc('platform_purge_queue').catch(() => [])]);
   const c = d.company; if (!c) { page.innerHTML = `<div class="err">${esc(tr('المنشأة غير موجودة'))}</div>`; return; }
   const [stt, stk] = subState(c), e = subEnd(c), n = daysLeft(e), paid = d.payments.reduce((a, p) => a + (+p.amount || 0), 0);
   const plan = plans.find(p => p.id === d.plan_id);
@@ -457,8 +491,9 @@ PV.company = async (page, id) => {
         { t: 'المدة', h: p => p.days ? `<span class="num">${p.days}</span> ${esc(tr('يوم'))}` : '—' }, { t: 'ملاحظة', h: p => `<span data-nt>${esc(p.note || '')}</span>` },
         { t: '', h: p => `<a href="#" data-rc="${esc(p.id)}">${esc(tr('إيصال'))}</a> · <a href="#" data-dp="${esc(p.id)}">${esc(tr('حذف'))}</a>` }], d.payments, { empty: 'لا توجد دفعات' })}</div>
     <div class="card"><h2>${esc(tr('سجل الاشتراك'))}</h2>
-      ${tbl([{ t: 'التاريخ', h: h => `<span class="num">${esc(String(h.at).slice(0, 16).replace('T', ' '))}</span>` }, { t: 'الحالة بعد التغيير', h: h => esc(histTxt(h)) }], d.history, { empty: 'لا يوجد أي تغيير' })}</div>`;
-  bindCopy(page); bindQuick(page, [c], st);
+      ${tbl([{ t: 'التاريخ', h: h => `<span class="num">${esc(String(h.at).slice(0, 16).replace('T', ' '))}</span>` }, { t: 'الحالة بعد التغيير', h: h => esc(histTxt(h)) }], d.history, { empty: 'لا يوجد أي تغيير' })}</div>
+    ${purgeCard(c, pq.find(x => x.company_id === id))}`;
+  bindCopy(page); bindQuick(page, [c], st); bindPurge(page, Object.assign({ company_id: id }, c));
   if ($('#capp', page)) $('#capp', page).onclick = () => approveForm(c, st);
   $('#csub', page).onclick = () => subForm(c);
   $('#cpay', page).onclick = () => platPayForm(c, plans);

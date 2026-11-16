@@ -336,6 +336,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أوامر الشراء	Purchase orders
 أوزبكي	Uzbek
 أوغندي	Ugandan
+أوقفها أولا ثم احذفها	suspend it first, then delete it
 أول	First
 أول إدخال لكمية موجودة عندك	the first entry of stock you already have
 أول دخول	First sign-in
@@ -379,6 +380,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أُرسل ردك	Your reply was sent
 أُرسل طلب التعديل للموارد البشرية	Change request sent to HR
 أُرسل طلب التوقيع للموظف	The signature request was sent to the employee
+أُرسل للمالك التنبيه الأول قبل	The owner got the first notice
+أُرسل للمالك التنبيه الأول قبل ٣٠ يوما.	The owner got the first notice, 30 days before.
+أُرسل للمالك التنبيهان	The owner got both notices
+أُرسل للمالك التنبيهان: قبل ٣٠ يوما وقبل ٧ أيام.	The owner got both notices: 30 days and 7 days before.
 أُرسلت التسوية	Settlement sent
 أُرفق المستند	Document attached
 أُرفق مستند	Document attached
@@ -964,6 +969,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 افتح	Open
 افتح الصفحة	Open the page
 افتح الفرصة لإغلاقها أو إعادة فتحها	Open the opportunity to close or reopen it
+افتح المنشأة واحذفها أو مدّد المهلة	open the company and delete it or extend the period
 افتح الواتساب أو البريد برسالة جاهزة	Open WhatsApp or e-mail with a ready message
 افتح تطبيق المصادقة في جوالك	Open the authenticator app on your phone
 افتح دليل الاستخدام	Open the user guide
@@ -995,6 +1001,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اكتب اسم العهدة	Enter the item name
 اكتب اسم المستند	Write the document name
 اكتب اسم المستند الآخر	Enter the name of the other document
+اكتب اسم المنشأة كما هو للتأكيد	Type the company name exactly to confirm
 اكتب اسم الوحدة وكم تساوي من الوحدة الأساسية	Type the unit name and how many base units it equals
 اكتب اسما جديدا	type a new name
 اكتب الرد	Write the reply
@@ -1440,6 +1447,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الحد الأقصى	The maximum is
 الحد الأقصى لهذه الإجازة	The maximum for this leave is
 الحدود الشهرية من لائحة المنشأة الداخلية	Monthly limits come from the company's internal regulation
+الحذف نهائي	Deletion is permanent
+الحذف نهائي: تُحذف كل بيانات المنشأة وحسابات دخول موظفيها، ويبقى في وعد سجل مختصر بالحذف ودفعات الاشتراك فقط. النسخ الاحتياطية المشفّرة تُمسح تلقائيا خلال ٣٠ يوما.	Deletion is permanent: all the company's data and its staff sign-in accounts are deleted; Waad keeps only a short record of the deletion and the subscription payments. Encrypted backups are erased automatically within 30 days.
 الحساب	Account
 الحساب البنكي	bank account
 الحساب الرئيسي	Parent account
@@ -2116,7 +2125,12 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المنشآت الجديدة تنتظر قبولي قبل ما تبدأ	New companies wait for my approval before they start
 المنشآت والاشتراكات	Companies and subscriptions
 المنشأة	Company
+المنشأة شغّالة	The company is live
+المنشأة شغّالة. أوقفها أولا ثم احذفها	The company is live. Suspend it first, then delete it
 المنشأة غير موجودة	Company not found
+المنشأة ليست منتهية	The company has not ended
+المنشأة موقوفة أو لم تُقبل بعد	The company is suspended or not yet accepted
+المنشأة موقوفة أو لم تُقبل بعد، فيمكن حذفها عند طلب المالك.	The company is suspended or not yet accepted, so it can be deleted when the owner asks.
 المنطقة	region
 المنفّذ	Delivered
 المهام	Tasks
@@ -2175,6 +2189,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 النسبة المستحقة	Entitled share
 النسبة بعد التغيير	Ratio after the change
 النسبة حتى	Percentage up to
+النسخ الاحتياطية المشفّرة تُمسح تلقائيا خلال	encrypted backups are erased automatically within
 النشاط	Activity
 النص	Text
 النص الأصلي	Original text
@@ -2274,6 +2289,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 انتهت خدمته	service ended
 انتهت صلاحية الرابط أو استُخدم من قبل	The link has expired or was already used
 انتهت صلاحية العرض	The quotation has expired
+انتهت في	Ended on
 انتهت مهلة التظلم	The grievance period has ended
 انتهت ولم تُجدَّد	Ended, not renewed
 انتهى	Ended
@@ -2330,6 +2346,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بانتظار القبول	Awaiting approval
 بانتظار توقيعك	Awaiting your signature
 بانتظار صرف البدل من المالية	Waiting for finance to pay the allowance
+بانتظار قرار الحذف	Awaiting deletion decision
 بانتظار منذ	Waiting for
 بانتظارك منذ	Waiting for you
 بانتظاره	waiting
@@ -2483,6 +2500,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تأشيرات تنتهي أو تأخر صاحبها	Visas expiring or holder late
 تأشيرة الخروج والعودة لغير السعوديين	Exit/re-entry visas are for non-Saudis
 تأشيرة خروج وعودة	Exit/re-entry visa
+تأكد أن المالك نزّل نسخة من بياناته قبل الحذف	Make sure the owner downloaded a copy of their data before deleting
 تأكد أن هذا سجلك أنت	Make sure this is your own record
 تأكد من إبلاغ العامل كتابة	Make sure the worker is notified in writing
 تأكد من إبلاغ العامل كتابةً	Make sure the worker is notified in writing
@@ -2933,6 +2951,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تمت الآن	Done now
 تمت الترسية	Awarded
 تمت معالجة هذه التسوية	This settlement has been processed
+تمديد المهلة	Extend the period
+تمديد المهلة ٣٠ يوما	Extend by 30 days
 تمزيق أو إتلاف إعلانات أو بلاغات إدارة المنشأة	Tearing or damaging management notices or announcements
 تمسحها بضغطة من الإعدادات لما تبدأ فعليا	Remove it with one click in settings when you start for real
 تمسحها بضغطة من الإعدادات لما تبدأ فعلياً	Remove it with one click in settings when you start for real
@@ -2987,6 +3007,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تُحذف السيارة ومرفقاتها.	The vehicle and its attachments are deleted.
 تُحذف المهمة	The task is deleted
 تُحذف المهمة، وتبقى الساعات المسجلة عليها في المشروع بلا مهمة.	The task is deleted; its logged hours stay in the project without a task.
+تُحذف كل بيانات المنشأة وحسابات دخول موظفيها	all the company's data and its staff sign-in accounts are deleted
 تُحذف هذه التسوية المفتوحة وتعود حركاتها غير مطابقة	This open reconciliation is removed and its lines become uncleared again
 تُحسب المدة من تاريخ الإشعار	the period counts from the notice date
 تُحسب من التفاصيل	they are computed from the details
@@ -3115,6 +3136,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حاضرون اليوم	Present today
 حالة الدراسة	Study status
 حالة غير معروفة	Unknown status
+حان موعد قرار الحذف منذ	Deletion decision due since
 حاول بعد ربع ساعة	try again in 15 minutes
 حاولت التصدير كثيرا	Too many exports
 حاولت التصدير كثيرا — انتظر ساعة ثم أعد المحاولة	Too many exports — wait an hour and try again
@@ -3186,13 +3208,17 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حذف الفاتورة المتكررة	Delete recurring invoice
 حذف المرفق	Delete attachment
 حذف المستند	Delete document
+حذف المنشأة نهائيا	Delete the company permanently
+حذف المنشأة نهائيا…	Delete the company permanently…
 حذف المهمة	Delete task
 حذف الموقع	Delete site
 حذف النموذج	Delete form
 حذف الهدف	Delete goal
 حذف الوردية	Delete shift
+حذف بيانات المنشأة	Deleting the company's data
 حذف سجل الموظف	Delete the employee record
 حذف من الفريق	Remove from the team
+حذف نهائي	Delete permanently
 حرفا أو رقما	letters or digits
 حرفا إنجليزيا أو رقما	English letters or digits
 حرفاً أو رقماً	letters or digits
@@ -3213,6 +3239,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حساب فرعي	Sub-account
 حساب فرعي جديد	New sub-account
 حسابات	Accounts
+حسابات الدخول	Sign-in accounts
 حسابات المصروفات	Expense accounts
 حسابك غير مربوط بسجل موظف	Your account is not linked to an employee record
 حسابي	My account
@@ -3278,6 +3305,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حُدّثت بيانات	Updated data of
 حُذف	Deleted
 حُذف السجل	Record deleted
+حُذفت	Deleted
+حُذفت المنشأة نهائيا	The company was deleted permanently
 حُذفت المهمة	Task deleted
 حُفظ التقييم	rating saved
 حُفظ الرد الجاهز على هذا الجهاز	Ready reply saved on this device
@@ -3379,6 +3408,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 دورة تدريبية جديدة	New training course
 دورة تقييم جديدة	New review cycle
 دورة جديدة	New course
+دون أي بيانات من داخل المنشأة	with no data from inside the company
 دون مكافأة	without award
 دُفع من	Paid from
 ذكر	Male
@@ -3649,6 +3679,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 سجل التواصل	Contact log
 سجل الرواتب	Salary history
 سجل الغرامات	Fines register
+سجل المنشآت المحذوفة	Deleted companies log
 سجل الموظف	Employee record
 سجل الموظف مربوط بحساب آخر	The employee record is linked to another account
 سجل زاتكا لا يتغيّر	The ZATCA record cannot be changed
@@ -3948,6 +3979,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 طلب التوقيع غير موجود	Signature request not found
 طلب الشراء غير معتمد	The purchase request is not approved
 طلب الشراء متاح لمدراء الأقسام ومن تحددهم المنشأة	Purchase requests are for department managers and employees the company selects
+طلب المالك	Owner's request
 طلب تعديل بيانات	Data change request
 طلب تعديل بياناتي	Request a change to my data
 طلب توقيع	Request signature
@@ -3957,6 +3989,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 طلب شراء	Purchase request
 طلب عرض سعر	Request for quotation
 طلب عروض جديد	New request for quotations
+طلب لم يُقبل	Request not accepted
 طلب معتمد	approved request
 طلب نسيان البصمة خلال	A forgotten-fingerprint request is within
 طلبات أو رواتب أو مستندات	requests, payroll or documents
@@ -4267,6 +4300,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فيتنامي	Vietnamese
 فيديو	video
 فيسبوك	Facebook
+فيمكن حذفها عند طلب المالك	so it can be deleted when the owner asks
 فيه بيانات كل الموظفين على رأس العمل كما هي الآن	it holds the current data of every active employee
 فيه سطر لكل موظف بنوع مستنده الأساسي	one row per employee with the main document type
 فيه سطر لكل موظف على رأس العمل	one row per active employee
@@ -4552,6 +4586,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يمكن اختيار أحد أفراد فريقه مديرا له حتى لا يصير التسلسل دائريا	Someone from their own team cannot be chosen as their manager, so the reporting line does not loop
 لا يمكن اختيار أحد أفراد فريقه مديراً له حتى لا يصير التسلسل دائرياً	Someone from their own team cannot be chosen as their manager, so the reporting line does not loop
 لا يمكن الإلغاء	cannot be voided
+لا يمكن التراجع عن هذا الحذف	This deletion cannot be undone
+لا يمكن التراجع عن هذا الحذف. تأكد أن المالك نزّل نسخة من بياناته قبل الحذف.	This deletion cannot be undone. Make sure the owner downloaded a copy of their data before deleting.
 لا يمكن الحذف لارتباطه بسجلات أخرى	Cannot delete because it is linked to other records
 لا يمكن تحديث الحقل	This field cannot be updated
 لا يمكن تسجيل حضور ليوم لم يأتِ بعد	Attendance cannot be recorded for a future day
@@ -4611,6 +4647,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يُحدد للاستقالة تاريخ مؤجل	a resignation carries no deferred date
 لا يُحذف إذا كانت عليه أي حركات	It is not deleted if anything is recorded for him
 لا يُحذف حتى يبقى في السجل	it is not deleted so it stays on record
+لا يُحذف شيء إلا بقرارك	nothing is deleted without your decision
 لا يُحوَّل إلا عرض مفتوح أو مقبول	Only an open or accepted quotation can be converted
 لا يُشدَّد الجزاء عند تكرار المخالفة إذا مضى	A repeat is not punished more heavily if
 لا يُشغّل الإهلاك لشهر مستقبلي	Depreciation cannot run for a future month
@@ -4678,6 +4715,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 للاحتساب كاملاً	To count in full
 للاستفسار تواصل مع الموارد البشرية في منشأتك	For questions, contact your company's HR
 للاطلاع والاعتماد	To review and approve
+للتأكيد اكتب اسم المنشأة كما هو	To confirm, type the company name exactly
+للتأكيد اكتب اسم المنشأة كما هو:	To confirm, type the company name exactly:
 للتحويل من سجل الحضور	To convert from attendance
 للحالة	for status
 للربط الفعلي اختر	for the real link choose
@@ -4708,6 +4747,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لم ترسل أي طلبات دعم بعد	You haven't sent any support requests yet
 لم ترسل أي طلبات دعم بعد.	You haven't sent any support requests yet.
 لم تغيّر أي بيانات	You did not change anything
+لم تُحذف أي منشأة	No company has been deleted
 لم تُدخل عروض بعد	No offers yet
 لم تُسلَّم كل العهد	Not all custody items were returned
 لم تُضف مستندات المنشأة بعد	No company documents yet
@@ -4922,6 +4962,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مدة السداد بين	Payment terms must be between
 مدة السداد وحد الائتمان أرقام فقط	Payment terms and credit limit must be numbers
 مدة رمضان من	Ramadan lasts from
+مدة غير صحيحة	Invalid period
 مدته سنة	runs one year
 مدخلات	Input
 مدد	Mudad
@@ -4969,6 +5010,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مركز المساعدة	Help center
 مركز تكلفة جديد	New cost center
 مركز جديد	New center
+مرّ	It has been
+مرّ ٦٠ يوما على انتهائها دون تجديد، ونبّهنا المالك قبلها بالإيميل. لا يُحذف شيء إلا بقرارك: افتح المنشأة واحذفها أو مدّد المهلة.	60 days have passed since it ended without renewal, and we e-mailed the owner before that. Nothing is deleted without your decision: open the company and delete it or extend the period.
 مسؤول المشتريات	Purchasing officer
 مسؤول مبيعات	sales officer
 مسؤول مشتريات	Purchasing officer
@@ -5248,6 +5291,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 موظفين	employees
 موظفين وعملاء وفواتير ومشاريع	employees, customers, invoices and projects
 موعد المقابلة	Interview time
+موعد قرار الحذف	Deletion decision date
+موعد قرار الحذف الجديد	New deletion decision date
 موقع	site
 موقع العمل	Work site
 موقع العمل غير موجود	Work site not found
@@ -5648,12 +5693,14 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ومقارنتها بالفعلي	compared with actuals
 ومنذ متى	and since when
 وموقع العمل باسمه	and the work site by its name
+ونبّهنا المالك قبلها بالإيميل	and we e-mailed the owner before that
 ونرد عليك قريبا	and we'll reply soon
 ونرد عليك قريباً	and we'll reply soon
 ونرد عليك هنا وعلى إيميلك	and we'll reply here and by e-mail
 ونسبة الضريبة	and the VAT rate
 ووين	and where
 ويبقى المبلغ في	and the amount stays in
+ويبقى في وعد سجل مختصر بالحذف ودفعات الاشتراك فقط	Waad keeps only a short record of the deletion and the subscription payments
 ويتابعها النظام وينبه قبل انتهائها	and the system tracks it and alerts before expiry
 ويتحدّث تلقائيا	and it updates by itself
 ويتحدّث تلقائياً	and it updates by itself
@@ -5718,6 +5765,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يتجدد تلقائيا للمدة المتفق عليها	Renews automatically for the agreed term
 يتجدد تلقائياً للمدة المتفق عليها	Renews automatically for the agreed term
 يتفعّل لما يضيفه أدمن من	it is activated once an admin adds it from
+يثبت أن البيانات حُذفت ومتى	Shows that the data was deleted and when
+يثبت أن البيانات حُذفت ومتى، دون أي بيانات من داخل المنشأة.	Shows that the data was deleted and when, with no data from inside the company.
 يجب أن تكون معرّفة	they must already exist
 يجب أن يساوي الرصيد المطابق رصيد الكشف	the cleared balance must equal the statement balance
 يجب أن يكون أكبر من صفر	must be greater than zero
@@ -5870,6 +5919,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يوما على إبلاغ العامل بالجزاء السابق	days have passed since the worker was notified of the previous penalty
 يوما على الأقل	days in advance
 يوما على انتهاء التحقيق	days from the end of the investigation
+يوما على انتهائها دون تجديد	days since it ended without renewal
 يوما في الجرس والصفحة الرئيسية	days in the bell and on the home page
 يوما في السنة	days a year
 يوما كامل	days full pay
@@ -5886,6 +5936,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يوما من تاريخ هذا الإشعار	days from the date of this notice
 يوما من تقديمه	days of its filing
 يوما من تقديمها	days of its submission
+يوما وقبل	days and
 يومان	2 days
 يوماً	days
 يوماً أو أكثر	days or more

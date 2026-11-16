@@ -1351,6 +1351,21 @@ with sync_playwright() as pw:
     go(o, '#/settings'); o.wait_for_timeout(600); ok('الموارد والمالية' in o.inner_text('#page'), 'owner sees the package in settings')
     pp.wait_for_selector('#csub'); pp.click('#csub'); pp.wait_for_selector('#dlg input[name=m_sales]'); pp.check('#dlg input[name=m_sales]'); modal_ok(pp); pp.wait_for_timeout(500)
     o.reload(); o.wait_for_selector('#nav'); ok(o.locator('#nav a[href="#/sales"]').count() == 1, 'reopened module is back with its data')
+    # a company that ended 61 days ago waits for the admin's decision; deleting needs its exact name
+    sqlx("insert into companies(name) values ('منشأة غادرت')")
+    sqlx("update company_subscriptions set status = 'active', sub_ends = current_date - 61 where company_id = (select id from companies where name = 'منشأة غادرت')")
+    go(pp, '#/home'); pp.wait_for_selector('#ppage .g2p')
+    ok('بانتظار قرار الحذف' in pp.inner_text('#ppage') and 'منشأة غادرت' in pp.inner_text('#ppage'), 'admin site: 60 days after the end the company shows under «awaiting deletion decision»')
+    pp.locator('#ppage .card', has_text='بانتظار قرار الحذف').locator('tbody tr', has_text='منشأة غادرت').click(); pp.wait_for_selector('#ppurge')
+    pp.click('#ppurge'); pp.wait_for_selector('#dlg[open] input[name=confirm]'); pp.fill('#dlg input[name=confirm]', 'اسم خطأ'); pp.click('#mok'); pp.wait_for_timeout(400)
+    ok(pp.locator('#dlg[open]').count() == 1 and int(sql("select count(*) from companies where name = 'منشأة غادرت'")) == 1, 'admin site: a wrong name does not delete anything')
+    pp.fill('#dlg input[name=confirm]', 'منشأة غادرت'); pp.click('#mok'); pp.wait_for_timeout(1200)
+    ok(int(sql("select count(*) from companies where name = 'منشأة غادرت'")) == 0 and int(sql("select count(*) from company_deletions where company_name = 'منشأة غادرت'")) == 1,
+       'admin site: typing the exact name deletes the company and logs it')
+    go(pp, '#/companies'); pp.wait_for_selector('#pdlog'); pp.click('#pdlog'); pp.wait_for_selector('#dlg[open] table')
+    ok('منشأة غادرت' in pp.inner_text('#dlg'), 'admin site: the deleted company appears in the deletion log'); pp.click('#mx')
+    pp.locator('#ppage tbody tr', has_text='شركة وعد التجريبية').click(); pp.wait_for_selector('#csub')
+    ok(pp.locator('#ppurge').count() == 0, 'admin site: a live company has no delete button')
     # system numbers
     go(pp, '#/system'); pp.wait_for_selector('#ppage .pbars')
     ok('نسبة التحويل إلى اشتراك' in pp.inner_text('#ppage') and 'محمد العتيبي' not in pp.inner_text('#app'), 'admin site: system numbers from subscription data only')

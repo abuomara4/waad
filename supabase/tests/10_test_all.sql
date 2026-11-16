@@ -3034,5 +3034,53 @@ select t.ok((select count(*) from public.record_notes where ref_id = :'rinv') = 
 select t.err($$insert into public.record_notes(company_id, entity, ref_id, body) values ('$$ || :'cid' || $$', 'sales', '$$ || :'rinv' || $$', 'x')$$, 'row-level', 'notes: nor can he add one');
 reset role;
 
+-- ================= DELETING A COMPANY THAT LEFT (0101) =================
+-- refused: not a platform admin, wrong name, or a live company
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.err($$select public.platform_company_purge('$$ || :'cid' || $$', 'x')$$, 'غير مصرح|42501|permission', 'purge: a company owner cannot delete through the admin function');
+reset role;
+select name as co_name from public.companies where id = :'cid' \gset
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select t.err($$select public.platform_company_purge('$$ || :'cid' || $$', 'اسم آخر')$$, 'اكتب اسم المنشأة', 'purge: the admin must type the company name exactly');
+select t.err($$select public.platform_company_purge('$$ || :'cid' || $$', '$$ || :'co_name' || $$')$$, 'شغّالة', 'purge: a live company cannot be deleted (suspend it first)');
+reset role;
+select t.ok(exists(select 1 from public.companies where id = :'cid'), 'purge: nothing was deleted by the refused attempts');
+-- the 60-day cycle (all inside a transaction that is rolled back; results kept in variables)
+begin;
+update public.company_subscriptions set status = 'active', sub_ends = public.riyadh_today() - 40, purge_hold_until = null, purge_warn1 = null, purge_warn2 = null where company_id = :'cid';
+select coalesce((select stage from public.purge_notices_due() where company_id = :'cid'), 0) as pn1, coalesce((select purge_on::text from public.purge_notices_due() where company_id = :'cid'), '') as pon1 \gset
+select public.purge_notice_sent(:'cid', 1, :'pon1'::date);
+select coalesce((select stage from public.purge_notices_due() where company_id = :'cid'), 0) as pn1b \gset
+update public.company_subscriptions set sub_ends = public.riyadh_today() - 55 where company_id = :'cid';
+select coalesce((select stage from public.purge_notices_due() where company_id = :'cid'), 0) as pn2 \gset
+update public.company_subscriptions set sub_ends = public.riyadh_today() - 61 where company_id = :'cid';
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false);
+select coalesce((select due from public.platform_purge_queue() where company_id = :'cid'), false) as qdue,
+       coalesce((select purge_on = ended_on + 60 from public.platform_purge_queue() where company_id = :'cid'), false) as q60 \gset
+select public.platform_purge_extend(:'cid', 30) = public.riyadh_today() + 30 as ext30 \gset
+select coalesce((select not due from public.platform_purge_queue() where company_id = :'cid'), false) as qext \gset
+insert into public.platform_payments(company_id, amount, paid_on, method) values (:'cid', 249, public.riyadh_today() - 90, 'transfer') returning id as ppay \gset
+select (select count(*) from public.journal_entries where company_id = :'cid') > 0 and (select count(*) from public.employees where company_id = :'cid') > 0 as had_data \gset
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_company_purge(:'cid', '  ' || :'co_name' || ' ', 'طلب العميل');
+reset role;
+select not exists(select 1 from public.companies where id = :'cid') as gone_co,
+       (select count(*) from public.journal_entries where company_id = :'cid') + (select count(*) from public.employees where company_id = :'cid')
+         + (select count(*) from public.members where company_id = :'cid') + (select count(*) from public.audit_log where company_id = :'cid') = 0 as gone_rows,
+       not exists(select 1 from auth.users where id = :'u_owner') and not exists(select 1 from auth.users where id = :'u_emp') as gone_users,
+       exists(select 1 from auth.users where id = :'u_other') and exists(select 1 from auth.users where id = '00000000-0000-0000-0000-0000000000a1') as kept_users,
+       (select company_id is null and company_name = :'co_name' from public.platform_payments where id = :'ppay') as kept_pay,
+       (select count(*) from public.company_deletions where company_name = :'co_name' and reason = 'طلب العميل' and users_removed > 0) = 1 as logged \gset
+rollback;
+select t.ok(:'pn1' = '1' and :'pn1b' = '0', 'purge cycle: 30 days before the decision date the owner gets the first notice, once');
+select t.ok(:'pn2' = '2', 'purge cycle: 7 days before, the last notice');
+select t.ok(:'qdue' and :'q60', 'purge cycle: 60 days after the end the company waits for the admin''s decision');
+select t.ok(:'ext30' and :'qext', 'purge cycle: the admin can give more time');
+select t.ok(:'had_data' and :'gone_co' and :'gone_rows', 'purge: every row of the company is deleted, including posted entries and the audit log');
+select t.ok(:'gone_users' and :'kept_users', 'purge: its sign-in accounts are removed; other companies'' and the Waad team''s are not');
+select t.ok(:'kept_pay' and :'logged', 'purge: Waad''s payment record stays (with the name) and the deletion is logged');
+select t.ok(exists(select 1 from public.companies where id = :'cid'), 'purge test rolled back');
+select t.err($$delete from public.journal_entries where id = (select id from public.journal_entries limit 1)$$, 'append-only', 'outside a purge, posted entries still cannot be deleted');
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary
