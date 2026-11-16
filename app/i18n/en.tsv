@@ -687,6 +687,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إيقاف المنشأة	Suspend company
 إيقاف بدل	Allowance stopped
 إيميل	E-mail
+إيميل المالك	Owner e-mail
 ا	ا
 ا ب ج	A B C
 ابتدائي	Primary
@@ -721,6 +722,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اتركها فارغة لإلغائها	Leave empty to turn it off
 اتركها فارغة لعدم التحديد	leave empty for no limit
 اتصال	Call
+اتصال من المالك اليوم يطلب نسخة كاملة	a call from the owner today asking for a full copy
 اتصلت بالمالك	I called the owner
 اتفاق الطرفين	Mutual agreement
 اجتماع	Meeting
@@ -1046,6 +1048,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اكتب عنوان المستند	Write the document title
 اكتب عنوان الهدف	Write the title of goal
 اكتب قرار التظلم	Write the grievance decision
+اكتب كيف طلب المالك التصدير ومتى	Write how and when the owner asked for the export
 اكتب لنا سؤالك أو المشكلة التي واجهتك	Write us your question or the problem you ran into
 اكتب لنا سؤالك أو المشكلة اللي واجهتك	Write us your question or the problem you ran into
 اكتب ما حدث للعهدة	Describe what happened to the item
@@ -1704,6 +1707,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الصنف موقوف	The item is inactive
 الصورة كبيرة جدا	The image is too large
 الصورة كبيرة جداً	The image is too large
+الصيغة	Format
 الضريبة	VAT
 الضريبة تُسترد فقط إذا كانت الفاتورة ضريبية وفيها الرقم الضريبي للمورد	VAT is reclaimable only on a tax invoice showing the supplier VAT number
 الطائف	Taif
@@ -2326,6 +2330,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بالإضافة إلى حسم أجر مدة التأخر	plus deducting the wage for the lateness
 بالإضافة إلى حسم أجر مدة الغياب	plus deducting the wage for the absence
 بالإضافة إلى حسم أجر مدة ترك العمل	plus deducting the wage for the time away
+بالانتظار	Pending
 بالبريد	By email
 بالحقول المطلوبة لرفع الرواتب في	with the fields required to upload salaries to
 بالرقم الوظيفي	By employee number
@@ -2477,6 +2482,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بنود	items
 بنود الحسابات لا تُستلم	Account lines are not received
 بوابة العميل	Customer portal
+بواسطة	By
 بيئة المحاكاة	Simulation environment
 بيئة المحاكاة (تجريبي)	Simulation (test)
 بيئة المطوّرين	Developer sandbox
@@ -2776,7 +2782,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تصدير الأقسام	Export departments
 تصدير البيانات لمالك المنشأة فقط	Only the company owner can export the data
 تصدير الموظفين	Export employees
+تصدير بيانات المنشآت لمالك منصة وعد فقط	Exporting company data is for the Waad platform owner only
 تصدير بيانات المنشأة	Export company data
+تصدير بيانات المنشأة بطلب المالك	Export the company data at the owner's request
+تصدير بيانات المنشأة…	Export the company data…
 تصدير خدمات	Export of services
 تصدير سلع	Export of goods
 تصريح الحج	Hajj permit
@@ -2930,6 +2939,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تم البت في طلب الاستقالة	The resignation has already been decided
 تم البيع	Sale completed
 تم التصدير	Exported
+تم التصدير، وسيصل المالك إيميل بذلك	Exported; the owner will get an e-mail about it
 تم التطبيق على	Applied to
 تم التعيين	Hired
 تم التواصل	Contacted
@@ -3680,6 +3690,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ستكون مالك المنشأة	You will be the company owner
 ستُعاد المحاولة	it will be retried
 سجل الاشتراك	Subscription history
+سجل التصدير	Export log
+سجل التصدير لا يتغيّر	The export log cannot be changed
+سجل التصدير لا يُحذف	The export log cannot be deleted
 سجل التواصل	Contact log
 سجل الرواتب	Salary history
 سجل الغرامات	Fines register
@@ -3909,6 +3922,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 صدرت	Issued
 صدرت الفاتورة	Invoice issued
 صديق أو معارف	A friend or contact
+صدّر فقط إذا طلب مالك المنشأة نفسه	Export only if the company owner himself asked
+صدّر فقط إذا طلب مالك المنشأة نفسه، وسلّم الملف له وحده.	Export only if the company owner himself asked, and hand the file to him alone.
 صرف	Payment
 صرف العهدة	Hand over the fund
 صرف رواتب	Salary payment
@@ -4391,6 +4406,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كل الموظفين	All employees
 كل الموظفين في الدورة بالفعل	Everyone is already in the cycle
 كل الموظفين مسجّلون في الدورة	All employees are enrolled in the course
+كل تصدير لبيانات منشأة من لوحة الإدارة	Every export of a company's data from the admin site
+كل تصدير لبيانات منشأة من لوحة الإدارة، ولا يمكن حذفه أو تعديله.	Every export of a company's data from the admin site; it cannot be deleted or changed.
 كل تغيير يُحفظ في سجل التدقيق	Every change is kept in the audit log
 كل جهة في سطر	one per line
 كل حالات الدخول	Any sign-in status
@@ -4431,6 +4448,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كندي	Canadian
 كوري	Korean
 كويتي	Kuwaiti
+كيف طلب المالك ومتى	How and when the owner asked
 كيني	Kenyan
 لإدارة منشأتك ادخل النظام	To manage your company, open the system
 لإضافة منشأة أخرى أنشئ حسابا جديدا ببريد آخر	to add another company, create a new account with a different email
@@ -4609,6 +4627,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يوجد	None
 لا يوجد آيبان	No IBAN
 لا يوجد أعضاء	No members
+لا يوجد أي تصدير	No exports
 لا يوجد أي تغيير	No changes
 لا يوجد إهلاك	No depreciation
 لا يوجد استلام بضاعة	No goods receipts
@@ -4711,6 +4730,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لك حق الرد كتابياً قبل التحقيق	You may reply in writing before the investigation
 لكل الأصول القائمة	for all active assets
 لكل حساب منشأة واحدة	Each account has one company
+لكل قسم مع المرفقات	per section with attachments
 لكل مستودع رصيده	Each warehouse keeps its own balance
 لكل موظف	of each employee
 لكل موظف بلا وردية محددة	for every employee without a set shift
@@ -4905,6 +4925,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مثل: جهاز عرض	e.g. Projector
 مثل: مصروفات الفرع، مشتريات صغيرة	e.g. branch expenses, small purchases
 مثلا	e.g.
+مثلا: اتصال من المالك اليوم يطلب نسخة كاملة	e.g. a call from the owner today asking for a full copy
 مثلاً	e.g.
 مجالات التطوير	Areas for development
 مجانا وبدون متجر	free, no store
@@ -5186,10 +5207,14 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ملغى	Cancelled
 ملف	File
 ملف Excel (بدون المرفقات)	Excel file (without attachments)
+ملف JSON كامل	Full JSON file
 ملف JSON كامل (مع المرفقات)	Full JSON file (with attachments)
 ملف إضافي	Additional file
 ملف الموظف	Employee file
 ملف حماية الأجور	WPS file
+ملفات	files
+ملفات Excel	Excel files
+ملفات Excel لكل قسم مع المرفقات (ZIP)	Excel files per section with attachments (ZIP)
 ملفي	My profile
 ملم	mm
 من	from
@@ -5355,6 +5380,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نسخ الرمز	Copy code
 نسخ الرمز والرابط	Copy code and link
 نسخ رسالة جاهزة	Copy ready message
+نسخة كاملة من بيانات المنشأة لتسلّمها لمالكها عند طلبه	A full copy of the company's data to hand to its owner when he asks
+نسخة كاملة من بيانات المنشأة لتسلّمها لمالكها عند طلبه. يُسجَّل كل تصدير مع سببه، ويصل المالك إيميل فوري بأن بياناته صُدّرت.	A full copy of the company's data to hand to its owner when he asks. Every export is logged with its reason, and the owner gets an instant e-mail that his data was exported.
 نسخة كاملة من كل بيانات منشأتك لحفظها لديك أو نقلها	A complete copy of all your company's data to keep or move elsewhere
 نسخة كاملة من كل بيانات منشأتك لحفظها لديك أو نقلها. للمالك فقط، ويُسجَّل كل تصدير في سجل التدقيق.	A complete copy of all your company's data to keep or move elsewhere. Owner only; every export is recorded in the audit log.
 نسي تسجيل الانصراف	forgot to check out
@@ -5625,9 +5652,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وزن الهدف	Weight of goal
 وسائل التواصل	Social media
 وسجّل بالبريد	and sign up with the email
+وسلّم الملف له وحده	and hand the file to him alone
 وسماع دفاعك	and hearing your defence
 وسيارات المنشأة	and the company's vehicles
 وسيتذكره النظام	and the system will remember it
+وسيصل المالك إيميل بذلك	the owner will get an e-mail about it
 وسيُطلب منك تغييرها	and you will be asked to change it
 وصف الواقعة	Description of the incident
 وصلت المنشأة إلى الحد الأعلى للمستخدمين في باقتها	The company has reached its plan's user limit
@@ -5682,6 +5711,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ولا يتجاوز أجر	and may not exceed
 ولا يتكرر لأي منشأة أخرى	and no other company has it
 ولا يجوز أن تتضمن ما يسيء إلى سمعة العامل	and must not contain anything harmful to the worker's reputation
+ولا يمكن حذفه أو تعديله	and it cannot be deleted or changed
 ولا يوقَّع جزاء إلا بعد إبلاغ الموظف كتابة والتحقيق معه	and no penalty may be imposed before notifying the employee in writing and investigating
 ولا يُتصرف فيها إلا فيما يعود بالنفع على عمال المنشأة	and may only be spent for the benefit of the company's workers
 ولا يُحسب ربحا أو خسارة	and is not counted as profit or loss
@@ -5713,6 +5743,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ويجوز شهر إضافي بدون أجر	plus an optional unpaid month
 ويحق لك العدول عنها خلال	You may withdraw it within
 ويسقط الأجر إذا ثبت عدم أداء الامتحان	and pay is lost if the exam was not sat
+ويصل المالك إيميل فوري بأن بياناته صُدّرت	and the owner gets an instant e-mail that his data was exported
 ويظهر ذلك في حساب نهاية الخدمة	and this shows in the end-of-service calculation
 ويعتمده المالك	approved by the owner
 ويعيّن الموارد البشرية	and appoints HR
@@ -6004,6 +6035,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يُسجَّل في الأرصدة الافتتاحية	it is recorded in opening balances
 يُسجَّل في السجل	Recorded in the log
 يُسجَّل قيد	A journal entry is posted
+يُسجَّل كل تصدير مع سببه	Every export is logged with its reason
 يُسجَّل من أمر الشراء عند وصول البضاعة	Recorded from the purchase order when goods arrive
 يُسدَّد العميل الآن	The customer is settled now
 يُسدَّد المورد الآن	The supplier is settled now

@@ -1084,7 +1084,11 @@ with sync_playwright() as pw:
     go(o, '#/settings'); o.wait_for_selector('#cf input[name=name_en]'); o.fill('#cf input[name=name_en]', 'Waad Trial Co.'); o.click('#cb'); o.wait_for_timeout(800)
     ok(sql("select name_en from companies where name='شركة وعد التجريبية'") == 'Waad Trial Co.', 'company English name saved from settings')
     with o.expect_download() as dl: o.click('#exx')
-    xb = open(dl.value.path(), 'rb').read(); ok(xb[:2] == b'PK' and b'employees' in xb and dl.value.suggested_filename.endswith('.xlsx'), 'owner exports the company data to Excel')
+    import zipfile as _zf, io as _io
+    zz = _zf.ZipFile(dl.value.path()); zn = zz.namelist(); emp_x = [n for n in zn if n.startswith('01 ') and n.endswith('.xlsx')]
+    ok(dl.value.suggested_filename.endswith('.zip') and emp_x and 'الموظفون' in _zf.ZipFile(_io.BytesIO(zz.read(emp_x[0]))).read('xl/workbook.xml').decode()
+       and any(n.endswith('.xlsx') and 'المبيعات' in n for n in zn) and 'اقرأني.txt' in zn, 'owner exports the company data as a ZIP: one Excel file per section (employees, sales…)')
+    ok(not int(sql("select count(*) from request_attachments")) or any(n.startswith('المرفقات/') for n in zn), 'the ZIP holds the attachments as real files')
     with o.expect_download() as dl: o.click('#exj')
     import json as _j; xj = _j.loads(open(dl.value.path(), encoding='utf-8').read())
     ok(xj['with_files'] and len(xj['tables']['employees']) == int(sql("select count(*) from employees e join companies c on c.id=e.company_id where c.name='شركة وعد التجريبية'")), 'owner exports the full company data as JSON')
@@ -1337,7 +1341,7 @@ with sync_playwright() as pw:
     o.evaluate("window.print=window.__print;window.dispatchEvent(new Event('afterprint'))")
     # ---------- packages and the admin site (a separate page: waad-admin.html, published as site/admin/) ----------
     pp = new_page(b); signup(pp, 'platform@waad.test'); pp.wait_for_selector('#cf')
-    sqlx("insert into platform_admins(user_id) select id from auth.users where email='platform@waad.test'")
+    sqlx("insert into platform_admins(user_id, can_export) select id, true from auth.users where email='platform@waad.test'")
     pp.reload(); pp.wait_for_url(re.compile(r'waad-admin\.html'), timeout=8000); pp.wait_for_selector('#ptabs'); go(pp, '#/companies'); pp.wait_for_selector('.plat tbody tr')
     ok(True, 'the system sends a platform admin with no company to the admin site')
     ok(pp.evaluate("document.documentElement.dataset.theme") == 'light', 'the admin site is light by default')
@@ -1370,6 +1374,16 @@ with sync_playwright() as pw:
     ok('منشأة غادرت' in pp.inner_text('#dlg'), 'admin site: the deleted company appears in the deletion log'); pp.click('#mx')
     pp.locator('#ppage tbody tr', has_text='شركة وعد التجريبية').click(); pp.wait_for_selector('#csub')
     ok(pp.locator('#ppurge').count() == 0, 'admin site: a live company has no delete button')
+    # export at the owner's request: the reason is required, the file is a ZIP, the export is logged for the owner's e-mail
+    pp.click('#pexp'); pp.wait_for_selector('#dlg[open] textarea[name=reason]'); pp.click('#mok'); pp.wait_for_timeout(300)
+    ok(pp.locator('#dlg[open]').count() == 1, 'admin export: refused without the reason')
+    pp.fill('#dlg textarea[name=reason]', 'اتصال من المالك يطلب نسخة كاملة')
+    with pp.expect_download() as dl: pp.click('#mok')
+    zn2 = _zf.ZipFile(dl.value.path()).namelist()
+    ok(dl.value.suggested_filename.endswith('.zip') and any(n.endswith('.xlsx') for n in zn2), 'admin export: the company data downloads as a ZIP of Excel files')
+    ok(sql("select count(*) from company_exports_log where reason = 'اتصال من المالك يطلب نسخة كاملة' and notified_at is null") == '1', 'admin export: logged with the reason, the owner e-mail is queued')
+    go(pp, '#/companies'); pp.wait_for_selector('#pxlog'); pp.click('#pxlog'); pp.wait_for_selector('#dlg[open] table')
+    ok('اتصال من المالك يطلب نسخة كاملة' in pp.inner_text('#dlg'), 'admin site: the export log shows who exported, when and why'); pp.click('#mx')
     # system numbers
     go(pp, '#/system'); pp.wait_for_selector('#ppage .pbars')
     ok('نسبة التحويل إلى اشتراك' in pp.inner_text('#ppage') and 'محمد العتيبي' not in pp.inner_text('#app'), 'admin site: system numbers from subscription data only')

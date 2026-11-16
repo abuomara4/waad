@@ -129,7 +129,7 @@ PV.companies = async page => {
       ${pkpi('المستخدمون', rows.reduce((a, c) => a + (c.users || 0), 0))}</div>
     <div class="ptabs pfil" role="tablist">${Object.entries(BUCKET).map(([k, [t, f]]) => `<a href="#" data-f="${k}"${k === fk ? ' aria-current="page"' : ''}>${esc(tr(t))} <span class="num">${rows.filter(f).length}</span></a>`).join('')}</div>
     <div class="row" style="margin-bottom:10px;gap:8px;flex-wrap:wrap"><input id="pq" placeholder="${esc(tr('بحث بالاسم أو البريد أو الباقة'))}" value="${esc(q)}" style="max-width:320px">
-      <div class="sp"></div><button type="button" class="btn sm" id="pdlog">${esc(tr('سجل المنشآت المحذوفة'))}</button><button type="button" class="btn sm" data-copymail="${esc([...new Set(shown.map(c => c.owner_email).filter(Boolean))].join(', '))}">${esc(tr('نسخ إيميلات المنشآت الظاهرة'))}</button></div>
+      <div class="sp"></div><button type="button" class="btn sm" id="pxlog">${esc(tr('سجل التصدير'))}</button><button type="button" class="btn sm" id="pdlog">${esc(tr('سجل المنشآت المحذوفة'))}</button><button type="button" class="btn sm" data-copymail="${esc([...new Set(shown.map(c => c.owner_email).filter(Boolean))].join(', '))}">${esc(tr('نسخ إيميلات المنشآت الظاهرة'))}</button></div>
     ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'الباقة', h: c => esc(c.plan) },
       { t: 'المدينة', h: c => esc(c.city || '—') + (c.size_band ? `<div class="small muted">${esc(tr(SIZE_B[c.size_band] || c.size_band))}</div>` : '') },
       { t: 'يستخدم', h: c => { const u = c.usage || {}; return `<span class="num">${u.employees || 0}${c.max_employees ? ' / ' + c.max_employees : ''}</span> ${esc(tr('موظف'))}<div class="small muted">${(u.modules || []).map(m => esc(tr(MODULES[m] || m))).join('، ') || '—'}</div>`; } },
@@ -145,7 +145,7 @@ PV.companies = async page => {
       <div class="wide"><div id="pserr"></div><button class="btn pri" id="psb">${esc(tr('حفظ'))}</button></div></form></div>`;
   $('#pq', page).oninput = e => { LS.set('waad.platq', e.target.value); clearTimeout(platformView.t); platformView.t = setTimeout(platformView, 400); };
   bindRows(page, shown, c => { location.hash = '#/company/' + c.company_id; }); bindCopy(page); bindQuick(page, shown, st);
-  $('#pdlog', page).onclick = deletionsLog;
+  $('#pdlog', page).onclick = deletionsLog; $('#pxlog', page).onclick = exportsLog;
   $$('[data-f]', page).forEach(a => a.onclick = e => { e.preventDefault(); LS.set('waad.platf', a.dataset.f); platformView(); });
   $('#psf', page).onsubmit = async e => { e.preventDefault(); const f = e.target;
     try { await busy($('#psb', page), async () => { await db.rpc('platform_set_settings', { p_modules: pickMods(f), p_trial_days: +f.days.value || 7, p_require_approval: f.approval.checked }); toast(tr('تم الحفظ')); }); }
@@ -403,6 +403,24 @@ function bindPurge(page, c) {
       await db.rpc('platform_company_purge', { p_company: c.company_id, p_confirm: f.confirm, p_reason: f.reason });
       toast(tr('حُذفت المنشأة نهائيا')); location.hash = '#/companies'; } });
 }
+// export at the owner's request: reason required, logged, the owner is e-mailed (0102)
+function adminExport(c) {
+  modal(tr('تصدير بيانات المنشأة بطلب المالك'), `<p class="small" style="margin-top:0">${esc(tr('صدّر فقط إذا طلب مالك المنشأة نفسه، وسلّم الملف له وحده.'))} <b>${esc(c.name)}</b></p>
+    <div class="fg">${field('كيف طلب المالك ومتى', `<textarea name="reason" rows="2" maxlength="300" required placeholder="${esc(tr('مثلا: اتصال من المالك اليوم يطلب نسخة كاملة'))}"></textarea>`, 'wide')}
+    ${field('الصيغة', `<select name="fmt">${opt('zip', tr('ملفات Excel لكل قسم مع المرفقات (ZIP)'), 'zip')}${opt('json', tr('ملف JSON كامل'), 'zip')}</select>`, 'wide')}</div>`,
+    { ok: tr('تصدير'), onOk: async f => {
+      if ((f.reason || '').trim().length < 5) throw new Error('اكتب كيف طلب المالك التصدير ومتى');
+      const d = await db.rpc('platform_company_export', { p_company: c.company_id, p_reason: f.reason, p_files: true }), base = 'waad-' + (d.company_code || 'company') + '-' + today();
+      if (f.fmt === 'json') anSave(new Blob([JSON.stringify(d, null, 1)], { type: 'application/json' }), base + '.json'); else anSave(await exportZip(d, c.name), base + '.zip');
+      toast(tr('تم التصدير، وسيصل المالك إيميل بذلك')); } });
+}
+async function exportsLog() {
+  const rows = await db.rpc('platform_exports_log');
+  modal(tr('سجل التصدير'), `<p class="muted small" style="margin-top:0">${esc(tr('كل تصدير لبيانات منشأة من لوحة الإدارة، ولا يمكن حذفه أو تعديله.'))}</p>
+    ${tbl([{ t: 'المنشأة', h: r => esc(r.company_name) }, { t: 'التاريخ', h: r => `<span class="num">${esc(String(r.at).slice(0, 16).replace('T', ' '))}</span>` },
+      { t: 'بواسطة', h: r => `<span dir="ltr">${esc(r.by_email || '')}</span>` }, { t: 'السبب', h: r => esc(r.reason) },
+      { t: 'إيميل المالك', h: r => r.notified_at ? `<span class="badge ok">${esc(tr('أُرسل'))}</span>` : `<span class="badge wait">${esc(tr('بالانتظار'))}</span>` }], rows, { empty: 'لا يوجد أي تصدير' })}`, { wide: true });
+}
 async function deletionsLog() {
   const rows = await db.rpc('platform_deletions');
   modal(tr('سجل المنشآت المحذوفة'), `<p class="muted small" style="margin-top:0">${esc(tr('يثبت أن البيانات حُذفت ومتى، دون أي بيانات من داخل المنشأة.'))}</p>
@@ -449,7 +467,8 @@ PV.home = async page => {
 
 /* ---------- one company: subscription, quick actions, payments, notes, history ---------- */
 PV.company = async (page, id) => {
-  const [d, st, plans, pq] = await Promise.all([db.rpc('platform_company', { p_company: id }), db.rpc('platform_get_settings'), db.rpc('platform_plans_list'), db.rpc('platform_purge_queue').catch(() => [])]);
+  const [d, st, plans, pq, canX] = await Promise.all([db.rpc('platform_company', { p_company: id }), db.rpc('platform_get_settings'), db.rpc('platform_plans_list'), db.rpc('platform_purge_queue').catch(() => []),
+    db.rpc('platform_can_export').catch(() => false)]);
   const c = d.company; if (!c) { page.innerHTML = `<div class="err">${esc(tr('المنشأة غير موجودة'))}</div>`; return; }
   const [stt, stk] = subState(c), e = subEnd(c), n = daysLeft(e), paid = d.payments.reduce((a, p) => a + (+p.amount || 0), 0);
   const plan = plans.find(p => p.id === d.plan_id);
@@ -496,8 +515,12 @@ PV.company = async (page, id) => {
         { t: '', h: p => `<a href="#" data-rc="${esc(p.id)}">${esc(tr('إيصال'))}</a> · <a href="#" data-dp="${esc(p.id)}">${esc(tr('حذف'))}</a>` }], d.payments, { empty: 'لا توجد دفعات' })}</div>
     <div class="card"><h2>${esc(tr('سجل الاشتراك'))}</h2>
       ${tbl([{ t: 'التاريخ', h: h => `<span class="num">${esc(String(h.at).slice(0, 16).replace('T', ' '))}</span>` }, { t: 'الحالة بعد التغيير', h: h => esc(histTxt(h)) }], d.history, { empty: 'لا يوجد أي تغيير' })}</div>
+    ${canX ? `<div class="card" style="margin-top:14px"><h2>${esc(tr('تصدير بيانات المنشأة بطلب المالك'))}</h2>
+      <p class="muted small" style="margin-top:0">${esc(tr('نسخة كاملة من بيانات المنشأة لتسلّمها لمالكها عند طلبه. يُسجَّل كل تصدير مع سببه، ويصل المالك إيميل فوري بأن بياناته صُدّرت.'))}</p>
+      <button class="btn" id="pexp">${esc(tr('تصدير بيانات المنشأة…'))}</button></div>` : ''}
     ${purgeCard(c, pq.find(x => x.company_id === id))}`;
   bindCopy(page); bindQuick(page, [c], st); bindPurge(page, Object.assign({ company_id: id }, c));
+  if ($('#pexp', page)) $('#pexp', page).onclick = () => adminExport(Object.assign({ company_id: id }, c));
   if ($('#capp', page)) $('#capp', page).onclick = () => approveForm(c, st);
   $('#csub', page).onclick = () => subForm(c);
   $('#cpay', page).onclick = () => platPayForm(c, plans);

@@ -3082,5 +3082,37 @@ select t.ok(:'kept_pay' and :'logged', 'purge: Waad''s payment record stays (wit
 select t.ok(exists(select 1 from public.companies where id = :'cid'), 'purge test rolled back');
 select t.err($$delete from public.journal_entries where id = (select id from public.journal_entries limit 1)$$, 'append-only', 'outside a purge, posted entries still cannot be deleted');
 
+-- ================= EXPORT BY THE PLATFORM OWNER AT THE COMPANY OWNER'S REQUEST (0102) =================
+insert into auth.users(id, email) values ('00000000-0000-0000-0000-0000000000a2', 'team@admin.waad.app') on conflict do nothing;
+update public.platform_admins set can_export = true where user_id = '00000000-0000-0000-0000-0000000000a1';
+insert into public.platform_admins(user_id, added_by) values ('00000000-0000-0000-0000-0000000000a2', '00000000-0000-0000-0000-0000000000a1') on conflict do nothing;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.err($$select public.platform_company_export('$$ || :'cid' || $$', 'طلب المالك بالهاتف')$$, 'غير مصرح|42501', 'admin export: a company owner cannot use the platform export');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a2', false); set role authenticated;
+select t.err($$select public.platform_company_export('$$ || :'cid' || $$', 'طلب المالك بالهاتف')$$, 'لمالك منصة وعد فقط', 'admin export: a team member added later cannot export company data');
+select t.ok(not public.platform_can_export(), 'admin export: the button is hidden for that team member');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select t.err($$select public.platform_company_export('$$ || :'cid' || $$', 'x')$$, 'اكتب كيف طلب المالك', 'admin export: the reason (how the owner asked) is required');
+select t.ok(public.platform_can_export(), 'admin export: the platform owner sees the button');
+select public.platform_company_export(:'cid', 'اتصال من المالك يطلب نسخة', true) as aexp \gset
+select (select count(*) from public.platform_exports_log() where company_ref = :'cid' and reason = 'اتصال من المالك يطلب نسخة' and with_files and notified_at is null) as alog \gset
+reset role;
+select t.ok(jsonb_array_length(:'aexp'::jsonb->'tables'->'employees') > 0 and (:'aexp'::jsonb->>'company_name') is not null
+  and (select bool_and(r ? 'data') from jsonb_array_elements(:'aexp'::jsonb->'tables'->'request_attachments') r), 'admin export: the full company data with attachments');
+select t.ok(not (:'aexp'::jsonb->'tables' ? 'zatca_secrets') and not (:'aexp'::jsonb->'tables' ? 'portal_links') and not (public.company_export_data(:'cid', false)->'tables' ? 'zatca_secrets'),
+  'export: ZATCA private keys and portal tokens are never exported');
+select t.ok(:'alog' = '1', 'admin export: logged with the reason, waiting to e-mail the company owner');
+select t.err($$delete from public.company_exports_log$$, 'لا يُحذف', 'admin export: the log cannot be deleted');
+select t.err($$update public.company_exports_log set reason = 'تغيير'$$, 'لا يتغيّر', 'admin export: the log cannot be changed');
+update public.company_exports_log set notified_at = now() where company_ref = :'cid';
+select t.ok((select count(*) from public.company_exports_log where company_ref = :'cid' and notified_at is not null) = 1, 'admin export: the notify job can mark the e-mail as sent');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.err($$select * from public.company_exports_log$$, 'permission denied|row-level', 'admin export: the log is not readable from the app');
+select t.err($$select public.company_export_data('$$ || :'cid' || $$', true)$$, 'permission denied', 'export: the internal data function cannot be called directly');
+reset role;
+delete from public.platform_admins where user_id = '00000000-0000-0000-0000-0000000000a2';
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

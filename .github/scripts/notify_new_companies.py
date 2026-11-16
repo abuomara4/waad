@@ -4,7 +4,8 @@
  3. tell the team about new support requests; 4. e-mail the team's reply to the customer who asked;
  5. send the welcome e-mail once a company is accepted;
  6. on the 1st–3rd of each month, e-mail each owner a summary of last month (once; they can switch it off in settings);
- 7. a company that ended and was not renewed: e-mail its owner 30 and 7 days before the deletion decision (day 60).
+ 7. a company that ended and was not renewed: e-mail its owner 30 and 7 days before the deletion decision (day 60);
+ 8. the Waad team exported a company's data at its owner's request: e-mail the owner at once.
 Channels (each optional, set as repository secrets):
   e-mail   : NOTIFY_GMAIL_USER + NOTIFY_GMAIL_APP_PASSWORD (a Google «App password»); team mail goes to NOTIFY_EMAIL_TO or to itself
   WhatsApp : CALLMEBOT_PHONE + CALLMEBOT_APIKEY (free CallMeBot key for your own number) — team notices only
@@ -118,6 +119,28 @@ def purge_notices():
             psql("select public.purge_notice_sent('%s', %d, '%s')" % (r['company_id'], int(r['stage']), r['purge_on'])); n += 1
     print('purge notices: sent %d of %d' % (n, len(rows)) if n else '::warning::%d purge notice(s) due but none sent — check the e-mail secrets' % len(rows))
 
+# ---------- 8. the Waad team exported a company's data at its owner's request → tell the owner at once (0102) ----------
+def export_notices():
+    rows = json.loads(psql("""select coalesce(json_agg(x), '[]') from (
+      select l.id, l.company_name as name, to_char(l.at at time zone 'Asia/Riyadh', 'YYYY-MM-DD HH24:MI') as at,
+             (select u.email from public.members m join auth.users u on u.id = m.user_id where m.company_id = l.company_ref and m.role = 'owner' limit 1) as email
+        from public.company_exports_log l where l.notified_at is null order by l.at limit 50) x"""))
+    if not rows:
+        print('export notices: none due'); return
+    phone, cmail = contact()
+    n = 0
+    for r in rows:
+        if not r.get('email'):
+            psql("update public.company_exports_log set notified_at = now() where id = '%s'" % r['id']); continue   # company already deleted: nobody to tell
+        subject = 'وعد: تم تصدير بيانات منشأتك «%s»' % r['name']
+        body = ('السلام عليكم،\n\nصدّر فريق وعد نسخة كاملة من بيانات منشأة «%s» بتاريخ %s بتوقيت الرياض، بناء على طلبكم.\n\n'
+                'إذا لم تطلب ذلك أنت أو أحد المخوّلين في منشأتك، تواصل معنا فورا:\n%s · %s\n\nفريق وعد\n\n— — —\n'
+                'The Waad team exported a full copy of the data of «%s» on %s (Riyadh time), at your request. '
+                'If you did not ask for this, contact us right away: %s · %s') % (r['name'], r['at'], phone, cmail, r['name'], r['at'], phone, cmail)
+        if mail(r['email'], subject, body):
+            psql("update public.company_exports_log set notified_at = now() where id = '%s'" % r['id']); n += 1
+    print('export notices: sent %d of %d' % (n, len(rows)) if n else '::warning::%d export notice(s) due but none sent — check the e-mail secrets' % len(rows))
+
 def contact():
     c = json.loads(psql("select coalesce((select value from public.site_content where key = 'contact'), '{}')") or '{}')
     phone = ('0' + c['phone'][3:]) if re.fullmatch(r'9665\d{8}', c.get('phone') or '') else '0554003226'
@@ -219,4 +242,4 @@ def monthly():
 
 team()
 if not TEST:
-    remind(); support_team(); support_replies(); welcome(); monthly(); purge_notices()
+    remind(); support_team(); support_replies(); welcome(); monthly(); purge_notices(); export_notices()

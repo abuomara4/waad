@@ -819,7 +819,7 @@ VIEWS['#/settings'] = async page => {
          : ''}
      <div id="demoerr"></div></div>` : ''}
    ${has('owner') ? `<div class="card"><h2>${esc(tr('تصدير بيانات المنشأة'))}</h2><p class="muted small">${esc(tr('نسخة كاملة من كل بيانات منشأتك لحفظها لديك أو نقلها. للمالك فقط، ويُسجَّل كل تصدير في سجل التدقيق.'))}</p>
-     <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn" id="exx">${esc(tr('ملف Excel (بدون المرفقات)'))}</button><button type="button" class="btn" id="exj">${esc((LANG === 'en' ? 'Full JSON file (with attachments)' : 'ملف JSON كامل (مع المرفقات)'))}</button></div><div id="exerr"></div></div>` : ''}
+     <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn pri" id="exx">${esc(tr('ملفات Excel لكل قسم مع المرفقات (ZIP)'))}</button><button type="button" class="btn" id="exj">${esc((LANG === 'en' ? 'Full JSON file (with attachments)' : 'ملف JSON كامل (مع المرفقات)'))}</button></div><div id="exerr"></div></div>` : ''}
    ${can('settings') ? `<div class="card"><h2>صلاحيات المحاسب وأمين المستودع</h2><p class="muted small">المدير المالي والمالك يرون كل شيء. حدّد هنا ما يراه غيرهم.</p>
      <div class="tw"><table><thead><tr><th>الصلاحية</th><th>محاسب</th><th>أمين مستودع</th></tr></thead><tbody>${Object.entries(FPERMS).map(([p, t]) => `<tr><td>${esc(t)}</td>${['accountant', 'storekeeper'].map(r => `<td><input type="checkbox" data-r="${r}" data-p="${p}" ${on(r, p) ? 'checked' : ''} aria-label="${esc(t + ' — ' + ROLES[r])}"></td>`).join('')}</tr>`).join('')}</tbody></table></div></div>` : ''}`;
   if ($('#cf', page)) $('#cf', page).onsubmit = async e => { e.preventDefault(); const f = formData(e.target);
@@ -839,15 +839,11 @@ VIEWS['#/settings'] = async page => {
 };
 
 /* ===== full company export (owner): Excel without attachments, or complete JSON ===== */
-async function exportCompany(files) {
-  const d = await db.rpc('company_export', { p_company: S.cid, p_files: files }), stamp = today(), base = 'waad-' + (S.company.code || 'company') + '-' + stamp;
-  if (files) return anSave(new Blob([JSON.stringify(d, null, 1)], { type: 'application/json' }), base + '.json');
-  const cell = v => v == null ? '' : typeof v === 'number' ? v : typeof v === 'boolean' ? (v ? 'true' : 'false') : (typeof v === 'object' ? JSON.stringify(v) : String(v)).slice(0, 32000);
-  const tabs = Object.entries(d.tables).filter(([, rows]) => rows.length);
-  const sheets = [{ name: tr('اقرأني'), rows: [[tr('البند'), tr('القيمة')], [tr('المنشأة'), S.company.name], [tr('تاريخ التصدير'), String(d.exported_at).slice(0, 19).replace('T', ' ')],
-    [tr('الجداول'), tabs.length], [tr('السجلات'), tabs.reduce((a, [, r]) => a + r.length, 0)], [tr('ملاحظة'), tr('المرفقات والشعار غير مضمّنة في Excel — نزّل ملف JSON الكامل للحصول عليها.')]] }];
-  for (const [t, rows] of tabs) { const cols = [...new Set(rows.flatMap(r => Object.keys(r)))]; sheets.push({ name: t, rows: [cols, ...rows.map(r => cols.map(c => cell(r[c])))] }); }
-  anSave(xlsxBook(sheets), base + '.xlsx'); toast(tr('تم التصدير'));
+async function exportCompany(json) {
+  const d = await db.rpc('company_export', { p_company: S.cid, p_files: true }), base = 'waad-' + (S.company.code || 'company') + '-' + today();
+  if (json) anSave(new Blob([JSON.stringify(d, null, 1)], { type: 'application/json' }), base + '.json');
+  else anSave(await exportZip(d, S.company.name), base + '.zip');
+  toast(tr('تم التصدير'));
 }
 
 /* ===== Nitaqat (Saudization) estimate: weights by registered wage; band thresholds entered by HR from Qiwa ===== */

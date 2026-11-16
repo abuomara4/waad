@@ -39,6 +39,7 @@ html = f'''<!doctype html>
 <script>
 {EN_JS}
 {r('core.js')}
+{r('export_lib.js')}
 {r('hr.js')}
 {r('talent.js')}
 {r('attendance.js')}
@@ -88,7 +89,7 @@ print('built', len(html), 'bytes')
 # the admin site (site/admin/): the same page shell with only the sign-in, the shared helpers and the admin screens.
 # It is not installable (no manifest / service worker) and never indexed.
 start, end = html.index('<script>\n' + EN_JS), html.index('applyLang();\nboot();')
-admin = html[:start] + '<script>\nconst ADMIN_SITE = true;\n' + EN_JS + '\n' + r('core.js') + '\n' + r('qr.js') + '\n' + r('legal.js') + '\n' + r('support_lib.js') + '\n' + r('platform.js') + '\n' + html[end:]
+admin = html[:start] + '<script>\nconst ADMIN_SITE = true;\n' + EN_JS + '\n' + r('core.js') + '\n' + r('export_lib.js') + '\n' + r('qr.js') + '\n' + r('legal.js') + '\n' + r('support_lib.js') + '\n' + r('platform.js') + '\n' + html[end:]
 admin = re.sub(r'<link rel="manifest"[^>]*>\n?|<link rel="apple-touch-icon"[^>]*>\n?|<meta name="(apple-mobile-web-app-capable|apple-mobile-web-app-title|mobile-web-app-capable)"[^>]*>\n?', '', admin)
 admin = re.sub(r"<script>if\('serviceWorker'.*?</script>\n", '', admin, flags=re.S)
 admin = admin.replace('<title>وعد — الموارد البشرية والمالية</title>', '<title>وعد — لوحة الإدارة</title>')
