@@ -26,7 +26,7 @@ reset role;
 select set_config('request.jwt.claim.sub', :'d_owner', false); set role authenticated;
 select public.demo_seed(:'dco');
 select t.ok((select count(*) from public.employees where company_id = :'dco') = 6, 'demo seed creates the sample employees');
-select t.ok((select count(*) from public.departments where company_id = :'dco') = 3, 'demo seed creates the departments');
+select t.ok((select count(*) from public.departments where company_id = :'dco' and name in ('المبيعات والتسويق', 'العمليات', 'الإدارة والمالية')) = 3, 'demo seed creates the departments');
 select t.ok((select count(*) from public.parties where company_id = :'dco') = 4, 'demo seed creates customers and a supplier');
 select t.ok((select count(*) from public.items where company_id = :'dco') = 4, 'demo seed creates the items');
 select t.ok((select count(*) from public.marketing_campaigns where company_id = :'dco') = 2, 'demo seed creates the campaigns');

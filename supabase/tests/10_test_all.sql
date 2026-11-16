@@ -49,7 +49,9 @@ select public.create_company('شركة وعد للتجربة', '300000000000003'
 select t.ok((select count(*) from public.accounts where company_id = :'cid') = 32, 'chart of accounts seeded (32 accounts)');
 select t.ok(public.my_role(:'cid') = 'owner', 'creator is owner');
 select t.err($$select public.create_company('منشأة ثانية لنفس الحساب')$$, 'منشأة واحدة', 'one account = one company: the owner cannot create a second company');
-insert into public.departments(company_id, name) values (:'cid','الإدارة'),(:'cid','التقنية'),(:'cid','المالية');
+select t.ok((select count(*) from public.departments where company_id = :'cid') = 9 and exists(select 1 from public.departments where company_id = :'cid' and name = 'المخزون' and name_en = 'Inventory'),
+  'a new company starts with the usual departments (Arabic and English), Inventory included');
+insert into public.departments(company_id, name) values (:'cid','الإدارة'),(:'cid','التقنية') on conflict (company_id, name) do nothing;
 insert into public.employees(company_id, emp_no, full_name, national_id, is_saudi, gender, job_title, hire_date, basic, housing, transport)
  values (:'cid','1000','عبدالله الراشد','1021098767',true,'m','المدير العام','2018-01-01',25000,6250,1000) returning id as e_gm \gset
 insert into public.employees(company_id, emp_no, full_name, is_saudi, gender, job_title, manager_id, hire_date, basic, housing, transport)
