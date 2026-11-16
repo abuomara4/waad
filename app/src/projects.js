@@ -10,7 +10,7 @@ const taskBadge = s => `<span class="badge ${s === 'done' ? 'ok' : s === 'doing'
 const empHourly = e => (n0(e.basic) + n0(e.housing) + n0(e.transport)) / 240;   // monthly wage → hourly estimate
 
 VIEWS['#/projects'] = async (page, arg) => {
-  if (!has('owner', 'admin', 'finance', 'hr')) { page.innerHTML = '<div class="err">غير مصرح</div>'; return; }
+  if (!has('owner', 'admin', 'finance', 'hr') && !can('proj')) { page.innerHTML = '<div class="err">غير مصرح</div>'; return; }
   if (arg) return projectView(page, arg);
   const [projs, res] = await Promise.all([
     db.get('projects', Object.assign(C(), { order: 'created_at.desc', limit: 500 })),
@@ -97,7 +97,7 @@ async function projectView(page, id) {
     ${field('المهمة (اختياري)', `<select name="task_id"><option value="">${esc(tr('— بلا مهمة —'))}</option>${tasks.map(t => opt(t.id, t.title)).join('')}</select>`)}
     ${field('التاريخ', inp('work_date', today(), 'type="date" required max="' + today() + '"'))}
     ${field('عدد الساعات', inp('hours', '', 'type="number" step="0.25" min="0.25" max="24" required'))}
-    ${field('مفوترة؟', `<select name="billable">${opt('true', tr('نعم'), 'true')}${opt('false', tr('لا'))}</select>`)}
+    ${field('مفوترة؟', `<select name="billable">${opt('true', tr('نعم'), p.billing === 'internal' ? 'false' : 'true')}${opt('false', tr('لا'), p.billing === 'internal' ? 'false' : 'true')}</select>`)}
     ${field('ملاحظة', inp('note', ''), 'wide')}</div>`, {
     onOk: async f => { if (!f.employee_id) throw new Error(tr('اختر الموظف'));
       await db.ins('timesheets', { company_id: S.cid, project_id: id, task_id: blank(f.task_id), employee_id: f.employee_id, work_date: f.work_date, hours: +f.hours, billable: f.billable === 'true', note: blank(f.note) });

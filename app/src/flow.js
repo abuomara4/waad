@@ -4,7 +4,7 @@
 // how long it has waited, exactly: minutes, then hours and minutes, then days and hours
 const waitTxt = ts => { if (!ts) return ''; const m = Math.max(0, Math.floor((Date.now() - new Date(ts)) / 6e4)), d = Math.floor(m / 1440), h = Math.floor(m % 1440 / 60), mi = m % 60;
   const p = d ? [[d, 'يوم'], [h, 'ساعة']] : h ? [[h, 'ساعة'], [mi, 'دقيقة']] : [[mi, 'دقيقة']];
-  return tr('منذ') + ' ' + p.filter(([n], k) => n || k === 0).map(([n, u]) => n + ' ' + tr(u)).join(' ' + tr('و') + ' '); };
+  return tr('منذ') + ' ' + p.filter(([n], k) => n || k === 0).map(([n, u]) => arCount(n, u)).join(LANG === 'en' ? ' and ' : ' و'); };
 // the moment it arrived, in Riyadh time: 2026-11-14 17:05
 const waitAt = ts => { if (!ts) return ''; const p = {}; new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Riyadh', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ts)).forEach(x => p[x.type] = x.value);
   return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}`; };
@@ -62,7 +62,7 @@ VIEWS['#/workflows'] = async page => {
   const cur = {}; wf.forEach(w => cur[w.kind] = w.route);
   const hrUsers = mem.filter(m => rolesOf(m).some(r => r === 'hr' || r === 'admin'));
   const mn = m => (m.employee_id && em[m.employee_id] ? ((LANG === 'en' && em[m.employee_id].full_name_en) || em[m.employee_id].full_name) : m.user_id === S.session.user.id ? S.session.user.email : '—');
-  const admin = has('owner', 'admin'), steps = ['m', 'p', 'h', 'f', 'g'];
+  const admin = has('owner', 'admin'), steps = ['m', 'b', 'p', 'h', 'f', 'g'];
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('مسارات الاعتماد'))}</h1><div class="muted small">${esc(tr('من يعتمد كل نوع طلب وبأي ترتيب. الترتيب ثابت: المدير المباشر ثم الموارد البشرية ثم مدير الموارد البشرية ثم المالية ثم المدير العام.'))}</div></div></div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
       <div class="card"><h2>${esc(tr('مدير الموارد البشرية'))}</h2><select id="whm" ${admin ? '' : 'disabled'}><option value="">${esc(tr('غير معيّن — تُتخطى مرحلته'))}</option>${hrUsers.map(m => opt(m.user_id, mn(m), S.company.hr_manager || '')).join('')}</select>

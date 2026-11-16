@@ -8,7 +8,7 @@ const mktBadge = s => `<span class="badge ${s === 'active' ? 'ok' : s === 'cance
 const roiCls = v => v == null ? '' : (v >= 0 ? 'ok' : 'bad');
 
 VIEWS['#/marketing'] = async (page, arg) => {
-  if (!can('sales')) { page.innerHTML = '<div class="err">غير مصرح</div>'; return; }
+  if (!can('sales') && !can('mkt')) { page.innerHTML = '<div class="err">غير مصرح</div>'; return; }
   if (arg) return campaignView(page, arg);
   const [camps, res] = await Promise.all([
     db.get('marketing_campaigns', Object.assign(C(), { order: 'created_at.desc', limit: 500 })),

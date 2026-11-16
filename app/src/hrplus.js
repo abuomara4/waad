@@ -100,7 +100,7 @@ VIEWS['#/roster'] = async (page, arg, q) => {
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('جدول الورديات'))}</h1><div class="muted">${esc(tr('الأسبوع'))} ${fdate(ws)} – ${fdate(we)}</div></div>
       <div class="row"><a class="btn" href="#/roster?w=${addDaysU(ws, -7)}${dep ? '&d=' + dep : ''}">→</a><a class="btn" href="#/roster?w=${today()}${dep ? '&d=' + dep : ''}">${esc(tr('هذا الأسبوع'))}</a><a class="btn" href="#/roster?w=${addDaysU(ws, 7)}${dep ? '&d=' + dep : ''}">←</a>
       <select id="rdep" style="width:auto"><option value="">${esc(tr('كل الأقسام'))}</option>${deps.map(x => opt(x.id, x.name, dep)).join('')}</select>
-      <button class="btn pri" id="rnew">${esc(tr('تعيين جدول'))}</button></div></div>
+      <a class="btn" href="#/att/settings">${esc(tr('إدارة الورديات'))}</a><button class="btn pri" id="rnew">${esc(tr('تعيين جدول'))}</button></div></div>${shifts.length ? '' : `<div class="note">${esc(tr('لا توجد ورديات عمل بعد. أنشئ الورديات من «إدارة الورديات» ثم عيّنها للموظفين.'))}</div>`}
     <div class="card"><div class="tw"><table><thead><tr><th>${esc(tr('الموظف'))}</th>${days.map(d => `<th>${esc(dayName(d))}<br><span class="num small muted">${d.slice(5)}</span></th>`).join('')}</tr></thead><tbody>
       ${emps.map(e => `<tr><td>${esc(e.full_name)} <span class="muted num small">${esc(e.emp_no)}</span></td>${days.map(d => `<td data-rc="${e.id}|${d}" style="cursor:pointer">${cell(e, d)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="8" class="muted">${esc(tr('لا يوجد موظفون'))}</td></tr>`}
     </tbody></table></div><p class="muted small">${esc(tr('الخلايا الملونة من الجدول، والرمادية من وردية الموظف أو قسمه أو الافتراضية. اضغط على أي يوم لتغييره.'))}</p></div>`;

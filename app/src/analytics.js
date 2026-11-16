@@ -50,15 +50,13 @@ function anModel(d, lt) {
       notes: x.total > 0 && x.customers.length ? [['حصة أكبر عميل من المبيعات', r2(x.customers[0].total / x.total * 100), 'pct', x.customers[0].total / x.total <= .3, 30]] : [],
       charts: [{ t: 'المبيعات شهريا', bars: x.months.map(m => ({ label: mon(m.m), values: [m.total] })), series: ['المبيعات'], f: 'money' },
         { t: 'أكبر العملاء', h: x.customers.map(c => ({ label: anNm(c), v: c.total })), f: 'money' }],
-      tables: [{ t: 'أكبر العملاء', cols: [['العميل'], ['الفواتير', 'num'], ['المبلغ', 'money']], rows: x.customers.map(c => [anNm(c), c.n, c.total]) },
-        { t: 'الأصناف الأكثر مبيعا', cols: [['الصنف'], ['الكمية', 'num'], ['المبلغ', 'money']], rows: x.items.map(i => [anNm(i), i.qty, i.total]) }] }); }
+      tables: [{ t: 'الأصناف الأكثر مبيعا', cols: [['الصنف'], ['الكمية', 'num'], ['المبلغ', 'money']], rows: x.items.map(i => [anNm(i), i.qty, i.total]) }] }); }
   if (d.supply) { const x = d.supply;
     S_.push({ k: 'supply', t: 'المشتريات والمخزون', kpis: [K('المشتريات قبل الضريبة', x.purchases, 'money', x.purchases_prev, 1, col(x.months, 'total')), K('المدفوع للموردين', x.paid, 'money'), K('قيمة المخزون', x.stock_value, 'money'),
       K('أصناف تحت حد الطلب', x.low_stock.length, 'num', null, 1), K('أصناف راكدة', x.slow.length, 'num', null, 1)],
       charts: [{ t: 'المشتريات شهريا', bars: x.months.map(m => ({ label: mon(m.m), values: [m.total] })), series: ['المشتريات'], f: 'money' },
         { t: 'أكبر الموردين', h: x.suppliers.map(c => ({ label: anNm(c), v: c.total })), f: 'money' }],
-      tables: [{ t: 'أكبر الموردين', cols: [['المورد'], ['الفواتير', 'num'], ['المبلغ', 'money']], rows: x.suppliers.map(c => [anNm(c), c.n, c.total]) },
-        { t: 'أصناف تحت حد الطلب', cols: [['الرمز'], ['الصنف'], ['الكمية', 'num'], ['حد الطلب', 'num']], rows: x.low_stock.map(i => [i.code, anNm(i), i.qty, i.reorder]) },
+      tables: [{ t: 'أصناف تحت حد الطلب', cols: [['الرمز'], ['الصنف'], ['الكمية', 'num'], ['حد الطلب', 'num']], rows: x.low_stock.map(i => [i.code, anNm(i), i.qty, i.reorder]) },
         { t: 'أصناف راكدة (بلا مبيعات في الفترة)', cols: [['الرمز'], ['الصنف'], ['الكمية', 'num'], ['القيمة', 'money']], rows: x.slow.map(i => [i.code, anNm(i), i.qty, i.value]) }] }); }
   if (d.hr) { const x = d.hr, p = x.payroll || {}, rs = Object.entries(x.leavers_by_reason || {}), lv = Object.entries(x.leave_days || {});
     const notes = [['نسبة السعوديين', x.headcount ? r2(x.saudi / x.headcount * 100) : 0, 'pct', null], ['معدل الدوران في الفترة', x.turnover, 'pct', x.turnover <= 10, 10]];
@@ -91,7 +89,7 @@ function anSectionHtml(s) {
     : c.bars.length ? barChart(c.bars.map(b => ({ label: b.label, values: b.values.map(v => Math.max(0, n0(v))) })), c.series.map((n, i) => ({ name: n, color: AN_C[i] })), { fmt: v => anFmt(v, c.f) }) : `<p class="muted small">${esc(tr('لا توجد بيانات'))}</p>`}</div>`;
   const table = t => `<div class="card"><h2>${esc(tr(t.t))}</h2>${t.rows.length ? `<div class="tw"><table><thead><tr>${t.cols.map(c => `<th${c[1] ? ' class="r"' : ''}>${esc(tr(c[0]))}</th>`).join('')}</tr></thead><tbody>
       ${t.rows.map(r => `<tr>${r.map((v, i) => `<td${t.cols[i][1] ? ' class="r num"' : ''}>${esc(anFmt(v, t.cols[i][1]))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : `<p class="muted small">${esc(tr('لا توجد بيانات'))}</p>`}</div>`;
-  const note = n => `<div style="margin:6px 0"><div class="row small" style="gap:8px"><span class="${n[3] === false ? 'bad' : n[3] ? 'ok' : 'muted'}">●</span><span style="flex:1">${esc(tr(n[0]))}</span><b class="num">${esc(anFmt(n[1], n[2]))}</b>${n[4] != null ? `<span class="muted num" style="min-width:70px;text-align:end">${esc(tr('الهدف'))} ${esc(anFmt(n[4], n[2]))}</span>` : ''}</div>${n[4] != null ? bullet(n[1], n[4], { fmt: v => anFmt(v, n[2]), good: n[3] }) : ''}</div>`;
+  const note = n => `<div style="margin:6px 0"><div class="row small" style="gap:8px"><span class="${n[3] === false ? 'bad' : n[3] ? 'ok' : 'muted'}">●</span><span style="flex:1">${esc(tr(n[0]))}</span><b class="num">${esc(anFmt(n[1], n[2]))}</b>${n[4] != null ? `<span class="muted" style="min-width:70px;text-align:end">${esc(tr('الهدف'))} <span class="num">${esc(anFmt(n[4], n[2]))}</span></span>` : ''}</div>${n[4] != null ? bullet(n[1], n[4], { fmt: v => anFmt(v, n[2]), good: n[3] }) : ''}</div>`;
   const notes = (s.notes || []).length ? `<div class="card"><h2>${esc(tr('مؤشرات تستحق الانتباه'))}</h2>${s.notes.map(note).join('')}</div>` : '';
   return `<section class="ansec" data-an="${s.k}"><h2 class="anh">${esc(tr(s.t))}</h2><div class="grid">${s.kpis.map(kpi).join('')}</div>${notes}
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">${s.charts.map(chart).join('')}</div>${s.tables.map(table).join('')}</section>`;
@@ -200,7 +198,7 @@ VIEWS['#/analytics'] = async page => {
   $$('[data-ex]', page).forEach(b => b.onclick = async () => {
     const sel = $('#anall', page).checked ? model : model.filter(s => s.k === tab), k = b.dataset.ex;
     try {
-      if (k === 'pdf') { const box = document.createElement('div'); box.innerHTML = `<p class="muted small">${esc(sub)}</p>` + sel.map(anSectionHtml).join(''); return printBlock(box, title); }
+      if (k === 'pdf') { toast(tr('تفتح نافذة الطباعة — اختر «حفظ بصيغة PDF»')); const box = document.createElement('div'); box.innerHTML = `<p class="muted small">${esc(sub)}</p>` + sel.map(anSectionHtml).join(''); return printBlock(box, title); }
       if (k === 'xlsx') return anSave(xlsxBook(anFlat(sel)), fn('xlsx'));
       if (k === 'csv') return anSave(new Blob([anCsv(anFlat(sel))], { type: 'text/csv;charset=utf-8' }), fn('csv'));
       if (k === 'doc') return anSave(anWord(sel, title, sub), fn('doc'));

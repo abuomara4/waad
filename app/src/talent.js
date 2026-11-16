@@ -16,7 +16,7 @@ VIEWS['#/reviews'] = async (page, arg) => {
   // #17 performance indicators and a ratings chart, shown to HR and the owner
   let perfCard = '';
   if (hr) {
-    const lastCyc = cycles.find(c => revs.some(r => r.cycle_id === c.id));
+    const lastCyc = cycles.find(c => c.status === 'open' && revs.some(r => r.cycle_id === c.id)) || cycles.find(c => revs.some(r => r.cycle_id === c.id));
     if (lastCyc) {
       const rs = revs.filter(r => r.cycle_id === lastCyc.id), done = rs.filter(r => r.status === 'approved');
       const avg = done.length ? done.reduce((a, r) => a + n0(r.overall), 0) / done.length : 0;
@@ -50,10 +50,11 @@ async function reviewCycle(page, id) {
   revs.sort((a, b) => String((em[a.employee_id] || {}).emp_no).localeCompare(String((em[b.employee_id] || {}).emp_no)));
   const nm = i => esc((em[i] || {}).full_name || '—');
   const dist = [1, 2, 3, 4, 5].map(k => revs.filter(r => r.status === 'approved' && Math.round(+r.overall) === k).length);
-  page.innerHTML = `<div class="head"><div><a href="#/reviews" class="small">← تقييم الأداء</a><h1>${esc(c.name)} ${c.status === 'open' ? '<span class="badge info">مفتوحة</span>' : '<span class="badge">مغلقة</span>'}</h1><div class="muted">${fdate(c.period_start)} → ${fdate(c.period_end)}</div></div>${c.status === 'open' ? '<button class="btn" id="cl">إغلاق الدورة</button>' : ''}</div>
+  page.innerHTML = `<div class="head"><div><a href="#/reviews" class="small">← تقييم الأداء</a><h1>${esc(c.name)} ${c.status === 'open' ? '<span class="badge info">مفتوحة</span>' : '<span class="badge">مغلقة</span>'}</h1><div class="muted">${fdate(c.period_start)} → ${fdate(c.period_end)}</div></div>${c.status === 'open' ? `<button class="btn" id="cadd">${esc(tr('إضافة الموظفين الجدد'))}</button><button class="btn" id="cl">إغلاق الدورة</button>` : ''}</div>
     <div class="grid" style="margin-bottom:16px">${[5, 4, 3, 2, 1].map(k => `<div class="card kpi"><div class="muted small">${esc(RATING[k])}</div><div class="v num">${dist[k - 1]}</div></div>`).join('')}</div>
     ${tbl([{ t: 'الموظف', h: r => nm(r.employee_id) }, { t: 'المقيّم', h: r => r.reviewer_id ? nm(r.reviewer_id) : '<span class="muted">الموارد البشرية</span>' }, { t: 'الحالة', h: r => rvBadge(r.status) }, { t: 'النتيجة', h: r => ratingTxt(r.overall) }, { t: 'اطلاع الموظف', h: r => r.ack_at ? '<span class="badge ok">اطّلع</span>' : '—' }], revs, { onRow: true })}`;
   bindRows(page, revs, r => r.status === 'submitted' ? reviewView(r, em, c, { decide: true }) : r.status === 'draft' && c.status === 'open' ? reviewForm(r, em, c) : reviewView(r, em, c));
+  if ($('#cadd', page)) $('#cadd', page).onclick = async () => { try { const n = await db.rpc('review_cycle_add', { p_cycle: c.id }); toast(n ? tr('أُضيف') + ' ' + arCount(n, 'موظف') : tr('كل الموظفين في الدورة بالفعل')); route(); } catch (er) { toast(er.message); } };
   if ($('#cl', page)) $('#cl', page).onclick = async () => { if (!await confirmBox('إغلاق الدورة', 'لن يمكن تعديل أي تقييم في هذه الدورة بعد الإغلاق.', 'إغلاق')) return; try { await db.rpc('close_review_cycle', { p_id: id }); route(); } catch (e) { toast(e.message); } };
 }
 function reviewForm(r, em, c) {

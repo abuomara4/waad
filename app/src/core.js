@@ -90,7 +90,12 @@ const EN_AR = [
 ];
 function arMsg(m) { m = String(m || ''); if (/[؀-ۿ]/.test(m)) return m; for (const [re, ar] of EN_AR) if (re.test(m)) return ar; return m || 'حدث خطأ غير متوقع'; }
 function authMsg(j) { return arMsg(j.msg || j.error_description || j.message || j.error || ''); }
-async function api(path, { method = 'GET', body, headers = {}, retry = true } = {}) {
+let LOADN = 0, LOADT = 0;
+const loadBar = d => { LOADN = Math.max(0, LOADN + d); clearTimeout(LOADT); let b = document.getElementById('loadbar');
+  if (LOADN) LOADT = setTimeout(() => { if (!LOADN) return; if (!b) { b = document.createElement('div'); b.id = 'loadbar'; b.setAttribute('role', 'progressbar'); b.setAttribute('aria-label', tr('جاري التحميل')); document.body.appendChild(b); } b.hidden = false; }, 350);
+  else if (b) b.hidden = true; };
+async function api(path, opts = {}) { loadBar(1); try { return await api0(path, opts); } finally { loadBar(-1); } }
+async function api0(path, { method = 'GET', body, headers = {}, retry = true } = {}) {
   if (S.session && Date.now() > S.session.expires_at - 60000) { try { await refreshSession(); } catch (e) {} }
   const h = Object.assign({ apikey: CFG.key, 'Content-Type': 'application/json' }, headers);
   if (S.session) h.Authorization = 'Bearer ' + S.session.access_token;
@@ -99,7 +104,7 @@ async function api(path, { method = 'GET', body, headers = {}, retry = true } = 
   catch (e) { throw new ApiError(arMsg(e.message), 0); }
   if (r.status === 401 && retry && S.session) {
     const t = await r.clone().text();
-    if (/jwt|expired|token/i.test(t)) { await refreshSession(); return api(path, { method, body, headers, retry: false }); }
+    if (/jwt|expired|token/i.test(t)) { await refreshSession(); return api0(path, { method, body, headers, retry: false }); }
   }
   const txt = await r.text(); let j = null; try { j = txt ? JSON.parse(txt) : null; } catch (e) { j = txt; }
   if (!r.ok) throw new ApiError(arMsg((j && (j.message || j.msg || j.error_description)) || r.statusText), r.status, j && j.code);
@@ -170,15 +175,22 @@ const authApi = {
 
 /* ===== helpers ===== */
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
-const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const NOTANWEEN = /[\u064B-\u064D]/g;
+const esc = v => String(v == null ? '' : v).replace(NOTANWEEN, '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const money = v => (v == null || v === '' ? '—' : Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 const n0 = v => Number(v || 0);
 const r2 = v => Math.round((n0(v) + Number.EPSILON) * 100) / 100;
-const today = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+const today = () => new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10);   // Riyadh (UTC+3, no DST), like the database
 const firstOfMonth = () => today().slice(0, 8) + '01';
+// a number with its word in correct Arabic (1 / 2 / 3–10 / 11+); in English the plain plural
+const AR_PL = { 'يوم': ['يوم واحد', 'يومين', 'أيام', 'يوما', 'day', 'days'], 'ساعة': ['ساعة واحدة', 'ساعتين', 'ساعات', 'ساعة', 'hour', 'hours'],
+  'دقيقة': ['دقيقة واحدة', 'دقيقتين', 'دقائق', 'دقيقة', 'minute', 'minutes'], 'موظف': ['موظف واحد', 'موظفين', 'موظفين', 'موظفا', 'employee', 'employees'] };
+const arCount = (n, u) => { const f = AR_PL[u]; n = +n || 0; if (!f) return n + ' ' + tr(u);
+  if (LANG === 'en') return n + ' ' + (n === 1 ? f[4] : f[5]);
+  return n === 1 ? f[0] : n === 2 ? f[1] : n >= 3 && n <= 10 ? n + ' ' + f[2] : n + ' ' + f[3]; };
 const fdate = d => d ? String(d).slice(0, 10) : '—';
 const ROLES = { owner: 'المالك / المدير العام', admin: 'مدير النظام', hr: 'الموارد البشرية', finance: 'المدير المالي', accountant: 'محاسب', storekeeper: 'أمين مستودع', manager: 'مدير قسم', employee: 'موظف' };
-const STEP = { m: 'المدير المباشر', p: 'الموارد البشرية', h: 'مدير الموارد البشرية', f: 'المالية', g: 'المدير العام' };
+const STEP = { m: 'المدير المباشر', b: 'مسؤول المشتريات', p: 'الموارد البشرية', h: 'مدير الموارد البشرية', f: 'المالية', g: 'المدير العام' };
 const KIND = { leave: 'إجازة', permit: 'استئذان', cert: 'تعريف بالراتب', advance: 'سلفة', resign: 'استقالة', settle: 'مخالصة', expense: 'مطالبة مصروفات', update: 'تحديث بيانات', punch: 'نسيان بصمة', ticket: 'تذكرة سفر', visa: 'تأشيرة خروج وعودة', purchase: 'طلب شراء' };
 const STATUS = { pending: ['بانتظار', 'wait'], approved: ['معتمد', 'ok'], rejected: ['مرفوض', 'bad'], cancelled: ['ملغى', ''], draft: ['مسودة', 'wait'], paid: ['مصروف', 'ok'], posted: ['مرحّلة', 'ok'], void: ['ملغاة', 'bad'] };
 const badge = s => { const [t, c] = STATUS[s] || [s, '']; return `<span class="badge ${c}">${esc(t)}</span>`; };
@@ -188,19 +200,19 @@ const can = p => has(...FIN_ALL) || (has('accountant', 'storekeeper') && S.perms
 const isFin = () => has(...FIN_ALL, 'accountant', 'storekeeper');
 const isHR = () => has('owner', 'admin', 'hr');
 
-function toast(m) { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 3200); }
-function showErr(where, e) { const box = typeof where === 'string' ? $(where) : where; const m = e && e.message ? e.message : String(e); if (box) { box.innerHTML = `<div class="err" role="alert">${esc(m)}</div>`; } else toast(m); }
+function toast(m) { const t = $('#toast'); t.textContent = String(m == null ? '' : m).replace(NOTANWEEN, ''); t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 3200); }
+function showErr(where, e) { const box = typeof where === 'string' ? $(where) : where; const m = e && e.message ? e.message : String(e); if (box) { box.innerHTML = `<div class="err" role="alert">${esc(m)}</div>`; try { box.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (x) {} } else toast(m); }
 function formData(f) { const o = {}; for (const el of f.elements) { if (!el.name) continue; if (el.type === 'checkbox') o[el.name] = el.checked; else o[el.name] = el.value.trim(); } return o; }
 const blank = v => v === '' || v == null ? null : v;
 const snSplit = v => [...new Set(String(v || '').split(/[\n,;،]+/).map(x => x.trim()).filter(Boolean))];
 async function busy(btn, fn) { if (btn) { btn.disabled = true; } try { return await fn(); } finally { if (btn) btn.disabled = false; } }
 function tbl(cols, rows, { empty = 'لا توجد بيانات', onRow, foot } = {}) {
-  if (!rows || !rows.length) return `<div class="tw"><div class="empty">${esc(empty)}</div></div>`;
+  if (!rows || !rows.length) return `<div class="tw"><div class="empty"><svg class="eico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v12H4zM4 7l2-3h12l2 3M9 12h6"/></svg><div>${esc(empty)}</div></div></div>`;
   return `<div class="tw"><table><thead><tr>${cols.map(c => `<th class="${c.r ? 'r' : ''}">${esc(c.t)}</th>`).join('')}</tr></thead><tbody>${rows.map((r, i) => `<tr${onRow ? ` class="click" data-row="${i}"` : ''}>${cols.map(c => `<td class="${c.r ? 'r num' : ''}">${c.h ? c.h(r) : esc(r[c.k])}</td>`).join('')}</tr>`).join('')}</tbody>${foot ? `<tfoot><tr>${foot}</tr></tfoot>` : ''}</table></div>`;
 }
 function bindRows(root, rows, fn) { $$('tr[data-row]', root).forEach(tr => tr.onclick = () => fn(rows[+tr.dataset.row])); }
 const opt = (v, t, sel) => `<option value="${esc(v)}"${String(sel) === String(v) ? ' selected' : ''}>${esc(t)}</option>`;
-const field = (label, input, cls = '') => `<div class="${cls}"><label>${esc(label)}</label>${input}</div>`;
+const field = (label, input, cls = '') => `<div class="${cls}"><label>${esc(label)}${/\srequired(?=[\s>="])/.test(input) ? ' <span class="req" aria-hidden="true">*</span>' : ''}</label>${input}</div>`;
 const inp = (name, v = '', extra = '') => `<input name="${name}" value="${esc(v == null ? '' : v)}" ${extra}>`;
 // password field with a show/hide eye toggle (used on login and wherever a password is typed)
 const pwInput = (name, ac = 'current-password', extra = 'required') => `<div class="pwrap"><input name="${name}" type="password" autocomplete="${ac}" dir="ltr" ${extra}><button type="button" class="peye" tabindex="-1" aria-label="إظهار كلمة المرور" title="إظهار كلمة المرور"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/><line class="pe-slash" x1="4" y1="20" x2="20" y2="4"/></svg></button></div>`;
@@ -254,7 +266,7 @@ const THEMES = { auto: ['المظهر: حسب الجهاز', '◐'], light: ['ا
 const THEME_KEY = typeof ADMIN_SITE !== 'undefined' ? 'waad.atheme' : 'waad.theme', THEME_DEF = typeof ADMIN_SITE !== 'undefined' ? 'light' : 'dark';
 const curTheme = () => { const t = LS.get(THEME_KEY); return THEMES[t] ? t : THEME_DEF; };
 function applyTheme(t) { if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
-  for (const b of document.querySelectorAll('[data-theme-btn]')) { const [label, icon] = THEMES[curTheme()]; b.title = label; b.setAttribute('aria-label', label); if (b.dataset.themeBtn === 'menu') b.innerHTML = `<span class="ic">${icon}</span><span>${esc(label)}</span>`; else b.textContent = b.dataset.themeBtn === 'icon' ? icon : icon + ' ' + label; } }
+  for (const b of document.querySelectorAll('[data-theme-btn]')) { const [label, icon] = THEMES[curTheme()]; b.title = label; b.setAttribute('aria-label', label); if (b.dataset.themeBtn === 'menu') b.innerHTML = `<span class="ic">${icon}</span><span>${esc(label)}</span>`; else b.textContent = b.dataset.themeBtn === 'icon' ? icon : label; } }
 applyTheme(curTheme());
 function toggleTheme() { const order = THEME_DEF === 'light' ? ['light', 'dark', 'auto'] : ['dark', 'light', 'auto'], t = order[(order.indexOf(curTheme()) + 1) % 3]; LS.set(THEME_KEY, t === THEME_DEF ? null : t); applyTheme(t); toast(THEMES[t][0]); }
 
@@ -277,7 +289,7 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
   const app = $('#app'); const ccode = LS.get('waad.ccode') || '', cname = LS.get('waad.cname') || '';
   if (tab === 'staff' && ccode && !cname) {   // code from a link: resolve the company name first
     db.rpc('company_by_code', { p_code: ccode }).then(n => { if (n) { LS.set('waad.cname', n); } else { LS.set('waad.ccode', null); } authView('staff', msg); }).catch(() => { LS.set('waad.ccode', null); authView('staff', msg); });
-    app.innerHTML = '<div class="auth"><div class="muted">جارٍ التحميل…</div></div>'; return;
+    app.innerHTML = '<div class="auth"><div class="muted">جاري التحميل…</div></div>'; return;
   }
   const step = tab === 'staff' ? (ccode ? 'login' : 'code') : tab;
   let body = '', btn = 'دخول', foot = '';
@@ -347,7 +359,7 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
 function changePasswordView(forced = true) {
   $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><h2>${forced ? 'اختر كلمة مرور جديدة' : 'تغيير كلمة المرور'}</h2>
     ${forced === 'recovery' ? '<p class="muted small">فتحت رابط استعادة كلمة المرور. اختر كلمة مرور جديدة لحسابك.</p>' : ADMIN && forced ? '<p class="muted small">دخلت بكلمة مرور مؤقتة. اختر كلمة مرور خاصة بك لا يعرفها غيرك.</p>' : forced ? '<p class="muted small">دخلت بكلمة مرور مؤقتة من الموارد البشرية. اختر كلمة مرور خاصة بك لا يعرفها غيرك.</p>' : ''}
-    <form id="pf" novalidate>${field('كلمة المرور الجديدة (8 أحرف أو أكثر)', pwInput('p1', 'new-password', ''))}<div style="height:10px"></div>
+    <form id="pf" novalidate>${forced ? '' : field('كلمة المرور الحالية', pwInput('p0', 'current-password', '')) + '<div style="height:10px"></div>'}${field('كلمة المرور الجديدة (8 أحرف أو أكثر)', pwInput('p1', 'new-password', ''))}<div style="height:10px"></div>
     ${field('تأكيدها', pwInput('p2', 'new-password', ''))}<div id="perr"></div><div style="height:12px"></div>
     <button class="btn pri full" id="pb">حفظ والمتابعة</button></form>
     <p class="muted small" style="text-align:center;margin-top:10px">${forced ? '' : '<a href="#" id="bk">رجوع</a> · '}<a href="#" id="lo">تسجيل الخروج</a></p></div></div></div>`;
@@ -356,10 +368,19 @@ function changePasswordView(forced = true) {
   $('#pf').onsubmit = async e => { e.preventDefault(); const f = formData(e.target);
     if (f.p1.length < 8) return showErr('#perr', 'كلمة المرور 8 أحرف على الأقل');
     if (f.p1 !== f.p2) return showErr('#perr', 'كلمتا المرور غير متطابقتين');
+    if (!forced) { if (!f.p0) return showErr('#perr', 'أدخل كلمة المرور الحالية');
+      const ok = await fetch(CFG.url + '/auth/v1/token?grant_type=password', { method: 'POST', headers: { apikey: CFG.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: S.session.user.email, password: f.p0 }) }).then(r => r.ok).catch(() => false);
+      if (!ok) return showErr('#perr', 'كلمة المرور الحالية غير صحيحة'); }
     try { await busy($('#pb'), async () => { await authApi.setPassword(f.p1); await db.rpc('password_changed'); toast('حُفظت كلمة المرور'); await boot(); }); } catch (er) { showErr('#perr', er); } };
 }
 
 /* ===== onboarding: create a company or join with an invite code ===== */
+function endedView() {
+  $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><h2>${esc(tr('انتهت خدمتك في المنشأة'))}</h2>
+    <p>${esc(tr('أُغلق دخولك إلى النظام بعد آخر يوم عمل لك. للاستفسار تواصل مع الموارد البشرية في منشأتك.'))}</p>
+    <button class="btn" id="lo">${esc(tr('تسجيل الخروج'))}</button></div></div></div>`;
+  $('#lo').onclick = async () => { await authApi.signOut(); authView(); };
+}
 function onboardView() {
   $('#app').innerHTML = `<div class="auth"><div class="abox" style="max-width:520px">${brand()}
     <div class="card"><h2>انضم إلى منشأتك</h2><p class="muted small">إذا أرسلت لك الموارد البشرية رمز دعوة، أدخله هنا.</p>
@@ -418,7 +439,7 @@ async function loadContext(pre) {
   S.company = co; S.sub = sub || null;
   S.perms = new Set();
   (c.perms || []).forEach(p => S.perms.add(p));
-  fp.forEach(p => S.perms.add(p.perm));
+  if (!(c.perms || []).length) fp.forEach(p => S.perms.add(p.perm));   // personal permissions, when set, replace the role's defaults
   S.myEmp = me[0] || null;
   S.hasPetty = pf.length > 0; S.hasTeam = team.length > 0;
   S.zatcaOn = false;
@@ -462,6 +483,7 @@ async function boot() {
     if (S.platform && (/^#\/platform/.test(location.hash) || !(comps || []).length)) { location.href = ADMIN_URL; return; }
     // a Waad team account (username sign-in) never gets a company: it belongs on the admin site
     if (!(comps || []).length && /@admin\.waad\.app$/i.test((S.session.user || {}).email || '')) { location.href = ADMIN_URL; return; }
+    if (!(comps || []).length && await db.rpc('my_ended').catch(() => false)) return endedView();
     if (!(await loadContext(comps))) return onboardView();
     if (S.mustChange) return changePasswordView(true);
     if (S.sub && S.sub.status === 'pending') return pendingView();
@@ -542,13 +564,13 @@ function navItems() {
   if (has('manager') && !(isHR() || has('finance'))) it.push({ h: '#/clearance', t: 'إخلاء الطرف' });
   if (isHR() || has('finance')) {
     g('الموارد البشرية');
-    it.push({ h: '#/hrdash', t: 'لوحة الموارد البشرية' });
+    if (isHR()) it.push({ h: '#/hrdash', t: 'لوحة الموارد البشرية' });
     if (isHR()) it.push({ h: '#/employees', t: 'الموظفون' }, { h: '#/docs', t: 'المستندات والعقود', pill: NAVC.docs });
-    it.push({ h: '#/org', t: 'الهيكل التنظيمي' });
-    it.push({ h: '#/att', t: 'الحضور والانصراف' });
+    if (isHR()) it.push({ h: '#/org', t: 'الهيكل التنظيمي' });
+    if (isHR()) it.push({ h: '#/att', t: 'الحضور والانصراف' });
     if (isHR()) it.push({ h: '#/roster', t: 'جدول الورديات' }, { h: '#/policies', t: 'السياسات واللوائح' });
     if (isHR()) it.push({ h: '#/leavecal', t: 'تقويم الإجازات' });
-    it.push({ h: '#/penalties', t: 'المخالفات والجزاءات', pill: NAVC.pen });
+    if (isHR()) it.push({ h: '#/penalties', t: 'المخالفات والجزاءات', pill: NAVC.pen });
     it.push({ h: '#/payroll', t: 'مسير الرواتب' });
     if (isHR()) it.push({ h: '#/eos', t: 'مكافأة نهاية الخدمة' }, { h: '#/nitaqat', t: 'نطاقات والتوطين' });
     it.push({ h: '#/travel', t: 'السفر: التذاكر والتأشيرات' });
@@ -559,10 +581,11 @@ function navItems() {
     it.push({ h: '#/hrreports', t: 'تقارير الموارد البشرية' });
   }
   if (has('manager') && !isHR()) { g('فريقي'); it.push({ h: '#/att', t: 'حضور الفريق' }, { h: '#/leavecal', t: 'تقويم الإجازات' }); }
-  if (isFin() && (can('sales') || can('stock'))) {
+  if (isFin() && (can('sales') || can('stock') || can('mkt'))) {
     g('المبيعات');
-    if (can('sales')) it.push({ h: '#/crm', t: 'الفرص والعملاء المحتملون' }, { h: '#/marketing', t: 'التسويق والحملات' }, { h: '#/quotes', t: 'عروض الأسعار' });
-    it.push({ h: '#/orders', t: 'أوامر البيع' }, { h: '#/deliveries', t: 'إشعارات التسليم' });
+    if (can('sales') || can('mkt')) it.push({ h: '#/crm', t: 'الفرص والعملاء المحتملون' }, { h: '#/marketing', t: 'التسويق والحملات' });
+    if (can('sales')) it.push({ h: '#/quotes', t: 'عروض الأسعار' });
+    if (can('sales') || can('stock')) it.push({ h: '#/orders', t: 'أوامر البيع' }, { h: '#/deliveries', t: 'إشعارات التسليم' });
     if (can('sales')) it.push({ h: '#/pos', t: 'نقطة البيع' }, { h: '#/sales', t: 'فواتير المبيعات' }, { h: '#/parties/customer', t: 'العملاء' });
   }
   if (isFin() && (can('purch') || can('stock'))) {
@@ -592,18 +615,18 @@ function navItems() {
     if (can('coa') || can('sales') || can('purch')) it.push({ h: '#/currencies', t: 'العملات' });
     if (has('owner', 'admin', 'finance')) it.push({ h: '#/periods', t: 'إقفال الفترات والسنة' }, { h: '#/opening', t: 'الأرصدة الافتتاحية' });
   }
-  if (has('owner', 'admin', 'finance', 'hr')) { g('المشاريع'); it.push({ h: '#/projects', t: 'المشاريع وجداول الوقت' }); }
-  if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); }
+  if (has('owner', 'admin', 'finance', 'hr') || can('proj')) { g('المشاريع'); it.push({ h: '#/projects', t: 'المشاريع وجداول الوقت' }); }
+  if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); if (has('owner', 'admin', 'hr')) it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); }
   return it;
 }
 function shell() {
   const multi = S.companies.length > 1; // one account = one company (subscription); the switcher only appears for someone invited into more than one
   $('#app').innerHTML = `<div class="shell"><aside class="side" id="side">${brand()}<nav class="nav" id="nav"></nav></aside>
-    <div class="main"><header class="top"><button class="btn sm menu" id="mb" aria-label="القائمة">☰</button>
+    <div class="main"><header class="top"><button class="btn sm menu" id="mb" aria-label="القائمة"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       <div class="cname"><b>${esc(S.company ? S.company.name : '')}</b> <span class="badge info">${esc(ROLES[S.role] || S.role)}</span></div><div class="sp"></div>
       ${multi ? `<select id="cs" style="width:auto;min-height:32px">${S.companies.map(c => opt(c.company_id, c.name, S.cid)).join('')}</select>` : ''}
       ${ADMIN ? '' : '<button class="btn sm" id="hb" aria-label="مساعدة" title="مساعدة" style="min-width:34px">؟</button>'}
-      <div class="umw"><button class="btn sm um" id="um" aria-haspopup="true" aria-expanded="false" aria-label="حسابي" title="حسابي"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"/></svg><span class="bt">حسابي</span><span class="bdot" id="bcnt" hidden></span></button>
+      <div class="umw"><button class="btn sm um" id="um" aria-haspopup="true" aria-expanded="false" aria-label="حسابي" title="حسابي"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"/></svg><span class="bt">${esc(S.myEmp ? S.myEmp.full_name.split(' ')[0] : tr('حسابي'))}</span><span class="brole small muted">${esc(tr(ROLES[S.role] || ''))}</span><span class="bdot" id="bcnt" hidden></span></button>
         <div class="umenu" id="umenu" role="menu" hidden>
           <button type="button" class="mi" id="bell" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span>التنبيهات</span><span class="mcnt" id="bcnt2" hidden></span></button>
           <button type="button" class="mi" id="lg" role="menuitem" data-nt lang="${LANG === 'en' ? 'ar' : 'en'}"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-5.5-3.5-9s1-6.5 3.5-9z"/></svg><span>${LANG === 'en' ? 'العربية' : 'English'}</span></button><button type="button" class="mi" id="th" role="menuitem" data-theme-btn="menu"></button>
@@ -639,7 +662,7 @@ function shell() {
   refreshCounts(); drawAnn(); drawSubBar();
 }
 // Arabic day counts: يوم واحد / يومان / 3–10 أيام / 11+ يوما
-const daysAr = n => n === 0 ? 'اليوم آخر يوم' : n === 1 ? 'باقي يوم واحد' : n === 2 ? 'باقي يومان' : n <= 10 ? `باقي ${n} أيام` : `باقي ${n} يوما`;
+const daysAr = n => n === 0 ? 'اليوم آخر يوم' : n === 1 ? 'متبقي يوم واحد' : n === 2 ? 'متبقي يومان' : n <= 10 ? `متبقي ${n} أيام` : `متبقي ${n} يوما`;
 // the owner sees how long the trial or the subscription has left, counting down every day
 function drawSubBar() {
   const box = $('#subbar'), s = S.sub; if (!box) return;
@@ -722,7 +745,7 @@ async function loadNotifs() {
 }
 async function drawBell(open) {
   if (!$('#bell')) return;
-  if (open && $('#bpanel')) $('#bpanel').innerHTML = '<div class="muted small" style="padding:12px">جارٍ التحميل…</div>';
+  if (open && $('#bpanel')) $('#bpanel').innerHTML = '<div class="muted small" style="padding:12px">جاري التحميل…</div>';
   try { NOTIFS = await loadNotifs(); BELL_AT = Date.now(); } catch (e) { NOTIFS = []; }
   const seen = new Date(LS.get(seenKey()) || 0), isNew = x => !!x.at && new Date(x.at) > seen, n = NOTIFS.filter(x => x.hot || isNew(x)).length;
   for (const c of [$('#bcnt'), $('#bcnt2')]) if (c) { c.hidden = !n; c.textContent = n > 9 ? '9+' : n; }
@@ -750,7 +773,7 @@ async function route() {
   $('#side') && $('#side').classList.remove('open');
   drawNav();
   // each navigation renders into its own container, so a slow earlier page can never overwrite a newer one
-  const page = document.createElement('div'); page.innerHTML = '<div class="muted">جارٍ التحميل…</div>';
+  const page = document.createElement('div'); page.innerHTML = '<div class="muted">جاري التحميل…</div>';
   $('#page').replaceChildren(page);
   if (!modOn(routeModule(path))) { page.innerHTML = `<div class="note">${esc(tr('هذا القسم غير مشمول في باقة منشأتك.'))} ${has('owner') ? esc(tr('لتفعيله تواصل مع إدارة وعد.')) : esc(tr('راجع مالك المنشأة.'))}</div>`; return; }
   try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); setTimeout(() => page.isConnected && markWide(page), 60); if (key === '#/home' && typeof guideWelcome === 'function') guideWelcome(page); }
@@ -766,8 +789,9 @@ async function pendingForMe() {
   const reqs = await db.get('requests', { company_id: 'eq.' + S.cid, status: 'eq.pending', order: 'created_at' });
   if (!reqs.length) return [];
   // the owner stands in where nobody else can act (0085): no finance user, no HR/admin user, or a manager without a login
-  if (has('owner')) { const ms = await db.get('members', { company_id: 'eq.' + S.cid, select: 'role,extra_roles,employee_id' }).catch(() => []), hasR = rs => ms.some(m => rs.includes(m.role) || (m.extra_roles || []).some(x => rs.includes(x)));
-    cache.ownMem = { noFin: !hasR(['finance']), noHR: !hasR(['hr', 'admin']), linked: new Set(ms.map(m => m.employee_id).filter(Boolean)) }; cache.noFin = cache.ownMem.noFin; }
+  if (has('owner', 'admin')) { const ms = await db.get('members', { company_id: 'eq.' + S.cid, select: 'user_id,role,extra_roles,employee_id' }).catch(() => []), hasR = rs => ms.some(m => rs.includes(m.role) || (m.extra_roles || []).some(x => rs.includes(x)));
+    const buyers = await db.get('member_perms', { company_id: 'eq.' + S.cid, perm: 'eq.purch', select: 'user_id' }).catch(() => []), accs = new Set(ms.filter(m => m.role === 'accountant' || (m.extra_roles || []).includes('accountant')).map(m => m.user_id));
+    cache.ownMem = { noFin: !hasR(['finance']), noHR: !hasR(['hr', 'admin']), noBuyer: !buyers.some(b => accs.has(b.user_id)), linked: new Set(ms.map(m => m.employee_id).filter(Boolean)) }; cache.noFin = cache.ownMem.noFin; }
   const ids = [...new Set(reqs.map(r => r.employee_id))];
   const emps = await db.get('employees', { id: 'in.(' + ids.join(',') + ')', select: 'id,manager_id,department_id,full_name,emp_no' });
   const em = {}; emps.forEach(e => em[e.id] = e);
@@ -776,9 +800,10 @@ async function pendingForMe() {
 function canAct(r, e) {
   const st = r.route[r.step]; if (!st) return false;
   if (S.emp && r.employee_id === S.emp) return false;
-  const om = has('owner') && cache.ownMem;
+  const om = has('owner') && cache.ownMem;   // (admins load it too, for the purchasing step)
   if (st === 'm') return !!(e && ((S.emp && e.manager_id === S.emp) || (om && e.manager_id && !om.linked.has(e.manager_id))));
   if (st === 'p') return has('hr', 'admin') || !!(om && om.noHR);
+  if (st === 'b') return (can('purch') && !has('owner', 'admin', 'finance')) || (has('owner', 'admin') && !!(cache.ownMem ? cache.ownMem.noBuyer : true));
   if (st === 'h') return !!(S.company && S.company.hr_manager && S.company.hr_manager === S.session.user.id);
   if (st === 'f') return has('finance') || (has('owner') && cache.noFin === true);
   if (st === 'g') return has('owner');

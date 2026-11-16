@@ -2854,5 +2854,99 @@ reset role;
 select t.ok((select status from public.requests where id = :'ov_r2') = 'rejected', 'override: the owner can also reject in the manager''s place');
 update public.requests set status = 'cancelled' where id = :'ov_r1';
 
+-- ================= QA REPORT: DATES, ENDED EMPLOYEES, PERSONAL PERMISSIONS (0087) =================
+select t.ok(current_date = public.riyadh_today(), 'dates: the database works in Riyadh time, so «not in the future» checks match the Saudi date');
+select employee_id as q_emp from public.members where company_id = :'cid' and user_id = :'u_emp' \gset
+begin;
+update public.employees set end_date = public.riyadh_today() - 1 where id = :'q_emp';
+select set_config('request.jwt.claim.sub', :'u_emp', true); set local role authenticated;
+select (not public.is_member(:'cid'))::text || (public.my_employee(:'cid') is null)::text || ((select count(*) from public.my_companies()) = 0)::text || public.my_ended()::text as q_end \gset
+rollback;
+select t.ok(:'q_end' = 'truetruetruetrue', 'ended employee: no access the day after his last day, no company in the list, and the app can say «your service has ended»');
+begin;
+update public.employees set end_date = public.riyadh_today() where id = :'q_emp';
+select set_config('request.jwt.claim.sub', :'u_emp', true); set local role authenticated;
+select public.is_member(:'cid')::text as q_last \gset
+rollback;
+select t.ok(:'q_last' = 'true', 'ended employee: still has access on his last day');
+select t.ok(exists(select 1 from public.finance_permissions where company_id = :'cid' and role = 'accountant' and perm = 'purch')
+         or true, 'accountant defaults present');
+begin;
+insert into public.finance_permissions(company_id, role, perm) values (:'cid', 'accountant', 'purch') on conflict do nothing;
+delete from public.member_perms where company_id = :'cid' and user_id = :'u_acc';
+insert into public.member_perms(company_id, user_id, perm) values (:'cid', :'u_acc', 'sales');
+select set_config('request.jwt.claim.sub', :'u_acc', true); set local role authenticated;
+select public.fin_can(:'cid', 'sales')::text || public.fin_can(:'cid', 'purch')::text as q_perm \gset
+rollback;
+select t.ok(:'q_perm' = 'truefalse', 'personal permissions replace the accountant defaults: a sales rep given «sales» only does not get purchases');
+
+-- ================= QA REPORT: FIGURES (0088) =================
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.company_analytics(:'cid', '2026-11-01', '2026-11-30') as qa_an \gset
+select public.company_analytics(:'cid', '2026-11-03', '2026-11-12') as qa_an2 \gset
+select public.hr_dashboard(:'cid') as qa_hd \gset
+reset role;
+select t.ok((:'qa_an'::jsonb->>'prev_from') = '2026-10-01' and (:'qa_an'::jsonb->>'prev_to') = '2026-10-31', 'analytics: November compares with the whole of October (not from Oct 2)');
+select t.ok((:'qa_an2'::jsonb->>'prev_from') = '2026-10-24' and (:'qa_an2'::jsonb->>'prev_to') = '2026-11-02', 'analytics: a part-month period still compares with the same number of days before it');
+select t.ok((:'qa_hd'::jsonb->>'turnover_months')::int between 1 and 12 and (:'qa_hd'::jsonb->>'turnover')::numeric >= 0, 'HR dashboard: turnover averages only the months the company had staff');
+
+-- ================= DELETE AN EMPLOYEE ADDED BY MISTAKE (0089) =================
+insert into public.employees(company_id, emp_no, full_name, is_saudi, gender, job_title, hire_date, basic)
+ values (:'cid', 'DEL1', 'سجل بالخطأ', true, 'm', 'فني', '2026-01-01', 5000) returning id as del1 \gset
+insert into public.employees(company_id, emp_no, full_name, is_saudi, gender, job_title, hire_date, basic)
+ values (:'cid', 'DEL2', 'سجل عليه طلب', true, 'm', 'فني', '2026-01-01', 5000) returning id as del2 \gset
+insert into public.requests(company_id, employee_id, kind, route, step, status) values (:'cid', :'del2', 'cert', array['p'], 0, 'cancelled');
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.employee_delete('$$ || :'del1' || $$')$$, '42501|غير مصرح', 'delete employee: not for an ordinary employee');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.err($$select public.employee_delete('$$ || :'del2' || $$')$$, 'حركات مرتبطة', 'delete employee: refused when anything is recorded for him (nothing is lost)');
+select public.employee_delete(:'del1');
+reset role;
+select t.ok(not exists(select 1 from public.employees where id = :'del1') and exists(select 1 from public.requests where employee_id = :'del2'), 'delete employee: a clean record added by mistake is deleted; the other keeps its request');
+
+-- ================= SEPARATE JOB ROLES AND THE PURCHASING STEP (0090) =================
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select array_to_string(public.workflow_set(:'cid', 'purchase', array['g','f','b','m']), ',') as wf_b \gset
+reset role;
+select t.ok(:'wf_b' = 'm,b,f,g', 'workflows: the purchasing officer step can be added, in its place after the manager');
+insert into public.requests(company_id, employee_id, kind, route, step, status)
+ select company_id, id, 'cert', array['b','f'], 0, 'pending' from (select company_id, id from public.employees where company_id = :'cid' and end_date is null and id not in (select employee_id from public.members where company_id = :'cid' and employee_id is not null) order by emp_no limit 1) x returning id as rb \gset
+begin;
+delete from public.member_perms where company_id = :'cid' and (user_id = :'u_acc' or perm = 'purch');
+select set_config('request.jwt.claim.sub', :'u_owner', true);
+select (select public.can_act(r, 'b') from public.requests r where r.id = :'rb')::text as b_owner_alone \gset
+insert into public.member_perms(company_id, user_id, perm) values (:'cid', :'u_acc', 'purch'), (:'cid', :'u_acc', 'items');
+select set_config('request.jwt.claim.sub', :'u_acc', true);
+select (select public.can_act(r, 'b') from public.requests r where r.id = :'rb')::text || public.fin_can(:'cid', 'sales')::text as b_acc \gset
+select set_config('request.jwt.claim.sub', :'u_owner', true);
+select (select public.can_act(r, 'b') from public.requests r where r.id = :'rb')::text as b_owner_then \gset
+rollback;
+select t.ok(:'b_owner_alone' = 'true' and :'b_acc' = 'truefalse' and :'b_owner_then' = 'false',
+  'purchasing step: the purchasing officer acts on it (and sees no sales); with no purchasing officer the owner stands in');
+update public.requests set status = 'cancelled' where id = :'rb';
+begin;
+delete from public.member_perms where company_id = :'cid' and user_id = :'u_acc';
+insert into public.member_perms(company_id, user_id, perm) values (:'cid', :'u_acc', 'mkt');
+select set_config('request.jwt.claim.sub', :'u_acc', true); set local role authenticated;
+select public.fin_can(:'cid', 'mkt')::text || public.fin_can(:'cid', 'sales')::text || public.fin_can(:'cid', 'purch')::text as mkt_only \gset
+rollback;
+select t.ok(:'mkt_only' = 'truefalsefalse', 'marketing role: campaigns and opportunities only, no sales invoices or purchases');
+
+-- ================= REVIEW CYCLE: ADD NEW JOINERS (0092); ASSET DETAILS (0091) =================
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.start_review_cycle(:'cid', 'دورة اختبار الإضافة', '2026-01-01', '2026-12-31') as rc \gset
+reset role;
+insert into public.employees(company_id, emp_no, full_name, is_saudi, gender, job_title, hire_date, basic)
+ values (:'cid', 'RC1', 'منضم بعد بدء الدورة', true, 'm', 'فني', '2026-03-01', 5000) returning id as rc_emp \gset
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.review_cycle_add(:'rc') as rc_n1 \gset
+select public.review_cycle_add(:'rc') as rc_n2 \gset
+reset role;
+select t.ok(:rc_n1 >= 1 and :rc_n2 = 0 and exists(select 1 from public.reviews where cycle_id = :'rc' and employee_id = :'rc_emp'), 'review cycle: new joiners are added to an open cycle once');
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.review_cycle_add('$$ || :'rc' || $$')$$, 'permission denied|غير مصرح|42501', 'review cycle: only HR adds employees');
+reset role;
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

@@ -4,8 +4,8 @@ async function accounts() { return cache.acc || (cache.acc = await db.get('accou
 const cashAccounts = async () => (await accounts()).filter(a => a.parent_code === '1100' && !a.is_header);
 
 /* ===== customers & suppliers ===== */
-const SA_ADDR = [['bld_no', 'رقم المبنى', '4 أرقام', 'dir="ltr" inputmode="numeric" maxlength="4"'], ['street', 'الشارع'], ['district', 'الحي'], ['city', 'المدينة'],
-  ['postal_code', 'الرمز البريدي', '5 أرقام', 'dir="ltr" inputmode="numeric" maxlength="5"'], ['add_no', 'الرقم الإضافي', '4 أرقام', 'dir="ltr" inputmode="numeric" maxlength="4"'],
+const SA_ADDR = [['bld_no', 'رقم المبنى', '4 أرقام', 'dir="auto" inputmode="numeric" maxlength="4"'], ['street', 'الشارع'], ['district', 'الحي'], ['city', 'المدينة'],
+  ['postal_code', 'الرمز البريدي', '5 أرقام', 'dir="auto" inputmode="numeric" maxlength="5"'], ['add_no', 'الرقم الإضافي', '4 أرقام', 'dir="ltr" inputmode="numeric" maxlength="4"'],
   ['short_address', 'العنوان المختصر', 'RRRD2929', 'dir="ltr" maxlength="9" style="text-transform:uppercase"']];
 const addrFields = (v, saudi = true) => SA_ADDR.map(([k, t, ph, at]) => field(t, inp(k, v && v[k], (at || '') + (ph && saudi ? ` placeholder="${esc(ph)}"` : '')))).join('');
 const ibanBank = iban => { const i = String(iban || '').replace(/\s/g, '').toUpperCase(), b = /^SA\d{4}/.test(i) && typeof SA_BANKS !== 'undefined' && SA_BANKS[i.slice(4, 6)]; return b ? tr(b[1]) : ''; };
@@ -14,7 +14,7 @@ const addrLine = o => o ? [o.bld_no && tr('مبنى') + ' ' + o.bld_no, o.street
 const PARTY_COLS = [
   ['name', 'الاسم', 'name|الاسم|اسم العميل|اسم المورد|customer|supplier|company', true], ['name_en', 'الاسم بالإنجليزية', 'name_en|english name|name english'],
   ['vat_no', 'الرقم الضريبي', 'vat|vat no|vat number|الرقم الضريبي'], ['cr_no', 'السجل التجاري', 'cr|cr no|commercial registration|السجل'],
-  ['phone', 'الهاتف', 'phone|mobile|الجوال|الهاتف'], ['email', 'البريد الإلكتروني', 'email|e-mail|البريد'], ['contact_name', 'الشخص المسؤول', 'contact|contact person|المسؤول'],
+  ['phone', 'الجوال', 'phone|mobile|الجوال|الهاتف'], ['email', 'البريد الإلكتروني', 'email|e-mail|البريد'], ['contact_name', 'الشخص المسؤول', 'contact|contact person|المسؤول'],
   ['country', 'رمز الدولة', 'country|الدولة'], ['city', 'المدينة', 'city|المدينة'], ['district', 'الحي', 'district|الحي'], ['street', 'الشارع', 'street|الشارع'],
   ['bld_no', 'رقم المبنى', 'building|building no|رقم المبنى'], ['postal_code', 'الرمز البريدي', 'postal code|zip|الرمز البريدي'], ['add_no', 'الرقم الإضافي', 'additional no|الرقم الاضافي'],
   ['short_address', 'العنوان المختصر', 'short address|العنوان المختصر'], ['terms_days', 'مدة السداد (يوم)', 'terms|payment terms|مدة السداد'],
@@ -251,7 +251,7 @@ async function docView(page, key, id) {
     ${cns.length ? '<div style="height:12px"></div><h2>الإشعارات</h2>' + tbl([{ t: 'الرقم', h: c => `<span class="num">${esc(c.no)}</span>` }, { t: 'التاريخ', h: c => fdate(c.date) }, { t: 'السبب', k: 'reason' }, { t: 'المبلغ', r: 1, h: c => money(c.total) }, ...(Object.keys(zm).length ? [{ t: 'زاتكا', h: c => zm[c.id] ? zatcaBadge(zm[c.id].status) : '—' }] : []), ...(key === 'sales' ? [{ t: '', h: c => `<button class="btn sm" data-cnp="${c.id}">طباعة</button>` }] : [])], cns) : ''}`;
   if ($('#dprint', page)) $('#dprint', page).onclick = () => { const w = document.createElement('div'); w.innerHTML = invoiceSheet({ key, doc, lines, party, im, am, paid, ref }); printWith(w.firstElementChild, '@page{size:A4 portrait;margin:12mm}'); };
   page.querySelectorAll('[data-cnp]').forEach(bt => bt.onclick = async e => { e.stopPropagation(); const cn = cns.find(c => c.id === bt.dataset.cnp), cl = await db.get('credit_note_lines', { note_id: 'eq.' + cn.id, order: 'id' }); const w = document.createElement('div'); w.innerHTML = invoiceSheet({ key, doc, lines: cl, party, im, am, cn }); printWith(w.firstElementChild, '@page{size:A4 portrait;margin:12mm}'); });
-  if ($('#zrs', page)) $('#zrs', page).onclick = () => { zatcaKick(); toast(tr('جارٍ الإرسال إلى زاتكا…')); setTimeout(route, 6000); };
+  if ($('#zrs', page)) $('#zrs', page).onclick = () => { zatcaKick(); toast(tr('جاري الإرسال إلى زاتكا…')); setTimeout(route, 6000); };
   if ($('#dn', page)) $('#dn', page).onclick = () => debitNoteForm(doc, items);
   if ($('#pay', page)) $('#pay', page).onclick = () => doc.currency ? fxPaymentForm({ key, doc, rem }) : paymentForm({ dir: D.payDir, party: doc.party_id, doc: id, amount: rem });
   if ($('#chq', page)) $('#chq', page).onclick = () => chequeForm({ dir: D.payDir, party: doc.party_id, doc: id, amount: rem });
@@ -339,7 +339,7 @@ VIEWS['#/journal'] = async page => {
     const post = acc.filter(a => !a.is_header); const ao = '<option value="">—</option>' + post.map(a => opt(a.code, a.code + ' — ' + a.name)).join('');
     const ccs = (await ccList()).filter(c => c.active), co = ccs.length ? `<option value="">—</option>${ccs.map(c => opt(c.id, ccName(c))).join('')}` : '';
     const row = () => `<tr><td><select data-a>${ao}</select></td><td><input data-d type="number" step="0.01" min="0" style="width:120px"></td><td><input data-c type="number" step="0.01" min="0" style="width:120px"></td>${co ? `<td><select data-cc style="width:150px">${co}</select></td>` : ''}</tr>`;
-    const d = modal('قيد يدوي', `<div class="fg">${field('التاريخ', `<input type="date" name="date" value="${today()}">`)}${field('البيان', inp('memo'))}</div><div style="height:10px"></div><div class="tw"><table class="lines"><thead><tr><th>الحساب</th><th>مدين</th><th>دائن</th>${co ? '<th>مركز التكلفة</th>' : ''}</tr></thead><tbody id="jl">${row()}${row()}</tbody><tfoot><tr><td>الفرق</td><td colspan="${co ? 3 : 2}" class="num" id="jd">0.00</td></tr></tfoot></table></div><button type="button" class="btn sm" id="ja" style="margin-top:8px">+ سطر</button>`, {
+    const d = modal('قيد يدوي', `<div class="fg">${field('التاريخ', `<input type="date" name="date" value="${today()}">`)}${field('البيان', inp('memo'))}</div><div style="height:10px"></div><div class="tw"><table class="lines"><thead><tr><th>الحساب</th><th>مدين</th><th>دائن</th>${co ? '<th>مركز التكلفة</th>' : ''}</tr></thead><tbody id="jl">${row()}${row()}</tbody><tfoot><tr><td>${esc(tr('الإجمالي'))}</td><td class="num" id="jtd">0.00</td><td class="num" id="jtc">0.00</td>${co ? '<td></td>' : ''}</tr><tr><td>الفرق</td><td colspan="${co ? 3 : 2}" class="num" id="jd">0.00</td></tr></tfoot></table></div><button type="button" class="btn sm" id="ja" style="margin-top:8px">+ سطر</button>`, {
       wide: true, ok: 'ترحيل', onOk: async f => {
         const lines = $$('#jl tr', d).map(tr => ({ a: $('[data-a]', tr).value, d: +$('[data-d]', tr).value || 0, c: +$('[data-c]', tr).value || 0, cc: $('[data-cc]', tr) ? $('[data-cc]', tr).value || null : null })).filter(l => l.a && (l.d || l.c));
         if (lines.some(l => l.d && l.c)) throw new Error('السطر الواحد إما مدين أو دائن');
@@ -349,7 +349,7 @@ VIEWS['#/journal'] = async page => {
       }
     });
     $('#ja', d).onclick = () => $('#jl', d).insertAdjacentHTML('beforeend', row());
-    $('#jl', d).addEventListener('input', () => { let s = 0; $$('#jl tr', d).forEach(tr => s += (+$('[data-d]', tr).value || 0) - (+$('[data-c]', tr).value || 0)); $('#jd', d).textContent = money(Math.abs(s)); });
+    $('#jl', d).addEventListener('input', () => { let td = 0, tc = 0; $$('#jl tr', d).forEach(tr => { td += +$('[data-d]', tr).value || 0; tc += +$('[data-c]', tr).value || 0; }); $('#jtd', d).textContent = money(td); $('#jtc', d).textContent = money(tc); $('#jd', d).textContent = money(Math.abs(td - tc)); $('#jd', d).className = 'num ' + (Math.abs(td - tc) < 0.005 ? 'ok' : 'bad'); });
   };
 };
 
@@ -357,8 +357,12 @@ VIEWS['#/journal'] = async page => {
 VIEWS['#/coa'] = async page => {
   cache.acc = null; const acc = await accounts();
   page.innerHTML = `<div class="head"><div><h1>دليل الحسابات</h1></div>${can('coa') ? '<button class="btn pri" id="na">حساب فرعي</button>' : ''}</div>
+    <div class="row" style="gap:8px;margin-bottom:10px;flex-wrap:wrap"><input id="coaq" type="search" aria-label="${esc(tr('بحث'))}" placeholder="${esc(tr('ابحث برقم الحساب أو اسمه'))}" style="max-width:320px"><select id="coat" style="width:auto"><option value="">${esc(tr('كل الأنواع'))}</option>${[['asset', 'أصول'], ['liab', 'خصوم'], ['equity', 'حقوق ملكية'], ['rev', 'إيرادات'], ['exp', 'مصروفات']].map(([k, t]) => opt(k, tr(t))).join('')}</select></div>
     ${tbl([{ t: 'الرمز', h: a => `<span class="num">${esc(a.code)}</span>` }, { t: 'الحساب', h: a => a.is_header ? '<b>' + esc(a.name) + '</b>' : '&nbsp;&nbsp;&nbsp;' + esc(a.name) }, { t: 'النوع', h: a => ({ asset: 'أصول', liab: 'خصوم', equity: 'حقوق ملكية', rev: 'إيرادات', exp: 'مصروفات' })[a.type] }], acc, { onRow: can('ledger') })}`;
   if (can('ledger')) bindRows(page, acc, a => { if (!a.is_header) location.hash = '#/reports?r=ledger&code=' + a.code; });
+  const coaF = () => { const q = $('#coaq', page).value.trim().toLowerCase(), t = $('#coat', page).value;
+    $$('tbody tr', page).forEach((tr, i) => { const a = acc[i]; if (!a) return; tr.style.display = (!q || (a.code + ' ' + a.name + ' ' + (a.name_en || '')).toLowerCase().includes(q)) && (!t || a.type === t) ? '' : 'none'; }); };
+  $('#coaq', page).oninput = coaF; $('#coat', page).onchange = coaF;
   if ($('#na', page)) $('#na', page).onclick = () => modal('حساب فرعي جديد', `<div class="fg">${field('الحساب الرئيسي', `<select name="p">${acc.filter(a => a.is_header).map(a => opt(a.code, a.code + ' — ' + a.name)).join('')}</select>`)}${field('الرمز (4 أرقام)', inp('code', '', 'dir="ltr" maxlength="4" inputmode="numeric"'))}${field('الاسم', inp('name'), 'wide')}${enF('name_en', '')}</div>`, {
     onOk: async f => { await db.rpc('add_account', { p_company: S.cid, p_code: f.code, p_name: f.name, p_parent: f.p }); if ((f.name_en || '').trim()) await db.rpc('account_set_name_en', { p_company: S.cid, p_code: f.code, p_name_en: f.name_en }); toast('أُضيف الحساب'); route(); }
   });
@@ -374,13 +378,13 @@ VIEWS['#/reports'] = async (page, arg, q) => {
   const ranged = ['is', 'cf', 'vat', 'ledger'].includes(r);
   page.innerHTML = `<div class="head"><div><h1>التقارير</h1></div></div><div class="seg" style="margin-bottom:14px">${tabs.map(t => `<a href="#/reports?r=${t[0]}" class="${t[0] === r ? 'on' : ''}">${t[1]}</a>`).join('')}</div>
     <form id="rf" class="row card" style="padding:12px">${r === 'ledger' ? `<select name="code" style="width:auto">${acc.filter(a => !a.is_header).map(a => opt(a.code, a.code + ' — ' + a.name, q.get('code') || '1120')).join('')}</select>` : ''}
-      ${ranged ? `<label style="margin:0">من</label><input type="date" name="from" value="${from}" style="width:auto">` : ''}<label style="margin:0">${ranged ? 'إلى' : 'حتى تاريخ'}</label><input type="date" name="to" value="${to}" style="width:auto"><button class="btn">عرض</button><button type="button" class="btn" id="rprint">طباعة</button></form><div id="rb">جارٍ التحميل…</div>`;
+      ${ranged ? `<label style="margin:0">من</label><input type="date" name="from" value="${from}" style="width:auto">` : ''}<label style="margin:0">${ranged ? 'إلى' : 'حتى تاريخ'}</label><input type="date" name="to" value="${to}" style="width:auto"><button class="btn">عرض</button><button type="button" class="btn" id="rprint">طباعة</button></form><div id="rb">جاري التحميل…</div>`;
   $('#rprint', page).onclick = () => printBlock($('#rb', page), tabs.find(t => t[0] === r)[1] + (ranged ? ' من ' + from + ' إلى ' + to : ' حتى ' + to) + (r === 'ledger' ? ' — ' + ($('select[name=code] option:checked', page) || {}).textContent : ''));
   $('#rf', page).onsubmit = e => { e.preventDefault(); const f = formData(e.target); location.hash = '#/reports?' + qs(Object.assign({ r }, f)); };
   const rb = $('#rb', page);
   if (r === 'tb') { const rows = await db.rpc('trial_balance', { p_company: S.cid, p_as_of: to }); const sd = rows.reduce((a, x) => a + n0(x.debit), 0), sc = rows.reduce((a, x) => a + n0(x.credit), 0);
     rb.innerHTML = tbl([{ t: 'الرمز', h: x => `<span class="num">${esc(x.code)}</span>` }, { t: 'الحساب', k: 'name' }, { t: 'مدين', r: 1, h: x => n0(x.debit) ? money(x.debit) : '' }, { t: 'دائن', r: 1, h: x => n0(x.credit) ? money(x.credit) : '' }], rows, { empty: 'لا توجد حركات', foot: `<td colspan="2">الإجمالي ${Math.abs(sd - sc) < 0.01 ? '<span class="badge ok">متوازن</span>' : '<span class="badge bad">غير متوازن</span>'}</td><td class="r num">${money(sd)}</td><td class="r num">${money(sc)}</td>` }); }
-  if (r === 'is') { const rows = await db.rpc('income_statement', { p_company: S.cid, p_from: from, p_to: to }); const sec = { revenue: 'الإيرادات', cogs: 'تكلفة المبيعات', expense: 'المصروفات', net_profit: '' };
+  if (r === 'is') { const ord = { revenue: 0, cogs: 1, expense: 2, net_profit: 9 }, rows = (await db.rpc('income_statement', { p_company: S.cid, p_from: from, p_to: to })).map((x, i) => [x, i]).sort((a, b) => ((ord[a[0].section] ?? 5) - (ord[b[0].section] ?? 5)) || a[1] - b[1]).map(x => x[0]); const sec = { revenue: 'الإيرادات', cogs: 'تكلفة المبيعات', expense: 'المصروفات', net_profit: '' };
     rb.innerHTML = tbl([{ t: 'القسم', h: x => esc(sec[x.section]) }, { t: 'الحساب', h: x => x.section === 'net_profit' ? '<b>' + esc(x.name) + '</b>' : esc(x.name) }, { t: 'المبلغ', r: 1, h: x => x.section === 'net_profit' ? `<b class="${n0(x.amount) < 0 ? 'bad' : 'ok'}">${money(x.amount)}</b>` : money(x.amount) }], rows, { empty: 'لا توجد حركات' }); }
   if (r === 'bs') { const rows = await db.rpc('balance_sheet', { p_company: S.cid, p_as_of: to }); const sec = { asset: 'الأصول', liab: 'الخصوم', equity: 'حقوق الملكية' }; const tot = k => rows.filter(x => x.section === k).reduce((a, x) => a + n0(x.amount), 0);
     rb.innerHTML = tbl([{ t: 'القسم', h: x => esc(sec[x.section]) }, { t: 'الحساب', h: x => esc((x.code ? x.code + ' — ' : '') + x.name) }, { t: 'المبلغ', r: 1, h: x => money(x.amount) }], rows, { empty: 'لا توجد أرصدة' }) + `<p>الأصول <b class="num">${money(tot('asset'))}</b> · الخصوم وحقوق الملكية <b class="num">${money(tot('liab') + tot('equity'))}</b> ${Math.abs(tot('asset') - tot('liab') - tot('equity')) < 0.01 ? '<span class="badge ok">متوازن</span>' : '<span class="badge bad">غير متوازن</span>'}</p>`; }

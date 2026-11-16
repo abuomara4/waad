@@ -369,3 +369,17 @@ tr.hl td{background:var(--waitbg)}
 .gwel{position:relative;margin-bottom:14px;border-inline-start:4px solid #C9B27B}.gwel h2{margin:0 0 8px}.gwel ul{margin:0 0 12px;padding-inline-start:18px}.gwel li{margin-bottom:6px}.gwel .x{position:absolute;top:8px;inset-inline-end:10px;background:none;border:0;font-size:22px;cursor:pointer;color:var(--muted)}
 .gquiz{margin-top:10px;border-inline-start:4px solid #C9B27B}.gquiz h3{margin:0 0 6px}.gq{border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:0 0 10px}.gq legend{font-weight:600;padding:0 6px}.gqo{display:flex;gap:8px;align-items:center;padding:6px 0;cursor:pointer}.gqo input{width:auto}
 .rpath{display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center}.rstep{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}.rstep.done{color:var(--ok);border-color:var(--ok)}.rstep.now{background:#C9B27B;border-color:#C9B27B;color:#142039;font-weight:600}
+/* QA report: gold buttons on the sign-in screens (identity #C9B27B / navy #142039), required fields, warehouses, empty states */
+.auth .btn.pri{background:#C9B27B;border-color:#C9B27B;color:#142039}.auth .btn.pri:hover{background:#b89f63;border-color:#b89f63}.auth .linkbtn,.auth .small a,.auth p a{color:var(--gold)}
+.req{color:var(--bad);font-weight:700}
+.whlist{display:flex;flex-direction:column;gap:2px;text-align:start;direction:rtl;unicode-bidi:isolate}.whq{white-space:nowrap}
+.empty-cta{text-align:center;padding:32px 16px}.empty-cta p{color:var(--muted);margin:0 0 14px}
+.tw .empty{text-align:center}
+.um .brole{margin-inline-start:6px;font-weight:400}@media(max-width:600px){.um .brole{display:none}}
+/* every control uses the page font: a button with Arabic text otherwise falls back to the device font, which on some systems has no Arabic glyphs (□□□ on the point-of-sale cards) */
+button,input,select,textarea,optgroup{font-family:inherit}
+/* numeric columns: the cell is left-to-right (numbers), its header is not — align both to the same physical side */
+[dir=rtl] td.r,[dir=rtl] th.r{text-align:left}[dir=ltr] td.r,[dir=ltr] th.r{text-align:right}
+.kcard.drag{opacity:.5}.kcol.over{outline:2px dashed var(--accent);outline-offset:-2px;border-radius:10px}.kcard[draggable=true]{cursor:grab}
+#loadbar{position:fixed;top:0;inset-inline:0;height:3px;z-index:9999;background:linear-gradient(90deg,transparent,#C9B27B,transparent);background-size:40% 100%;background-repeat:no-repeat;animation:lb 1s linear infinite}@keyframes lb{from{background-position:-40% 0}to{background-position:140% 0}}@media(prefers-reduced-motion:reduce){#loadbar{animation:none;background:#C9B27B}}
+.empty .eico{width:36px;height:36px;fill:none;stroke:currentColor;stroke-width:1.5;opacity:.5;display:block;margin:0 auto 8px}

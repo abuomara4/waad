@@ -46,7 +46,7 @@ async function soForm(page, kind, id, q) {
   const K = SK[kind];
   if (!can('sales')) { page.innerHTML = '<div class="err">غير مصرح</div>'; return; }
   const L = await soLookups();
-  if (!L.parties.length) { page.innerHTML = '<div class="note">أضف عميلا أولا. <a href="#/parties/customer">العملاء</a></div>'; return; }
+  if (!L.parties.length) { page.innerHTML = `<div class="head"><div><a href="javascript:history.back()" class="small">→ ${esc(tr('رجوع'))}</a><h1>${esc(tr('مستند جديد'))}</h1></div></div><div class="card empty-cta"><p>${esc(tr('لا يوجد عملاء بعد. أضف أول عميل ثم أنشئ المستند.'))}</p><a class="btn pri" href="#/parties/customer">${esc(tr('إضافة عميل'))}</a></div>`; return; }
   let doc = null, lines = [{}];
   if (id) {
     [[doc]] = await Promise.all([db.get('sales_orders', { id: 'eq.' + id })]);

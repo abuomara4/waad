@@ -8,10 +8,10 @@ const CRM_SRC = { website: 'الموقع الإلكتروني', referral: 'تو�
 const CRM_ACT = { call: 'اتصال', meeting: 'اجتماع', email: 'بريد', whatsapp: 'واتساب', visit: 'زيارة', task: 'مهمة', note: 'ملاحظة' };
 const crmBadge = s => `<span class="badge ${s === 'won' ? 'ok' : s === 'lost' ? 'bad' : s === 'proposal' || s === 'negotiation' ? 'info' : 'wait'}">${esc(tr(CRM_STAGES[s] || s))}</span>`;
 VIEWS['#/crm'] = async (page, arg) => {
-  if (!can('sales')) { page.innerHTML = '<div class="err">غير مصرح</div>'; return; }
+  if (!can('sales') && !can('mkt')) { page.innerHTML = '<div class="err">غير مصرح</div>'; return; }
   if (arg) return crmView(page, arg);
   const [leads, sum, parties, acts, campaigns] = await Promise.all([db.get('crm_leads', Object.assign(C(), { order: 'updated_at.desc', limit: 500 })), db.rpc('crm_summary', { p_company: S.cid }),
-    db.get('parties', Object.assign(C(), { kind: 'eq.customer', select: 'id,name' })),
+    db.get('parties', Object.assign(C(), { kind: 'eq.customer', select: 'id,name,contact_name,phone,email' })),
     db.get('crm_activities', Object.assign(C(), { done: 'eq.false', due_at: 'lte.' + new Date(Date.now() + 864e5).toISOString(), order: 'due_at', limit: 50 })),
     db.get('marketing_campaigns', Object.assign(C(), { status: 'neq.cancelled', select: 'id,name', order: 'created_at.desc' })).catch(() => [])]);
   const pm = {}; parties.forEach(p => pm[p.id] = p.name); const lm = {}; leads.forEach(l => lm[l.id] = l);
@@ -28,35 +28,48 @@ VIEWS['#/crm'] = async (page, arg) => {
     ${acts.length ? `<div class="card"><h2>${esc(tr('متابعات مستحقة'))}</h2>${tbl([{ t: 'الموعد', h: a => `<span class="num ${new Date(a.due_at) < new Date() ? 'bad' : ''}">${esc(String(a.due_at).slice(0, 16).replace('T', ' '))}</span>` },
       { t: 'النوع', h: a => esc(tr(CRM_ACT[a.kind])) }, { t: 'الفرصة', h: a => lm[a.lead_id] ? `<a href="#/crm/${a.lead_id}">${esc(lm[a.lead_id].title)}</a>` : '' }, { t: 'الملاحظة', k: 'note' }], acts)}</div>` : ''}
     ${view === 'board' ? `<div class="kanban">${Object.keys(CRM_STAGES).map(s => { const ls = leads.filter(l => l.stage === s);
-        return `<div class="kcol"><div class="khead">${esc(tr(CRM_STAGES[s]))} <span class="num">${ls.length}</span><div class="small muted num">${money(ls.reduce((a, l) => a + n0(l.value), 0))}</div></div>
-          ${ls.slice(0, 60).map(l => `<a class="kcard" href="#/crm/${l.id}"><b>${esc(l.title)}</b><div class="small">${who(l)}</div><div class="small muted"><span class="num">${money(l.value)}</span>${l.expected_close ? ' · <span class="num">' + esc(l.expected_close) + '</span>' : ''}</div></a>`).join('')}</div>`; }).join('')}</div>`
+        return `<div class="kcol" data-kst="${s}"><div class="khead">${esc(tr(CRM_STAGES[s]))} <span class="num">${ls.length}</span><div class="small muted num">${money(ls.reduce((a, l) => a + n0(l.value), 0))}</div></div>
+          ${ls.slice(0, 60).map(l => `<a class="kcard" href="#/crm/${l.id}" draggable="true" data-kid="${l.id}"><b>${esc(l.title)}</b><div class="small">${who(l)}</div><div class="small muted"><span class="num">${money(l.value)}</span>${l.expected_close ? ' · <span class="num">' + esc(l.expected_close) + '</span>' : ''}</div></a>`).join('')}</div>`; }).join('')}</div>`
       : tbl([{ t: 'الرقم', h: l => `<span class="num">${esc(l.no)}</span>` }, { t: 'الفرصة', k: 'title' }, { t: 'العميل', h: who }, { t: 'المرحلة', h: l => crmBadge(l.stage) },
         { t: 'القيمة', r: 1, h: l => money(l.value) }, { t: 'الاحتمال', r: 1, h: l => l.probability + '%' }, { t: 'الإغلاق المتوقع', h: l => fdate(l.expected_close) }, { t: 'المصدر', h: l => esc(tr(CRM_SRC[l.source])) }], leads, { empty: 'لا توجد فرص بعد', onRow: true })}`;
   $('#crv', page).onclick = () => { LS.set('waad.crmv', view === 'board' ? 'list' : 'board'); route(); };
+  $$('.kcard[data-kid]', page).forEach(c => c.addEventListener('dragstart', ev => { ev.dataTransfer.setData('text/plain', c.dataset.kid); c.classList.add('drag'); }));
+  $$('.kcard[data-kid]', page).forEach(c => c.addEventListener('dragend', () => c.classList.remove('drag')));
+  $$('.kcol[data-kst]', page).forEach(col => {
+    col.addEventListener('dragover', ev => { ev.preventDefault(); col.classList.add('over'); });
+    col.addEventListener('dragleave', () => col.classList.remove('over'));
+    col.addEventListener('drop', async ev => { ev.preventDefault(); col.classList.remove('over'); const id = ev.dataTransfer.getData('text/plain'), st = col.dataset.kst, l = lm[id];
+      if (!l || l.stage === st) return;
+      if (['won', 'lost'].includes(st) || ['won', 'lost'].includes(l.stage)) { toast(tr('افتح الفرصة لإغلاقها أو إعادة فتحها')); return; }
+      try { await db.upd('crm_leads', { id: 'eq.' + id }, { stage: st }); toast(tr('نُقلت الفرصة إلى') + ' ' + tr(CRM_STAGES[st])); route(); } catch (er) { toast(er.message); } }); });
   $('#nop', page).onclick = () => leadForm(null, parties, campaigns);
   if (view !== 'board') bindRows(page, leads, l => location.hash = '#/crm/' + l.id);
 };
-function leadForm(l, parties, campaigns = []) {
+async function leadForm(l, parties, campaigns = []) {
   const v = l || { stage: 'new', source: 'other' };
+  const [lms, lem] = await Promise.all([db.get('members', { company_id: 'eq.' + S.cid, select: 'user_id,employee_id,role' }).catch(() => []), employeesMap().catch(() => ({}))]);
+  const reps = lms.map(m => [m.user_id, m.employee_id && lem[m.employee_id] ? lem[m.employee_id].full_name : (m.user_id === S.session.user.id ? tr('أنا') : '')]).filter(x => x[1]);
+  setTimeout(() => { const f = $('#mform'); if (!f || !f.party_id) return; f.party_id.onchange = () => { const p = parties.find(x => x.id === f.party_id.value); if (!p) return; [['contact_name', p.contact_name], ['phone', p.phone], ['email', p.email]].forEach(([k, val]) => { if (val && !f[k].value) f[k].value = val; }); }; }, 0);
   modal(l ? tr('تعديل الفرصة') : tr('فرصة جديدة'), `<div class="fg">${field('عنوان الفرصة', inp('title', v.title, 'required'), 'wide')}
       ${field('عميل حالي', `<select name="party_id"><option value="">${esc(tr('— عميل جديد محتمل —'))}</option>${parties.map(p => opt(p.id, p.name, v.party_id)).join('')}</select>`)}${field('اسم الجهة (للعميل المحتمل)', inp('prospect', v.prospect))}
       ${field('الشخص المسؤول', inp('contact_name', v.contact_name))}${field('الجوال', inp('phone', v.phone, 'dir="ltr"'))}${field('البريد', inp('email', v.email, 'type="email" dir="ltr"'))}
       ${field('المصدر', `<select name="source">${Object.entries(CRM_SRC).map(([k, t]) => opt(k, tr(t), v.source)).join('')}</select>`)}
       ${campaigns.length ? field('الحملة التسويقية', `<select name="campaign_id"><option value="">${esc(tr('— بلا حملة —'))}</option>${campaigns.map(c => opt(c.id, c.name, v.campaign_id)).join('')}</select>`) : ''}
       ${field('المرحلة', `<select name="stage">${Object.entries(CRM_STAGES).filter(([k]) => k !== 'lost').map(([k, t]) => opt(k, tr(t), v.stage)).join('')}</select>`)}
-      ${field('القيمة المتوقعة (ريال)', inp('value', v.value, 'type="number" min="0" step="0.01"'))}${field('تاريخ الإغلاق المتوقع', `<input type="date" name="expected_close" value="${esc(v.expected_close || '')}">`)}
+      ${field('القيمة المتوقعة (ريال)', inp('value', v.value, 'type="number" min="0" step="0.01"'))}${field('نسبة الاحتمال % (فارغ = حسب المرحلة)', inp('probability', l ? v.probability : '', 'type="number" min="0" max="100"'))}
+      ${reps.length ? field('المندوب المسؤول', `<select name="owner_id">${reps.map(([id, n]) => opt(id, n, v.owner_id || S.session.user.id)).join('')}</select>`) : ''}${field('تاريخ الإغلاق المتوقع', `<input type="date" name="expected_close" value="${esc(v.expected_close || '')}">`)}
       ${field('ملاحظات', `<textarea name="note" rows="2">${esc(v.note || '')}</textarea>`, 'wide')}</div>`, {
     wide: true, onOk: async f => {
       if (!f.party_id && (f.prospect || '').trim().length < 2) throw new Error('اختر عميلا أو اكتب اسم الجهة');
       const row = { title: f.title.trim(), party_id: blank(f.party_id), prospect: blank(f.prospect), contact_name: blank(f.contact_name), phone: blank(f.phone), email: blank(f.email),
-        source: f.source, stage: f.stage, value: f.value === '' ? null : +f.value, expected_close: blank(f.expected_close), note: blank(f.note) };
+        source: f.source, stage: f.stage, value: f.value === '' ? null : +f.value, expected_close: blank(f.expected_close), note: blank(f.note), ...(f.probability !== '' && f.probability != null ? { probability: Math.max(0, Math.min(100, +f.probability)) } : l ? {} : {}), ...(f.owner_id ? { owner_id: f.owner_id } : {}) };
       if (f.campaign_id !== undefined) row.campaign_id = blank(f.campaign_id);   // only when the picker was shown
       if (l) { await db.upd('crm_leads', { id: 'eq.' + l.id }, row); toast(tr('تم الحفظ')); route(); }
       else { const [n] = await db.ins('crm_leads', Object.assign(row, { company_id: S.cid })); location.hash = '#/crm/' + n.id; }
     } });
 }
 async function crmView(page, id) {
-  const [[l], acts, parties, campaigns] = await Promise.all([db.get('crm_leads', { id: 'eq.' + id }), db.get('crm_activities', { lead_id: 'eq.' + id, order: 'created_at.desc' }), db.get('parties', Object.assign(C(), { kind: 'eq.customer', select: 'id,name' })),
+  const [[l], acts, parties, campaigns] = await Promise.all([db.get('crm_leads', { id: 'eq.' + id }), db.get('crm_activities', { lead_id: 'eq.' + id, order: 'created_at.desc' }), db.get('parties', Object.assign(C(), { kind: 'eq.customer', select: 'id,name,contact_name,phone,email' })),
     db.get('marketing_campaigns', Object.assign(C(), { status: 'neq.cancelled', select: 'id,name', order: 'created_at.desc' })).catch(() => [])]);
   if (!l) throw new Error('الفرصة غير موجودة');
   const pm = {}; parties.forEach(p => pm[p.id] = p.name); const closed = ['won', 'lost'].includes(l.stage);
@@ -70,7 +83,7 @@ async function crmView(page, id) {
       <div class="card kpi"><div class="muted small">${esc(tr('الاحتمال'))}</div><div class="v num">${l.probability}%</div></div>
       <div class="card kpi"><div class="muted small">${esc(tr('الإغلاق المتوقع'))}</div><div class="v num">${fdate(l.expected_close)}</div></div>
       <div class="card kpi"><div class="muted small">${esc(tr('عرض السعر'))}</div><div class="v">${q ? `<a href="#/quotes/${q.id}" class="num">${esc(q.no)}</a> <span class="small num">${money(q.total)}</span>` : '—'}</div></div></div>
-    <div class="card"><h2>${esc(tr('التواصل'))}</h2><p>${esc(l.contact_name || '—')} · <span class="num" dir="ltr">${esc(l.phone || '')}</span> · <span dir="ltr">${esc(l.email || '')}</span></p>
+    <div class="card"><h2>${esc(tr('التواصل'))}</h2><p>${(() => { const pp = parties.find(x => x.id === l.party_id) || {}; l.contact_name = l.contact_name || pp.contact_name; l.phone = l.phone || pp.phone; l.email = l.email || pp.email; const parts = [l.contact_name && esc(l.contact_name), l.phone && `<span class="num" dir="ltr">${esc(l.phone)}</span>`, l.email && `<span dir="ltr">${esc(l.email)}</span>`].filter(Boolean); return parts.length ? parts.join(' · ') : `<span class="muted">${esc(tr('لا توجد بيانات تواصل'))}</span>`; })()}</p>
       ${l.phone ? `<p class="row" style="gap:6px"><a class="btn sm" href="tel:${esc(l.phone)}">${esc(tr('اتصال'))}</a><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/${esc(String(l.phone).replace(/^0/, '966').replace(/\D/g, ''))}">${esc(tr('واتساب'))}</a></p>` : ''}
       ${l.note ? `<p class="muted" style="white-space:pre-wrap">${esc(l.note)}</p>` : ''}${l.stage === 'lost' ? `<div class="note">${esc(tr('سبب الخسارة'))}: ${esc(l.lost_reason)}</div>` : ''}</div>
     <div class="card"><div class="row" style="justify-content:space-between"><h2>${esc(tr('المتابعات'))}</h2><button class="btn sm pri" id="nact">${esc(tr('إضافة متابعة'))}</button></div>

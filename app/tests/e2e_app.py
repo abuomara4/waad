@@ -983,7 +983,7 @@ with sync_playwright() as pw:
     e.click('#um')
     if SH: o.screenshot(path=SH + '/travel.png', full_page=True)
     go(o, '#/approvals'); o.wait_for_timeout(500); ok('مدة الانتظار' in o.inner_text('#page') or 'لا شيء بانتظارك' in o.inner_text('#page'), 'approvals show how long each request has waited')
-    ok(o.evaluate("[waitTxt(new Date(Date.now() - 135 * 6e4).toISOString()), waitTxt(new Date(Date.now() - (2 * 1440 + 185) * 6e4).toISOString()), waitTxt(new Date(Date.now() - 7 * 6e4).toISOString()), /^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}$/.test(waitAt(new Date().toISOString()))].join('|')") == 'منذ 2 ساعة و 15 دقيقة|منذ 2 يوم و 3 ساعة|منذ 7 دقيقة|true', 'the waiting time is exact (minutes, hours and minutes, days and hours) with the arrival time')
+    ok(o.evaluate("[waitTxt(new Date(Date.now() - 135 * 6e4).toISOString()), waitTxt(new Date(Date.now() - (2 * 1440 + 185) * 6e4).toISOString()), waitTxt(new Date(Date.now() - 7 * 6e4).toISOString()), /^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}$/.test(waitAt(new Date().toISOString()))].join('|')") == 'منذ ساعتين و15 دقيقة|منذ يومين و3 ساعات|منذ 7 دقائق|true', 'the waiting time is exact (minutes, hours and minutes, days and hours) with the arrival time')
     sqlx("update companies set request_sla_days = null")
 
     # ---------- company analytics: every section and every export format ----------
@@ -1094,7 +1094,7 @@ with sync_playwright() as pw:
               "select string_agg(coalesce(description,'')||' '||coalesce(inv_text,'')||' '||coalesce(emp_defense,'')||' '||coalesce(griev_text,'')||' '||coalesce(griev_note,'')||' '||coalesce(decision_note,''),' ') from penalties",
               "select string_agg(coalesce(note,''),' ') from requests", "select string_agg(coalesce(title,''),' ') from trainings", "select string_agg(coalesce(full_name,''),' ') from candidates", "select string_agg(coalesce(memo,''),' ') from journal_entries",
               "select string_agg(coalesce(addressee,''),' ') from letters", "select string_agg(coalesce(note,''),' ') from attendance", "select string_agg(coalesce(title,'')||' '||coalesce(notes,''),' ') from employee_documents", "select string_agg(coalesce(reason,''),' ') from period_locks", "select string_agg(name,' ') from fixed_assets", "select string_agg(coalesce(name,''),' ') from currencies", "select string_agg(coalesce(bank,'')||' '||coalesce(reason,''),' ') from cheques", "select string_agg(coalesce(reason,''),' ') from fiscal_closings", "select string_agg(l->>'desc',' ') from petty_claims, jsonb_array_elements(lines) l"]:
-        try: typed.update(w for w in re.findall(r'[؀-ۿ]+', sql(q) or ''))
+        try: typed.update(re.sub('[\u064b-\u064d]', '', w) for w in re.findall(r'[؀-ۿ]+', sql(q) or ''))   # the screen shows typed text without tanween
         except Exception: pass
     cust_id = sql("select id from parties where name='مؤسسة النخبة'")
     leftovers = {}
@@ -1378,7 +1378,7 @@ with sync_playwright() as pw:
     pp.select_option('#dlg select[name=status]', 'trial'); pp.fill('#dlg input[name=days]', '7'); modal_ok(pp); pp.wait_for_timeout(600)
     ok(sql("(select status || '|' || (trial_ends - current_date) from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'منشأة تنتظر القبول')") == 'trial|7', 'admin accepts it as a 7-day trial')
     wp.click('#pchk'); wp.wait_for_selector('#nav'); ok(True, 'once accepted the owner gets into the system')
-    wp.wait_for_selector('.subbar'); ok('باقي 7 أيام' in wp.inner_text('.subbar') and wp.locator('.subbar a').count() == 1, 'the owner sees the trial countdown (7 days left) with «subscribe now»')
+    wp.wait_for_selector('.subbar'); ok('متبقي 7 أيام' in wp.inner_text('.subbar') and wp.locator('.subbar a').count() == 1, 'the owner sees the trial countdown (7 days left) with «subscribe now»')
     ok(sql("(select xfer_consent_at is not null from companies where name = 'منشأة تنتظر القبول')") == 'true', 'the consent to storage outside the Kingdom is recorded with the company')
     pp.wait_for_selector('#csub'); pp.click('#csub'); pp.wait_for_selector('#dlg input[name=ends]')
     pp.select_option('#dlg select[name=status]', 'active'); pp.fill('#dlg input[name=days]', '30'); modal_ok(pp); pp.wait_for_timeout(600)

@@ -105,7 +105,7 @@ async function formFill(t) {
       const vals = {}; t.fields.forEach(([k]) => { vals[k] = f['f_' + k] || ''; });
       const title = en ? (t.title_en || t.title_ar) : t.title_ar, whoName = who ? (en && who.full_name_en ? who.full_name_en : en && who.name_en ? who.name_en : who.full_name || who.name) : '';
       const no = await db.rpc('form_issue', { p_company: S.cid, p_template: t.key, p_title: title, p_subject: whoName || null, p_lang: en ? 'en' : 'ar' });
-      formPrint(t, { en, no, who, vals, deps });
+      setTimeout(() => { window.addEventListener('afterprint', () => route(), { once: true }); formPrint(t, { en, no, who, vals, deps }); }, 120);
     } });
   if ($('#fedit', d)) $('#fedit', d).onclick = () => { d.close(); setTimeout(() => formEdit(t.row), 50); };
   // values from the system go into empty fields (or ones it filled before); a small note says where they came from
@@ -118,7 +118,7 @@ async function formFill(t) {
     $$('.fauto', d).forEach(x => x.remove());
     Object.entries(v).forEach(([k, val]) => { const i = d.querySelector(`[name="f_${k}"]`); if (!i || val == null || val === '') return;
       if (i.value && !i.dataset.auto) return; i.value = val; i.dataset.auto = '1';
-      i.insertAdjacentHTML('afterend', `<div class="fauto small muted">${esc(tr('تعبّى من النظام — تقدر تعدّله'))}</div>`); });
+      i.insertAdjacentHTML('afterend', `<div class="fauto small muted">${esc(tr('تُعبّأ تلقائيا من النظام — يمكنك تعديلها'))}</div>`); });
   };
   d.querySelectorAll('input,textarea').forEach(i => i.addEventListener('input', () => { delete i.dataset.auto; }));
   if (sel) sel.onchange = apply;
@@ -238,7 +238,7 @@ function formEdit(r) {
       ${field('القسم', `<select name="dept">${Object.keys(FORM_DEPTS).filter(x => modOn(x) && formCanDept(x)).map(x => opt(x, fT(...FORM_DEPTS[x]), r.dept)).join('')}</select>`)}
       ${field('النموذج لـ', `<select name="subject">${[['employee', 'موظف'], ['customer', 'عميل'], ['supplier', 'مورد'], ['none', 'عام']].map(([k, l]) => opt(k, tr(l), r.subject || 'employee')).join('')}</select>`)}
       ${field('عنوان النموذج', inp('title_ar', r.title_ar, 'maxlength="120" required'))}${field('العنوان بالإنجليزي (اختياري)', inp('title_en', r.title_en, 'maxlength="120" dir="ltr"'))}
-      <div class="wide"><label>${esc(tr('اضغط لإضافة خانة تتعبّى تلقائيا'))}</label><div class="row" style="gap:6px;flex-wrap:wrap">${chips}</div></div>
+      <div class="wide"><label>${esc(tr('اضغط لإضافة خانة تُعبّأ تلقائيا'))}</label><div class="row" style="gap:6px;flex-wrap:wrap">${chips}</div></div>
       ${field('نص النموذج بالعربي', `<textarea name="body_ar" rows="9" maxlength="8000" required data-nt>${esc(r.body_ar || '')}</textarea>`, 'wide')}
       ${field('النص بالإنجليزي (اختياري)', `<textarea name="body_en" rows="5" maxlength="8000" dir="ltr" data-nt>${esc(r.body_en || '')}</textarea>`, 'wide')}
       ${field('التوقيعات (كل جهة في سطر)', `<textarea name="sigs" rows="3" placeholder="${esc(tr('الموظف') + '\n' + tr('الموارد البشرية'))}">${esc((r.sigs || []).join('\n'))}</textarea>`, 'wide')}</div>
