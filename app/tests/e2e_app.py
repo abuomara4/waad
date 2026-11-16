@@ -1,5 +1,5 @@
 """End-to-end test of waad-app.html against the local Supabase emulator (devserver/start.sh must be running)."""
-import re, sys, os, json, urllib.request, urllib.parse, tempfile
+import datetime, re, sys, os, json, urllib.request, urllib.parse, tempfile
 import openpyxl
 from playwright.sync_api import sync_playwright, expect
 
@@ -373,6 +373,19 @@ with sync_playwright() as pw:
     ok(sql("select count(*) from custody_names where name='جهاز عرض' and name_en='Projector'") == '1' and sql(f"select count(*) from custody_files f join custody_items c on c.id=f.custody_id where c.employee_id='{e5000}' and c.name='جهاز عرض'") == '1',
        'custody: a new name joins the company list, and the file chosen in the form is attached')
     sqlx(f"delete from custody_items where employee_id='{e5000}' and name='جهاز عرض'")
+    # electronic signature: HR asks for the custody receipt to be signed, the employee signs with a drawn signature
+    go(o, '#/home'); go(o, '#/docs/' + e5000); o.wait_for_selector('#custbox [data-sigask]'); o.click('#custbox [data-sigask]'); o.wait_for_selector('#dlg[open] textarea[name=b]')
+    ok('أقر باستلام العهدة' in o.input_value('#dlg textarea[name=b]'), 'signature: the text to sign is prepared from the custody item'); modal_ok(o)
+    go(e, '#/home'); go(e, '#/sign'); e.wait_for_selector('#page tbody tr'); e.locator('#page tbody tr').first.click(); e.wait_for_selector('#dlg canvas.sigpad')
+    e.click('#mok'); e.wait_for_selector('#merr .err'); ok('ارسم توقيعك' in e.inner_text('#merr'), 'signature: an empty pad is refused')
+    bx = e.locator('#dlg canvas.sigpad').bounding_box(); e.mouse.move(bx['x'] + 30, bx['y'] + 60); e.mouse.down()
+    for k in range(1, 12): e.mouse.move(bx['x'] + 30 + k * 25, bx['y'] + 60 + (k % 3) * 18)
+    e.mouse.up(); modal_ok(e)
+    ok(sql(f"select status || '|' || (signature like 'data:image/png;base64,%')::text from signature_requests where employee_id='{e5000}' and kind='custody'") == 'signed|true', 'signature: the employee signs from «توقيعاتي» and the drawing is kept')
+    go(o, '#/home'); go(o, '#/docs/' + e5000); o.wait_for_selector('#custbox [data-sigview]'); o.click('#custbox [data-sigview]'); o.wait_for_selector('#dlg[open] .sigimg img'); ok(True, 'signature: HR sees the signed receipt with the signature'); o.click('#mx')
+    # global search: Ctrl+K finds an employee by name and opens the file
+    o.keyboard.press('Control+k'); o.wait_for_selector('#dlg[open] #gsq'); o.fill('#gsq', 'العتيبي'); o.wait_for_selector('#gsr .gsi'); ok('محمد العتيبي' in o.inner_text('#gsr'), 'global search finds an employee by name')
+    o.keyboard.press('Enter'); o.wait_for_timeout(800); ok(o.evaluate('location.hash').startswith('#/docs/'), 'global search: Enter opens the result')
     ok('عهد لم تُسلَّم' in o.inner_text('#clrbox'), 'the clearance shows the item not yet returned')
     go(o, '#/eos'); o.select_option('#ef select[name=e]', e5000); o.click('#eb'); o.wait_for_selector('#er table')
     ok('إخلاء الطرف غير مكتمل' in o.inner_text('#er'), 'the end-of-service page warns that clearance is incomplete')
@@ -1031,7 +1044,7 @@ with sync_playwright() as pw:
     miss = subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'i18n', 'extract.py')], capture_output=True, text=True).stdout.strip()
     ok(miss == '', 'every Arabic UI/DB message has an English translation ' + miss[:200])
     th = lambda: o.evaluate("[document.documentElement.dataset.theme || 'auto', localStorage.getItem('waad.theme'), document.querySelector('#th').title]")
-    o.click('#um'); ok(all(o.locator('#umenu ' + x).is_visible() for x in ['#bell', '#lg', '#th', '#pw', '#lo']) and o.locator('header.top > .btn, header.top > button').count() == 2 and o.locator('header.top > #hb').count() == 1,
+    o.click('#um'); ok(all(o.locator('#umenu ' + x).is_visible() for x in ['#bell', '#lg', '#th', '#pw', '#lo']) and o.locator('header.top > .btn, header.top > button').count() == 3 and o.locator('header.top > #hb').count() == 1,
        'top bar is tidy: one account menu holds notifications, language, theme, password and sign-out (plus the «؟» help button)')
     o.keyboard.press('Escape'); ok(o.locator('#umenu').is_hidden(), 'Escape closes the account menu')
     a0 = th(); um(o, '#th'); a1 = th(); um(o, '#th'); a2 = th(); um(o, '#th'); a3 = th()
@@ -1121,6 +1134,27 @@ with sync_playwright() as pw:
     o.fill('#stf input[name=from]', '2000-01-01'); o.click('#stf button'); o.wait_for_timeout(700)
     bal = sql("select round(public.party_balance('%s'),2)" % cust_id)
     ok('{:,.2f}'.format(float(bal)) in o.inner_text('#stb'), 'statement closing balance equals the customer balance (%s)' % bal)
+    # customer portal: a private link opens the customer's invoices without signing in
+    o.click('#stportal'); o.wait_for_selector('#dlg[open] #purl'); purl = o.input_value('#dlg #purl'); o.click('#mx')
+    pp2 = b.new_context(viewport={'width': 1100, 'height': 800}, locale='ar-SA'); pp2.add_init_script(INIT); pv = pp2.new_page(); pv.goto(purl.replace('#/portal/', 'waad-app.html#/portal/') if 'waad-app.html' not in purl else purl)
+    pv.wait_for_selector('.portal h1'); ok('مؤسسة النخبة' in pv.inner_text('.portal') and pv.locator('.portal tbody tr').count() >= 1, 'customer portal: the private link shows the customer its invoices without signing in')
+    pv.locator('.portal tbody tr').first.click(); pv.wait_for_selector('#dlg[open] .tw'); ok('الإجمالي' in pv.inner_text('#dlg'), 'customer portal: an invoice opens with its lines and totals'); pp2.close()
+    # notes on a record
+    o.locator('.notes textarea').fill('اتصلت بالعميل بخصوص الرصيد'); o.click('.notes [data-nadd]'); o.wait_for_timeout(700)
+    ok('اتصلت بالعميل بخصوص الرصيد' in o.inner_text('.notes'), 'notes: a note is added under the customer statement')
+    # recurring invoice: created, then issued with one click
+    n0inv = int(sql("select count(*) from sales_invoices"))
+    go(o, '#/recurring'); o.wait_for_selector('#rcnew'); o.click('#rcnew'); o.wait_for_selector('#dlg[open] input[name=title]'); o.fill('#dlg input[name=title]', 'صيانة شهرية')
+    o.fill('#dlg #rl [data-q]', '1'); o.fill('#dlg #rl [data-p]', '500'); modal_ok(o); o.wait_for_selector('[data-rci]'); o.click('[data-rci]'); o.wait_for_timeout(1500)
+    ok(int(sql("select count(*) from sales_invoices")) == n0inv + 1 and sql("select issued_count from recurring_invoices where title='صيانة شهرية'") == '1', 'recurring invoice: issued with one click when due, as a normal invoice')
+    # company documents archive
+    go(o, '#/companydocs'); o.wait_for_selector('#cdnew'); o.click('#cdnew'); o.wait_for_selector('#dlg[open] select[name=t]'); o.fill('#dlg input[name=no]', '1010999999')
+    o.fill('#dlg input[name=ex]', (datetime.date.today() + datetime.timedelta(days=20)).isoformat()); modal_ok(o); o.wait_for_timeout(600)
+    ok('السجل التجاري' in o.inner_text('#cdl') and 'متبقي' in o.inner_text('#cdl'), 'company documents: the commercial registration is recorded with a countdown to expiry')
+    # custom fields: a field defined once shows in the employee form and is saved
+    go(o, '#/customfields'); o.wait_for_selector('#cfn'); o.click('#cfn'); o.wait_for_selector('#dlg[open] input[name=label]'); o.fill('#dlg input[name=label]', 'فصيلة الدم'); modal_ok(o); o.wait_for_timeout(600)
+    go(o, '#/employees'); o.locator('#page tbody tr', has_text='محمد العتيبي').click(); o.wait_for_selector('#dlg[open] input[name^=cf_]'); o.fill('#dlg input[name^=cf_]', 'O+'); modal_ok(o); o.wait_for_timeout(500)
+    ok(sql("select custom::text from employees where emp_no='5000'").count('O+') == 1, 'custom fields: a company field appears in the employee form and is saved')
     go(o, '#/items'); o.locator('#page tbody tr', has_text='طابعة ليزر').click(); o.wait_for_selector('#dlg input[name=barcode]')
     o.fill('#dlg input[name=barcode]', '6281234567890'); o.fill('#dlg input[name=category]', 'أجهزة'); o.fill('#dlg input[name=purchase_price]', '100'); modal_ok(o); o.wait_for_timeout(400)
     ok(sql("select barcode||'|'||category||'|'||purchase_price||'|'||vat_rate from items where name='طابعة ليزر'") == '6281234567890|أجهزة|100.00|15.00', 'item barcode, category, purchase price saved')

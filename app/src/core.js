@@ -437,6 +437,7 @@ async function loadContext(pre) {
     S.emp ? db.get('employees', { id: 'eq.' + S.emp }) : [], S.emp ? db.get('petty_funds', { employee_id: 'eq.' + S.emp, select: 'id', limit: 1 }).catch(() => []) : [],
     S.emp ? db.get('employees', { company_id: 'eq.' + S.cid, manager_id: 'eq.' + S.emp, end_date: 'is.null', select: 'id', limit: 1 }).catch(() => []) : []]);
   S.company = co; S.sub = sub || null;
+  if (typeof cfLoad === 'function') await cfLoad();
   S.perms = new Set();
   (c.perms || []).forEach(p => S.perms.add(p));
   if (!(c.perms || []).length) fp.forEach(p => S.perms.add(p.perm));   // personal permissions, when set, replace the role's defaults
@@ -468,6 +469,7 @@ async function boot() {
   const link = await authFromLink();
   if (link && link.error) return authView('in', link.error);
   if (link && link.type === 'recovery') return changePasswordView('recovery');
+  if (typeof portalToken === 'function' && portalToken()) return portalView(portalToken());   // a customer's private link: no sign-in
   if (!S.session) return legalHash() ? legalView(legalHash()) : authView(startTab());
   try {
     // startup calls that do not depend on each other go out together (each round trip to the server costs ~0.2 s)
@@ -553,7 +555,7 @@ function navItems() {
   if (typeof GUIDE !== 'undefined') it.push({ h: '#/guide', t: 'دليل الاستخدام' });
   if (isHR() || isFin() || has('manager')) it.push({ h: '#/analytics', t: 'التحليلات' });
   if (S.emp) { g('خدماتي'); if (S.company && S.company.att_enabled && !(S.myEmp && S.myEmp.att_exempt)) it.push({ h: '#/attendance', t: 'حضوري' });
-    it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/payslips', t: 'قسائم الراتب' }, { h: '#/reviews', t: 'تقييم الأداء' }, { h: '#/profile', t: 'ملفي' });
+    it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/sign', t: 'توقيعاتي', pill: NAVC.sign }, { h: '#/payslips', t: 'قسائم الراتب' }, { h: '#/reviews', t: 'تقييم الأداء' }, { h: '#/profile', t: 'ملفي' });
     if (S.hasPetty) it.push({ h: '#/mypetty', t: 'عهدتي النقدية' });
     if (!isHR()) it.push({ h: '#/policies', t: 'السياسات واللوائح' });
     const ov = (S.company && S.company.org_visibility) || 'all';
@@ -586,7 +588,7 @@ function navItems() {
     if (can('sales') || can('mkt')) it.push({ h: '#/crm', t: 'الفرص والعملاء المحتملون' }, { h: '#/marketing', t: 'التسويق والحملات' });
     if (can('sales')) it.push({ h: '#/quotes', t: 'عروض الأسعار' });
     if (can('sales') || can('stock')) it.push({ h: '#/orders', t: 'أوامر البيع' }, { h: '#/deliveries', t: 'إشعارات التسليم' });
-    if (can('sales')) it.push({ h: '#/pos', t: 'نقطة البيع' }, { h: '#/sales', t: 'فواتير المبيعات' }, { h: '#/parties/customer', t: 'العملاء' });
+    if (can('sales')) it.push({ h: '#/pos', t: 'نقطة البيع' }, { h: '#/sales', t: 'فواتير المبيعات' }, { h: '#/recurring', t: 'الفواتير المتكررة' }, { h: '#/parties/customer', t: 'العملاء' });
   }
   if (isFin() && (can('purch') || can('stock'))) {
     g('المشتريات');
@@ -616,7 +618,7 @@ function navItems() {
     if (has('owner', 'admin', 'finance')) it.push({ h: '#/periods', t: 'إقفال الفترات والسنة' }, { h: '#/opening', t: 'الأرصدة الافتتاحية' });
   }
   if (has('owner', 'admin', 'finance', 'hr') || can('proj')) { g('المشاريع'); it.push({ h: '#/projects', t: 'المشاريع وجداول الوقت' }); }
-  if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); if (has('owner', 'admin', 'hr')) it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); }
+  if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); it.push({ h: '#/companydocs', t: 'مستندات المنشأة والسيارات' }); if (has('owner', 'admin')) it.push({ h: '#/customfields', t: 'الحقول المخصصة' }); if (has('owner', 'admin', 'hr')) it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); }
   return it;
 }
 function shell() {
@@ -626,7 +628,7 @@ function shell() {
       <a href="#/home" class="tlogo" aria-label="وعد Waad"><img class="wlogo wl-d" src="${LOGO_D}" alt="وعد Waad"><img class="wlogo wl-l" src="${LOGO_L}" alt="وعد Waad"></a>
       <div class="cname"><b>${esc(S.company ? S.company.name : '')}</b> <span class="badge info">${esc(ROLES[S.role] || S.role)}</span></div><div class="sp"></div>
       ${multi ? `<select id="cs" style="width:auto;min-height:32px">${S.companies.map(c => opt(c.company_id, c.name, S.cid)).join('')}</select>` : ''}
-      ${ADMIN ? '' : '<button class="btn sm" id="hb" aria-label="مساعدة" title="مساعدة" style="min-width:34px">؟</button>'}
+      ${ADMIN ? '' : '<button class="btn sm" id="gsb" aria-label="بحث" title="بحث (Ctrl+K)"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span class="bt">بحث</span></button><button class="btn sm" id="hb" aria-label="مساعدة" title="مساعدة" style="min-width:34px">؟</button>'}
       <div class="umw"><button class="btn sm um" id="um" aria-haspopup="true" aria-expanded="false" aria-label="حسابي" title="حسابي"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"/></svg><span class="bt">${esc(S.myEmp ? S.myEmp.full_name.split(' ')[0] : tr('حسابي'))}</span><span class="brole small muted">${esc(tr(ROLES[S.role] || ''))}</span><span class="bdot" id="bcnt" hidden></span></button>
         <div class="umenu" id="umenu" role="menu" hidden>
           <button type="button" class="mi" id="bell" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span>التنبيهات</span><span class="mcnt" id="bcnt2" hidden></span></button>
@@ -658,6 +660,7 @@ function shell() {
   $$('#umenu a.mi').forEach(a => a.addEventListener('click', () => umSet(false)));
   document.addEventListener('click', ev => { if (!$('#umenu') || ev.target.closest('.umw')) return; umSet(false); $('#bpanel').hidden = true; });
   document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && $('#umenu')) { umSet(false); $('#bpanel').hidden = true; } });
+  if ($('#gsb')) $('#gsb').onclick = () => searchOpen();
   $('#lo').onclick = async () => { await authApi.signOut(); authView(); };
   if (multi) $('#cs').onchange = async e => { S.cid = e.target.value; LS.set('waad.cid', S.cid); await loadContext(); shell(); location.hash = '#/home'; route(); };
   refreshCounts(); drawAnn(); drawSubBar();
@@ -726,6 +729,9 @@ async function loadNotifs() {
     isHR() ? safe(db.get('penalties', { company_id: 'eq.' + S.cid, status: 'in.(open,applied)', select: 'id,status,inv_on,griev_on,griev_result' })) : null,
     S.emp ? safe(db.get('penalties', { employee_id: 'eq.' + S.emp, status: 'in.(open,applied)', select: 'id,status,inv_on,emp_defense,notified_on,griev_on' })) : null]);
   if (mine && mine.length) add(mine.length + ' طلبات بانتظار اعتمادك', '#/approvals', { hot: 1 });
+  if (typeof notesForMe === 'function') (await safe(notesForMe()) || []).forEach(n => add(tr('أشار إليك زميل في ملاحظة'), (NOTE_LINK[n.entity] || '#/home') + n.ref_id, { at: n.created_at, tail: '— ' + String(n.body).slice(0, 60) }));
+  if (typeof coExpiring === 'function') { const ce = await safe(coExpiring()); if (ce) add(ce + ' مستندات أو سيارات للمنشأة تنتهي خلال 30 يوما أو انتهت', '#/companydocs', { hot: 1 }); }
+  if (S.emp) { const sg = await safe(db.get('signature_requests', { employee_id: 'eq.' + S.emp, status: 'eq.pending', select: 'id' })); NAVC.sign = (sg || []).length; if (NAVC.sign) add(NAVC.sign + ' مستندات بانتظار توقيعك', '#/sign?open=1', { hot: 1 }); }
   if (pens) { const g = pens.filter(p => p.griev_on && !p.griev_result).length, due = pens.filter(p => p.status === 'open' && p.inv_on && (new Date(td) - new Date(p.inv_on)) / 864e5 >= 25).length;
     if (g) add(g + ' تظلمات من جزاءات بانتظار البت خلال 15 يوما', '#/penalties', { hot: 1 });
     if (due) add(due + ' مخالفات انتهى تحقيقها وتقترب مهلة القرار (30 يوما)', '#/penalties', { hot: 1 }); }

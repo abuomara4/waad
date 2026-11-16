@@ -114,6 +114,7 @@ async function soView(page, kind, id) {
     if (can('sales') && !touched) btns.push('<a class="btn" id="oed">تعديل</a>');
     if (can('sales')) btns.push('<button class="btn danger" id="ocn">' + (touched ? 'إغلاق الباقي' : 'إلغاء الأمر') + '</button>');
   }
+  if (party && can('sales')) btns.push(`<button class="btn" id="ssend">${esc(tr('إرسال للعميل'))}</button>`);
   btns.push('<button class="btn" id="sprint">طباعة</button>');
   const nm = l => esc((L.im[l.item_id] || {}).name || '') + (l.description ? `<div class="small muted">${esc(l.description)}</div>` : '');
   page.innerHTML = `<div class="head"><div><a href="${K.h}" class="small back">${K.t}</a><h1>${K.one} <span class="num">${esc(doc.no)}</span> ${soBadge(doc)}</h1>
@@ -130,6 +131,7 @@ async function soView(page, kind, id) {
   if (dns.length) bindRows(tbs[0].parentElement, dns, n => location.hash = '#/deliveries/' + n.id);
   if (invs.length) bindRows(tbs[dns.length ? 1 : 0].parentElement, invs, v => location.hash = '#/sales/' + v.id);
   const on = (s, fn) => { const b = $(s, page); if (b) b.onclick = fn; };
+  if ($('#ssend', page)) $('#ssend', page).onclick = () => sendDocDialog({ title: tr(kind === 'quote' ? 'عرض سعر' : 'أمر بيع'), no: doc.no, party, total: n0(doc.total), due: kind === 'quote' ? doc.valid_until : null, printBtn: $('#sprint', page) });
   on('#sprint', () => { const w = document.createElement('div'); w.innerHTML = salesSheet({ kind, doc, lines, party, im: L.im }); printWith(w.firstElementChild, '@page{size:A4 portrait;margin:12mm}'); });
   on('#qed', () => location.hash = `${K.h}/${id}/edit`); on('#oed', () => location.hash = `${K.h}/${id}/edit`);
   on('#qac', async () => { await db.rpc('quote_decide', { p_id: id, p_accept: true, p_reason: null }); toast('سُجّل قبول العميل'); route(); });

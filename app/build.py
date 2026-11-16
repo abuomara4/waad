@@ -69,6 +69,12 @@ html = f'''<!doctype html>
 {r('pos.js')}
 {r('guide_lib.js')}
 {r('guide.js')}
+{r('sign.js')}
+{r('search.js')}
+{r('archive.js')}
+{r('notes.js')}
+{r('portal.js')}
+{r('custom.js')}
 applyLang();
 boot();
 </script>

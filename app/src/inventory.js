@@ -40,7 +40,7 @@ VIEWS['#/items'] = async page => {
       ${field('سبب الصفر أو الإعفاء (زاتكا)', `<select name="vat_exempt_code"><option value="">—</option>${VATEX.map(([c, l]) => opt(c, c.replace('VATEX-SA-', '') + ' — ' + tr(l), it && it.vat_exempt_code)).join('')}</select>`, 'vatex')}${it ? field('الحالة', `<label class="row" style="gap:6px"><input type="checkbox" name="active" ${it.active !== false ? 'checked' : ''}> ${esc(tr('نشط — يظهر في الفواتير والأوامر الجديدة'))}</label>`) : ''}
       ${field('حد إعادة الطلب', inp('reorder_level', it ? it.reorder_level : 0, 'type="number" min="0" step="0.001"'))}${field('كمية إعادة الطلب', inp('reorder_qty', it ? it.reorder_qty : 0, 'type="number" min="0" step="0.001"'))}
       ${field('تتبع الصلاحية', `<select name="track_expiry">${opt('false', tr('لا'), String(!!(it && it.track_expiry)))}${opt('true', tr('نعم — دفعات وتواريخ انتهاء'), String(!!(it && it.track_expiry)))}</select>`)}
-      ${field('الأرقام التسلسلية', `<select name="track_serial" ${it && st[it.id] ? 'disabled' : ''}>${opt('false', tr('لا'), String(!!(it && it.track_serial)))}${opt('true', tr('نعم — رقم لكل قطعة'), String(!!(it && it.track_serial)))}</select>`)}
+      ${field('الأرقام التسلسلية', `<select name="track_serial" ${it && st[it.id] ? 'disabled' : ''}>${opt('false', tr('لا'), String(!!(it && it.track_serial)))}${opt('true', tr('نعم — رقم لكل قطعة'), String(!!(it && it.track_serial)))}</select>`)}${typeof cfFields === 'function' ? cfFields('item', it && it.custom) : ''}
       ${it ? `<div class="wide"><label>${esc(tr('وحدات أخرى'))}</label><div id="iul" class="small muted">${esc(tr('جارٍ التحميل…'))}</div>
         <div class="row" style="gap:6px;margin-top:6px"><input id="iun" placeholder="${esc(tr('الوحدة، مثل كرتون'))}" style="max-width:150px"><input id="iuf" type="number" min="0.0001" step="0.0001" placeholder="${esc(tr('كم') + ' ' + (it.unit || tr('وحدة')))}" style="max-width:120px"><input id="iub" dir="ltr" placeholder="${esc(tr('باركود (اختياري)'))}" style="max-width:170px"><button type="button" class="btn sm" id="iua">${esc(tr('إضافة'))}</button></div><div id="iuerr"></div></div>` : ''}</div>
       <p class="muted small">${esc(tr('عند تتبع الصلاحية يُطلب تاريخ الانتهاء عند الاستلام، ويُصرف الأقرب انتهاء أولا.'))}</p>`, {
@@ -51,6 +51,7 @@ VIEWS['#/items'] = async page => {
       if (row.vat_rate === 0 && !row.vat_exempt_code && S.zatcaOn) throw new Error('اختر سبب الصفر أو الإعفاء — فاتورة زاتكا تطلبه');
       if (f.track_serial !== undefined) row.track_serial = f.track_serial === 'true';
       if (it) row.active = !!f.active;
+      if (typeof cfCollect === 'function' && cfDefs('item').length) row.custom = cfCollect(f, 'item', it && it.custom);
       if (it) await db.upd('items', { id: 'eq.' + it.id }, row); else await db.ins('items', Object.assign(row, { company_id: S.cid, type: f.type })); toast('تم الحفظ'); route(); }
   });
   const form0 = form, formU = it => { const d = form0(it); if (it) itemUnits(it, d);

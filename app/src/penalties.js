@@ -83,11 +83,12 @@ async function penDetail(page, id) {
   const runs = ded.length ? await db.get('payroll_runs', { id: 'in.(' + ded.map(d => d.run_id).join(',') + ')' }).catch(() => []) : [];
   const gDead = p.notified_on ? await db.rpc('pen_grievance_deadline', { p_company: S.cid, p_from: p.notified_on }).catch(() => null) : null;
   const decDead = p.inv_on ? addDays(p.inv_on, 30) : null;
+  const psig = hr ? await db.get('signature_requests', { employee_id: 'eq.' + p.employee_id, kind: 'eq.penalty', ref_id: 'eq.' + id }).catch(() => []) : [];
   page.classList.add('wrapcells');
   const r = (t, x) => `<tr><td class="muted">${esc(t)}</td><td>${x}</td></tr>`;
   const penTxt = `المرة ${PEN_ORD[p.step]}: ${penLabel(p.action)}${n0(p.fine) ? ' — ' + money(p.fine) + ' ريال' : ''}`;
   page.innerHTML = `<div class="head"><div><a href="#/penalties" class="small back">المخالفات والجزاءات</a><h1>${esc(e.full_name || '')} ${penBadge(p.status)}</h1><div class="muted"><span class="num">${esc(e.emp_no || '')}</span>${e.job_title ? ' · ' + esc(e.job_title) : ''}</div></div>
-      <div class="row"><button class="btn sm" id="prn">طباعة الإشعار</button>${p.inv_on ? '<button class="btn sm" id="prm">طباعة محضر التحقيق</button>' : ''}${p.status === 'applied' || p.status === 'overturned' ? '<button class="btn sm" id="prd">طباعة القرار</button>' : ''}</div></div>
+      <div class="row">${hr ? signState(psig, 'penalty', id, e, tr('استلام إشعار') + ' — ' + (v.title || p.code), tr('أقر باستلامي الإشعار الخاص بالمخالفة') + ' «' + (v.title || p.code) + '» ' + tr('بتاريخ') + ' ' + p.occurred_on + (p.status === 'applied' ? ' ' + tr('وبالجزاء') + ': ' + penTxt : '') + '، ' + tr('وأعلم بحقي في التظلم خلال 30 يوما (م72).')) : ''}<button class="btn sm" id="prn">طباعة الإشعار</button>${p.inv_on ? '<button class="btn sm" id="prm">طباعة محضر التحقيق</button>' : ''}${p.status === 'applied' || p.status === 'overturned' ? '<button class="btn sm" id="prd">طباعة القرار</button>' : ''}</div></div>
     <div class="card"><h2>الواقعة</h2><div class="tw"><table><tbody>
       ${r('المخالفة', `<span class="num muted small">${esc(p.code)}</span> ${esc(v.title || '')}`)}${r('تاريخ المخالفة', fdate(p.occurred_on))}${r('تاريخ اكتشافها', fdate(p.discovered_on))}
       ${r('الوصف', esc(p.description || '—'))}${r('الجزاء حسب الجدول', esc(penTxt) + (v.extra ? `<div class="small muted">${esc(PEN_EXTRA[v.extra])}</div>` : '') + (v.note ? `<div class="small muted">${esc(v.note)}</div>` : ''))}</tbody></table></div>
@@ -110,6 +111,7 @@ async function penDetail(page, id) {
   const doc = (title, body) => { const d = document.createElement('div'); d.innerHTML = `<h2 style="text-align:center;margin:0 0 6mm">${esc(title)}</h2>${body}`; printBlock(d, title); };
   const who = `<p>إلى: <b>${esc(e.full_name || '')}</b> — الرقم الوظيفي <span class="num">${esc(e.emp_no || '')}</span>${e.job_title ? ' — ' + esc(e.job_title) : ''}</p>`;
   const sig = l => `<div class="row" style="justify-content:space-between;margin-top:14mm">${l.map(t => `<div style="min-width:60mm"><div>${esc(t)}:</div><div style="border-bottom:1px dotted #777;height:9mm"></div></div>`).join('')}</div>`;
+  bindSign(page, psig, e);
   $('#prn', page).onclick = () => doc('إشعار بمخالفة واستدعاء للتحقيق', `${who}<p>نُسب إليك ارتكاب المخالفة الآتية: <b>${esc(v.title || '')}</b>، بتاريخ <span class="num">${esc(p.occurred_on)}</span>، وقد اكتُشفت بتاريخ <span class="num">${esc(p.discovered_on)}</span>.</p>
     ${p.description ? `<p>الوصف: ${esc(p.description)}</p>` : ''}<p>وعليه نأمل منك الرد كتابيا وحضور التحقيق لسماع أقوالك وتحقيق دفاعك، وفقا للمادة 71 من نظام العمل.</p>${sig(['الموارد البشرية', 'استلام العامل والتاريخ'])}`);
   if ($('#prm', page)) $('#prm', page).onclick = () => doc('محضر تحقيق', `${who}<p>المخالفة المنسوبة: <b>${esc(v.title || '')}</b> بتاريخ <span class="num">${esc(p.occurred_on)}</span>.</p><p>تاريخ التحقيق: <span class="num">${esc(p.inv_on)}</span> — ${esc(INV_MODE[p.inv_mode])}</p>

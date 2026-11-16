@@ -95,6 +95,7 @@ async function projectView(page, id) {
     onOk: async f => { const row = { title: f.title, assignee_id: blank(f.assignee_id), due_date: blank(f.due_date) };
       if (t) await db.upd('project_tasks', { id: 'eq.' + t.id }, row); else await db.ins('project_tasks', Object.assign(row, { company_id: S.cid, project_id: id })); toast(tr('تم الحفظ')); route(); } });
   $('#ntask', page).onclick = () => taskForm(null);
+  notesBox(page, 'project', id);
   $$('[data-tedit]', page).forEach(b => b.onclick = () => taskForm(tasks.find(x => x.id === b.dataset.tedit)));
   $$('[data-tdel]', page).forEach(b => b.onclick = async () => { if (!await confirmBox(tr('حذف المهمة'), tr('تُحذف المهمة، وتبقى الساعات المسجلة عليها في المشروع بلا مهمة.'), tr('حذف'))) return;
     try { await db.del('project_tasks', { id: 'eq.' + b.dataset.tdel }); toast(tr('حُذفت المهمة')); route(); } catch (er) { toast(er.message); } });

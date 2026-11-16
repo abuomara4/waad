@@ -91,6 +91,7 @@ async function crmView(page, id) {
         { t: 'الحالة', h: a => a.done ? `<span class="badge ok">${esc(tr('تمت'))}</span>` : `<button type="button" class="btn sm" data-done="${a.id}">${esc(tr('تمت'))}</button>` }], acts, { empty: 'لا توجد متابعات' })}</div>`;
   const on = (s, fn) => { const b = $(s, page); if (b) b.onclick = fn; };
   on('#ced', () => leadForm(l, parties, campaigns));
+  notesBox(page, 'crm', id);
   $$('[data-st]', page).forEach(b => b.onclick = async () => { try { await db.upd('crm_leads', { id: 'eq.' + id }, { stage: b.dataset.st }); route(); } catch (e) { toast(e.message); } });
   on('#cwon', async () => { await db.upd('crm_leads', { id: 'eq.' + id }, { stage: 'won' }); toast(tr('تم')); route(); });
   on('#creo', async () => { await db.upd('crm_leads', { id: 'eq.' + id }, { stage: 'negotiation' }); route(); });

@@ -407,6 +407,7 @@ async function employeeForm(e, { linkMe } = {}) {
     ${field('الآيبان', inp('iban', v.iban, 'dir="ltr" placeholder="SA…" maxlength="24"') + '<div class="muted small" id="ibk"></div>')}${field('الجوال', inp('phone', v.phone, 'dir="ltr"'))}${field('البريد', inp('email', v.email, 'dir="ltr" type="email"'))}
     ${e ? '' : sec('العقد والإقامة') + field('نوع العقد', `<select name="ctype">${opt('', tr('— أضيفه لاحقا —'), '')}${opt('fixed', tr('محدد المدة'), '')}${opt('indefinite', tr('غير محدد المدة'), '')}</select>`)
       + field('نهاية العقد (للمحدد المدة)', '<input type="date" name="cend">') + field('تاريخ انتهاء الإقامة (لغير السعودي)', '<input type="date" name="iqexp">')}
+    ${typeof cfFields === 'function' ? cfFields('employee', v.custom) : ''}
     ${sec('البيانات الشخصية')}
     ${field('تاريخ الميلاد', `<input type="date" name="birth_date" value="${esc(v.birth_date || '')}">`)}
     ${field('الحالة الاجتماعية', `<select name="marital_status"><option value="">—</option>${Object.entries(MARITAL).map(([k, t]) => opt(k, t, v.marital_status)).join('')}</select>`)}
@@ -446,6 +447,7 @@ async function employeeForm(e, { linkMe } = {}) {
         can_request_purchase: f.can_request_purchase === 'true', ticket_every: f.ticket_every ? +f.ticket_every : null, ticket_persons: Math.max(1, +f.ticket_persons || 1), ticket_class: f.ticket_class || 'economy', ticket_dest: blank((f.ticket_dest || '').trim()), ticket_dest_en: blank((f.ticket_dest_en || '').trim()), ticket_amount: f.ticket_amount === '' ? null : +f.ticket_amount, gosi_new: f.gosi_new === '' ? null : f.gosi_new === 'true',
         ...(grades.length ? { grade_id: blank(f.grade_id) } : {}), ...(ccs.length ? { cost_center_id: blank(f.cost_center_id) } : {}), ...(sites.length ? { work_site_id: blank(f.work_site_id) } : {}),
         basic: +f.basic, housing: +f.housing || 0, transport: +f.transport || 0, iban: f.iban ? f.iban.replace(/\s/g, '').toUpperCase() : null, phone: blank(f.phone), email: blank(f.email) };
+      if (typeof cfCollect === 'function' && cfDefs('employee').length) row.custom = cfCollect(f, 'employee', e && e.custom);
       if (e) { Object.assign(row, { end_date: blank(f.end_date), end_reason: blank(f.end_reason) }); await db.upd('employees', { id: 'eq.' + e.id }, row); }
       else {
         if (f.ctype === 'fixed' && !f.cend) throw new Error('أدخل تاريخ نهاية العقد المحدد المدة');
@@ -648,7 +650,7 @@ VIEWS['#/eos'] = async page => {
           ${adv ? row(tr('سلفة متبقية تُحسم'), '−' + money(adv.detail)) : ''}</tbody>
           <tfoot><tr><td>الإجمالي</td><td class="r num">${money(n0(x.total) + cpay + tpay - (adv ? n0(adv.detail) : 0))}</td></tr></tfoot></table></div>
           ${open.length ? `<div class="note" style="margin-top:10px">${esc(tr('إخلاء الطرف غير مكتمل'))}: ${open.map(r => esc(tr(CLR_T[r.step]))).join('، ')} — <a href="#/docs/${v.e}">${esc(tr('افتح ملف الموظف'))}</a></div>` : ''}
-          <div class="row" style="margin-top:10px"><button type="button" class="btn" id="eprint">${esc(tr('طباعة المخالصة النهائية'))}</button>${isFin() && (has('owner', 'admin', 'finance') || can('jepost')) ? `<button type="button" class="btn" id="epost">${esc(tr('ترحيل المخالصة محاسبيا'))}</button>` : ''}</div>
+          <div class="row" style="margin-top:10px"><button type="button" class="btn" id="eprint">${esc(tr('طباعة المخالصة النهائية'))}</button>${isHR() ? `<button type="button" class="btn" id="esign">${esc(tr('طلب توقيع المخالصة'))}</button>` : ''}${isFin() && (has('owner', 'admin', 'finance') || can('jepost')) ? `<button type="button" class="btn" id="epost">${esc(tr('ترحيل المخالصة محاسبيا'))}</button>` : ''}</div>
           <p class="muted small">يُصرف خلال ${v.r.startsWith('resign') ? 'أسبوعين' : 'أسبوع'} من انتهاء العلاقة، أي حتى ${due} (م88)، ويجوز حسم الديون المستحقة بسبب العمل كرصيد السلف. لا تشمل الأرقام الأجر المستحق عن أيام الشهر الأخير، ولا مقابل الإشعار إن لم يُراعَ (م76). تقدير استرشادي؛ راجع الحالات الخاصة مع مختص.</p>`;
         $('#eprint', page).onclick = () => { const n = document.createElement('div');
           n.innerHTML = `<p>${esc(tr('الموظف'))}: <b>${esc(e.full_name)}</b> — ${esc(tr('الرقم الوظيفي'))} <span class="num">${esc(e.emp_no)}</span></p><p>${esc(tr('آخر يوم عمل'))}: <span class="num">${esc(v.t)}</span> — ${esc(tr(EOS_REASONS[v.r] || ''))}</p>`
@@ -656,6 +658,7 @@ VIEWS['#/eos'] = async page => {
             + `<p>${esc(tr('أقر أنا الموقع أدناه باستلامي جميع مستحقاتي المبينة أعلاه، وأنه لا توجد لي أي مطالبات أخرى لدى المنشأة.'))}</p>`
             + `<div class="row" style="justify-content:space-between;margin-top:14mm">${['الموظف: الاسم والتوقيع والتاريخ', 'الموارد البشرية', 'المالية'].map(t => `<div style="min-width:52mm"><div>${esc(tr(t))}</div><div style="border-bottom:1px dotted #777;height:12mm"></div></div>`).join('')}</div>`;
           printBlock(n, tr('مخالصة نهائية')); };
+        if ($('#esign', page)) $('#esign', page).onclick = () => signAsk(e, 'clearance', null, tr('مخالصة نهائية') + ' — ' + e.full_name, tr('أقر أنا الموقع أدناه باستلامي جميع مستحقاتي، وإجماليها') + ' ' + money(n0(x.total) + cpay + tpay - (adv ? n0(adv.detail) : 0)) + ' ' + tr('ريال') + '، ' + tr('وأنه لا توجد لي أي مطالبات أخرى لدى المنشأة.') + ' ' + tr('آخر يوم عمل') + ': ' + v.t);
         // post the settlement: debit the end-of-service provision or expense the company uses, credit the cash or bank account it is paid from
         if ($('#epost', page)) $('#epost', page).onclick = async () => {
           const [acs, cash] = await Promise.all([accounts(), cashAccounts()]), total = r2(n0(x.total) + cpay + tpay - (adv ? n0(adv.detail) : 0));

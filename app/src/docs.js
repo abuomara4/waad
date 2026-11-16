@@ -79,13 +79,13 @@ VIEWS['#/docs'] = async (page, arg) => {
 async function docsEmployee(page, id) {
   const em = await employeesMap(true), e = em[id];
   if (!e) throw new Error('الموظف غير موجود');
-  const [docs, cons] = await Promise.all([db.get('employee_documents', { employee_id: 'eq.' + id, order: 'expiry_date.asc.nullslast' }), db.get('contracts', { employee_id: 'eq.' + id, order: 'start_date.desc' })]);
+  const [docs, cons, sigs] = await Promise.all([db.get('employee_documents', { employee_id: 'eq.' + id, order: 'expiry_date.asc.nullslast' }), db.get('contracts', { employee_id: 'eq.' + id, order: 'start_date.desc' }), db.get('signature_requests', { employee_id: 'eq.' + id, order: 'created_at.desc' }).catch(() => [])]);
   const cur = cons.find(c => c.status === 'active'), td = today();
   const left = d => d ? Math.round((new Date(d) - new Date(td)) / 864e5) : null;
   const st = d => { const n = left(d); return n == null ? '' : n < 0 ? lvlBadge('expired') : n <= 30 ? lvlBadge('d30') : n <= 60 ? lvlBadge('d60') : n <= 90 ? lvlBadge('d90') : '<span class="badge ok">ساري</span>'; };
   const conv = cur && cur.contract_type === 'fixed' && e.is_saudi && (cur.renewal_no >= 3 || (new Date(cur.end_date) - new Date(cur.first_start)) / 864e5 >= 4 * 365 - 1);
   page.innerHTML = `<div class="head"><div><a href="#/docs" class="small back">المستندات والعقود</a><h1>${esc(e.full_name)}</h1><div class="muted"><span class="num">${esc(e.emp_no)}</span> · ${e.is_saudi ? 'سعودي' : 'غير سعودي'} · المباشرة ${fdate(e.hire_date)}</div></div></div>
-    <div class="card"><div class="row" style="justify-content:space-between"><h2>العقد</h2><div class="row">${cur && cur.contract_type === 'fixed' ? '<button class="btn sm" id="crn">تجديد</button><button class="btn sm" id="cind">تحويل لغير محدد المدة</button>' : ''}<button class="btn sm pri" id="cnew">عقد جديد</button></div></div>
+    <div class="card"><div class="row" style="justify-content:space-between"><h2>العقد</h2><div class="row">${cur ? signState(sigs, 'contract', cur.id, e, tr('عقد العمل') + ' — ' + e.full_name, tr('أقر بأنني اطلعت على عقد العمل المسجل في نظام وعد ووافقت عليه') + ': ' + tr(CT_T[cur.contract_type]) + ' ' + tr('من') + ' ' + cur.start_date + (cur.end_date ? ' ' + tr('إلى') + ' ' + cur.end_date : '') + '.') : ''}${cur && cur.contract_type === 'fixed' ? '<button class="btn sm" id="crn">تجديد</button><button class="btn sm" id="cind">تحويل لغير محدد المدة</button>' : ''}<button class="btn sm pri" id="cnew">عقد جديد</button></div></div>
       ${cur ? `<div class="tw"><table><tbody>
         <tr><td class="muted">النوع</td><td>${esc(CT_T[cur.contract_type])}${cur.renewal_no ? ' — التجديد رقم ' + cur.renewal_no : ''}</td></tr>
         <tr><td class="muted">من</td><td>${fdate(cur.start_date)}</td></tr><tr><td class="muted">إلى</td><td>${cur.end_date ? fdate(cur.end_date) + ' ' + st(cur.end_date) : '—'}</td></tr>
@@ -101,6 +101,8 @@ async function docsEmployee(page, id) {
       ${!e.is_saudi ? '<p class="muted small">لغير السعودي: سجّل الإقامة ورخصة العمل وجواز السفر.</p>' : ''}</div>
     <div id="lvbox"></div><div id="custbox"></div><div id="clrbox"></div>`;
   leaveStatementCard($('#lvbox', page), e).catch(() => {});
+  bindSign(page, sigs, e);
+  if (isHR()) notesBox(page, 'employee', id);
   custodyCard($('#custbox', page), e).catch(er => toast(er.message));
   clearanceCard($('#clrbox', page), e).catch(() => {});
   if (cur) fileBox($('#cfiles', page), 'contract_files', 'contract_id', cur.id).catch(() => {});
@@ -471,11 +473,12 @@ async function updateEmployeesDialog() {
 const CUST_ST = { held: ['لدى الموظف', 'info'], returned: ['مُستلمة', 'ok'], lost: ['مفقودة / تالفة', 'bad'] };
 const CLR_T = { custody: 'العهد', advance: 'السلف', manager: 'المدير المباشر — تسليم المهام', it: 'تقنية المعلومات — الحسابات والأجهزة', finance: 'المالية — الذمم والمطالبات', hr: 'الموارد البشرية' };
 async function custodyCard(box, e) {
-  const items = await db.get('custody_items', { employee_id: 'eq.' + e.id, order: 'issued_on.desc' });
+  const [items, csig] = await Promise.all([db.get('custody_items', { employee_id: 'eq.' + e.id, order: 'issued_on.desc' }), db.get('signature_requests', { employee_id: 'eq.' + e.id, kind: 'eq.custody' }).catch(() => [])]);
   const held = items.filter(x => x.status === 'held');
   box.innerHTML = `<div class="card"><div class="row" style="justify-content:space-between"><h2>${esc(tr('العهد'))}</h2>${isHR() ? `<button class="btn sm pri" id="cunew">${esc(tr('+ عهدة'))}</button>` : ''}</div>
     ${tbl([{ t: 'العهدة', h: x => esc((LANG === 'en' && x.name_en) || x.name) + (x.serial ? ` <span class="num muted small">${esc(x.serial)}</span>` : '') }, { t: 'القيمة', r: 1, h: x => x.value == null ? '—' : money(x.value) },
       { t: 'التسليم', h: x => fdate(x.issued_on) }, { t: 'الحالة', h: x => `<span class="badge ${CUST_ST[x.status][1]}">${esc(tr(CUST_ST[x.status][0]))}</span>` + (x.returned_on ? ` <span class="small muted">${fdate(x.returned_on)}</span>` : '') },
+      { t: 'التوقيع', h: x => x.status === 'held' ? signState(csig, 'custody', x.id, e, tr('استلام عهدة') + ': ' + x.name, tr('أقر باستلام العهدة الآتية بحالة سليمة، وأتعهد بالمحافظة عليها وإعادتها عند الطلب أو عند انتهاء خدمتي') + ': ' + x.name + (x.serial ? ' — ' + x.serial : '') + (x.value != null ? ' — ' + tr('القيمة التقديرية') + ' ' + money(x.value) : '') + '.') : '' },
       { t: '', h: x => isHR() && x.status === 'held' ? `<button class="btn sm" data-cret="${x.id}">${esc(tr('استلام'))}</button>` : '' }], items, { empty: 'لا توجد عهد مسجلة', onRow: isHR() })}
     ${held.length ? `<p class="small muted">${esc(tr('لدى الموظف'))} <b class="num">${held.length}</b> ${esc(tr('عهدة بقيمة'))} <b class="num">${money(held.reduce((a, x) => a + n0(x.value), 0))}</b></p>` : ''}</div>`;
   if (!isHR()) return;
@@ -494,6 +497,7 @@ async function custodyCard(box, e) {
           toast('تم الحفظ'); route(); } });
     const sync = () => { $('[data-new]', m).hidden = $('select[name=pick]', m).value !== '__new'; }; $('select[name=pick]', m).onchange = sync; sync();
     if (x) fileBox($('#cufiles', m), 'custody_files', 'custody_id', x.id).catch(() => {}); };
+  bindSign(box, csig, e);
   $('#cunew', box).onclick = () => form(null);
   bindRows(box, items, x => form(x));
   $$('[data-cret]', box).forEach(b => b.onclick = ev => { ev.stopPropagation(); const x = items.find(i => i.id === b.dataset.cret);

@@ -2104,7 +2104,7 @@ select t.err($$select * from public.code_lookups$$, 'permission denied', 'anon c
 select t.err($$select public.riyadh_today()$$, 'permission denied', 'anon cannot call helper functions');
 reset role;
 select t.ok((select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'
-  and has_function_privilege('anon', p.oid, 'execute') and p.proname not in ('company_by_code', 'ping', 'site_hit', 'site_content')) = 0, 'anon can call only company_by_code, the health check, and the website counter/texts');
+  and has_function_privilege('anon', p.oid, 'execute') and p.proname not in ('company_by_code', 'ping', 'site_hit', 'site_content', 'portal_view')) = 0, 'anon can call only company_by_code, the health check, the website counter/texts and the customer portal');
 select t.ok(has_function_privilege('authenticated', 'public.riyadh_today()', 'execute'), 'signed-in users keep helper functions');
 delete from public.code_lookups;
 select set_config('request.headers', '{"cf-connecting-ip":"203.0.113.7"}', false);
@@ -2956,6 +2956,83 @@ select public.post_manual_journal(:'cid', public.riyadh_today(), 'قيد ببي�
   '[{"a":"1110","d":50,"c":0,"m":"صرف للمكتب"},{"a":"1120","d":0,"c":50,"m":"من البنك"}]'::jsonb) as jm \gset
 reset role;
 select t.ok((select string_agg(memo, '|' order by id) from public.journal_lines where entry_id = :'jm') = 'صرف للمكتب|من البنك', 'journal: each line keeps its own description');
+
+-- ================= ELECTRONIC SIGNATURE (0096) =================
+select employee_id as sg_emp from public.members where company_id = :'cid' and user_id = :'u_emp' \gset
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.sign_request_create(:'cid', :'sg_emp', 'contract', null, 'عقد العمل', 'أقر بالاطلاع على العقد') as sg1 \gset
+select t.err($$select public.sign_request_create('$$ || :'cid' || $$', '$$ || :'sg_emp' || $$', 'contract', null, 'عقد العمل', 'نص')$$, 'طلب توقيع قائم', 'signature: one open request per document');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.err($$select public.sign_submit('$$ || :'sg1' || $$', 'data:image/png;base64,$$ || repeat('A', 300) || $$')$$, '42501|غير مصرح|غير موجود', 'signature: nobody signs in another employee''s place');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.sign_submit('$$ || :'sg1' || $$', 'not an image')$$, 'ارسم توقيعك', 'signature: a drawn image is required');
+select public.sign_submit(:'sg1', 'data:image/png;base64,' || repeat('A', 300));
+select t.err($$select public.sign_submit('$$ || :'sg1' || $$', 'data:image/png;base64,$$ || repeat('B', 300) || $$')$$, 'تم التوقيع', 'signature: a signed document can''t be signed again or changed');
+reset role;
+select t.ok((select status = 'signed' and signed_at is not null and signature like '%AAAA%' from public.signature_requests where id = :'sg1'), 'signature: the employee signs his own request; the signature and time are kept');
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.ok((select count(*) from public.signature_requests where id = :'sg1') = 0, 'signature: colleagues outside HR do not see someone else''s signature');
+reset role;
+
+-- ================= COMPANY DOCUMENTS AND VEHICLES (0097) =================
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+insert into public.company_documents(company_id, doc_type, doc_no, expiry_date) values (:'cid', 'cr', '1010101010', public.riyadh_today() + 20) returning id as cdoc \gset
+insert into public.vehicles(company_id, plate, make, insurance_expiry) values (:'cid', 'ا ب ج 1234', 'تويوتا', public.riyadh_today() + 10) returning id as car \gset
+select t.err($$insert into public.vehicles(company_id, plate, driver_id) values ('$$ || :'cid' || $$', 'X 1', '00000000-0000-0000-0000-000000000099')$$, 'ليس من موظفي|row-level', 'vehicles: the driver must be an employee of the company');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((select count(*) from public.company_documents where company_id = :'cid') = 0 and (select count(*) from public.vehicles where company_id = :'cid') = 0, 'company documents and vehicles are not visible to ordinary employees');
+select t.err($$insert into public.company_documents(company_id, doc_type) values ('$$ || :'cid' || $$', 'cr')$$, 'row-level|permission', 'an employee cannot add company documents');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.ok((select count(*) from public.company_documents where id = :'cdoc') = 0, 'another company cannot see the documents');
+reset role;
+select t.ok(exists(select 1 from public.company_documents where id = :'cdoc') and exists(select 1 from public.vehicles where id = :'car'), 'HR records the commercial registration and a vehicle with their expiry dates');
+
+-- ================= CUSTOMER PORTAL AND RECURRING INVOICES (0098, 0099) =================
+select id as pt_cust from public.parties where company_id = :'cid' and kind = 'customer' order by created_at limit 1 \gset
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.portal_link_get(:'pt_cust') as ptok \gset
+select t.ok(public.portal_link_get(:'pt_cust') = :'ptok' and length(:'ptok') = 64, 'portal: one long private link per customer');
+reset role;
+set role anon;
+select public.portal_view(:'ptok') as pv \gset
+select t.ok((:'pv'::jsonb->'party'->>'name') is not null and jsonb_typeof(:'pv'::jsonb->'invoices') = 'array', 'portal: the link opens the customer''s invoices without signing in');
+select t.ok(public.portal_view('0000000000000000000000000000000000000000000000000000000000000000') is null and public.portal_view('x') is null, 'portal: a wrong link shows nothing');
+select t.err($$select * from public.portal_links$$, 'permission denied', 'portal: the links table is not readable from outside');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.portal_link_revoke(:'pt_cust');
+reset role;
+set role anon;
+select t.ok(public.portal_view(:'ptok') is null, 'portal: a revoked link stops working');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.portal_link_get('$$ || :'pt_cust' || $$')$$, '42501|غير مصرح|صلاحية', 'portal: an ordinary employee cannot make customer links');
+reset role;
+-- recurring: due today → issued as a real invoice, next date moves a month
+select id as rc_item from public.items where company_id = :'cid' and type = 'service' order by code limit 1 \gset
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+insert into public.recurring_invoices(company_id, party_id, title, lines, every_months, next_date)
+ values (:'cid', :'pt_cust', 'صيانة شهرية', jsonb_build_array(jsonb_build_object('item', :'rc_item', 'qty', 1, 'price', 500)), 1, public.riyadh_today()) returning id as rci \gset
+select public.recurring_issue(:'rci') as rinv \gset
+select t.err($$select public.recurring_issue('$$ || :'rci' || $$')$$, 'لم يحن', 'recurring: not issued again before its next date');
+reset role;
+select t.ok((select total from public.sales_invoices where id = :'rinv') = 575 and (select next_date from public.recurring_invoices where id = :'rci') = (public.riyadh_today() + interval '1 month')::date,
+  'recurring: the due invoice is issued (500 + 15% VAT) and the next date moves one month');
+-- notes with a mention
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+insert into public.record_notes(company_id, entity, ref_id, body, mentions) values (:'cid', 'sales', :'rinv', 'راجع التحصيل', array[:'u_fin']::uuid[]);
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.ok((select count(*) from public.record_notes where ref_id = :'rinv' and :'u_fin' = any(mentions)) = 1, 'notes: the colleague mentioned sees the note');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((select count(*) from public.record_notes where ref_id = :'rinv') = 0, 'notes: someone who cannot open invoices does not see invoice notes');
+select t.err($$insert into public.record_notes(company_id, entity, ref_id, body) values ('$$ || :'cid' || $$', 'sales', '$$ || :'rinv' || $$', 'x')$$, 'row-level', 'notes: nor can he add one');
+reset role;
 
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

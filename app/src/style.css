@@ -391,3 +391,12 @@ button,input,select,textarea,optgroup{font-family:inherit}
 .tlogo{display:none;flex:none}.tlogo .wlogo{height:30px}
 @media(max-width:860px){.tlogo{display:inline-flex;align-items:center}}
 .btn.menu .bi{display:block}
+/* electronic signature */
+.sigpad{width:100%;max-width:600px;aspect-ratio:600/220;height:auto;border:1.5px dashed var(--line2);border-radius:12px;background:#fff;touch-action:none;display:block;cursor:crosshair}
+.sigimg{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px;max-width:420px}.sigimg img{width:100%;height:auto;display:block}
+/* global search */
+.gsr{max-height:55vh;overflow:auto;margin-top:8px}.gsg{font-size:12px;color:var(--muted);font-weight:600;margin:10px 4px 4px}.gsi{display:block;padding:8px 10px;border-radius:8px;color:var(--ink);text-decoration:none}.gsi:hover,.gsi.on{background:var(--soft2)}
+/* notes on records */
+.notes .nrow{border-bottom:1px solid var(--line3);padding:8px 0}.notes .nrow:last-child{border-bottom:0}.notes .nadd{margin-top:10px}
+/* customer portal */
+.portal{max-width:920px;margin:0 auto;padding:16px}.portal .brand{margin:24px auto}.phead{display:flex;gap:12px;align-items:center;margin-bottom:12px}.phead h1{margin:0}.plogo{height:52px;width:auto;border-radius:8px}

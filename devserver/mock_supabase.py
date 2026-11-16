@@ -72,19 +72,27 @@ def funcs():
 OPS = {'eq': '=', 'neq': '<>', 'gt': '>', 'gte': '>=', 'lt': '<', 'lte': '<='}
 IDENT = re.compile(r'^[a-z_][a-z0-9_]*$')
 
+def one_cond(k, v):
+    if not IDENT.match(k): raise PgError('PGRST100', 'bad column ' + k)
+    op, _, val = v.partition('.')
+    if op == 'is': return f'{k} is {"null" if val == "null" else ("true" if val == "true" else "false")}'
+    if op == 'in':
+        items = [x.strip('"') for x in val.strip('()').split(',') if x]
+        return f'{k}::text in ({",".join(lit(x) for x in items)})' if items else 'false'
+    if op == 'cs': return f'{k} @> {lit(val)}'
+    if op in ('ilike', 'like'): return f'{k}::text {op} {lit(val.replace("*", "%"))}'   # PostgREST pattern: * = %
+    if op in OPS: return f'{k} {OPS[op]} {lit(val)}'
+    raise PgError('PGRST100', 'unsupported op ' + op)
+
 def where_clause(params):
     conds = []
     for k, vs in params.items():
         if k in ('select', 'order', 'limit', 'offset', 'on_conflict', 'columns'): continue
-        if not IDENT.match(k): raise PgError('PGRST100', 'bad column ' + k)
         for v in vs:
-            op, _, val = v.partition('.')
-            if op == 'is': conds.append(f'{k} is {"null" if val == "null" else ("true" if val == "true" else "false")}')
-            elif op == 'in':
-                items = [x.strip('"') for x in val.strip('()').split(',') if x]
-                conds.append(f'{k}::text in ({",".join(lit(x) for x in items)})' if items else 'false')
-            elif op in OPS: conds.append(f'{k} {OPS[op]} {lit(val)}')
-            else: raise PgError('PGRST100', 'unsupported op ' + op)
+            if k == 'or':   # or=(col.op.val,col.op.val,…) — values without commas
+                parts = [x for x in v.strip().strip('()').split(',') if x]
+                conds.append('(' + ' or '.join(one_cond(*x.split('.', 1)) for x in parts) + ')')
+            else: conds.append(one_cond(k, v))
     return (' where ' + ' and '.join(conds)) if conds else ''
 
 class H(BaseHTTPRequestHandler):
