@@ -25,16 +25,16 @@ const GUIDE = {
       ['يعرض لك النموذج رصيدك وعدد الأيام قبل الإرسال.', 'The form shows your balance and the number of days before you send.'],
       ['اضغط «إرسال»، فيذهب الطلب إلى مديرك المباشر ثم الموارد البشرية حسب مسار منشأتك.', 'Press «Send»; it goes to your direct manager and then HR, following your company\'s route.']] },
     { id: 'other', go: '#/requests', t: ['طلبات أخرى', 'Other requests'], s: [
-      ['من «طلب جديد» نفسه تقدر تطلب: استئذان، سلفة، تعريف بالراتب، مطالبة مصروفات، تحديث بيانات، تذكرة سفر، تأشيرة خروج وعودة، أو استقالة.', 'The same «New request» covers: a permission, an advance, a salary certificate, an expense claim, a data update, a travel ticket, an exit/re-entry visa, or a resignation.'],
+      ['من «طلب جديد» نفسه يمكنك طلب: استئذان، سلفة، تعريف بالراتب، مطالبة مصروفات، تحديث بيانات، تذكرة سفر، تأشيرة خروج وعودة، أو استقالة.', 'The same «New request» covers: a permission, an advance, a salary certificate, an expense claim, a data update, a travel ticket, an exit/re-entry visa, or a resignation.'],
       ['بعض أنواع الإجازة تطلب مرفقا (مثل التقرير الطبي للإجازة المرضية)، ويوضح لك النموذج ذلك.', 'Some leave types need an attachment (like a medical report for sick leave); the form tells you.']] },
     { id: 'track', img: 'requests', go: '#/requests', t: ['متابعة طلبك أو إلغاؤه', 'Following or cancelling a request'], s: [
       ['في «طلباتي» ترى حالة كل طلب: بانتظار (وعند من)، معتمد، أو مرفوض مع السبب.', 'In «My requests» you see each request\'s status: waiting (and with whom), approved, or rejected with the reason.'],
-      ['تقدر تلغي الطلب ما دام لم يُعتمد بعد.', 'You can cancel a request until it is approved.'],
+      ['يمكنك إلغاء الطلب ما دام لم يُعتمد بعد.', 'You can cancel a request until it is approved.'],
       ['الاستقالة: يحق لك العدول عنها خلال 7 أيام من تقديمها.', 'Resignation: you may withdraw it within 7 days of submitting it.']] },
     { id: 'slip', img: 'payslips', go: '#/payslips', t: ['قسيمة الراتب', 'Your payslip'], s: [
       ['تظهر قسيمة كل شهر في «قسائم الراتب» بعد اعتماد مسير الرواتب.', 'Each month\'s payslip appears in «Payslips» once the payroll run is approved.'],
       ['اضغط الشهر لترى التفاصيل: الراتب والبدلات والإضافي والاستقطاعات والصافي.', 'Press the month for the details: pay, allowances, overtime, deductions and net.'],
-      ['تقدر تطبعها أو تحفظها PDF.', 'You can print it or save it as PDF.']] },
+      ['يمكنك طباعتها أو حفظها PDF.', 'You can print it or save it as PDF.']] },
     { id: 'profile', img: 'profile', go: '#/profile', t: ['ملفي والمخالفات', 'My profile and penalties'], s: [
       ['في «ملفي» بياناتك الوظيفية وراتبك ومديرك المباشر.', '«My profile» has your job details, pay and direct manager.'],
       ['لتعديل بياناتك (الجوال، العنوان، ...) اضغط «طلب تعديل بياناتي»، وتعتمده الموارد البشرية.', 'To change your data (mobile, address, ...) press «Request a change to my data»; HR approves it.'],
@@ -78,7 +78,7 @@ const GUIDE_QUIZ = {
     { id: 'e2', q: ['نسيت تسجيل حضورك اليوم، ماذا تفعل؟', 'You forgot to check in today. What do you do?'], a: [['أقدّم طلب «نسيان بصمة» من «طلباتي»', 'Send a «Missed punch» request from «My requests»'], ['لا شيء، يُصحَّح تلقائيا', 'Nothing, it fixes itself'], ['أسجّل الحضور مرتين غدا', 'Check in twice tomorrow']] },
     { id: 'e3', q: ['متى تظهر قسيمة راتبك في النظام؟', 'When does your payslip appear in the system?'], a: [['أول يوم من كل شهر', 'On the first day of each month'], ['عندما أطلبها من الموارد البشرية', 'When I ask HR for it'], ['بعد اعتماد مسير الرواتب', 'Once the payroll run is approved']] },
     { id: 'e4', q: ['تريد تغيير رقم جوالك المسجّل، كيف؟', 'You want to change your registered mobile number. How?'], a: [['من «ملفي» ثم «طلب تعديل بياناتي»', 'From «My profile», then «Request a change to my data»'], ['أعدّله بنفسي مباشرة في أي صفحة', 'I edit it myself on any page'], ['لا يمكن تغييره', 'It can\'t be changed']] },
-    { id: 'e5', q: ['تقدر تلغي طلبك متى؟', 'When can you cancel your request?'], a: [['في أي وقت حتى بعد اعتماده', 'Any time, even after approval'], ['ما دام لم يُعتمد بعد', 'As long as it isn\'t approved yet'], ['لا يمكن إلغاء أي طلب', 'No request can be cancelled']] },
+    { id: 'e5', q: ['متى يمكنك إلغاء طلبك؟', 'When can you cancel your request?'], a: [['في أي وقت حتى بعد اعتماده', 'Any time, even after approval'], ['ما دام لم يُعتمد بعد', 'As long as it isn\'t approved yet'], ['لا يمكن إلغاء أي طلب', 'No request can be cancelled']] },
     { id: 'e6', q: ['إذا صدر بحقك جزاء، خلال كم يوما يحق لك التظلم؟', 'If a penalty is issued against you, within how many days may you appeal?'], a: [['7 أيام', '7 days'], ['60 يوما', '60 days'], ['30 يوما من إبلاغك', '30 days from being notified']] },
     { id: 'e7', q: ['نسيت كلمة المرور، ماذا تفعل؟', 'You forgot your password. What do you do?'], a: [['أطلب من الموارد البشرية إعادة تعيينها', 'Ask HR to reset it'], ['أنشئ حسابا جديدا', 'Create a new account'], ['أدخل برقم موظف آخر', 'Sign in with another employee\'s number']] }],
   mgr: [

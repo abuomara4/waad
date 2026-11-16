@@ -185,7 +185,7 @@ async function requestDetail(r, { decide } = {}) {
   const body4 = body3 + (hrResign || hrExam || (r.payload && r.payload.defer_until) ? `<div class="row" style="margin-top:12px">${hrResign ? '<button type="button" class="btn sm" id="rdefer">تأجيل قبول الاستقالة</button>' : ''}${r.payload && r.payload.defer_until ? '<button type="button" class="btn sm" id="rdprint">طباعة إشعار التأجيل</button>' : ''}${hrExam ? '<button type="button" class="btn sm danger" id="xmiss">لم يؤدِّ الامتحان</button>' : ''}</div>` : '');
   // the owner, admins and HR may decide at the manager's step in his place, with a reason (0086)
   const canOvr = !decide && r.status === 'pending' && r.route[r.step] === 'm' && has('owner', 'admin', 'hr') && r.employee_id !== S.emp;
-  const body5 = body4 + (canOvr ? `<div class="card" style="margin:12px 0 0;padding:12px"><b>${esc(tr('تجاوز المدير المباشر'))}</b><p class="muted small" style="margin:4px 0 8px">${esc(tr('تقدر تعتمد الطلب أو ترفضه بدلا من المدير المباشر، ويُسجَّل باسمك مع السبب في مسار الطلب.'))}</p>
+  const body5 = body4 + (canOvr ? `<div class="card" style="margin:12px 0 0;padding:12px"><b>${esc(tr('تجاوز المدير المباشر'))}</b><p class="muted small" style="margin:4px 0 8px">${esc(tr('يمكنك اعتماد الطلب أو رفضه بدلا من المدير المباشر، ويُسجَّل باسمك مع السبب في مسار الطلب.'))}</p>
     <button type="button" class="btn sm" id="rovr">${esc(tr('تجاوز المدير المباشر'))}</button></div>` : '');
   const d = modal('تفاصيل الطلب', body5, decide ? { ok: 'اعتماد', onOk: async f => { await db.rpc('decide_request', { p_id: r.id, p_approve: true, p_note: blank(f.note) }); toast('تم الاعتماد'); route(); refreshCounts(); } } : {});
   $$('[data-att]', d).forEach(b => b.onclick = () => openAttachment(b.dataset.att));
@@ -346,11 +346,16 @@ VIEWS['#/employees'] = async (page, arg, q) => {
   const searchStr = e => [e.emp_no, e.full_name, e.full_name_en, e.job_title, e.job_title_en, dm[e.department_id], e.manager_id && em[e.manager_id] ? em[e.manager_id].full_name : '', e.national_id, e.iqama_no, e.mobile].filter(Boolean).join(' ').toLowerCase();
   page.innerHTML = `<div class="head"><div><h1>الموظفون</h1><div class="muted" id="ecount" data-nt>${esc(arCount(rows.length, 'موظف'))}</div></div><div class="row">
      <a class="btn" href="#/employees${showEnded ? '' : '?all=1'}">${showEnded ? 'على رأس العمل فقط' : 'إظهار المنتهية خدماتهم'}</a><button class="btn" id="dep">الأقسام</button><button class="btn" id="imx">استيراد من Excel</button><button class="btn" id="upx">تحديث جماعي من Excel</button><button class="btn" id="brs">زيادة جماعية</button><button class="btn pri" id="ne">إضافة موظف</button></div></div>
-   <div style="margin-bottom:12px"><input id="esrch" type="search" aria-label="${esc(tr('بحث في الموظفين'))}" placeholder="بحث: الرقم الوظيفي، الاسم، المسمى، القسم، المدير، الهوية، الجوال…" autocomplete="off"></div>
+   <div class="row" style="margin-bottom:12px;gap:8px;flex-wrap:wrap"><input id="esrch" type="search" aria-label="${esc(tr('بحث في الموظفين'))}" placeholder="بحث: الرقم الوظيفي، الاسم، المسمى، القسم، المدير، الهوية، الجوال…" autocomplete="off" style="flex:1;min-width:220px">
+     <select id="efdep" style="width:auto" aria-label="${esc(tr('القسم'))}"><option value="">${esc(tr('كل الأقسام'))}</option><option value="none">${esc(tr('بلا قسم'))}</option>${Object.entries(dm).map(([k, n]) => opt(k, n)).join('')}</select>
+     <select id="efnat" style="width:auto" aria-label="${esc(tr('الجنسية'))}"><option value="">${esc(tr('كل الجنسيات'))}</option><option value="sa">${esc(tr('سعودي'))}</option><option value="nsa">${esc(tr('غير سعودي'))}</option></select>
+     <select id="eflog" style="width:auto" aria-label="${esc(tr('الدخول'))}"><option value="">${esc(tr('كل حالات الدخول'))}</option><option value="yes">${esc(tr('له دخول'))}</option><option value="no">${esc(tr('بدون حساب'))}</option></select></div>
    <div id="emptbl"></div>`;
-  const draw = term => { const t = (term || '').trim().toLowerCase(); const fr = t ? rows.filter(e => searchStr(e).includes(t)) : rows; const ec = $('#ecount', page); if (ec) ec.textContent = arCount(fr.length, 'موظف'); $('#emptbl', page).innerHTML = tbl(cols, fr, { empty: t ? 'لا نتائج مطابقة' : 'لم تُضف موظفين بعد', onRow: true }); bindRows(page, fr, e => employeeForm(e)); };
+  const draw = term => { const t = (term || '').trim().toLowerCase(), fd = $('#efdep', page).value, fn = $('#efnat', page).value, fl = $('#eflog', page).value;
+    const fr = rows.filter(e => (!t || searchStr(e).includes(t)) && (!fd || (fd === 'none' ? !e.department_id : e.department_id === fd)) && (!fn || (fn === 'sa') === !!e.is_saudi) && (!fl || (fl === 'yes') === !!cache.logins[e.id])); const ec = $('#ecount', page); if (ec) ec.textContent = arCount(fr.length, 'موظف'); $('#emptbl', page).innerHTML = tbl(cols, fr, { empty: t ? 'لا نتائج مطابقة' : 'لم تُضف موظفين بعد', onRow: true }); bindRows(page, fr, e => employeeForm(e)); };
   draw('');
   $('#esrch', page).oninput = e => draw(e.target.value);
+  ['#efdep', '#efnat', '#eflog'].forEach(id => $(id, page).onchange = () => draw($('#esrch', page).value));
   $('#ne', page).onclick = () => employeeForm(null);
   $('#dep', page).onclick = () => departmentsDlg();
   $('#imx', page).onclick = () => importDialog();
@@ -539,7 +544,7 @@ async function payrollRun(page, id) {
   lines.sort((a, b) => String((em[a.employee_id] || {}).emp_no).localeCompare(String((em[b.employee_id] || {}).emp_no)));
   const sum = k => lines.reduce((a, l) => a + n0(l[k]), 0);
   const draft = run.status === 'draft', hasArr = lines.some(l => n0(l.arrears));
-  page.innerHTML = `<div class="head"><div><a href="#/payroll" class="small">← المسيرات</a><h1>مسير ${run.month}/${run.year} ${badge(run.status)}</h1><div class="muted">${lines.length} موظف · الصافي <b class="num">${money(sum('net'))}</b></div>${run.att_from ? `<div class="muted small">${esc(tr('فترة الحضور والغياب والإضافي'))}: <span class="num">${fdate(run.att_from)} – ${fdate(run.att_to)}</span></div>` : ''}</div>
+  page.innerHTML = `<div class="head"><div><a href="#/payroll" class="small back">المسيرات</a><h1>مسير ${run.month}/${run.year} ${badge(run.status)}</h1><div class="muted">${esc(arCount(lines.length, 'موظف'))} · الصافي <b class="num">${money(sum('net'))}</b></div>${run.att_from ? `<div class="muted small">${esc(tr('فترة الحضور والغياب والإضافي'))}: <span class="num">${fdate(run.att_from)} – ${fdate(run.att_to)}</span></div>` : ''}</div>
     <div class="row">${draft && isHR() ? '<button class="btn" id="re">إعادة الاحتساب</button>' : ''}${draft && has('owner', 'finance') ? '<button class="btn pri" id="ap">اعتماد وترحيل القيد</button>' : ''}${run.status === 'approved' && has('owner', 'finance') ? '<button class="btn pri" id="pd">تسجيل الصرف</button>' : ''}<button class="btn" id="gos">تقرير التأمينات</button>${run.status !== 'draft' ? '<button class="btn" id="wps">ملف حماية الأجور</button>' : ''}</div></div>
     ${draft && !has('owner', 'finance') ? '<div class="note">بعد المراجعة يعتمده المدير العام أو المدير المالي.</div>' : ''}
     ${tbl([{ t: 'الموظف', h: l => esc((em[l.employee_id] || {}).full_name || '') + (l.paid_days != null && l.paid_days < 30 ? ` <span class="badge" title="${esc(tr('جزء من الشهر'))}">${l.paid_days}/30</span>` : '') }, { t: 'الإجمالي', r: 1, h: l => money(l.gross) }, ...(hasArr ? [{ t: 'مستحقات الشهر السابق', r: 1, h: l => n0(l.arrears) ? money(l.arrears) + ` <span class="muted small num">(${l.arrears_days})</span>` : '—' }] : []), { t: 'إضافي', r: 1, h: l => money(l.overtime) }, { t: 'مكافأة', r: 1, h: l => money(l.bonus) },
@@ -608,7 +613,7 @@ async function gosiReport(run, em) {
       { t: 'الأجر الخاضع', r: 1, h: x => money(x.base) + (chg(x) ? ` <span class="small muted">(${esc(tr('كان'))} ${money(x.prev_base)})</span>` : '') },
       { t: 'حصة الموظف', r: 1, h: x => money(x.employee_share) }, { t: 'حصة المنشأة', r: 1, h: x => money(x.employer_share) },
       { t: 'الإجراء', h: x => x.status ? `<span class="badge ${st[x.status][1]}">${esc(tr(st[x.status][0]))}</span>` : chg(x) ? `<span class="badge bad">${esc(tr('تغيّر الأجر — حدّثه في التأمينات'))}</span>` : '' }], rows, { empty: 'لا توجد بيانات' })}</div>
-    <div class="row" style="margin-top:10px"><button type="button" class="btn" id="gsp">طباعة</button></div>`;
+    <div class="row" style="margin:12px 0 16px"><button type="button" class="btn" id="gsp">طباعة</button></div>`;
   const d = modal(tr('تقرير التأمينات الاجتماعية') + ' ' + run.month + '/' + run.year, body, { wide: true });
   $('#gsp', d).onclick = () => printBlock($('#gsr', d), tr('تقرير التأمينات الاجتماعية') + ' ' + run.month + '/' + run.year);
 }

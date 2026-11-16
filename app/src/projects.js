@@ -82,16 +82,22 @@ async function projectView(page, id) {
       <div class="card kpi"><div class="muted small">${esc(tr('الهامش (تقديري)'))}</div><div class="v num ${margin == null ? '' : margin >= 0 ? 'ok' : 'bad'}">${money(margin)}</div></div></div>
     <div class="card"><div class="row" style="justify-content:space-between;align-items:center"><h2>${esc(tr('المهام'))}</h2><button class="btn sm pri" id="ntask">${esc(tr('مهمة جديدة'))}</button></div>
       ${tbl([{ t: 'المهمة', k: 'title' }, { t: 'المكلّف', h: t => esc(nm(em[t.assignee_id])) }, { t: 'التسليم', h: t => fdate(t.due_date) }, { t: 'الحالة', h: t => taskBadge(t.status) },
-        { t: '', h: t => `<select data-task="${t.id}" style="width:auto">${Object.entries(TASK_STATUS).map(([k, l]) => opt(k, tr(l), t.status)).join('')}</select>` }], tasks, { empty: 'لا توجد مهام' })}</div>
+        { t: 'تغيير الحالة', h: t => `<select data-task="${t.id}" style="width:auto" aria-label="${esc(tr('تغيير الحالة'))}">${Object.entries(TASK_STATUS).map(([k, l]) => opt(k, tr(l), t.status)).join('')}</select>` },
+        { t: '', h: t => `<button class="btn sm" data-tedit="${t.id}">${esc(tr('تعديل'))}</button> <button class="btn sm danger" data-tdel="${t.id}">${esc(tr('حذف'))}</button>` }], tasks, { empty: 'لا توجد مهام' })}</div>
     <div class="card"><div class="row" style="justify-content:space-between;align-items:center"><h2>${esc(tr('ساعات العمل'))}</h2><button class="btn sm pri" id="nts">${esc(tr('تسجيل ساعات'))}</button></div>
       ${tbl([{ t: 'التاريخ', h: r => fdate(r.work_date) }, { t: 'الموظف', h: r => esc(nm(em[r.employee_id])) }, { t: 'المهمة', h: r => esc((tasks.find(t => t.id === r.task_id) || {}).title || '—') },
         { t: 'الساعات', r: 1, h: r => `<span class="num">${r2(r.hours)}</span>` }, { t: 'مفوترة', h: r => r.billable ? `<span class="badge ok">${esc(tr('نعم'))}</span>` : `<span class="badge">${esc(tr('لا'))}</span>` },
         { t: 'ملاحظة', k: 'note' }, { t: '', h: r => `<button class="btn sm danger" data-del="${r.id}">${esc(tr('حذف'))}</button>` }], ts, { empty: 'لا توجد ساعات مسجلة' })}</div>`;
   $('#pedit', page).onclick = () => projectForm(p);
-  $('#ntask', page).onclick = () => modal(tr('مهمة جديدة'), `<div class="fg">${field('عنوان المهمة', inp('title', '', 'required'), 'wide')}
-    ${field('المكلّف', `<select name="assignee_id"><option value="">${esc(tr('— بلا تكليف —'))}</option>${liveEmps.map(e => opt(e.id, nm(e) + ' (' + e.emp_no + ')')).join('')}</select>`)}
-    ${field('تاريخ التسليم', inp('due_date', '', 'type="date"'))}</div>`, {
-    onOk: async f => { await db.ins('project_tasks', { company_id: S.cid, project_id: id, title: f.title, assignee_id: blank(f.assignee_id), due_date: blank(f.due_date) }); toast(tr('تم الحفظ')); route(); } });
+  const taskForm = t => modal(t ? tr('تعديل المهمة') : tr('مهمة جديدة'), `<div class="fg">${field('عنوان المهمة', inp('title', t ? t.title : '', 'required'), 'wide')}
+    ${field('المكلّف', `<select name="assignee_id"><option value="">${esc(tr('— بلا تكليف —'))}</option>${liveEmps.map(e => opt(e.id, nm(e) + ' (' + e.emp_no + ')', t && t.assignee_id)).join('')}</select>`)}
+    ${field('تاريخ التسليم', inp('due_date', t ? t.due_date || '' : '', 'type="date"'))}</div>`, {
+    onOk: async f => { const row = { title: f.title, assignee_id: blank(f.assignee_id), due_date: blank(f.due_date) };
+      if (t) await db.upd('project_tasks', { id: 'eq.' + t.id }, row); else await db.ins('project_tasks', Object.assign(row, { company_id: S.cid, project_id: id })); toast(tr('تم الحفظ')); route(); } });
+  $('#ntask', page).onclick = () => taskForm(null);
+  $$('[data-tedit]', page).forEach(b => b.onclick = () => taskForm(tasks.find(x => x.id === b.dataset.tedit)));
+  $$('[data-tdel]', page).forEach(b => b.onclick = async () => { if (!await confirmBox(tr('حذف المهمة'), tr('تُحذف المهمة، وتبقى الساعات المسجلة عليها في المشروع بلا مهمة.'), tr('حذف'))) return;
+    try { await db.del('project_tasks', { id: 'eq.' + b.dataset.tdel }); toast(tr('حُذفت المهمة')); route(); } catch (er) { toast(er.message); } });
   $('#nts', page).onclick = () => modal(tr('تسجيل ساعات عمل'), `<div class="fg">
     ${field('الموظف', `<select name="employee_id" required>${liveEmps.map(e => opt(e.id, nm(e) + ' (' + e.emp_no + ')')).join('')}</select>`)}
     ${field('المهمة (اختياري)', `<select name="task_id"><option value="">${esc(tr('— بلا مهمة —'))}</option>${tasks.map(t => opt(t.id, t.title)).join('')}</select>`)}

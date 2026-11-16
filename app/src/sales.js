@@ -46,7 +46,7 @@ async function soForm(page, kind, id, q) {
   const K = SK[kind];
   if (!can('sales')) { page.innerHTML = '<div class="err">غير مصرح</div>'; return; }
   const L = await soLookups();
-  if (!L.parties.length) { page.innerHTML = `<div class="head"><div><a href="javascript:history.back()" class="small">→ ${esc(tr('رجوع'))}</a><h1>${esc(tr('مستند جديد'))}</h1></div></div><div class="card empty-cta"><p>${esc(tr('لا يوجد عملاء بعد. أضف أول عميل ثم أنشئ المستند.'))}</p><a class="btn pri" href="#/parties/customer">${esc(tr('إضافة عميل'))}</a></div>`; return; }
+  if (!L.parties.length) { page.innerHTML = `<div class="head"><div><a href="javascript:history.back()" class="small back">${esc(tr('رجوع'))}</a><h1>${esc(tr('مستند جديد'))}</h1></div></div><div class="card empty-cta"><p>${esc(tr('لا يوجد عملاء بعد. أضف أول عميل ثم أنشئ المستند.'))}</p><a class="btn pri" href="#/parties/customer">${esc(tr('إضافة عميل'))}</a></div>`; return; }
   let doc = null, lines = [{}];
   if (id) {
     [[doc]] = await Promise.all([db.get('sales_orders', { id: 'eq.' + id })]);
@@ -55,7 +55,7 @@ async function soForm(page, kind, id, q) {
   }
   const back = id ? `${K.h}/${id}` : K.h;
   const whf = await whField(doc && doc.warehouse_id, 'يُصرف من مستودع');
-  page.innerHTML = `<div class="head"><div><a href="${back}" class="small">← ${K.t}</a><h1>${id ? 'تعديل ' + K.one + ' <span class="num">' + esc(doc.no) + '</span>' : K.newT}</h1></div></div><form id="sf" class="card" novalidate>
+  page.innerHTML = `<div class="head"><div><a href="${back}" class="small back">${K.t}</a><h1>${id ? 'تعديل ' + K.one + ' <span class="num">' + esc(doc.no) + '</span>' : K.newT}</h1></div></div><form id="sf" class="card" novalidate>
     <div class="fg">${field('العميل', `<select name="party">${L.parties.filter(p => p.active !== false || (doc && doc.party_id === p.id)).map(p => opt(p.id, p.name, doc ? doc.party_id : preParty)).join('')}</select>`)}${field('التاريخ', `<input type="date" name="date" value="${doc ? doc.date : today()}" max="${today()}">`)}
       ${kind === 'quote' ? field('صالح حتى', `<input type="date" name="valid_until" value="${doc ? doc.valid_until : new Date(Date.now() + 14 * 864e5).toISOString().slice(0, 10)}">`) : ''}
       ${whf}${field('ملاحظات', inp('note', doc && doc.note), 'wide')}${field('الشروط والأحكام (تظهر في المطبوع)', `<textarea name="terms" rows="2">${esc(doc && doc.terms || '')}</textarea>`, 'wide')}</div>
@@ -116,7 +116,7 @@ async function soView(page, kind, id) {
   }
   btns.push('<button class="btn" id="sprint">طباعة</button>');
   const nm = l => esc((L.im[l.item_id] || {}).name || '') + (l.description ? `<div class="small muted">${esc(l.description)}</div>` : '');
-  page.innerHTML = `<div class="head"><div><a href="${K.h}" class="small">← ${K.t}</a><h1>${K.one} <span class="num">${esc(doc.no)}</span> ${soBadge(doc)}</h1>
+  page.innerHTML = `<div class="head"><div><a href="${K.h}" class="small back">${K.t}</a><h1>${K.one} <span class="num">${esc(doc.no)}</span> ${soBadge(doc)}</h1>
       <div class="muted">${esc(party ? party.name : '')} · ${fdate(doc.date)}${kind === 'quote' ? ' · صالح حتى ' + fdate(doc.valid_until) : ''}${whTxt}${linked.length ? ` · ${kind === 'quote' ? 'أمر البيع' : 'من عرض السعر'} <a href="${kind === 'quote' ? '#/orders/' : '#/quotes/'}${linked[0].id}" class="num">${esc(linked[0].no)}</a>` : ''}</div></div>
       <div class="row">${btns.join('')}</div></div>
     <div class="card">${tbl([{ t: 'البند', h: nm }, { t: 'الكمية', r: 1, h: l => qtyTxt(l.qty) }, ...(kind === 'order' ? [{ t: 'المُسلَّم', r: 1, h: l => qtyTxt(l.delivered) }, { t: 'المُفوتر', r: 1, h: l => qtyTxt(l.invoiced) }] : []),
@@ -162,7 +162,7 @@ async function dnView(page, id) {
   if (!n) throw new Error('الإشعار غير موجود');
   const [[o]] = await Promise.all([db.get('sales_orders', { id: 'eq.' + n.order_id, select: 'id,no,date' })]);
   const party = L.pm[n.party_id];
-  page.innerHTML = `<div class="head"><div><a href="#/deliveries" class="small">← إشعارات التسليم</a><h1>إشعار تسليم <span class="num">${esc(n.no)}</span> ${badge(n.status)}</h1>
+  page.innerHTML = `<div class="head"><div><a href="#/deliveries" class="small back">إشعارات التسليم</a><h1>إشعار تسليم <span class="num">${esc(n.no)}</span> ${badge(n.status)}</h1>
       <div class="muted">${esc(party ? party.name : '')} · ${fdate(n.date)} · أمر البيع <a href="#/orders/${n.order_id}" class="num">${esc(o ? o.no : '')}</a></div></div>
       <div class="row">${n.status === 'posted' && (can('sales') || can('stock')) ? '<button class="btn danger" id="dvd">إلغاء الإشعار</button>' : ''}<button class="btn" id="dprint">طباعة</button></div></div>
     <div class="card">${tbl([{ t: 'الصنف', h: l => esc(((L.im[l.item_id] || {}).code || '') + ' — ' + ((L.im[l.item_id] || {}).name || '')) }, { t: 'الوحدة', h: l => esc((L.im[l.item_id] || {}).unit || '—') }, { t: 'الكمية المسلّمة', r: 1, h: l => qtyTxt(l.qty) }], lines)}

@@ -42,7 +42,7 @@ const phoneBtns = p => p ? `<a class="btn sm pri" href="${esc(waTo(p))}" target=
 const gmailTo = (to, su) => 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(to) + (su ? '&su=' + encodeURIComponent(su) : '');
 const mailBtns = (to, su) => to ? `<a class="btn sm pri" href="${esc(gmailTo(to, su))}" target="_blank" rel="noopener">${esc(tr('مراسلة عبر Gmail'))}</a>
   <a class="btn sm" href="mailto:${esc(to)}${su ? '?subject=' + encodeURIComponent(su) : ''}">${esc(tr('تطبيق البريد'))}</a>
-  <button type="button" class="btn sm" data-copymail="${esc(to)}">${esc(tr('نسخ الإيميل'))}</button>` : `<span class="muted small">${esc(tr('ما فيه إيميل للمالك'))}</span>`;
+  <button type="button" class="btn sm" data-copymail="${esc(to)}">${esc(tr('نسخ الإيميل'))}</button>` : `<span class="muted small">${esc(tr('لا توجد إيميل للمالك'))}</span>`;
 function bindCopy(root) {
   $$('[data-copymail]', root).forEach(b => b.onclick = async () => {
     try { await navigator.clipboard.writeText(b.dataset.copymail); toast(tr('تم النسخ')); } catch (e) { prompt('', b.dataset.copymail); } });
@@ -197,7 +197,7 @@ function countBy(rows, key, names) {
   const m = {}; rows.forEach(c => { const k = c[key] || ''; m[k] = (m[k] || 0) + 1; });
   return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, n]) => [k ? tr(names ? names[k] || k : k) : tr('غير محدد'), n]);
 }
-const countCard = (title, list) => `<div class="card"><h2>${esc(tr(title))}</h2>${tbl([{ t: '', h: ([k]) => esc(k) }, { t: 'المنشآت', r: 1, h: ([, n]) => n }], list, { empty: 'ما فيه بيانات' })}</div>`;
+const countCard = (title, list) => `<div class="card"><h2>${esc(tr(title))}</h2>${tbl([{ t: '', h: ([k]) => esc(k) }, { t: 'المنشآت', r: 1, h: ([, n]) => n }], list, { empty: 'لا توجد بيانات' })}</div>`;
 PV.system = async page => {
   const rows = await db.rpc('platform_companies'), t0 = today();
   const since = n => rows.filter(c => String(c.created_at).slice(0, 10) > dayAgo(n)).length;
@@ -209,7 +209,7 @@ PV.system = async page => {
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('أرقام النظام'))}</h1><div class="muted">${esc(tr('من بيانات الاشتراك وآخر دخول فقط.'))}</div></div></div>
     <div class="grid" style="margin-bottom:14px">${pkpi('تسجيلات آخر ٧ أيام', since(7))}${pkpi('تسجيلات آخر ٣٠ يوما', since(30))}
       ${pkpi('منشآت دخلت آخر ٧ أيام', active7, rows.length ? pct(active7, rows.length) + ' ' + tr('من المنشآت') : '')}
-      ${pkpi('نسبة التحويل إلى اشتراك', pct(paid, decided), 'من المنشآت اللي انتهت تجربتها أو اشتركت')}${pkpi('تجارب تنتهي خلال ٣ أيام', ending.length)}${pkpi('بانتظار القبول', rows.filter(c => c.status === 'pending').length)}</div>
+      ${pkpi('نسبة التحويل إلى اشتراك', pct(paid, decided), 'من المنشآت التي انتهت تجربتها أو اشتركت')}${pkpi('تجارب تنتهي خلال ٣ أيام', ending.length)}${pkpi('بانتظار القبول', rows.filter(c => c.status === 'pending').length)}</div>
     <div class="card" style="margin-bottom:14px"><h2>${esc(tr('التسجيلات الجديدة يوميا (آخر ٣٠ يوما)'))}</h2>${pbars(days.map(k => ({ k, v: rows.filter(c => String(c.created_at).slice(0, 10) === k).length })), 'التسجيلات الجديدة يوميا (آخر ٣٠ يوما)')}</div>
     <div class="g2p">
       <div class="card"><h2>${esc(tr('تجارب تنتهي قريبا'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('تواصل معهم قبل ما تنتهي التجربة.'))}</p>
@@ -235,7 +235,7 @@ PV.site = async page => {
   const brk = (title, key, names) => {
     const m = {}; rows.forEach(r => { const x = m[r[key]] = m[r[key]] || { visits: 0, views: 0, cta: 0 }; x.visits += r.visits; x.views += r.views; x.cta += r.cta; });
     const list = Object.entries(m).sort((a, b) => b[1].visits - a[1].visits || b[1].views - a[1].views);
-    return `<div class="card"><h2>${esc(tr(title))}</h2>${tbl([{ t: '', h: ([k]) => esc(tr(names[k] || k)) }, { t: 'زيارات', r: 1, h: ([, v]) => v.visits }, { t: 'صفحات', r: 1, h: ([, v]) => v.views }, { t: 'ضغطات التجربة', r: 1, h: ([, v]) => v.cta }], list, { empty: 'ما فيه زيارات في هذي الفترة' })}</div>`;
+    return `<div class="card"><h2>${esc(tr(title))}</h2>${tbl([{ t: '', h: ([k]) => esc(tr(names[k] || k)) }, { t: 'زيارات', r: 1, h: ([, v]) => v.visits }, { t: 'صفحات', r: 1, h: ([, v]) => v.views }, { t: 'ضغطات التجربة', r: 1, h: ([, v]) => v.cta }], list, { empty: 'لا توجد زيارات في هذه الفترة' })}</div>`;
   };
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('زوار الموقع'))}</h1><div class="muted">${esc(tr('عدّاد الموقع نفسه: أرقام يومية فقط، بدون كوكيز وبدون أي بيانات شخصية. زياراتك من هذا الجهاز ما تنحسب.'))}</div></div>
       <select id="sdays" style="width:auto">${[7, 30, 90].map(d => opt(d, tr('آخر') + ' ' + d + ' ' + tr('يوم'), n)).join('')}</select></div>
@@ -273,7 +273,7 @@ PV.content = async page => {
       <div id="econ"></div><div class="row" style="gap:8px;margin-top:10px"><button class="btn pri">${esc(tr('حفظ'))}</button>${cur.contact ? `<button type="button" class="btn" data-reset="contact">${esc(tr('رجوع للأصل'))}</button>` : ''}</div></form>
     <form class="card" id="fban"><h2>${esc(tr('شريط تنبيه أعلى الموقع'))} ${changed('banner')}</h2>
       <label class="row small" style="gap:6px;margin-bottom:8px"><input type="checkbox" name="on" ${banner.on ? 'checked' : ''} style="width:auto"> ${esc(tr('إظهار الشريط'))}</label><div class="fg">
-      ${field('النص بالعربي', inp('ar', banner.ar, 'maxlength="160"'), 'wide')}${field('النص بالإنجليزي', inp('en', banner.en, 'maxlength="160" dir="ltr"'), 'wide')}</div>
+      ${field('النص بالعربية', inp('ar', banner.ar, 'maxlength="160"'), 'wide')}${field('النص بالإنجليزية', inp('en', banner.en, 'maxlength="160" dir="ltr"'), 'wide')}</div>
       <div id="eban"></div><div class="row" style="gap:8px;margin-top:10px"><button class="btn pri">${esc(tr('حفظ'))}</button>${cur.banner ? `<button type="button" class="btn" data-reset="banner">${esc(tr('حذف الشريط'))}</button>` : ''}</div></form></div>
     <form class="card" id="ffaq" style="margin-top:14px"><h2>${esc(tr('الأسئلة الشائعة'))} ${changed('faq')}</h2><div id="faql"></div>
       <div id="efaq"></div><div class="row" style="gap:8px;margin-top:10px"><button type="button" class="btn" id="faqadd">${esc(tr('إضافة سؤال'))}</button><div class="sp"></div>
@@ -283,7 +283,7 @@ PV.content = async page => {
     if (!/^05\d{8}$/.test(p)) return showErr($('#econ', page), tr('اكتب رقم الجوال بالشكل 05XXXXXXXX'));
     save('contact', { phone: '966' + p.slice(1), email: f.email.value.trim() }, $('button.pri', f), $('#econ', page)); };
   $('#fban', page).onsubmit = e => { e.preventDefault(); const f = e.target;
-    if (f.on.checked && !f.ar.value.trim()) return showErr($('#eban', page), tr('اكتب نص الشريط بالعربي'));
+    if (f.on.checked && !f.ar.value.trim()) return showErr($('#eban', page), tr('اكتب نص الشريط بالعربية'));
     save('banner', { on: f.on.checked, ar: f.ar.value.trim(), en: f.en.value.trim() }, $('button.pri', f), $('#eban', page)); };
   $$('[data-reset]', page).forEach(b => b.onclick = () => save(b.dataset.reset, null, b, $('#e' + { contact: 'con', banner: 'ban', faq: 'faq' }[b.dataset.reset], page)));
   // FAQ editor: questions are edited in place; ↑ ↓ reorder; ✕ removes
@@ -293,9 +293,9 @@ PV.content = async page => {
     list.innerHTML = faq.length ? faq.map((x, i) => `<div class="fqi" data-i="${i}"><div class="row" style="gap:6px;margin-bottom:6px"><b class="num">${i + 1}</b><div class="sp"></div>
         <button type="button" class="btn sm" data-mv="-1" aria-label="${esc(tr('أعلى'))}" ${i ? '' : 'disabled'}>↑</button><button type="button" class="btn sm" data-mv="1" aria-label="${esc(tr('أسفل'))}" ${i < faq.length - 1 ? '' : 'disabled'}>↓</button>
         <button type="button" class="btn sm" data-rm aria-label="${esc(tr('حذف'))}">✕</button></div>
-      <div class="fg">${field('السؤال بالعربي', `<input name="qa" value="${esc(x.qa)}" maxlength="200">`)}${field('السؤال بالإنجليزي', `<input name="qe" value="${esc(x.qe)}" maxlength="200" dir="ltr">`)}
-        ${field('الجواب بالعربي', `<textarea name="aa" rows="3" maxlength="800">${esc(x.aa)}</textarea>`)}${field('الجواب بالإنجليزي', `<textarea name="ae" rows="3" maxlength="800" dir="ltr">${esc(x.ae)}</textarea>`)}</div></div>`).join('')
-      : `<div class="empty">${esc(tr('ما فيه أسئلة. أضف سؤالا.'))}</div>`;
+      <div class="fg">${field('السؤال بالعربية', `<input name="qa" value="${esc(x.qa)}" maxlength="200">`)}${field('السؤال بالإنجليزية', `<input name="qe" value="${esc(x.qe)}" maxlength="200" dir="ltr">`)}
+        ${field('الجواب بالعربية', `<textarea name="aa" rows="3" maxlength="800">${esc(x.aa)}</textarea>`)}${field('الجواب بالإنجليزية', `<textarea name="ae" rows="3" maxlength="800" dir="ltr">${esc(x.ae)}</textarea>`)}</div></div>`).join('')
+      : `<div class="empty">${esc(tr('لا توجد أسئلة. أضف سؤالا.'))}</div>`;
     $$('.fqi', list).forEach(d => { const i = +d.dataset.i;
       $$('[data-mv]', d).forEach(b => b.onclick = () => { read(); const j = i + +b.dataset.mv; [faq[i], faq[j]] = [faq[j], faq[i]]; draw(); });
       d.querySelector('[data-rm]').onclick = () => { read(); faq.splice(i, 1); draw(); }; });
@@ -304,7 +304,7 @@ PV.content = async page => {
   $('#faqadd', page).onclick = () => { read(); faq.push({ qa: '', aa: '', qe: '', ae: '' }); draw(); const l = $$('.fqi', list).pop(); l.scrollIntoView({ block: 'nearest' }); l.querySelector('input').focus(); };
   $('#ffaq', page).onsubmit = e => { e.preventDefault(); read();
     const out = faq.map(x => ({ qa: x.qa.trim(), aa: x.aa.trim(), qe: x.qe.trim(), ae: x.ae.trim() })).filter(x => x.qa || x.aa);
-    if (out.some(x => !x.qa || !x.aa)) return showErr($('#efaq', page), tr('كل سؤال يحتاج سؤالا وجوابا بالعربي'));
+    if (out.some(x => !x.qa || !x.aa)) return showErr($('#efaq', page), tr('كل سؤال يحتاج سؤالا وجوابا بالعربية'));
     save('faq', out, $('#ffaq button.pri', page), $('#efaq', page)); };
 };
 
@@ -317,14 +317,14 @@ PV.news = async page => {
     ${tbl([{ t: 'النص', h: a => `<div data-nt>${esc(a.body_ar)}</div>` + (a.body_en ? `<div class="small muted" data-nt dir="ltr">${esc(a.body_en)}</div>` : '') },
       { t: 'النوع', h: a => `<span class="badge ${a.level === 'warn' ? 'bad' : 'info'}">${esc(tr(a.level === 'warn' ? 'تنبيه مهم' : 'معلومة'))}</span>` },
       { t: 'الفترة', h: a => `<span class="num">${esc(a.starts_at)}</span> ← <span class="num">${esc(a.ends_at || '…')}</span>` },
-      { t: 'الحالة', h: a => { const [t, k] = annState(a); return `<span class="badge ${k}">${esc(tr(t))}</span>`; } }], rows, { empty: 'ما فيه إعلانات', onRow: true })}`;
+      { t: 'الحالة', h: a => { const [t, k] = annState(a); return `<span class="badge ${k}">${esc(tr(t))}</span>`; } }], rows, { empty: 'لا توجد إعلانات', onRow: true })}`;
   $('#annadd', page).onclick = () => annForm({});
   bindRows(page, rows, annForm);
 };
 function annForm(a) {
   const d = modal(a.id ? tr('تعديل الإعلان') : tr('إعلان جديد'), `<div class="fg">
-      ${field('النص بالعربي', `<textarea name="body_ar" rows="2" maxlength="400" required>${esc(a.body_ar || '')}</textarea>`, 'wide')}
-      ${field('النص بالإنجليزي (اختياري)', `<textarea name="body_en" rows="2" maxlength="400" dir="ltr">${esc(a.body_en || '')}</textarea>`, 'wide')}
+      ${field('النص بالعربية', `<textarea name="body_ar" rows="2" maxlength="400" required>${esc(a.body_ar || '')}</textarea>`, 'wide')}
+      ${field('النص بالإنجليزية (اختياري)', `<textarea name="body_en" rows="2" maxlength="400" dir="ltr">${esc(a.body_en || '')}</textarea>`, 'wide')}
       ${field('النوع', `<select name="level">${opt('info', tr('معلومة'), a.level)}${opt('warn', tr('تنبيه مهم'), a.level)}</select>`)}
       ${field('يبدأ', `<input type="date" name="starts_at" value="${esc(a.starts_at || today())}">`)}
       ${field('ينتهي (فارغ = حتى تحذفه)', `<input type="date" name="ends_at" value="${esc(a.ends_at || '')}">`)}</div>
@@ -348,7 +348,7 @@ PV.team = async page => {
     ${tbl([{ t: 'اسم المستخدم', h: a => `<b dir="ltr">${esc(a.username || a.email)}</b>` + (a.is_me ? ` <span class="badge info">${esc(tr('أنت'))}</span>` : '') },
       { t: 'آخر دخول', h: a => a.last_sign_in ? `<span class="num">${esc(String(a.last_sign_in).slice(0, 10))}</span>` : '—' },
       { t: 'التحقق بخطوتين', h: a => `<span class="badge ${a.mfa ? 'ok' : 'wait'}">${esc(tr(a.mfa ? 'مفعّل' : 'غير مفعّل'))}</span>` },
-      { t: 'كلمة المرور', h: a => a.must_change ? `<span class="badge wait">${esc(tr('مؤقتة'))}</span>` : `<span class="muted small">${esc(tr('خاصة به'))}</span>` }], rows, { empty: 'ما فيه أعضاء', onRow: true })}
+      { t: 'كلمة المرور', h: a => a.must_change ? `<span class="badge wait">${esc(tr('مؤقتة'))}</span>` : `<span class="muted small">${esc(tr('خاصة به'))}</span>` }], rows, { empty: 'لا توجد أعضاء', onRow: true })}
     <p class="muted small">${esc(tr('اضغط على عضو لإعادة تعيين كلمة مروره أو حذفه من الفريق.'))}</p>`;
   $('#tadd', page).onclick = () => {
     const pw = tempPw();
@@ -391,10 +391,10 @@ PV.home = async page => {
   const ended = rows.filter(c => subState(c)[1] === 'bad' && c.status !== 'suspended');
   const sum = (a, k) => a.reduce((x, r) => x + (+r[k] || 0), 0);
   const list = (title, sub, items, cols) => `<div class="card"><h2>${esc(tr(title))} <span class="badge${items.length ? ' info' : ''} num">${items.length}</span></h2>
-    ${sub ? `<p class="muted small" style="margin-top:0">${esc(tr(sub))}</p>` : ''}${tbl(cols, items, { empty: 'ما فيه شي', onRow: true })}</div>`;
+    ${sub ? `<p class="muted small" style="margin-top:0">${esc(tr(sub))}</p>` : ''}${tbl(cols, items, { empty: 'لا توجد شي', onRow: true })}</div>`;
   const nameCol = { t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` };
   const endCol = { t: 'ينتهي', h: c => `<span class="num">${esc(subEnd(c) || '')}</span>` }, actCol = { t: '', h: c => `<div class="row" style="gap:4px">${quickBtns(c)}</div>` };
-  page.innerHTML = `<div class="head"><div><h1>${esc(tr('الرئيسية'))}</h1><div class="muted">${esc(tr('اللي يحتاج منك اليوم، وأهم الأرقام.'))}</div></div></div>
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('الرئيسية'))}</h1><div class="muted">${esc(tr('التي يحتاج منك اليوم، وأهم الأرقام.'))}</div></div></div>
     ${tks.length ? `<a class="note" href="#/support" style="display:block">${esc(tr('طلبات دعم تنتظر ردك'))}: <b class="num">${tks.length}</b></a>` : ''}
     <div class="grid" style="margin-bottom:14px">${pkpi('بانتظار القبول', pending.length)}${pkpi('طلبات دعم مفتوحة', tks.length)}${pkpi('منشآت مشتركة', rows.filter(c => c.status === 'active' && subState(c)[1] !== 'bad').length)}
       ${pkpi('تجارب شغّالة', rows.filter(c => c.status === 'trial' && subState(c)[1] !== 'bad').length)}${pkpi('إيرادات هذا الشهر', money0(sum(pays, 'amount')), 'ريال')}
@@ -416,7 +416,7 @@ PV.company = async (page, id) => {
   const [stt, stk] = subState(c), e = subEnd(c), n = daysLeft(e), paid = d.payments.reduce((a, p) => a + (+p.amount || 0), 0);
   const plan = plans.find(p => p.id === d.plan_id);
   const histTxt = h => [h.status && tr((SUB_ST[h.status] || [h.status])[0]), h.plan && h.plan !== 'trial' ? h.plan : '', h.trial_ends && tr('التجربة حتى') + ' ' + h.trial_ends, h.sub_ends && tr('الاشتراك حتى') + ' ' + h.sub_ends].filter(Boolean).join(' · ');
-  page.innerHTML = `<div class="head"><div><a href="#/companies" class="small">← ${esc(tr('المنشآت'))}</a><h1>${esc(c.name)} <span class="badge ${stk}">${esc(tr(stt))}</span></h1>
+  page.innerHTML = `<div class="head"><div><a href="#/companies" class="small back">${esc(tr('المنشآت'))}</a><h1>${esc(c.name)} <span class="badge ${stk}">${esc(tr(stt))}</span></h1>
       <div class="muted small" dir="ltr">${esc(c.owner_email || '')}</div></div></div>
     <div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:14px">
       ${c.status === 'pending' ? `<button class="btn pri" id="capp">${esc(tr('قبول…'))}</button>` : ''}
@@ -451,13 +451,13 @@ PV.company = async (page, id) => {
         <div id="nerr"></div>
         ${d.notes.length ? d.notes.map(x => { const [t, i] = CH_N[x.channel] || CH_N.other; return `<div class="pnote"><div><span class="badge">${i} ${esc(tr(t))}</span> <span class="num small">${esc(x.on || String(x.at).slice(0, 10))}</span></div>
           <div data-nt style="margin-top:4px">${esc(x.body)}</div><div class="small muted"><span dir="ltr">${esc(x.by || '')}</span> · <a href="#" data-dn="${esc(x.id)}">${esc(tr('حذف'))}</a></div></div>`; }).join('')
-          : `<p class="muted small">${esc(tr('ما فيه تواصل مسجّل.'))}</p>`}</div></div>
+          : `<p class="muted small">${esc(tr('لا يوجد تواصل مسجّل.'))}</p>`}</div></div>
     <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الدفعات'))}</h2>
       ${tbl([{ t: 'التاريخ', h: p => `<span class="num">${esc(p.paid_on)}</span>` }, { t: 'المبلغ', r: 1, h: p => money0(p.amount) }, { t: 'الطريقة', h: p => esc(tr(PAY_M[p.method] || p.method)) },
         { t: 'المدة', h: p => p.days ? `<span class="num">${p.days}</span> ${esc(tr('يوم'))}` : '—' }, { t: 'ملاحظة', h: p => `<span data-nt>${esc(p.note || '')}</span>` },
-        { t: '', h: p => `<a href="#" data-rc="${esc(p.id)}">${esc(tr('إيصال'))}</a> · <a href="#" data-dp="${esc(p.id)}">${esc(tr('حذف'))}</a>` }], d.payments, { empty: 'ما فيه دفعات' })}</div>
+        { t: '', h: p => `<a href="#" data-rc="${esc(p.id)}">${esc(tr('إيصال'))}</a> · <a href="#" data-dp="${esc(p.id)}">${esc(tr('حذف'))}</a>` }], d.payments, { empty: 'لا توجد دفعات' })}</div>
     <div class="card"><h2>${esc(tr('سجل الاشتراك'))}</h2>
-      ${tbl([{ t: 'التاريخ', h: h => `<span class="num">${esc(String(h.at).slice(0, 16).replace('T', ' '))}</span>` }, { t: 'الحالة بعد التغيير', h: h => esc(histTxt(h)) }], d.history, { empty: 'ما فيه تغييرات' })}</div>`;
+      ${tbl([{ t: 'التاريخ', h: h => `<span class="num">${esc(String(h.at).slice(0, 16).replace('T', ' '))}</span>` }, { t: 'الحالة بعد التغيير', h: h => esc(histTxt(h)) }], d.history, { empty: 'لا توجد تغييرات' })}</div>`;
   bindCopy(page); bindQuick(page, [c], st);
   if ($('#capp', page)) $('#capp', page).onclick = () => approveForm(c, st);
   $('#csub', page).onclick = () => subForm(c);
@@ -500,15 +500,15 @@ PV.billing = async page => {
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('الإيرادات والباقات'))}</h1><div class="muted">${esc(tr('سجّل كل دفعة من صفحة المنشأة، وتنحسب هنا.'))}</div></div>
       <button class="btn pri" id="padd">${esc(tr('باقة جديدة'))}</button></div>
     <div class="grid" style="margin-bottom:14px">${pkpi('هذا الشهر', money0(sumIf(p => p.paid_on >= m0)), 'ريال')}${pkpi('الشهر الماضي', money0(sumIf(p => p.paid_on >= lm && p.paid_on < m0)), 'ريال')}
-      ${pkpi('هذي السنة', money0(sumIf(p => p.paid_on >= y0)), 'ريال')}${pkpi('منشآت مشتركة', paying)}</div>
+      ${pkpi('هذه السنة', money0(sumIf(p => p.paid_on >= y0)), 'ريال')}${pkpi('منشآت مشتركة', paying)}</div>
     <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الإيرادات شهريا (آخر ١٢ شهر)'))}</h2>${pbars(months.map(k => ({ k, v: Math.round(sumIf(p => p.paid_on.slice(0, 7) === k)) })), 'الإيرادات شهريا (آخر ١٢ شهر)')}</div>
     <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الباقات والأسعار'))}</h2>
       ${tbl([{ t: 'الباقة', h: p => `<b>${esc(p.name)}</b>` + (p.active ? '' : ` <span class="badge">${esc(tr('موقوفة'))}</span>`) }, { t: 'السعر', r: 1, h: p => money0(p.price) },
         { t: 'المدة', h: p => `<span class="num">${p.period_days}</span> ${esc(tr('يوم'))}` }, { t: 'الأقسام', h: p => p.modules.map(m => `<span class="badge">${esc(tr(MODULES[m] || m))}</span>`).join(' ') },
-        { t: 'المستخدمون', r: 1, h: p => p.max_users || '—' }, { t: 'الموظفون', r: 1, h: p => p.max_employees || '—' }], plans, { empty: 'ما فيه باقات. أضف أول باقة.', onRow: true })}</div>
+        { t: 'المستخدمون', r: 1, h: p => p.max_users || '—' }, { t: 'الموظفون', r: 1, h: p => p.max_employees || '—' }], plans, { empty: 'لا توجد باقات. أضف أول باقة.', onRow: true })}</div>
     <div class="card"><h2>${esc(tr('آخر الدفعات'))}</h2>
       ${tbl([{ t: 'التاريخ', h: p => `<span class="num">${esc(p.paid_on)}</span>` }, { t: 'المنشأة', h: p => esc(p.company) }, { t: 'المبلغ', r: 1, h: p => money0(p.amount) },
-        { t: 'الباقة', h: p => esc(p.plan || '—') }, { t: 'الطريقة', h: p => esc(tr(PAY_M[p.method] || p.method)) }], pays.slice(0, 50), { empty: 'ما فيه دفعات', onRow: true })}</div>`;
+        { t: 'الباقة', h: p => esc(p.plan || '—') }, { t: 'الطريقة', h: p => esc(tr(PAY_M[p.method] || p.method)) }], pays.slice(0, 50), { empty: 'لا توجد دفعات', onRow: true })}</div>`;
   $('#padd', page).onclick = () => planForm({});
   const cards = $$('.card', page);
   bindRows(cards[2], plans, planForm);
@@ -561,7 +561,7 @@ PV.support = async page => {
     ${tbl([{ t: 'الطلب', h: r => `<b data-nt>${esc(r.subject)}</b><div class="small muted">${esc(tr(TK_KIND[r.kind]))}${r.route ? ' · <span dir="ltr">' + esc(r.route) + '</span>' : ''}</div>` },
       { t: 'المنشأة', h: r => esc(r.company) + `<div class="small muted" dir="ltr">${esc(r.author || '')}</div>` },
       { t: 'الحالة', h: r => `<span class="badge ${TK_ST[r.status][1]}">${esc(tr(TK_ST[r.status][0]))}</span>` },
-      { t: 'التاريخ', h: r => `<span class="num">${esc(String(r.created_at).slice(0, 16).replace('T', ' '))}</span>` }], rows, { empty: 'ما فيه طلبات هنا', onRow: true })}`;
+      { t: 'التاريخ', h: r => `<span class="num">${esc(String(r.created_at).slice(0, 16).replace('T', ' '))}</span>` }], rows, { empty: 'لا توجد طلبات هنا', onRow: true })}`;
   $$('[data-tf]', page).forEach(a => a.onclick = e => { e.preventDefault(); LS.set('waad.tkf', a.dataset.tf); platformView(); });
   bindRows(page, rows, ticketForm);
 };
@@ -593,12 +593,12 @@ const cannedList = () => [...CANNED, ...(LS.get('waad.canned') || [])];
 PV.errors = async page => {
   const n = [1, 7, 30].includes(LS.get('waad.errdays')) ? LS.get('waad.errdays') : 7;
   const rows = await db.rpc('platform_errors', { p_days: n });
-  page.innerHTML = `<div class="head"><div><h1>${esc(tr('أخطاء النظام'))}</h1><div class="muted">${esc(tr('أخطاء صارت في متصفحات المستخدمين، مجمّعة حسب الرسالة. ما فيها أي بيانات من داخل المنشآت.'))}</div></div>
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('أخطاء النظام'))}</h1><div class="muted">${esc(tr('أخطاء حدثت في متصفحات المستخدمين، مجمّعة حسب الرسالة، ولا تتضمن أي بيانات من داخل المنشآت.'))}</div></div>
       <select id="edays" style="width:auto">${[1, 7, 30].map(d => opt(d, tr('آخر') + ' ' + d + ' ' + tr('يوم'), n)).join('')}</select></div>
     <div class="grid" style="margin-bottom:14px">${pkpi('أخطاء مختلفة', rows.length)}${pkpi('مرات الحدوث', rows.reduce((a, r) => a + r.times, 0))}${pkpi('منشآت تأثرت', rows.length ? Math.max(...rows.map(r => r.companies)) : 0, 'أعلى عدد لخطأ واحد')}</div>
     ${tbl([{ t: 'الخطأ', h: r => `<span dir="ltr" class="small" style="word-break:break-word">${esc(r.message)}</span>` }, { t: 'الشاشة', h: r => `<span dir="ltr" class="small">${esc(r.route || '—')}</span>` },
       { t: 'مرات', r: 1, h: r => r.times }, { t: 'مستخدمين', r: 1, h: r => r.users }, { t: 'منشآت', r: 1, h: r => r.companies },
-      { t: 'آخر مرة', h: r => `<span class="num">${esc(String(r.last_at).slice(0, 16).replace('T', ' '))}</span>` }], rows, { empty: 'ما فيه أخطاء في هذي الفترة 👌', onRow: true })}
+      { t: 'آخر مرة', h: r => `<span class="num">${esc(String(r.last_at).slice(0, 16).replace('T', ' '))}</span>` }], rows, { empty: 'لا توجد أخطاء في هذه الفترة 👌', onRow: true })}
     <p class="muted small">${esc(tr('اضغط على خطأ لتشوف مكانه في الكود والمتصفح. أرسل الصورة للمطوّر.'))}</p>`;
   $('#edays', page).onchange = e => { LS.set('waad.errdays', +e.target.value); platformView(); };
   bindRows(page, rows, r => modal(tr('تفاصيل الخطأ'), `<div dir="ltr" class="small" style="white-space:pre-wrap;word-break:break-word" data-nt><b>${esc(r.message)}</b>

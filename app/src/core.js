@@ -226,7 +226,7 @@ function modal(title, body, { ok = 'حفظ', onOk, wide } = {}) {
   const close = () => d.close();
   $('#mx', d).onclick = close; if ($('#mc', d)) $('#mc', d).onclick = close;
   $('#mform', d).onsubmit = async ev => { ev.preventDefault(); if (!onOk) return close(); const b = $('#mok', d); try { await busy(b, () => onOk(formData($('#mform', d)), d)); close(); } catch (e) { showErr($('#merr', d), e); } };
-  d.showModal(); const first = $('input,select,textarea', d); if (first) first.focus(); setTimeout(() => markWide(d), 60);
+  d.showModal(); const first = $('input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=date]):not([readonly]),textarea', d); if (first) first.focus();   // never a dropdown: on phones that opens it setTimeout(() => markWide(d), 60);
   return d;
 }
 const confirmBox = (title, msg, okText = 'تأكيد') => new Promise(res => { modal(title, `<p>${esc(msg)}</p>`, { ok: okText, onOk: async () => res(true) }); $('#dlg').addEventListener('close', () => res(false), { once: true }); });
@@ -294,14 +294,14 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
   const step = tab === 'staff' ? (ccode ? 'login' : 'code') : tab;
   let body = '', btn = 'دخول', foot = '';
   if (step === 'code') {
-    body = `<h2 style="margin-bottom:4px">رمز المنشأة</h2><p class="muted small" style="margin-top:0">أدخل رمز منشأتك مرة واحدة — تعطيك إياه الموارد البشرية — وسيتذكره النظام.</p>
+    body = `<h2 style="margin-bottom:4px">رمز المنشأة</h2><p class="muted small" style="margin-top:0">أدخل رمز منشأتك مرة واحدة — تزودك به الموارد البشرية — وسيتذكره النظام.</p>
       ${field('رمز المنشأة', `<input name="code" required dir="ltr" autocapitalize="characters" autocomplete="organization" style="text-transform:uppercase;letter-spacing:3px;font-size:18px;text-align:center" placeholder="1FB695">`)}`;
     btn = 'متابعة';
   } else if (step === 'login') {
     body = `<div class="note" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>المنشأة: <b>${esc(cname)}</b></span><a href="#" id="chg" class="small">تغيير</a></div>
       ${field('الرقم الوظيفي', `<input name="emp" required dir="ltr" inputmode="numeric" autocomplete="username">`)}<div style="height:10px"></div>
       ${field('كلمة المرور', pwInput('password', 'current-password'))}`;
-    foot = `<p class="muted small" style="margin:10px 0 0;text-align:center">أول دخول؟ استخدم كلمة المرور التي أعطتك إياها الموارد البشرية، وسيُطلب منك تغييرها. نسيتها؟ اطلب من الموارد البشرية إعادة تعيينها.</p>`;
+    foot = `<p class="muted small" style="margin:10px 0 0;text-align:center">أول دخول؟ استخدم كلمة المرور التي زودتك بها الموارد البشرية، وسيُطلب منك تغييرها. نسيتها؟ اطلب من الموارد البشرية إعادة تعيينها.</p>`;
   } else {
     body = `${field('البريد الإلكتروني', `<input name="email" type="email" autocomplete="email" required dir="ltr">`)}<div style="height:10px"></div>
       ${field('كلمة المرور', pwInput('password', tab === 'in' ? 'current-password' : 'new-password'))}

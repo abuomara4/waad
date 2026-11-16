@@ -26,10 +26,10 @@ VIEWS['#/forms'] = async page => {
       ${formCanWrite() ? `<button class="btn pri" id="fnew">${esc(tr('نموذج جديد'))}</button>` : ''}</div>
     <div class="ptabs pfil">${depts.map(d => `<a href="#" data-fd="${d}" data-nt${d === cur ? ' aria-current="page"' : ''}>${esc(fT(...FORM_DEPTS[d]))}</a>`).join('')}</div>
     <div class="fgrid">${list.map((t, i) => `<button type="button" class="card fcard" data-fi="${i}"><b data-nt>${esc(fT(t.title_ar, t.title_en))}</b>
-        <span class="small muted">${esc(tr(subjN[t.subject] || ''))}${t.lib ? (FORM_GRID[t.key] ? ' · ' + esc(tr('جدول بالعربي والإنجليزي')) : '') : ' · ' + esc(tr('نموذج منشأتك'))}</span></button>`).join('') || `<div class="empty">${esc(tr('ما فيه نماذج في هذا القسم.'))}</div>`}</div>
+        <span class="small muted">${esc(tr(subjN[t.subject] || ''))}${t.lib ? (FORM_GRID[t.key] ? ' · ' + esc(tr('جدول بالعربية والإنجليزية')) : '') : ' · ' + esc(tr('نموذج منشأتك'))}</span></button>`).join('') || `<div class="empty">${esc(tr('لا توجد نماذج في هذا القسم.'))}</div>`}</div>
     <div class="card" style="margin-top:14px"><h2>${esc(tr('آخر النماذج المطبوعة'))}</h2>
       ${tbl([{ t: 'الرقم', h: r => `<span class="num">${esc(r.no)}</span>` }, { t: 'النموذج', h: r => `<span data-nt>${esc(r.title)}</span>` },
-        { t: 'لـ', h: r => `<span data-nt>${esc(r.subject_name || '—')}</span>` }, { t: 'التاريخ', h: r => `<span class="num">${esc(String(r.issued_at).slice(0, 10))}</span>` }], log, { empty: 'ما طُبع شي للحين' })}</div>`;
+        { t: 'صادر لـ', h: r => `<span data-nt>${esc(r.subject_name || '—')}</span>` }, { t: 'التاريخ', h: r => `<span class="num">${esc(String(r.issued_at).slice(0, 10))}</span>` }], log, { empty: 'ما طُبع شي للحين' })}</div>`;
   $$('[data-fd]', page).forEach(a => a.onclick = e => { e.preventDefault(); LS.set('waad.formdept', a.dataset.fd); route(); });
   $$('[data-fi]', page).forEach(b => b.onclick = () => formFill(list[+b.dataset.fi]));
   if ($('#fnew', page)) $('#fnew', page).onclick = () => formEdit({ dept: cur });
@@ -93,9 +93,9 @@ async function formFill(t) {
   const d = modal(fT(t.title_ar, t.title_en), `<div class="fg">
       ${t.subject === 'employee' ? field('الموظف', `<input id="whoq" type="search" autocomplete="off" aria-label="${esc(tr('بحث'))}" placeholder="${esc(tr('ابحث بالاسم أو الرقم الوظيفي'))}" style="margin-bottom:6px"><select name="who" required>${el.map(e => opt(e.id, e.emp_no + ' — ' + e.full_name)).join('')}</select>`, 'wide') : ''}
       ${kinds.length ? field(t.subject === 'supplier' ? 'المورد' : t.subject === 'customer' ? 'العميل' : 'العميل أو المورد', `<input id="whoq" type="search" autocomplete="off" aria-label="${esc(tr('بحث'))}" placeholder="${esc(tr('ابحث بالاسم'))}" style="margin-bottom:6px"><select name="who" required>${parties.map(p => opt(p.id, p.name)).join('')}</select>`, 'wide') : ''}
-      ${t.lib && FORM_GRID[t.key] ? `<input type="hidden" name="lang" value="ar"><div class="wide small muted">${esc(tr('يطلع بالعربي والإنجليزي معا على نفس الورقة.'))}</div>` : field('لغة النموذج', `<select name="lang">${opt('ar', 'العربية', LANG)}${t.body_en ? opt('en', 'English', LANG) : ''}</select>`)}
+      ${t.lib && FORM_GRID[t.key] ? `<input type="hidden" name="lang" value="ar"><div class="wide small muted">${esc(tr('يظهر بالعربية والإنجليزية معا على نفس الورقة.'))}</div>` : field('لغة النموذج', `<select name="lang">${opt('ar', 'العربية', LANG)}${t.body_en ? opt('en', 'English', LANG) : ''}</select>`)}
       ${t.fields.map(inputFor).join('')}</div>
-    ${(t.subject === 'employee' && !el.length) || (kinds.length && !parties.length) ? `<div class="note">${esc(tr('ما فيه سجلات تختار منها. أضفها أول.'))}</div>` : ''}
+    ${(t.subject === 'employee' && !el.length) || (kinds.length && !parties.length) ? `<div class="note">${esc(tr('لا توجد سجلات للاختيار منها. أضفها أولا.'))}</div>` : ''}
     ${!t.lib && formCanWrite() ? `<button type="button" class="btn sm" id="fedit" style="margin-top:8px">${esc(tr('تعديل النموذج'))}</button>` : ''}`, {
     wide: true, ok: 'معاينة وطباعة', onOk: async f => {
       const en = f.lang === 'en', who = t.subject === 'employee' ? emps[f.who] : kinds.length ? parties.find(p => p.id === f.who) : null;
@@ -116,6 +116,7 @@ async function formFill(t) {
     const rec = !sel ? null : t.subject === 'employee' ? emps[sel.value] : parties.find(p => p.id === sel.value);
     let v = {}; try { v = await pre(rec || {}, t) || {}; } catch (er) { v = {}; }
     $$('.fauto', d).forEach(x => x.remove());
+    $$('[data-auto]', d).forEach(i => { if (i.type !== 'date' && i.type !== 'hidden') i.value = ''; });
     Object.entries(v).forEach(([k, val]) => { const i = d.querySelector(`[name="f_${k}"]`); if (!i || val == null || val === '') return;
       if (i.value && !i.dataset.auto) return; i.value = val; i.dataset.auto = '1';
       i.insertAdjacentHTML('afterend', `<div class="fauto small muted">${esc(tr('تُعبّأ تلقائيا من النظام — يمكنك تعديلها'))}</div>`); });
@@ -236,11 +237,11 @@ function formEdit(r) {
   const chips = FORM_PH.map(([ph, l]) => `<button type="button" class="btn sm" data-ph="${esc(ph)}" title="${esc(tr(l))}">${esc(tr(l))}</button>`).join(' ');
   const d = modal(r.id ? tr('تعديل نموذج') : tr('نموذج جديد'), `<div class="fg">
       ${field('القسم', `<select name="dept">${Object.keys(FORM_DEPTS).filter(x => modOn(x) && formCanDept(x)).map(x => opt(x, fT(...FORM_DEPTS[x]), r.dept)).join('')}</select>`)}
-      ${field('النموذج لـ', `<select name="subject">${[['employee', 'موظف'], ['customer', 'عميل'], ['supplier', 'مورد'], ['none', 'عام']].map(([k, l]) => opt(k, tr(l), r.subject || 'employee')).join('')}</select>`)}
-      ${field('عنوان النموذج', inp('title_ar', r.title_ar, 'maxlength="120" required'))}${field('العنوان بالإنجليزي (اختياري)', inp('title_en', r.title_en, 'maxlength="120" dir="ltr"'))}
+      ${field('يصدر النموذج لـ', `<select name="subject">${[['employee', 'موظف'], ['customer', 'عميل'], ['supplier', 'مورد'], ['none', 'عام']].map(([k, l]) => opt(k, tr(l), r.subject || 'employee')).join('')}</select>`)}
+      ${field('عنوان النموذج', inp('title_ar', r.title_ar, 'maxlength="120" required'))}${field('العنوان بالإنجليزية (اختياري)', inp('title_en', r.title_en, 'maxlength="120" dir="ltr"'))}
       <div class="wide"><label>${esc(tr('اضغط لإضافة خانة تُعبّأ تلقائيا'))}</label><div class="row" style="gap:6px;flex-wrap:wrap">${chips}</div></div>
-      ${field('نص النموذج بالعربي', `<textarea name="body_ar" rows="9" maxlength="8000" required data-nt>${esc(r.body_ar || '')}</textarea>`, 'wide')}
-      ${field('النص بالإنجليزي (اختياري)', `<textarea name="body_en" rows="5" maxlength="8000" dir="ltr" data-nt>${esc(r.body_en || '')}</textarea>`, 'wide')}
+      ${field('نص النموذج بالعربية', `<textarea name="body_ar" rows="9" maxlength="8000" required data-nt>${esc(r.body_ar || '')}</textarea>`, 'wide')}
+      ${field('النص بالإنجليزية (اختياري)', `<textarea name="body_en" rows="5" maxlength="8000" dir="ltr" data-nt>${esc(r.body_en || '')}</textarea>`, 'wide')}
       ${field('التوقيعات (كل جهة في سطر)', `<textarea name="sigs" rows="3" placeholder="${esc(tr('الموظف') + '\n' + tr('الموارد البشرية'))}">${esc((r.sigs || []).join('\n'))}</textarea>`, 'wide')}</div>
     <p class="muted small">${esc(tr('أي كلمة تكتبها بين {f: و } تصير خانة تُعبّأ وقت الطباعة، مثل {f:المبلغ} أو {f:تاريخ الحادثة}.'))}</p>
     ${r.id ? `<button type="button" class="btn sm" id="fdel" style="margin-top:8px">${esc(tr('حذف النموذج'))}</button>` : ''}`, {

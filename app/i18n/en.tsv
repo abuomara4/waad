@@ -46,6 +46,8 @@
 أخضر مرتفع	High green
 أخضر منخفض	Low green
 أخطاء النظام	System errors
+أخطاء حدثت في متصفحات المستخدمين	Errors that happened in users' browsers
+أخطاء حدثت في متصفحات المستخدمين، مجمّعة حسب الرسالة، ولا تتضمن أي بيانات من داخل المنشآت.	Errors that happened in users' browsers, grouped by message, with no data from inside the companies.
 أخطاء صارت في متصفحات المستخدمين	Errors that happened in users' browsers
 أخطاء مختلفة	Distinct errors
 أخطار مهنية على المنشأة فقط	occupational hazards, paid by the company only
@@ -200,6 +202,7 @@
 أضف هدفاً واحداً على الأقل	Add at least one goal
 أضف وردية افتراضية قبل تفعيل الحضور	Add a default shift before enabling attendance
 أضفها أول	Add them first
+أضفها أولا	add them first
 أضيفه لاحقا	add it later
 أطفئ خيار	Turn off the
 أعد الاختبار	Retake the quiz
@@ -629,6 +632,7 @@
 إهلاك الأصول الثابتة	Fixed asset depreciation
 إهلاك بالقسط الثابت شهريا	Monthly straight-line depreciation
 إهلاك بالقسط الثابت شهرياً	Monthly straight-line depreciation
+إيجار المكتب لشهر نوفمبر	office rent for November
 إيداع	deposit
 إيراد	Revenue
 إيراد فوق الموازنة أو مصروف تحتها	revenue above budget or expense below it
@@ -779,6 +783,7 @@
 استخدم القالب	use the template
 استخدم سند القبض أو الصرف العادي	use the normal receipt or payment voucher
 استخدم كلمة المرور التي أعطتك إياها الموارد البشرية	use the password HR gave you
+استخدم كلمة المرور التي زودتك بها الموارد البشرية	use the password HR gave you
 استخدم موقعي الحالي	Use my current location
 استخدمها للعمل الإضافي الذي لم يُسجَّل في الحضور	Use this for overtime not recorded in attendance
 استشارة تحول رقمي	Digital transformation consulting
@@ -859,6 +864,8 @@
 اشتراكك	Your subscription
 اشتراكها مفتوح وما أحد دخل منها من	Subscription is open and nobody has signed in for
 اشترك الآن	Subscribe now
+اشرح المشكلة وموضع حدوثها	Describe the problem and where it happened
+اشرح المشكلة وموضع حدوثها، وأرفق نص رسالة الخطأ إن وجدت.	Describe the problem and where it happened, and include the error message if there is one.
 اضغط	press
 اضغط إرسال فيها	press Send there
 اضغط زر المشاركة	Tap the Share button
@@ -979,12 +986,14 @@
 اكتب عنوان الطلب	Type the request title
 اكتب عنوان الهدف	Write the title of goal
 اكتب قرار التظلم	Write the grievance decision
+اكتب لنا سؤالك أو المشكلة التي واجهتك	Write us your question or the problem you ran into
 اكتب لنا سؤالك أو المشكلة اللي واجهتك	Write us your question or the problem you ran into
 اكتب ما حدث للعهدة	Describe what happened to the item
 اكتب محضر التحقيق	Write the investigation minutes
 اكتب نص الإعلان	Write the announcement text
 اكتب نص السياسة	Enter the policy text
 اكتب نص الشريط بالعربي	Write the bar text in Arabic
+اكتب نص الشريط بالعربية	Write the bar text in Arabic
 اكتب وش صار	Write what happened
 اكتب وصف البند	Describe the line
 اكتب وصف كل بند	Describe each line
@@ -1329,6 +1338,7 @@
 التوقيع	Signature
 التوقيع والتاريخ	Signature and date
 التوقيعات	Signatures
+التي يحتاج منك اليوم	What needs you today
 الثالثة	third
 الثانية	second
 الثلاثاء	Tuesday
@@ -1347,7 +1357,9 @@
 الجهة	Provider
 الجهة المقدمة	Provider
 الجواب بالإنجليزي	Answer in English
+الجواب بالإنجليزية	Answer in English
 الجواب بالعربي	Answer in Arabic
+الجواب بالعربية	Answer in Arabic
 الجوال	Mobile
 الجودة	Quality
 الحالة	Status
@@ -1510,7 +1522,9 @@
 الزيارات يوميا	Visits per day
 الزيارات يومياً	Visits per day
 السؤال بالإنجليزي	Question in English
+السؤال بالإنجليزية	Question in English
 السؤال بالعربي	Question in Arabic
+السؤال بالعربية	Question in Arabic
 السابق	Previous
 السابقة	Previous
 الساعات	Hours
@@ -1662,6 +1676,8 @@
 العنوان الوطني كاملا	the full national address
 العنوان الوطني كاملاً	the full national address
 العنوان بالإنجليزي	Title in English
+العنوان بالإنجليزية	Title in English
+العنوان بالإنجليزية (اختياري)	Title in English (optional)
 العهد	Custody
 العهد المسلّمة للموظفين	Assets issued to employees
 العهدة	Item
@@ -1679,6 +1695,7 @@
 الغرامات لا تزيد على أجر	Fines cannot exceed the wage of
 الغرامة	Fine
 الغرامة لا تتجاوز أجر	A fine cannot exceed the wage of
+الغرض من العهدة	Purpose of the fund
 الغياب المتصل دون إذن كتابي أو عذر مقبول من أحد عشر يوما إلى أربعة عشر يوما خلال السنة العقدية الواحدة	Continuous absence without written permission or an acceptable excuse for eleven to fourteen days in one contract year
 الغياب المتصل دون إذن كتابي أو عذر مقبول من أحد عشر يوماً إلى أربعة عشر يوماً خلال السنة العقدية الواحدة	Continuous absence without written permission or an acceptable excuse for eleven to fourteen days in one contract year
 الغياب المتصل دون إذن كتابي أو عذر مقبول من سبعة أيام إلى عشرة أيام خلال السنة العقدية الواحدة	Continuous absence without written permission or an acceptable excuse for seven to ten days in one contract year
@@ -1749,6 +1766,7 @@
 القيد غير موجود	Entry not found
 القيد معكوس مسبقا	The entry is already reversed
 القيد معكوس مسبقاً	The entry is already reversed
+القيد يحتاج سطرين على الأقل	An entry needs at least two lines
 القيم لا تكون سالبة	Values cannot be negative
 القيمة	Value
 القيمة التقديرية	Estimated value
@@ -2054,7 +2072,9 @@
 النص الأصلي	Original text
 النص بالإنجليزي	Text in English
 النص بالإنجليزية	English text
+النص بالإنجليزية (اختياري)	Text in English (optional)
 النص بالعربي	Text in Arabic
+النص بالعربية	Text in Arabic
 النطاق	Radius
 النطاق المتوقع	Expected band
 النظام	System
@@ -2121,6 +2141,8 @@
 امراة	woman
 امسح الباركود أو اكتب اسم الصنف أو رمزه	Scan the barcode or type the item name or code
 امسح الباركود أو اكتب رمز الصنف ثم	Scan the barcode or type the item code, then
+امسح الباركود أو اكتب رمز الصنف ثم اضغط إدخال	Scan the barcode or type the item code, then press Enter
+امسح الباركود أو اكتب رمز الصنف ثم اضغط إدخال — كل مسحة تزيد المعدود	Scan the barcode or type the item code, then press Enter — each scan adds one
 امسح الرمز التالي من التطبيق	Scan this code with the app
 انتظر ساعة ثم أعد المحاولة	wait an hour and try again
 انتظر قليلا ثم أعد المحاولة	wait a little and try again
@@ -2299,6 +2321,7 @@
 بلاتيني	Platinum
 بلد الجنسية	Nationality (country)
 بلوغ سن التقاعد	Retirement age
+بما فيها قيد التنفيذ	including those in progress
 بما لا يقل عن ساعة ونصف عن كل ساعة	at least one and a half hours per hour
 بمبلغ	for
 بموافقة العامل يُعوَّض عن العمل الإضافي بإجازة مدفوعة بدل الأجر	with the worker's consent, overtime can be compensated with paid leave instead of pay
@@ -2319,6 +2342,7 @@
 بيئة المحاكاة	Simulation environment
 بيئة المحاكاة (تجريبي)	Simulation (test)
 بيئة المطوّرين	Developer sandbox
+بيان السطر	Line description
 بيانات إخلاء الطرف	Clearance data
 بيانات الاشتراك فقط	Subscription data only
 بيانات المنشأة	Company details
@@ -2562,6 +2586,7 @@
 ترك العمل لقوة قاهرة	Leaving work due to force majeure
 ترك العمل مع بقاء الحقوق	Leaving work with rights retained
 تركي	Turkish
+تزودك به الموارد البشرية	HR gives it to you
 تسجيل	Record
 تسجيل الاستلام	Record receipt
 تسجيل الانصراف	Check out
@@ -2642,6 +2667,7 @@
 تعديل الدورة	Edit course
 تعديل الفرصة	Edit opportunity
 تعديل المشروع	Edit project
+تعديل المهمة	Edit task
 تعديل النموذج	Edit form
 تعديل الوظيفة	Edit opening
 تعديل بدل	Edit allowance
@@ -2695,6 +2721,7 @@
 تعيين جدول ورديات	Assign a shift roster
 تعيين وإنشاء سجل موظف	Hire and create employee record
 تغيير	Change
+تغيير الحالة	Change status
 تغيير الشعار	Change logo
 تغيير كلمة المرور	Change password
 تغيّر الأجر	Wage changed
@@ -2822,6 +2849,8 @@
 تُحتسب	Counted as
 تُحتسب هذه الإجازة من تاريخ الواقعة	This leave is counted from the event date
 تُحدد في ملف الموظف	set in the employee file
+تُحذف المهمة	The task is deleted
+تُحذف المهمة، وتبقى الساعات المسجلة عليها في المشروع بلا مهمة.	The task is deleted; its logged hours stay in the project without a task.
 تُحذف هذه التسوية المفتوحة وتعود حركاتها غير مطابقة	This open reconciliation is removed and its lines become uncleared again
 تُحسب المدة من تاريخ الإشعار	the period counts from the notice date
 تُحسب من التفاصيل	they are computed from the details
@@ -2896,6 +2925,8 @@
 جدول المخالفات والجزاءات	Violations and penalties table
 جدول الورديات	Shift roster
 جدول بالعربي والإنجليزي	Arabic and English table
+جدول بالعربية والإنجليزي	Arabic and English table
+جدول بالعربية والإنجليزية	Arabic and English table
 جدول عربي/إنجليزي	Arabic/English table
 جديدة	new
 جدّد الاشتراك	Renew
@@ -3001,10 +3032,12 @@
 حذف البند	Delete line
 حذف الدفعة	Delete payment
 حذف السجل	Delete record
+حذف السطر	Delete line
 حذف الشريط	Remove the bar
 حذف العطلة	Delete holiday
 حذف المرفق	Delete attachment
 حذف المستند	Delete document
+حذف المهمة	Delete task
 حذف الموقع	Delete site
 حذف النموذج	Delete form
 حذف الهدف	Delete goal
@@ -3025,6 +3058,7 @@
 حساب الدخول	Sign-in account
 حساب الدفع يكون صندوقا أو بنكا	Payment account must be cash or bank
 حساب الدفع يكون صندوقاً أو بنكاً	Payment account must be cash or bank
+حساب المصروف	Expense account
 حساب المصروف غير صالح	Invalid expense account
 حساب جديد بالبريد	New account by email
 حساب فرعي	Sub-account
@@ -3091,6 +3125,7 @@
 حُدّث	Updated
 حُدّثت بيانات	Updated data of
 حُذف السجل	Record deleted
+حُذفت المهمة	Task deleted
 حُفظ التقييم	rating saved
 حُفظ الرد الجاهز على هذا الجهاز	Ready reply saved on this device
 حُفظ السند	Voucher saved
@@ -3375,6 +3410,7 @@
 رُحّل التحويل	Transfer posted
 رُحّل الجرد	Count posted
 رُحّل القيد	Entry posted
+رُحّل المصروف	Expense posted
 رُحّل قيد المخالصة	Settlement entry posted
 رُحّلت الأرصدة الافتتاحية	Opening balances posted
 رُحّلت الفاتورة	Invoice posted
@@ -3405,6 +3441,9 @@
 ساعات الإجازة عن كل ساعة	Leave hours per overtime hour
 ساعات التأخير	Late hours
 ساعات التدريب	Training hours
+ساعات التدريب المكتملة	Completed training hours
+ساعات الدورات	course hours
+ساعات الدورات × من أكملها	course hours × people who completed them
 ساعات العمل	Working hours
 ساعات العمل الإضافي	Overtime hours
 ساعات العمل اليومية في رمضان	Daily working hours in Ramadan
@@ -3480,6 +3519,7 @@
 سداد الشراء	Purchase payment
 سريلانكي	Sri Lankan
 سطر	line
+سطر به أخطاء	row(s) have errors
 سطر في الملف	rows in the file
 سطر في الملف الواحد	rows per file
 سطر فيه أخطاء	row(s) have errors
@@ -3605,6 +3645,7 @@
 شيكات مستحقة خلال	cheques due within
 صاحب الصلاحية	Authorised signatory
 صادر	Issued
+صادر لـ	Issued to
 صادرة لم تُصرف	Issued, not yet paid
 صافي	Net
 صافي التغير في النقدية	Net change in cash
@@ -3639,6 +3680,7 @@
 صرف شيك	Cheque paid
 صرف عهدة نقدية	Petty cash fund handed over
 صرف قيمتها تسجله المالية	Finance records its payment
+صرف مصروف عام	Pay a general expense
 صفحات	Pages
 صفحة	page
 صفحة لكل زيارة	pages per visit
@@ -3679,6 +3721,7 @@
 ضريبة القيمة المضافة	VAT
 ضريبة المخرجات	Output VAT
 ضريبة المدخلات	Input VAT
+ضريبة المدخلات تُسجّل من فاتورة مشتريات	input VAT is recorded from a purchase bill
 ضريبية	Standard tax invoice
 ضغطات	Clicks
 ضغطات التجربة	Trial clicks
@@ -3992,6 +4035,7 @@
 في المالية	in finance
 في المخزون	In stock
 في المقابلات	In interviews
+في الملف	in the file
 في النظام	System qty
 في رمضان	In Ramadan
 في ملف الموظف	in the employee record
@@ -4068,6 +4112,9 @@
 كشف رصيد الإجازة السنوية	Annual leave statement
 كل الأقسام	All departments
 كل الأنواع	All types
+كل الجنسيات	All nationalities
+كل الدورات	All courses
+كل الدورات، بما فيها قيد التنفيذ	All courses, including those in progress
 كل السطور سليمة	All rows are valid
 كل السعوديين يُحتسبون كاملا	All Saudis are counted in full
 كل السعوديين يُحتسبون كاملاً	All Saudis are counted in full
@@ -4082,8 +4129,10 @@
 كل الموظفين مسجّلون في الدورة	All employees are enrolled in the course
 كل تغيير يُحفظ في سجل التدقيق	Every change is kept in the audit log
 كل جهة في سطر	one per line
+كل حالات الدخول	Any sign-in status
 كل حركة على حسابات النقد والبنوك	every movement on cash and bank accounts
 كل سؤال يحتاج سؤالا وجوابا بالعربي	Every question needs a question and an answer in Arabic
+كل سؤال يحتاج سؤالا وجوابا بالعربية	Each item needs a question and an answer in Arabic
 كل سؤال يحتاج سؤالاً وجواباً بالعربي	Every question needs a question and an answer in Arabic
 كل سنة	Every year
 كل سنة أو سنتين	every year or two
@@ -4141,21 +4190,27 @@
 لا تكتب أرصدة العملاء	Do not enter the balances of customers
 لا تكفي	is not enough
 لا تملك صلاحية التقارير	You don't have permission for reports
+لا توجد أخطاء في هذه الفترة	No errors in this period
 لا توجد أرصدة	No balances
 لا توجد أرصدة افتتاحية	No opening balances
 لا توجد أرصدة مفتوحة	No open balances
 لا توجد أرقام حسابات متاحة للعهد	No account numbers left for petty cash funds
+لا توجد أسئلة	No questions
 لا توجد أصناف	No items
 لا توجد أصناف تحت حد إعادة الطلب	No items below the reorder level
 لا توجد أصناف مطابقة	No matching items
 لا توجد أصول	No assets
+لا توجد أعضاء	No members
 لا توجد أقسام	No departments
 لا توجد أوامر بيع	No sales orders
 لا توجد أوامر شراء	No purchase orders
 لا توجد إجازات سنوية	No annual leave taken
 لا توجد إجازات معتمدة هذه السنة	No approved leave this year
 لا توجد إشعارات تسليم	No delivery notes
+لا توجد إعلانات	No announcements
 لا توجد إيرادات أو مصروفات في هذه السنة	No revenue or expenses in this year
+لا توجد إيميل للمالك	No owner e-mail
+لا توجد باقات	No plans
 لا توجد بدلات أخرى	No other allowances
 لا توجد برامج لهذه السنة	No programmes for this year
 لا توجد بيانات	No data
@@ -4167,6 +4222,7 @@
 لا توجد تحويلات	No transfers
 لا توجد تذاكر	No tickets
 لا توجد تسويات	No reconciliations
+لا توجد تغييرات	No changes
 لا توجد تغييرات عن البيانات الحالية	no changes from the current data
 لا توجد تغييرات في الملف	The file has no changes
 لا توجد تقييمات معتمدة بعد في آخر دورة	No approved reviews yet in the latest cycle
@@ -4177,14 +4233,20 @@
 لا توجد حملات بعد	No campaigns yet
 لا توجد درجات بعد	No grades yet
 لا توجد دعوات معلّقة	No pending invitations
+لا توجد دفعات	No payments
 لا توجد دفعات تنتهي خلال هذه المدة	No batches expiring in this period
 لا توجد دورات بعد	No courses yet
+لا توجد زيارات في هذه الفترة	No visits in this period
 لا توجد ساعات تعويضية	No compensatory hours
 لا توجد ساعات مسجلة	No hours logged
+لا توجد سجلات تختار منها	There are no records to choose from
+لا توجد سجلات للاختيار منها	There are no records to choose from
+لا توجد سجلات للاختيار منها. أضفها أولا.	There are no records to choose from. Add them first.
 لا توجد سلف متبقية	No remaining advances
 لا توجد سنة مقفلة	No closed year
 لا توجد سندات	No vouchers
 لا توجد سياسات	No policies
+لا توجد شي	Nothing
 لا توجد شيكات	No cheques
 لا توجد صفوف تحت العناوين	No rows under the headers
 لا توجد صفوف موظفين تحت العناوين	No employee rows under the headers
@@ -4192,6 +4254,7 @@
 لا توجد طلبات بعد	No requests yet
 لا توجد طلبات شراء معتمدة	No approved purchase requests
 لا توجد طلبات قيد الاعتماد	No requests in approval
+لا توجد طلبات هنا	No requests here
 لا توجد عروض أسعار	No quotations
 لا توجد عطل	No holidays
 لا توجد عملات	No currencies
@@ -4215,11 +4278,13 @@
 لا توجد مستندات مسجّلة	No documents recorded
 لا توجد مسيرات	No payroll runs
 لا توجد مشاريع بعد	No projects yet
+لا توجد ملاحظات	No notes
 لا توجد منشآت	No companies
 لا توجد مهام	No tasks
 لا توجد موازنة ولا حركات لهذه السنة	No budget or activity for this year
 لا توجد مواقع	No sites
 لا توجد نتائج	No results
+لا توجد نماذج في هذا القسم	No forms in this section
 لا توجد وثائق	No policies
 لا توجد وحدات أخرى	No other units
 لا توجد ورديات	No shifts
@@ -4274,6 +4339,7 @@
 لا يوجد تسجيل حضور في هذا اليوم	There is no attendance record on this day
 لا يوجد تطبيق مصادقة مربوط	No authenticator app is linked
 لا يوجد تظلم قائم	There is no pending grievance
+لا يوجد تواصل مسجّل	No contact recorded
 لا يوجد جرد	No stock counts
 لا يوجد جوال صحيح في سجل الموظف	No valid mobile in the employee record
 لا يوجد حساب دخول لهذا الموظف	This employee has no sign-in account
@@ -4356,6 +4422,7 @@
 لغة النموذج	Form language
 لغير السعودي	For non-Saudis
 لـ	for
+لفاتورة مورد استخدم	for a supplier bill use
 لفريق وعد فقط	For the Waad team only
 لك حق التظلم خلال	you may file a grievance within
 لك حق الرد كتابيا قبل التحقيق	You may reply in writing before the investigation
@@ -4397,6 +4464,8 @@
 لم تبدأ	To do
 لم تبدأ أي دورة تقييم	No review cycle started
 لم تثبت	not proven
+لم ترسل أي طلبات دعم بعد	You haven't sent any support requests yet
+لم ترسل أي طلبات دعم بعد.	You haven't sent any support requests yet.
 لم تغيّر أي بيانات	You did not change anything
 لم تُدخل عروض بعد	No offers yet
 لم تُسلَّم كل العهد	Not all custody items were returned
@@ -4427,11 +4496,14 @@
 لم يُنشأ حساب الدخول بعد	The sign-in account has not been created yet
 لمراجعته لاحقا	to review later
 لمراجعته لاحقاً	to review later
+لمصروف لا يخص موردا مسجلا	For an expense not tied to a registered supplier
+لمصروف لا يخص موردا مسجلا. لفاتورة مورد استخدم «سند صرف». ضريبة المدخلات تُسجّل من فاتورة مشتريات.	For an expense not tied to a registered supplier. For a supplier bill use «Payment voucher». Input VAT is recorded from a purchase bill.
 لن تظهر كلمة المرور مجددا	The password will not be shown again
 لن تظهر كلمة المرور مجدداً	The password will not be shown again
 لن يظهر رمز	No
 لن يمكن تعديل أي تقييم في هذه الدورة بعد الإغلاق	No review in this cycle can be changed after closing
 لن يُسمح بأي قيد أو حركة مخزون بتاريخ حتى	No entry or stock movement will be allowed dated up to
+له دخول	Has sign-in
 لهذه المخالفة خلال	for this violation within
 لوحة إدارة المنصة	Platform admin
 لوحة إدارة وعد	Waad admin
@@ -4535,6 +4607,8 @@
 مثال يوم	Example, day
 مثل	such as
 مثل كرتون	e.g. carton
+مثل: إيجار المكتب لشهر نوفمبر	e.g. office rent for November
+مثل: مصروفات الفرع، مشتريات صغيرة	e.g. branch expenses, small purchases
 مثلا	e.g.
 مثلاً	e.g.
 مجالات التطوير	Areas for development
@@ -4690,6 +4764,7 @@
 مشترك جديد	New contributor
 مشتركة	Subscribed
 مشتريات	Purchases
+مشتريات صغيرة	small purchases
 مشروع جديد	New project
 مشكلة	Problem
 مصرف الإنماء	Alinma Bank
@@ -4699,6 +4774,7 @@
 مصروفات	Expense
 مصروفات أخرى	Other expenses
 مصروفات إدارية وعمومية	General and administrative expenses
+مصروفات الفرع	branch expenses
 مصروفات تشغيلية	Operating expenses
 مصروفات مدفوعة مقدما	Prepaid expenses
 مصروفات مدفوعة مقدماً	Prepaid expenses
@@ -4806,6 +4882,7 @@
 من أجر الساعة الأساسي	of the basic hourly wage
 من أجر يوم	of a day's wage
 من أجرك	of your wage
+من أكملها	people who completed them
 من الأجر	of the wage
 من الأساسي	of basic
 من الأمر تُصدر إشعارات التسليم ثم الفاتورة الضريبية	From the order issue delivery notes, then the tax invoice
@@ -4817,6 +4894,7 @@
 من الملف	from the file
 من الملف أو من الموظفين الحاليين	from the file or from current employees
 من المنشآت	of companies
+من المنشآت التي انتهت تجربتها أو اشتركت	of companies whose trial ended or who subscribed
 من المنشآت اللي انتهت تجربتها أو اشتركت	of companies whose trial ended or who subscribed
 من انتهاء العلاقة	of the end of employment
 من بوابة فاتورة	from the Fatoora portal
@@ -4966,6 +5044,7 @@
 نشط	Active
 نشطة	Active
 نص النموذج بالعربي	Form text in Arabic
+نص النموذج بالعربية	Form text in Arabic
 نص حر	free text
 نصغّر الصورة تلقائيا	the image is resized automatically
 نصغّر الصورة تلقائياً	the image is resized automatically
@@ -5079,12 +5158,14 @@
 هذه الصفحة للموارد البشرية والمدراء	This page is for HR and managers
 هذي السنة	This year
 هل تريد إلغاء هذا الطلب	Do you want to cancel this request
+هل يتضمن شرط تجديد تلقائي	Does it include an automatic renewal clause
 هندي	Indian
 هوية	ID
 هوية مقيم	resident ID
 هوية وطنية	national ID
 و	and
 وأتحمّل إبلاغهم بذلك	and I will inform them of this
+وأرفق نص رسالة الخطأ إن وجدت	and include the error message if there is one
 وأعلى	maximum
 وأنه لا توجد لي أي مطالبات أخرى لدى المنشأة	and that I have no other claims on the company
 وأهم الأرقام	and the key numbers
@@ -5144,6 +5225,7 @@
 وبياناتها ما تنحذف	and its data is not deleted
 وبيطلب منه النظام يغيّر كلمة المرور أول ما يدخل	and they will be asked to change the password at first sign-in
 وتأشيرات الخروج والعودة لغير السعوديين بعد اعتماد طلباتهم	and exit/re-entry visas for non-Saudis after their requests are approved
+وتبقى الساعات المسجلة عليها في المشروع بلا مهمة	its logged hours stay in the project without a task
 وتبقى الفاتورة ظاهرة بحالة ملغاة	and the invoice stays visible as void
 وتبقى ملتزما بأداء عملك خلالها	and you remain bound to perform your work during it
 وتبقى ملتزماً بأداء عملك خلالها	and you remain bound to perform your work during it
@@ -5244,6 +5326,7 @@
 وكل خطوة تنتهي تتعلّم تلقائياً	each step is ticked by itself once done
 وكلمة مرور مؤقتة تظهر لك الآن	and a temporary password shown to you now
 وكميات الأصناف وتكلفتها	item quantities and their cost
+ولا تتضمن أي بيانات من داخل المنشآت	with no data from inside the companies
 ولا تُفوتر بضاعة لم تُستلم	goods not received cannot be billed
 ولا مقابل الإشعار إن لم يُراعَ	or pay in lieu of notice if notice was not given
 ولا يتجاوز أجر	and may not exceed
@@ -5375,6 +5458,7 @@
 يسقط الأجر إذا ثبت عدم أداء الامتحان	Pay is lost if the exam was not sat
 يسقط الأجر عن إجازة الاختبارات إذا ثبت أن العامل لم يؤدِّ الامتحان	exam leave pay is lost if the worker did not sit the exam
 يصدر الخطاب بعد اعتماد طلب التعريف بالراتب	The letter is issued after the salary certificate request is approved
+يصدر النموذج لـ	Form issued to
 يصل للمالك أول كل شهر بمبيعات الشهر الماضي ومشترياته ورواتبه والمتأخرات وما ينتظر الاعتماد	sent to the owner at the start of each month with last month's sales, purchases, payroll, overdue invoices and pending approvals
 يصير أدمن بعد التفعيل	It becomes an admin once activated
 يصير الاشتراك	the subscription becomes
@@ -5386,10 +5470,15 @@
 يطلع بالعربي والإنجليزي معا على نفس الورقة.	Prints in Arabic and English together on the same sheet.
 يطلع بالعربي والإنجليزي معاً على نفس الورقة	Prints in Arabic and English together on the same sheet
 يطلع بالعربي والإنجليزي معاً على نفس الورقة.	Prints in Arabic and English together on the same sheet.
+يطلع بالعربية والإنجليزي معا على نفس الورقة	Prints in Arabic and English together on the same sheet
+يطلع بالعربية والإنجليزي معا على نفس الورقة.	Prints in Arabic and English together on the same sheet.
+يطلع بالعربية والإنجليزي معاً على نفس الورقة	Prints in Arabic and English together on the same sheet
+يطلع بالعربية والإنجليزي معاً على نفس الورقة.	Prints in Arabic and English together on the same sheet.
 يظهر أعلى الخطابات المطبوعة	Shown at the top of printed letters
 يظهر أعلى الفواتير والخطابات والنماذج المطبوعة	Shown at the top of printed invoices, letters and forms
 يظهر الاختبار في آخر دليل الموظف ودليل المدير	The quiz is at the end of the employee and manager guides
 يظهر الراتب وتفاصيله	Show salary and breakdown
+يظهر بالعربية والإنجليزية معا على نفس الورقة	Shows Arabic and English together on the same sheet
 يظهر في أوامر الشراء	Shown on purchase orders
 يظهر في الفواتير الضريبية والخطابات	Shown on tax invoices and letters
 يظهر في الفواتير والأوامر الجديدة	shown on new invoices and orders
@@ -5415,6 +5504,8 @@
 يمر الطلب على مديرك ثم المالية ثم المدير العام	The request goes to your manager, then finance, then the general manager
 يمكن اختيار أكثر من دور	more than one can be chosen
 يمكنك إعادة الإعداد ما دام المسير مسودة	You can prepare it again while the payroll is a draft
+يمكنك اعتماد الطلب أو رفضه بدلا من المدير المباشر	You can approve or reject the request in the direct manager's place
+يمكنك اعتماد الطلب أو رفضه بدلا من المدير المباشر، ويُسجَّل باسمك مع السبب في مسار الطلب.	You can approve or reject the request in the direct manager's place; it is logged under your name with the reason in the request's journey.
 يمكنك تعديلها	you can edit it
 يمكنك مسحها أولا	you can clear it first
 يمكنك مسحها أولاً	you can clear it first

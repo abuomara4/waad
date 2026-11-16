@@ -383,3 +383,7 @@ button,input,select,textarea,optgroup{font-family:inherit}
 .kcard.drag{opacity:.5}.kcol.over{outline:2px dashed var(--accent);outline-offset:-2px;border-radius:10px}.kcard[draggable=true]{cursor:grab}
 #loadbar{position:fixed;top:0;inset-inline:0;height:3px;z-index:9999;background:linear-gradient(90deg,transparent,#C9B27B,transparent);background-size:40% 100%;background-repeat:no-repeat;animation:lb 1s linear infinite}@keyframes lb{from{background-position:-40% 0}to{background-position:140% 0}}@media(prefers-reduced-motion:reduce){#loadbar{animation:none;background:#C9B27B}}
 .empty .eico{width:36px;height:36px;fill:none;stroke:currentColor;stroke-width:1.5;opacity:.5;display:block;margin:0 auto 8px}
+/* back links: the arrow points the way back in either direction */
+.back::before{content:"→ "}[dir=ltr] .back::before{content:"← "}
+/* figure cards: the last row stretches to the full width instead of leaving one card alone with empty gaps */
+.grid:has(> .card.kpi){display:flex;flex-wrap:wrap}.grid:has(> .card.kpi) > *{flex:1 1 200px;min-width:0}@media(max-width:600px){.grid:has(> .card.kpi) > *{flex-basis:150px}}

@@ -74,8 +74,8 @@ async function crmView(page, id) {
   if (!l) throw new Error('الفرصة غير موجودة');
   const pm = {}; parties.forEach(p => pm[p.id] = p.name); const closed = ['won', 'lost'].includes(l.stage);
   const [q] = l.quote_id ? await db.get('sales_orders', { id: 'eq.' + l.quote_id, select: 'id,no,status,total' }) : [];
-  page.innerHTML = `<div class="head"><div><a href="#/crm" class="small">← ${esc(tr('الفرص'))}</a><h1>${esc(l.title)} ${crmBadge(l.stage)}</h1>
-      <div class="muted"><span class="num">${esc(l.no)}</span> · ${esc(l.party_id ? pm[l.party_id] || '' : l.prospect || '')} · ${esc(tr(CRM_SRC[l.source]))}</div></div>
+  page.innerHTML = `<div class="head"><div><a href="#/crm" class="small back">${esc(tr('الفرص'))}</a><h1>${esc(l.title)} ${crmBadge(l.stage)}</h1>
+      <div class="muted"><span class="num">${esc(l.no)}</span> · ${esc(l.party_id ? pm[l.party_id] || '' : l.prospect || '')} · ${esc(tr(CRM_SRC[l.source]))}${l.campaign_id && campaigns.find(c => c.id === l.campaign_id) ? ` · ${esc(tr('الحملة'))}: <a href="#/marketing/${l.campaign_id}">${esc(campaigns.find(c => c.id === l.campaign_id).name)}</a>` : ''}</div></div>
       <div class="row">${!closed ? `<button class="btn" id="ced">${esc(tr('تعديل'))}</button>${!l.quote_id ? `<button class="btn pri" id="cq">${esc(tr('تحويل إلى عرض سعر'))}</button>` : ''}<button class="btn" id="cwon">${esc(tr('كسبناها'))}</button><button class="btn danger" id="clost">${esc(tr('خسرناها'))}</button>` : `<button class="btn" id="creo">${esc(tr('إعادة فتح'))}</button>`}</div></div>
     ${!closed ? `<div class="steps">${Object.entries(CRM_STAGES).filter(([k]) => !['won', 'lost'].includes(k)).map(([k, t]) => `<button type="button" class="btn sm ${k === l.stage ? 'pri' : ''}" data-st="${k}">${esc(tr(t))}</button>`).join('')}</div>` : ''}
     <div class="grid" style="margin:12px 0">
@@ -122,7 +122,7 @@ VIEWS['#/rfq'] = async (page, arg) => {
 async function rfqForm(page) {
   const L = await poLookups(), lines = [{}];
   const opts = L.items.filter(i => i.active !== false).map(i => opt('i:' + i.id, i.code + ' — ' + i.name)).join('') + `<optgroup label="${esc(tr('حسابات المصروفات'))}">${L.expAcc.map(a => opt('a:' + a.code, a.code + ' — ' + a.name)).join('')}</optgroup>`;
-  page.innerHTML = `<div class="head"><div><a href="#/rfq" class="small">← ${esc(tr('طلبات عروض الأسعار'))}</a><h1>${esc(tr('طلب عروض جديد'))}</h1></div></div><form id="rf" class="card" novalidate>
+  page.innerHTML = `<div class="head"><div><a href="#/rfq" class="small back">${esc(tr('طلبات عروض الأسعار'))}</a><h1>${esc(tr('طلب عروض جديد'))}</h1></div></div><form id="rf" class="card" novalidate>
     <div class="fg">${field('العنوان', inp('title', '', 'required'), 'wide')}${field('آخر موعد للرد', `<input type="date" name="reply_by" value="${addDays(today(), 7)}">`)}${field('ملاحظات للموردين', inp('note'), 'wide')}</div>
     <div class="tw" style="margin-top:12px"><table class="lines"><thead><tr><th>${esc(tr('صنف أو حساب مصروف'))}</th><th>${esc(tr('الوصف'))}</th><th>${esc(tr('الكمية'))}</th><th></th></tr></thead><tbody id="lb"></tbody></table></div>
     <div class="row" style="margin-top:10px"><button type="button" class="btn sm" id="al">+ ${esc(tr('بند'))}</button></div><div id="rerr"></div>
@@ -145,7 +145,7 @@ async function rfqView(page, id) {
   const name = l => esc(l.item_id ? ((L.im[l.item_id] || {}).name || '') : l.account_code + ' — ' + ((L.am[l.account_code] || {}).name || '')) + (l.description ? `<div class="small muted">${esc(l.description)}</div>` : '');
   const best = l => Math.min(...qs.map(q => n0(price(q, l))).filter(x => x > 0));
   const cheapest = qs.length ? Math.min(...qs.map(q => n0(q.total))) : null, open = r.status === 'open';
-  page.innerHTML = `<div class="head"><div><a href="#/rfq" class="small">← ${esc(tr('طلبات عروض الأسعار'))}</a><h1>${esc(r.title)} <span class="badge ${RFQ_ST[r.status][1]}">${esc(tr(RFQ_ST[r.status][0]))}</span></h1>
+  page.innerHTML = `<div class="head"><div><a href="#/rfq" class="small back">${esc(tr('طلبات عروض الأسعار'))}</a><h1>${esc(r.title)} <span class="badge ${RFQ_ST[r.status][1]}">${esc(tr(RFQ_ST[r.status][0]))}</span></h1>
       <div class="muted"><span class="num">${esc(r.no)}</span> · ${fdate(r.date)}${r.reply_by ? ' · ' + esc(tr('آخر موعد للرد')) + ' ' + fdate(r.reply_by) : ''}${r.po_id ? ` · <a href="#/porders/${r.po_id}">${esc(tr('أمر الشراء'))}</a>` : ''}</div></div>
       <div class="row">${open ? `<button class="btn pri" id="nq">${esc(tr('إدخال عرض مورد'))}</button><button class="btn danger" id="rcn">${esc(tr('إلغاء الطلب'))}</button>` : ''}<button class="btn" id="rpr">${esc(tr('طباعة للموردين'))}</button></div></div>
     <div class="card"><h2>${esc(tr('مقارنة العروض'))}</h2>${qs.length ? `<div class="tw"><table><thead><tr><th>${esc(tr('البند'))}</th><th class="r">${esc(tr('الكمية'))}</th>${qs.map(q => `<th class="r">${esc((L.pm[q.party_id] || {}).name || '')}${scm[q.party_id] && scm[q.party_id].overall ? `<div class="small muted">★ <span class="num">${scm[q.party_id].overall}</span></div>` : ''}</th>`).join('')}</tr></thead><tbody>

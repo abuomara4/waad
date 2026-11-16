@@ -100,7 +100,7 @@ function itemImport() {
         if (x.vat_rate && !['0', '15'].includes(x.vat_rate.replace('%', ''))) errs.push(tr('نسبة الضريبة 0 أو 15'));
         return { x, errs }; });
       const bad = rows.filter(i => i.errs.length);
-      box.innerHTML = `<div class="${bad.length ? 'err' : 'note'}">${rows.length} ${esc(tr('سطر في الملف'))}${bad.length ? ` — ${bad.length} ${esc(tr('سطر فيه أخطاء، صحّحها في الملف ثم ارفعه مجددا'))}` : ' — ' + esc(tr('جاهز للاستيراد'))}</div>
+      box.innerHTML = `<div class="${bad.length ? 'err' : 'note'}">${rows.length} ${esc(tr('سطر في الملف'))}${bad.length ? ` — ${bad.length} ${esc(tr('سطر به أخطاء، صحّحها في الملف ثم ارفعه مجددا'))}` : ' — ' + esc(tr('جاهز للاستيراد'))}</div>
         ${tbl([{ t: 'السطر', h: i => i.x._row }, { t: 'الرمز', h: i => `<span class="num">${esc(i.x.code || '')}</span>` }, { t: 'الاسم', h: i => esc(i.x.name || '') }, { t: 'سعر البيع', r: 1, h: i => esc(i.x.sale_price || '') },
           { t: 'الملاحظات', h: i => i.errs.length ? `<span class="bad">${esc(i.errs.join('، '))}</span>` : '<span class="ok">✓</span>' }], (bad.length ? bad : rows).slice(0, 300))}
         ${bad.length ? '' : `<div class="row" style="margin-top:12px"><button type="button" class="btn pri" id="igo">${esc(tr('استيراد'))} ${rows.length} ${esc(tr('سطر'))}</button></div><div id="iier"></div>`}`;
@@ -142,7 +142,7 @@ async function trForm(page) {
   if (!can('stock')) { page.innerHTML = '<div class="err">غير مصرح</div>'; return; }
   const [ws, items, st] = await Promise.all([whList(), db.get('items', Object.assign(C(), { type: 'eq.stock', order: 'code' })), stockLevels()]);
   const act = ws.filter(w => w.active), lines = [{}];
-  page.innerHTML = `<div class="head"><div><a href="#/transfers" class="small">← تحويلات المخزون</a><h1>تحويل جديد</h1></div></div><form id="tf" class="card" novalidate>
+  page.innerHTML = `<div class="head"><div><a href="#/transfers" class="small back">تحويلات المخزون</a><h1>تحويل جديد</h1></div></div><form id="tf" class="card" novalidate>
     <div class="fg">${field('من مستودع', `<select name="from">${act.map(w => opt(w.id, whName(w))).join('')}</select>`)}${field('إلى مستودع', `<select name="to">${act.map((w, i) => opt(w.id, whName(w), (act[1] || act[0]).id)).join('')}</select>`)}${field('التاريخ', `<input type="date" name="date" value="${today()}" max="${today()}">`)}${field('ملاحظات', inp('note'), 'wide')}</div>
     <div style="height:12px"></div><div class="tw"><table class="lines"><thead><tr><th>الصنف</th><th>المتوفر في المصدر</th><th>الكمية</th><th></th></tr></thead><tbody id="lb"></tbody></table></div>
     <div class="row" style="margin-top:10px"><button type="button" class="btn sm" id="al">+ بند</button></div><div id="terr"></div>
@@ -161,7 +161,7 @@ async function trView(page, id) {
   const [[t], lines, items, wm] = await Promise.all([db.get('stock_transfers', { id: 'eq.' + id }), db.get('stock_transfer_lines', { transfer_id: 'eq.' + id, order: 'id' }), db.get('items', Object.assign(C(), { select: 'id,code,name,name_en,unit' })), whMap()]);
   if (!t) throw new Error('التحويل غير موجود');
   const im = {}; items.forEach(i => im[i.id] = i);
-  page.innerHTML = `<div class="head"><div><a href="#/transfers" class="small">← تحويلات المخزون</a><h1>تحويل <span class="num">${esc(t.no)}</span></h1><div class="muted">${fdate(t.date)} · ${esc(whName(wm[t.from_wh]))} ← ${esc(whName(wm[t.to_wh]))}</div></div><button class="btn" id="tprint">طباعة</button></div>
+  page.innerHTML = `<div class="head"><div><a href="#/transfers" class="small back">تحويلات المخزون</a><h1>تحويل <span class="num">${esc(t.no)}</span></h1><div class="muted">${fdate(t.date)} · ${esc(whName(wm[t.from_wh]))} ← ${esc(whName(wm[t.to_wh]))}</div></div><button class="btn" id="tprint">طباعة</button></div>
     <div class="card">${tbl([{ t: 'الصنف', h: l => esc((im[l.item_id] || {}).code + ' — ' + (im[l.item_id] || {}).name) }, { t: 'الوحدة', h: l => esc((im[l.item_id] || {}).unit || '—') }, { t: 'الكمية', r: 1, h: l => qtyTxt(l.qty) }], lines)}${t.note ? `<p class="muted small">${esc(t.note)}</p>` : ''}</div>`;
   $('#tprint', page).onclick = () => { const w = document.createElement('div');
     w.innerHTML = invSheet(['سند تحويل مخزون', 'Stock Transfer Note'], [[['الرقم', 'No.'], t.no], [['التاريخ', 'Date'], fdate(t.date)], [['من مستودع', 'From'], whName(wm[t.from_wh])], [['إلى مستودع', 'To'], whName(wm[t.to_wh])]],
@@ -187,9 +187,9 @@ async function countView(page, id) {
   if (!c) throw new Error('الجرد غير موجود');
   const im = {}; items.forEach(i => im[i.id] = i); const draft = c.status === 'draft' && can('stockadj');
   const nm = l => esc((im[l.item_id] || {}).code + ' — ' + (im[l.item_id] || {}).name);
-  page.innerHTML = `<div class="head"><div><a href="#/counts" class="small">← الجرد</a><h1>جرد <span class="num">${esc(c.no)}</span> ${c.status === 'draft' ? `<span class="badge wait">${esc(tr('قيد العد'))}</span>` : badge(c.status)}</h1><div class="muted">${esc(whName(wm[c.warehouse_id]))} · ${fdate(c.date)}${c.note ? ' · ' + esc(c.note) : ''}</div></div>
+  page.innerHTML = `<div class="head"><div><a href="#/counts" class="small back">الجرد</a><h1>جرد <span class="num">${esc(c.no)}</span> ${c.status === 'draft' ? `<span class="badge wait">${esc(tr('قيد العد'))}</span>` : badge(c.status)}</h1><div class="muted">${esc(whName(wm[c.warehouse_id]))} · ${fdate(c.date)}${c.note ? ' · ' + esc(c.note) : ''}</div></div>
       <div class="row">${draft ? '<button class="btn" id="csv">حفظ</button><button class="btn pri" id="cpost">ترحيل الجرد</button><button class="btn danger" id="ccn">إلغاء</button>' : ''}<button class="btn" id="cprint">${c.status === 'draft' ? 'طباعة ورقة العد' : 'طباعة'}</button></div></div>
-    ${draft ? `<div class="card"><div class="row" style="gap:8px;flex-wrap:wrap"><input id="cscan" dir="ltr" autocomplete="off" placeholder="${esc(tr('امسح الباركود أو اكتب رمز الصنف ثم Enter — كل مسحة تزيد المعدود'))}" style="max-width:420px">
+    ${draft ? `<div class="card"><div class="row" style="gap:8px;flex-wrap:wrap"><input id="cscan" dir="ltr" autocomplete="off" placeholder="${esc(tr('امسح الباركود أو اكتب رمز الصنف ثم اضغط إدخال — كل مسحة تزيد المعدود'))}" style="max-width:420px">
       ${'BarcodeDetector' in window ? `<button type="button" class="btn" id="ccam">${esc(tr('المسح بكاميرا الجوال'))}</button>` : ''}<span class="small" id="cmsg" role="status"></span></div></div>` : ''}
     <div class="card"><div class="tw"><table><thead><tr><th>الصنف</th><th class="r">في النظام</th><th class="r">المعدود</th>${c.status === 'posted' ? '<th class="r">الفرق</th><th class="r">القيمة</th>' : '<th>الدفعة / الصلاحية (للزيادة)</th>'}</tr></thead><tbody>
       ${lines.map(l => `<tr data-l="${l.id}" data-it="${l.item_id}"><td>${nm(l)}</td><td class="r num">${qtyTxt(c.status === 'posted' && l.posted_qty != null ? l.posted_qty : l.system_qty)}</td>

@@ -52,7 +52,7 @@ async function reconView(page, id) {
   if (!r) throw new Error('التسوية غير موجودة');
   const open = r.status === 'open' && can('je'), an = (acc.find(a => a.code === r.account_code) || {}).name || '';
   const prior = n0(tt.prior), book = n0(tt.book);
-  page.innerHTML = `<div class="head"><div><a href="#/bankrec" class="small">← التسوية البنكية</a><h1>${esc(r.account_code + ' — ' + an)} ${r.status === 'done' ? `<span class="badge ok">${esc(tr('مكتملة'))}</span>` : `<span class="badge wait">${esc(tr('مفتوحة'))}</span>`}</h1><div class="muted">${esc(tr('كشف بتاريخ'))} ${fdate(r.statement_date)}${r.note ? ' · ' + esc(r.note) : ''}</div></div>
+  page.innerHTML = `<div class="head"><div><a href="#/bankrec" class="small back">التسوية البنكية</a><h1>${esc(r.account_code + ' — ' + an)} ${r.status === 'done' ? `<span class="badge ok">${esc(tr('مكتملة'))}</span>` : `<span class="badge wait">${esc(tr('مفتوحة'))}</span>`}</h1><div class="muted">${esc(tr('كشف بتاريخ'))} ${fdate(r.statement_date)}${r.note ? ' · ' + esc(r.note) : ''}</div></div>
       <div class="row">${open ? '<button class="btn" id="rsv">حفظ</button><button class="btn pri" id="rfin">إتمام التسوية</button><button class="btn danger" id="rcn">إلغاء</button>' : ''}<button class="btn" id="rprint">طباعة</button></div></div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
       <div class="card"><div class="muted small">${esc(tr('رصيد الكشف'))}</div><b class="num" style="font-size:20px">${money(r.statement_balance)}</b></div>

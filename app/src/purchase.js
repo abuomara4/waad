@@ -59,7 +59,7 @@ async function poForm(page, id, reqId, q) {
     lines = q.get('items').split(',').map(x => x.split(':')).filter(x => L.im[x[0]]).map(([it, qt, pr]) => ({ what: 'i:' + it, qty: +qt || 1, price: pr === '' ? '' : +pr })); }
   const back = id ? '#/porders/' + id : reqId ? '#/purchreq' : q && q.get('items') ? '#/reorder' : '#/porders';
   const whf = await whField(doc && doc.warehouse_id, 'يُستلم في مستودع');
-  page.innerHTML = `<div class="head"><div><a href="${back}" class="small">← أوامر الشراء</a><h1>${id ? 'تعديل أمر الشراء <span class="num">' + esc(doc.no) + '</span>' : 'أمر شراء جديد'}</h1>
+  page.innerHTML = `<div class="head"><div><a href="${back}" class="small back">أوامر الشراء</a><h1>${id ? 'تعديل أمر الشراء <span class="num">' + esc(doc.no) + '</span>' : 'أمر شراء جديد'}</h1>
       ${req ? `<div class="muted small">من طلب شراء ${esc((LANG === 'en' && req.employee_en) || req.employee)} · ${fdate(req.created_at)}${req.note ? ' · ' + esc(req.note) : ''}</div>` : ''}</div></div><form id="pf" class="card" novalidate>
     <div class="fg">${field('المورد', `<select name="party">${L.parties.filter(p => p.active !== false || p.id === supSel).map(p => opt(p.id, p.name, supSel)).join('')}</select>`)}${field('التاريخ', `<input type="date" name="date" value="${doc ? doc.date : today()}" max="${today()}">`)}
       ${field('التوريد المتوقع', `<input type="date" name="expected" value="${doc && doc.expected_date || (req && req.needed_by) || ''}">`)}
@@ -112,7 +112,7 @@ async function poView(page, id) {
   }
   if (can('purch') && doc.status !== 'cancelled' && lines.some(l => n0(l.received) > 0 || n0(l.billed) > 0)) btns.push('<button class="btn" id="prate">' + esc(tr('تقييم المورد')) + '</button>');
   btns.push('<button class="btn" id="pprint">طباعة</button>');
-  page.innerHTML = `<div class="head"><div><a href="#/porders" class="small">← أوامر الشراء</a><h1>أمر شراء <span class="num">${esc(doc.no)}</span> ${poBadge(doc)}</h1>
+  page.innerHTML = `<div class="head"><div><a href="#/porders" class="small back">أوامر الشراء</a><h1>أمر شراء <span class="num">${esc(doc.no)}</span> ${poBadge(doc)}</h1>
       <div class="muted">${esc(party ? party.name : '')} · ${fdate(doc.date)}${doc.expected_date ? ' · التوريد المتوقع ' + fdate(doc.expected_date) : ''}${whTxt}${doc.request_id && can('purch') ? ' · <a href="#/purchreq">من طلب شراء معتمد</a>' : ''}</div></div>
       <div class="row">${btns.join('')}</div></div>
     <div class="card">${tbl([{ t: 'البند', h: l => esc(poLineName(L, l)) + (l.description ? `<div class="small muted">${esc(l.description)}</div>` : '') }, { t: 'الكمية', r: 1, h: l => qtyTxt(l.qty) },
@@ -160,7 +160,7 @@ async function grnView(page, id) {
   if (!g) throw new Error('الاستلام غير موجود');
   const [o] = await db.get('purchase_orders', { id: 'eq.' + g.order_id, select: 'id,no' });
   const party = L.pm[g.party_id], wmm = await whMap(), whTxt = Object.keys(wmm).length > 1 && g.warehouse_id ? ' · ' + esc(whName(wmm[g.warehouse_id])) : '';
-  page.innerHTML = `<div class="head"><div><a href="#/receipts" class="small">← استلام البضاعة</a><h1>استلام بضاعة <span class="num">${esc(g.no)}</span> ${badge(g.status)}</h1>
+  page.innerHTML = `<div class="head"><div><a href="#/receipts" class="small back">استلام البضاعة</a><h1>استلام بضاعة <span class="num">${esc(g.no)}</span> ${badge(g.status)}</h1>
       <div class="muted">${esc(party ? party.name : '')} · ${fdate(g.date)} · أمر الشراء <a href="#/porders/${g.order_id}" class="num">${esc(o ? o.no : '')}</a>${g.supplier_doc ? ' · إشعار المورد <span class="num">' + esc(g.supplier_doc) + '</span>' : ''}${whTxt}</div></div>
       <div class="row">${g.status === 'posted' && (can('purch') || can('stock')) ? '<button class="btn danger" id="gvd">إلغاء الاستلام</button>' : ''}<button class="btn" id="gprint">طباعة</button></div></div>
     <div class="card">${tbl([{ t: 'الصنف', h: l => esc(((L.im[l.item_id] || {}).code || '') + ' — ' + ((L.im[l.item_id] || {}).name || '')) }, { t: 'الوحدة', h: l => esc((L.im[l.item_id] || {}).unit || '—') }, { t: 'الكمية المستلمة', r: 1, h: l => qtyTxt(l.qty) }, ...(lines.some(l => l.expiry) ? [{ t: 'الدفعة / الصلاحية', h: l => l.expiry ? `<span class="num">${esc(l.batch || '—')}</span> · ${fdate(l.expiry)}` : '—' }] : [])], lines)}

@@ -2948,5 +2948,12 @@ select set_config('request.jwt.claim.sub', :'u_emp', false); set role authentica
 select t.err($$select public.review_cycle_add('$$ || :'rc' || $$')$$, 'permission denied|غير مصرح|42501', 'review cycle: only HR adds employees');
 reset role;
 
+-- ================= JOURNAL LINE DESCRIPTIONS (0093) =================
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.post_manual_journal(:'cid', public.riyadh_today(), 'قيد ببيان لكل سطر',
+  '[{"a":"1110","d":50,"c":0,"m":"صرف للمكتب"},{"a":"1120","d":0,"c":50,"m":"من البنك"}]'::jsonb) as jm \gset
+reset role;
+select t.ok((select string_agg(memo, '|' order by id) from public.journal_lines where entry_id = :'jm') = 'صرف للمكتب|من البنك', 'journal: each line keeps its own description');
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

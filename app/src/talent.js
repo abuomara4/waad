@@ -50,7 +50,7 @@ async function reviewCycle(page, id) {
   revs.sort((a, b) => String((em[a.employee_id] || {}).emp_no).localeCompare(String((em[b.employee_id] || {}).emp_no)));
   const nm = i => esc((em[i] || {}).full_name || '—');
   const dist = [1, 2, 3, 4, 5].map(k => revs.filter(r => r.status === 'approved' && Math.round(+r.overall) === k).length);
-  page.innerHTML = `<div class="head"><div><a href="#/reviews" class="small">← تقييم الأداء</a><h1>${esc(c.name)} ${c.status === 'open' ? '<span class="badge info">مفتوحة</span>' : '<span class="badge">مغلقة</span>'}</h1><div class="muted">${fdate(c.period_start)} → ${fdate(c.period_end)}</div></div>${c.status === 'open' ? `<button class="btn" id="cadd">${esc(tr('إضافة الموظفين الجدد'))}</button><button class="btn" id="cl">إغلاق الدورة</button>` : ''}</div>
+  page.innerHTML = `<div class="head"><div><a href="#/reviews" class="small back">تقييم الأداء</a><h1>${esc(c.name)} ${c.status === 'open' ? '<span class="badge info">مفتوحة</span>' : '<span class="badge">مغلقة</span>'}</h1><div class="muted">${fdate(c.period_start)} → ${fdate(c.period_end)}</div></div>${c.status === 'open' ? `<button class="btn" id="cadd">${esc(tr('إضافة الموظفين الجدد'))}</button><button class="btn" id="cl">إغلاق الدورة</button>` : ''}</div>
     <div class="grid" style="margin-bottom:16px">${[5, 4, 3, 2, 1].map(k => `<div class="card kpi"><div class="muted small">${esc(RATING[k])}</div><div class="v num">${dist[k - 1]}</div></div>`).join('')}</div>
     ${tbl([{ t: 'الموظف', h: r => nm(r.employee_id) }, { t: 'المقيّم', h: r => r.reviewer_id ? nm(r.reviewer_id) : '<span class="muted">الموارد البشرية</span>' }, { t: 'الحالة', h: r => rvBadge(r.status) }, { t: 'النتيجة', h: r => ratingTxt(r.overall) }, { t: 'اطلاع الموظف', h: r => r.ack_at ? '<span class="badge ok">اطّلع</span>' : '—' }], revs, { onRow: true })}`;
   bindRows(page, revs, r => r.status === 'submitted' ? reviewView(r, em, c, { decide: true }) : r.status === 'draft' && c.status === 'open' ? reviewForm(r, em, c) : reviewView(r, em, c));
@@ -133,7 +133,7 @@ async function opening(page, id) {
   const [[o], cands, deps] = await Promise.all([db.get('job_openings', { id: 'eq.' + id }), db.get('candidates', { opening_id: 'eq.' + id, order: 'created_at' }), db.get('departments', { company_id: 'eq.' + S.cid, order: 'name' })]);
   if (!o) throw new Error('الوظيفة غير موجودة');
   const by = s => cands.filter(c => c.stage === s).length;
-  page.innerHTML = `<div class="head"><div><a href="#/recruit" class="small">← التوظيف</a><h1>${esc(o.title)} <span class="badge ${OPEN_ST[o.status][1]}">${esc(OPEN_ST[o.status][0])}</span></h1><div class="muted">${o.positions} شاغر · ${by('hired')} عُيّن</div></div>
+  page.innerHTML = `<div class="head"><div><a href="#/recruit" class="small back">التوظيف</a><h1>${esc(o.title)} <span class="badge ${OPEN_ST[o.status][1]}">${esc(OPEN_ST[o.status][0])}</span></h1><div class="muted">${o.positions} شاغر · ${by('hired')} عُيّن</div></div>
     <div class="row"><button class="btn" id="eo">تعديل الوظيفة</button><button class="btn pri" id="nc">إضافة مرشح</button></div></div>
     ${o.description ? `<div class="card" style="white-space:pre-wrap">${esc(o.description)}</div>` : ''}
     <div class="grid" style="margin-bottom:16px">${Object.keys(STAGES).map(s => `<div class="card kpi"><div class="muted small">${esc(STAGES[s])}</div><div class="v num">${by(s)}</div></div>`).join('')}</div>
@@ -221,8 +221,8 @@ VIEWS['#/training'] = async (page, arg) => {
   const soon = att.filter(a => a.cert_expiry && a.cert_expiry >= today() && a.cert_expiry <= addDays(today(), 60)).length;
   page.innerHTML = `<div class="head"><div><h1>التدريب</h1><div class="muted">الدورات والحضور والشهادات</div></div><button class="btn pri" id="nt">دورة جديدة</button></div>
     <div class="grid" style="margin-bottom:16px"><div class="card kpi"><div class="muted small">دورات ${y}</div><div class="v num">${thisYear.length}</div></div>
-      <div class="card kpi"><div class="muted small">ساعات التدريب ${y}</div><div class="v num">${thisYear.reduce((a, t) => a + n0(t.hours) * att.filter(x => x.training_id === t.id && x.status === 'completed').length, 0)}</div></div>
-      <div class="card kpi"><div class="muted small">تكلفة التدريب ${y}</div><div class="v num">${money(thisYear.reduce((a, t) => a + n0(t.cost), 0))}</div></div>
+      <div class="card kpi"><div class="muted small">ساعات التدريب المكتملة ${y}</div><div class="small muted">${esc(tr('ساعات الدورات × من أكملها'))}</div><div class="v num">${thisYear.reduce((a, t) => a + n0(t.hours) * att.filter(x => x.training_id === t.id && x.status === 'completed').length, 0)}</div></div>
+      <div class="card kpi"><div class="muted small">تكلفة التدريب ${y}</div><div class="small muted">${esc(tr('كل الدورات، بما فيها قيد التنفيذ'))}</div><div class="v num">${money(thisYear.reduce((a, t) => a + n0(t.cost), 0))}</div></div>
       <div class="card kpi"><div class="muted small">شهادات تنتهي خلال 60 يوما</div><div class="v num ${soon ? 'bad' : ''}">${soon}</div></div></div>
     ${tbl([{ t: 'الدورة', k: 'title' }, { t: 'الجهة', h: t => esc(t.provider || '—') }, { t: 'التاريخ', h: t => fdate(t.start_date) + (t.end_date && t.end_date !== t.start_date ? ' → ' + fdate(t.end_date) : '') }, { t: 'الساعات', r: 1, h: t => t.hours == null ? '—' : t.hours }, { t: 'التكلفة', r: 1, h: t => money(t.cost) }, { t: 'المتدربون', r: 1, h: t => att.filter(a => a.training_id === t.id).length }], trs, { empty: 'لا توجد دورات بعد', onRow: true })}`;
   bindRows(page, trs, t => location.hash = '#/training/' + t.id);
@@ -245,7 +245,7 @@ async function training(page, id) {
   if (!t) throw new Error('الدورة غير موجودة');
   const inIt = new Set(att.map(a => a.employee_id));
   att.sort((a, b) => String((em[a.employee_id] || {}).emp_no).localeCompare(String((em[b.employee_id] || {}).emp_no)));
-  page.innerHTML = `<div class="head"><div><a href="#/training" class="small">← التدريب</a><h1>${esc(t.title)}</h1><div class="muted">${esc(t.provider || '')} · ${fdate(t.start_date)}${t.end_date ? ' → ' + fdate(t.end_date) : ''} · ${t.hours == null ? '' : t.hours + ' ساعة · '}<span class="num">${money(t.cost)}</span></div></div>
+  page.innerHTML = `<div class="head"><div><a href="#/training" class="small back">التدريب</a><h1>${esc(t.title)}</h1><div class="muted">${esc(t.provider || '')} · ${fdate(t.start_date)}${t.end_date ? ' → ' + fdate(t.end_date) : ''} · ${t.hours == null ? '' : t.hours + ' ساعة · '}<span class="num">${money(t.cost)}</span></div></div>
     <div class="row"><button class="btn" id="et">تعديل الدورة</button><button class="btn pri" id="ad">إضافة متدربين</button></div></div>
     ${tbl([{ t: 'الموظف', h: a => esc((em[a.employee_id] || {}).full_name || '') }, { t: 'الحالة', h: a => `<span class="badge ${TA_ST[a.status][1]}">${esc(TA_ST[a.status][0])}</span>` }, { t: 'رقم الشهادة', h: a => `<span class="num">${esc(a.certificate_no || '—')}</span>` }, { t: 'انتهاء الشهادة', h: a => a.cert_expiry ? (a.cert_expiry < today() ? `<span class="badge bad">${fdate(a.cert_expiry)}</span>` : fdate(a.cert_expiry)) : '—' }], att, { empty: 'لم يُسجَّل متدربون', onRow: true })}`;
   bindRows(page, att, a => { const e = em[a.employee_id] || {};
@@ -523,9 +523,9 @@ function importDialog() {
       const existing = new Set(Object.values(await employeesMap(true)).map(e => e.emp_no));
       items.forEach(x => { if (existing.has(x.r.emp_no)) x.errs.push('الرقم الوظيفي مسجّل مسبقا'); if (x.r.manager_emp_no && !nos[x.r.manager_emp_no] && !existing.has(x.r.manager_emp_no)) x.errs.push('المدير المباشر غير موجود'); });
       const bad = items.filter(x => x.errs.length);
-      box.innerHTML = `<div class="${bad.length ? 'err' : 'note'}">${items.length} موظف في الملف${bad.length ? ` — ${bad.length} سطر فيه أخطاء، صحّحها في الملف ثم ارفعه مجددا` : ' — جاهز للاستيراد'}</div>
+      box.innerHTML = `<div class="${bad.length ? 'err' : 'note'}">${esc(arCount(items.length, 'موظف'))} ${esc(tr('في الملف'))}${bad.length ? ` — ${bad.length} سطر به أخطاء، صحّحها في الملف ثم ارفعه مجددا` : ' — جاهز للاستيراد'}</div>
         ${tbl([{ t: 'السطر', h: x => x.r._row }, { t: 'الرقم', h: x => esc(x.r.emp_no) }, { t: 'الاسم', h: x => esc(x.r.full_name) }, { t: 'القسم', h: x => esc(x.r.department || '—') }, { t: 'المباشرة', h: x => esc(x.r.hire_date) }, { t: 'الأساسي', r: 1, h: x => money(x.r.basic) }, { t: 'الملاحظات', h: x => x.errs.length ? `<span class="bad">${esc(x.errs.join('، '))}</span>` : '<span class="ok">✓</span>' }], bad.length ? bad.concat(items.filter(x => !x.errs.length)).slice(0, 200) : items.slice(0, 200))}
-        ${bad.length ? '' : `<div class="row" style="margin-top:12px"><button type="button" class="btn pri" id="go">استيراد ${items.length} موظف</button></div><div id="ier"></div>`}`;
+        ${bad.length ? '' : `<div class="row" style="margin-top:12px"><button type="button" class="btn pri" id="go">${esc(tr('استيراد'))} ${esc(arCount(items.length, 'موظف'))}</button></div><div id="ier"></div>`}`;
       if ($('#go', d)) $('#go', d).onclick = async () => { try { await busy($('#go', d), async () => { const n = await db.rpc('import_employees', { p_company: S.cid, p_rows: items.map(x => x.r) }); cache.emps = null; cache.deps = null; d.close(); toast('استُورد ' + n + ' موظف'); route(); }); } catch (er) { showErr($('#ier', d), er); } };
     } catch (er) { showErr(box, er); }
     ev.target.value = '';

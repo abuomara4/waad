@@ -68,7 +68,7 @@ async function docsEmployee(page, id) {
   const left = d => d ? Math.round((new Date(d) - new Date(td)) / 864e5) : null;
   const st = d => { const n = left(d); return n == null ? '' : n < 0 ? lvlBadge('expired') : n <= 30 ? lvlBadge('d30') : n <= 60 ? lvlBadge('d60') : n <= 90 ? lvlBadge('d90') : '<span class="badge ok">ساري</span>'; };
   const conv = cur && cur.contract_type === 'fixed' && e.is_saudi && (cur.renewal_no >= 3 || (new Date(cur.end_date) - new Date(cur.first_start)) / 864e5 >= 4 * 365 - 1);
-  page.innerHTML = `<div class="head"><div><a href="#/docs" class="small">← المستندات والعقود</a><h1>${esc(e.full_name)}</h1><div class="muted"><span class="num">${esc(e.emp_no)}</span> · ${e.is_saudi ? 'سعودي' : 'غير سعودي'} · المباشرة ${fdate(e.hire_date)}</div></div></div>
+  page.innerHTML = `<div class="head"><div><a href="#/docs" class="small back">المستندات والعقود</a><h1>${esc(e.full_name)}</h1><div class="muted"><span class="num">${esc(e.emp_no)}</span> · ${e.is_saudi ? 'سعودي' : 'غير سعودي'} · المباشرة ${fdate(e.hire_date)}</div></div></div>
     <div class="card"><div class="row" style="justify-content:space-between"><h2>العقد</h2><div class="row">${cur && cur.contract_type === 'fixed' ? '<button class="btn sm" id="crn">تجديد</button><button class="btn sm" id="cind">تحويل لغير محدد المدة</button>' : ''}<button class="btn sm pri" id="cnew">عقد جديد</button></div></div>
       ${cur ? `<div class="tw"><table><tbody>
         <tr><td class="muted">النوع</td><td>${esc(CT_T[cur.contract_type])}${cur.renewal_no ? ' — التجديد رقم ' + cur.renewal_no : ''}</td></tr>
@@ -104,7 +104,7 @@ async function docsEmployee(page, id) {
   $('#dnew', page).onclick = () => docForm(null);
   $('#cnew', page).onclick = () => { const m = modal('عقد جديد', `<div class="fg">${field('نوع العقد', `<select name="ty">${e.is_saudi ? opt('indefinite', CT_T.indefinite) : ''}${opt('fixed', CT_T.fixed, 'fixed')}</select>`)}
       ${field('تاريخ البداية', `<input type="date" name="st" value="${cur ? '' : esc(e.hire_date)}">`)}<div data-f>${field('تاريخ النهاية', `<input type="date" name="en">`)}</div>
-      ${field('الأجر', `<select name="mp">${opt('true', 'شهري')}${opt('false', 'غير شهري')}</select>`)}<div data-f>${field('فيه شرط تجديد تلقائي؟', `<select name="cl">${opt('false', 'لا')}${opt('true', 'نعم')}</select>`)}</div>${field('ملاحظات', inp('notes', ''), 'wide')}</div>
+      ${field('الأجر', `<select name="mp">${opt('true', 'شهري')}${opt('false', 'غير شهري')}</select>`)}<div data-f>${field('هل يتضمن شرط تجديد تلقائي؟', `<select name="cl">${opt('false', 'لا')}${opt('true', 'نعم')}</select>`)}</div>${field('ملاحظات', inp('notes', ''), 'wide')}</div>
       <p class="muted small">${e.is_saudi ? 'العقد المحدد المدة إذا استمر الطرفان بعد نهايته صار غير محدد المدة (م55).' : 'عقد غير السعودي محدد المدة؛ إذا لم تُحدد النهاية فمدته سنة من تاريخ البداية (م37).'}${cur ? ' سيُغلق العقد الحالي.' : ''}</p>`, {
       onOk: async f => { if (!f.st) throw new Error('أدخل تاريخ بداية العقد'); if (f.ty === 'fixed' && f.en && f.en < f.st) throw new Error('تاريخ النهاية قبل البداية');
         await db.rpc('contract_add', { p_company: S.cid, p_emp: id, p_type: f.ty, p_start: f.st, p_end: f.ty === 'fixed' ? blank(f.en) : null, p_monthly: f.mp === 'true', p_clause: f.cl === 'true', p_notes: blank(f.notes) }); toast('تم الحفظ'); route(); } });
@@ -224,7 +224,7 @@ VIEWS['#/letter'] = async (page, id) => {
   const back = isHR() ? '#/docs/' + l.employee_id : '#/profile';
   const draw = () => {
     const head = LS.get('waad.ltr.head') !== false;
-    page.innerHTML = `<div class="head"><div><a href="${back}" class="small">← رجوع</a><h1>${esc(LTR_KIND[l.kind])} <span class="num muted">${esc(l.ref_no)}</span></h1>
+    page.innerHTML = `<div class="head"><div><a href="${back}" class="small back">رجوع</a><h1>${esc(LTR_KIND[l.kind])} <span class="num muted">${esc(l.ref_no)}</span></h1>
         <div class="muted">${esc(((l.data || {}).employee || {}).full_name || '')} · صدر في ${fdate((l.data || {}).date)}</div></div>
       <div class="row"><label class="row small" style="gap:6px"><input type="checkbox" id="lhd" ${head ? '' : 'checked'}> على ورق المنشأة الرسمي (بدون ترويسة)</label><button class="btn pri" id="lpr">طباعة A4</button></div></div>
       ${!(S.company || {}).logo && has('owner', 'admin') ? '<div class="note" style="margin-bottom:12px">لا يوجد شعار للمنشأة. <a href="#/settings">أضف الشعار من الإعدادات</a> ليظهر أعلى الخطاب.</div>' : ''}
@@ -312,7 +312,7 @@ function bulkImport({ title, intro, cols, fileName, tplRows, parse, post, dupKey
       const seen = {}; items.forEach(x => { const k = x.e && dupKey(x); if (!k) return; if (seen[k]) x.errs.push(dupMsg); seen[k] = 1; });
       const bad = items.filter(x => x.errs.length), out = bad.length ? items : send ? send(items) : items;
       const shown = (bad.length ? bad.concat(items.filter(x => !x.errs.length)) : out.concat(items.filter(x => !out.includes(x)))).slice(0, 300);
-      box.innerHTML = `<div class="${bad.length ? 'err' : out.length ? 'note' : 'note'}">${items.length} سطر في الملف${bad.length ? ` — ${bad.length} سطر فيه أخطاء، صحّحها في الملف ثم ارفعه مجددا` : out.length ? (send ? ` — ${out.length} ${tr('موظف تتغير بياناتهم')}` : ' — جاهز للاستيراد') : ' — ' + tr('لا توجد تغييرات عن البيانات الحالية')}</div>
+      box.innerHTML = `<div class="${bad.length ? 'err' : out.length ? 'note' : 'note'}">${items.length} سطر في الملف${bad.length ? ` — ${bad.length} سطر به أخطاء، صحّحها في الملف ثم ارفعه مجددا` : out.length ? (send ? ` — ${out.length} ${tr('موظف تتغير بياناتهم')}` : ' — جاهز للاستيراد') : ' — ' + tr('لا توجد تغييرات عن البيانات الحالية')}</div>
         ${tbl([{ t: 'السطر', h: x => x.r._row }, { t: 'الموظف', h: x => x.e ? esc(x.e.full_name) + ` <span class="muted num">${esc(x.r.emp_no)}</span>` : `<span class="num">${esc(x.r.emp_no)}</span>` }, ...cells,
           { t: 'الملاحظات', h: x => x.errs.length ? `<span class="bad">${esc(x.errs.join('، '))}</span>` : `<span class="ok">✓</span>${x.warn ? ' <span class="small muted">' + esc(x.warn) + '</span>' : ''}` }], shown)}
         ${bad.length || !out.length ? '' : `<div class="row" style="margin-top:12px"><button type="button" class="btn pri" id="go">${esc(tr(goLabel))} ${out.length} ${esc(tr('سطر'))}</button></div><div id="ier"></div>`}`;

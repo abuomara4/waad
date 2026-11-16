@@ -86,7 +86,7 @@ async function penDetail(page, id) {
   page.classList.add('wrapcells');
   const r = (t, x) => `<tr><td class="muted">${esc(t)}</td><td>${x}</td></tr>`;
   const penTxt = `المرة ${PEN_ORD[p.step]}: ${penLabel(p.action)}${n0(p.fine) ? ' — ' + money(p.fine) + ' ريال' : ''}`;
-  page.innerHTML = `<div class="head"><div><a href="#/penalties" class="small">← المخالفات والجزاءات</a><h1>${esc(e.full_name || '')} ${penBadge(p.status)}</h1><div class="muted"><span class="num">${esc(e.emp_no || '')}</span>${e.job_title ? ' · ' + esc(e.job_title) : ''}</div></div>
+  page.innerHTML = `<div class="head"><div><a href="#/penalties" class="small back">المخالفات والجزاءات</a><h1>${esc(e.full_name || '')} ${penBadge(p.status)}</h1><div class="muted"><span class="num">${esc(e.emp_no || '')}</span>${e.job_title ? ' · ' + esc(e.job_title) : ''}</div></div>
       <div class="row"><button class="btn sm" id="prn">طباعة الإشعار</button>${p.inv_on ? '<button class="btn sm" id="prm">طباعة محضر التحقيق</button>' : ''}${p.status === 'applied' || p.status === 'overturned' ? '<button class="btn sm" id="prd">طباعة القرار</button>' : ''}</div></div>
     <div class="card"><h2>الواقعة</h2><div class="tw"><table><tbody>
       ${r('المخالفة', `<span class="num muted small">${esc(p.code)}</span> ${esc(v.title || '')}`)}${r('تاريخ المخالفة', fdate(p.occurred_on))}${r('تاريخ اكتشافها', fdate(p.discovered_on))}
