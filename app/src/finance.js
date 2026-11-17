@@ -66,7 +66,7 @@ VIEWS['#/parties'] = async (page, kind) => {
 /* ===== customer / supplier statement ===== */
 const ST_KIND = { opening_balance: 'رصيد أول المدة', opening: 'رصيد افتتاحي', invoice: 'فاتورة مبيعات', bill: 'فاتورة مشتريات', receipt: 'سند قبض', payment: 'سند صرف', credit_note: 'إشعار دائن', debit_note: 'إشعار مدين' };
 VIEWS['#/statement'] = async (page, id, q) => {
-  const [p] = await db.get('parties', { id: 'eq.' + id });
+  const [p] = /^[0-9a-f-]{36}$/i.test(id || '') ? await db.get('parties', { id: 'eq.' + id }) : [];   // opened without a record: say so, no request
   if (!p) { page.innerHTML = '<div class="note">' + esc(tr('الطرف غير موجود')) + '</div>'; return; }
   const cust = p.kind === 'customer', y = today().slice(0, 4), from = q.get('from') || y + '-01-01', to = q.get('to') || today();
   const rows = await db.rpc('party_statement', { p_party: id, p_from: from, p_to: to });

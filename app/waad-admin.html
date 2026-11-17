@@ -1851,7 +1851,7 @@ PV.companies = async page => {
   $('#pdlog', page).onclick = deletionsLog; $('#pxlog', page).onclick = exportsLog;
   $$('[data-f]', page).forEach(a => a.onclick = e => { e.preventDefault(); LS.set('waad.platf', a.dataset.f); platformView(); });
   $('#psf', page).onsubmit = async e => { e.preventDefault(); const f = e.target;
-    try { await busy($('#psb', page), async () => { await db.rpc('platform_set_settings', { p_modules: pickMods(f), p_trial_days: +f.days.value || 7, p_require_approval: f.approval.checked }); toast(tr('تم الحفظ')); }); }
+    try { await busy($('#psb', page), async () => { await db.rpc('platform_set_settings', { p_modules: pickMods(f), p_trial_days: +f.days.value || 14, p_require_approval: f.approval.checked }); toast(tr('تم الحفظ')); }); }
     catch (er) { showErr($('#pserr', page), er); } };
 };
 const modChecks = (sel, prefix = 'm') => `<div class="row" style="gap:14px;flex-wrap:wrap">${Object.entries(MODULES).map(([k, t]) =>
@@ -2381,7 +2381,7 @@ PV.errors = async page => {
   const n = [1, 7, 30].includes(LS.get('waad.errdays')) ? LS.get('waad.errdays') : 7;
   const rows = await db.rpc('platform_errors', { p_days: n });
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('أخطاء النظام'))}</h1><div class="muted">${esc(tr('أخطاء حدثت في متصفحات المستخدمين، مجمّعة حسب الرسالة، ولا تتضمن أي بيانات من داخل المنشآت.'))}</div></div>
-      <select id="edays" style="width:auto">${[1, 7, 30].map(d => opt(d, tr('آخر') + ' ' + d + ' ' + tr('يوم'), n)).join('')}</select></div>
+      <select id="edays" style="width:auto">${[1, 7, 30].map(d => opt(d, d === 1 ? tr('آخر يوم') : tr('آخر') + ' ' + arCount(d, 'يوم'), n)).join('')}</select></div>
     <div class="grid" style="margin-bottom:14px">${pkpi('أخطاء مختلفة', rows.length)}${pkpi('مرات الحدوث', rows.reduce((a, r) => a + r.times, 0))}${pkpi('منشآت تأثرت', rows.length ? Math.max(...rows.map(r => r.companies)) : 0, 'أعلى عدد لخطأ واحد')}</div>
     ${tbl([{ t: 'الخطأ', h: r => `<span dir="ltr" class="small" style="word-break:break-word">${esc(r.message)}</span>` }, { t: 'الشاشة', h: r => `<span dir="ltr" class="small">${esc(r.route || '—')}</span>` },
       { t: 'مرات', r: 1, h: r => r.times }, { t: 'مستخدمين', r: 1, h: r => r.users }, { t: 'منشآت', r: 1, h: r => r.companies },
