@@ -23,7 +23,7 @@ VIEWS['#/help'] = async page => {
 // «ابدأ هنا»: what is done is read from the company's own data
 async function setupSteps() {
   const co = S.company || {}, cnt = async (t, q) => (await db.get(t, Object.assign({ company_id: 'eq.' + S.cid, select: 'id', limit: 2 }, q || {})).catch(() => [])).length;
-  const [emps, mem, runs, inv, zs] = await Promise.all([modOn('hr') ? cnt('employees') : 0, cnt('members'), modOn('hr') ? cnt('payroll_runs') : 0,
+  const [emps, mem, runs, inv, zs] = await Promise.all([modOn('hr') ? cnt('employees') : 0, cnt('members', { select: 'user_id' }), modOn('hr') ? cnt('payroll_runs') : 0,
     modOn('sales') ? cnt('sales_invoices') : 0, modOn('sales') && co.vat_no ? db.get('zatca_settings', { company_id: 'eq.' + S.cid, select: 'enabled' }).catch(() => []) : []]);
   const z = zs[0];
   return [
@@ -33,7 +33,7 @@ async function setupSteps() {
       { k: 'emps', t: 'أضف الموظفين', d: 'سجلات الموظفين ورواتبهم ومديريهم المباشرين — أو استوردهم من Excel.', ok: emps >= 2, h: '#/employees' }] : []),
     { k: 'team', t: 'أعطِ فريقك الدخول', d: 'الموظف من سجله في «الموظفون» ← «إنشاء دخول للموظف»، والمدراء من «المستخدمون والدعوات».', ok: mem >= 2, h: '#/users', code: true },
     { k: 'mfa', t: 'فعّل التحقق بخطوتين', d: 'حتى لا تكفي كلمة المرور وحدها للدخول إلى الرواتب والأموال.', ok: !!(S.mfa && S.mfa.enrolled), btn: 'mfa' },
-    ...(modOn('hr') ? [{ k: 'pay', t: 'جهّز أول مسير رواتب', d: 'يُحسب الراتب والتأمينات، ويعتمده المالك، ويُخرج ملف حماية الأجور.', ok: runs > 0, h: '#/payroll' }] : []),
+    ...(modOn('hr') ? [{ k: 'pay', t: 'جهّز أول مسير رواتب', d: 'يُحسب الراتب والتأمينات، ويعتمده الموارد البشرية ثم المالية ثم المدير العام، ويُخرج ملف حماية الأجور.', ok: runs > 0, h: '#/payroll' }] : []),
     ...(modOn('sales') ? [{ k: 'inv', t: 'أصدر أول فاتورة', d: 'فاتورة ضريبية أو مبسطة فيها رمز QR، وتُرحّل في الحسابات تلقائيا.', ok: inv > 0, h: '#/sales' }] : []),
     ...(modOn('sales') && co.vat_no ? [{ k: 'zatca', t: 'اربط منشأتك بـ «فاتورة» (زاتكا)', d: 'لترسل فواتيرك لزاتكا تلقائيا كما تشترط المرحلة الثانية.', ok: !!(z && z.enabled), h: '#/settings' }] : [])];
 }
