@@ -2,7 +2,7 @@
 
 <section>
   <div class="wrap">
-    <div class="grid g3 tools">
+    <div class="grid g2 tools">
       <form class="card tool" id="teos" onsubmit="return false">
         <h3><span class="ar">مكافأة نهاية الخدمة</span><span class="en">End-of-service award</span></h3>
         <p class="small"><span class="ar">نظام العمل، المواد 84 و85</span><span class="en">Labor Law, Articles 84 and 85</span></p>
@@ -20,6 +20,16 @@
         <p class="small"><span class="ar">الأجر الخاضع = الأساسي + السكن، بين 1,500 و45,000</span><span class="en">Contribution wage = basic + housing, between 1,500 and 45,000</span></p>
         <label><span class="ar">الراتب الأساسي</span><span class="en">Basic salary</span><input type="number" name="basic" min="0" step="0.01" value="8000"></label>
         <label><span class="ar">بدل السكن</span><span class="en">Housing allowance</span><input type="number" name="housing" min="0" step="0.01" value="2000"></label>
+        <label><span class="ar">الجنسية</span><span class="en">Nationality</span><select name="saudi"><option value="1">سعودي · Saudi</option><option value="0">غير سعودي · Non-Saudi</option></select></label>
+        <label><span class="ar">تاريخ أول تسجيل في التأمينات</span><span class="en">First GOSI registration date</span><input type="date" name="first" value="2020-01-01"></label>
+        <div class="tout" aria-live="polite"></div>
+      </form>
+      <form class="card tool" id="tnet" onsubmit="return false">
+        <h3><span class="ar">حاسبة صافي الراتب</span><span class="en">Net salary calculator</span></h3>
+        <p class="small"><span class="ar">الإجمالي ناقص حصة الموظف في التأمينات</span><span class="en">Gross minus the employee's GOSI share</span></p>
+        <label><span class="ar">الراتب الأساسي</span><span class="en">Basic salary</span><input type="number" name="basic" min="0" step="0.01" value="8000"></label>
+        <label><span class="ar">بدل السكن</span><span class="en">Housing allowance</span><input type="number" name="housing" min="0" step="0.01" value="2000"></label>
+        <label><span class="ar">بدل النقل والبدلات الأخرى</span><span class="en">Transport and other allowances</span><input type="number" name="other" min="0" step="0.01" value="800"></label>
         <label><span class="ar">الجنسية</span><span class="en">Nationality</span><select name="saudi"><option value="1">سعودي · Saudi</option><option value="0">غير سعودي · Non-Saudi</option></select></label>
         <label><span class="ar">تاريخ أول تسجيل في التأمينات</span><span class="en">First GOSI registration date</span><input type="date" name="first" value="2020-01-01"></label>
         <div class="tout" aria-live="polite"></div>
@@ -63,6 +73,13 @@
     f.querySelector('.tout').innerHTML = row('الأجر الخاضع للاشتراك', 'Contribution wage', fmt(base)) + row('حصة الموظف', 'Employee share', fmt(emp) + (sa ? ' (' + (ann + 0.75) + '%)' : ''))
       + row('حصة صاحب العمل', 'Employer share', fmt(er) + ' (' + (sa ? ann + 2.75 : 2) + '%)') + row('الإجمالي الشهري', 'Monthly total', fmt(emp + er));
   }
+  function net() {
+    var f = document.getElementById('tnet'), b = +f.basic.value || 0, h = +f.housing.value || 0, o = +f.other.value || 0, sa = f.saudi.value === '1';
+    var base = Math.min(Math.max(b + h, 1500), 45000), now = new Date(), isNew = f.first.value && new Date(f.first.value) >= new Date('2024-07-03');
+    var ann = !isNew ? 9 : 9 + 0.5 * ['2025-07-03', '2026-07-03', '2027-07-03', '2028-07-03'].filter(function (d) { return now >= new Date(d); }).length;
+    var ded = sa ? base * (ann + 0.75) / 100 : 0, gross = b + h + o;
+    f.querySelector('.tout').innerHTML = row('إجمالي الراتب', 'Gross salary', fmt(gross)) + row('حصة الموظف في التأمينات', 'Employee GOSI share', fmt(ded)) + row('صافي الراتب', 'Net salary', fmt(gross - ded));
+  }
   // nitW / nitNeed in Waad
   function nit() {
     var f = document.getElementById('tnit'), T = Math.max(+f.total.value || 0, 1), W = (+f.full.value || 0) + 0.5 * (+f.half.value || 0), p = W / T * 100, need = (+f.need.value || 0) / 100;
@@ -70,7 +87,7 @@
     f.querySelector('.tout').innerHTML = row('نسبة التوطين المحتسبة', 'Counted ratio', p.toFixed(1) + '%')
       + row('لبلوغ النسبة المطلوبة: سعوديون إضافيون بأجر 4,000 فأكثر', 'To reach it: extra Saudis paid 4,000+', add);
   }
-  ['teos', 'tgosi', 'tnit'].forEach(function (id) { var f = document.getElementById(id), fn = { teos: eos, tgosi: gosi, tnit: nit }[id]; f.addEventListener('input', fn); f.addEventListener('change', fn); fn(); });
-  var lg = document.getElementById('lg'); if (lg) lg.addEventListener('click', function () { setTimeout(function () { eos(); gosi(); nit(); }, 0); });
+  ['teos', 'tgosi', 'tnet', 'tnit'].forEach(function (id) { var f = document.getElementById(id), fn = { teos: eos, tgosi: gosi, tnet: net, tnit: nit }[id]; f.addEventListener('input', fn); f.addEventListener('change', fn); fn(); });
+  var lg = document.getElementById('lg'); if (lg) lg.addEventListener('click', function () { setTimeout(function () { eos(); gosi(); net(); nit(); }, 0); });
 })();
 </script>

@@ -1447,7 +1447,8 @@ with sync_playwright() as pw:
     sp.route(re.compile(r'https://static\.cloudflareinsights\.com/.*|https://fonts\.(googleapis|gstatic)\.com/.*'), lambda r: r.abort())
     def to_mock(r):
         u = urllib.parse.urlparse(r.request.url); h = dict(r.request.headers); h['apikey'] = 'test-publishable-key'
-        r.fulfill(response=r.fetch(url=BASE + u.path + ('?' + u.query if u.query else ''), headers=h))
+        try: r.fulfill(response=r.fetch(url=BASE + u.path + ('?' + u.query if u.query else ''), headers=h))
+        except Exception: pass   # the page moved on or closed while the visit counter was still on its way
     sp.route(re.compile(r'https://[a-z0-9]+\.supabase\.co/.*'), to_mock)
     before = int(sql("coalesce((select sum(visits) from site_stats where page='contact'),0)"))
     sp.goto('file://' + os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'site', 'contact.html')) + '?utm_source=whatsapp')
@@ -1461,6 +1462,16 @@ with sync_playwright() as pw:
     ok('5,005.00' in sp.inner_text('#teos .tout') and '33%' in sp.inner_text('#teos .tout'), 'website tools: resignation after 3 years = one third of half a month per year (Art. 85)')
     sp.fill('#tgosi input[name=basic]', '8000'); sp.fill('#tgosi input[name=housing]', '2000'); sp.fill('#tgosi input[name=first]', '2020-01-01'); sp.wait_for_timeout(200)
     ok('975.00' in sp.inner_text('#tgosi .tout') and '1,175.00' in sp.inner_text('#tgosi .tout'), 'website tools: GOSI 9.75% / 11.75% for a Saudi registered before July 2024')
+    sp.fill('#tnet input[name=basic]', '8000'); sp.fill('#tnet input[name=housing]', '2000'); sp.fill('#tnet input[name=other]', '800'); sp.fill('#tnet input[name=first]', '2020-01-01'); sp.wait_for_timeout(200)
+    ok('9,825.00' in sp.inner_text('#tnet .tout'), 'website tools: net salary = 10,800 gross minus 975 GOSI')
+    kdir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'site'))
+    sp.goto('file://' + kdir + '/knowledge.html'); sp.wait_for_selector('.kn-tile')
+    ok(sp.locator('.kn-tile').count() == 6 and sp.locator('header a[href="knowledge.html"]').count() == 1, 'website knowledge: the hub links blog, policies, job descriptions, glossary, tools and updates')
+    sp.goto('file://' + kdir + '/blog.html'); sp.wait_for_selector('.kn-tile'); n_art = sp.locator('.kn-tile').count()
+    sp.goto('file://' + kdir + '/blog-eos.html'); sp.wait_for_selector('.kn-art h2')
+    ok(n_art >= 5 and 'المادة 84' in sp.inner_text('.kn-art') and '45,000' in sp.inner_text('.kn-art'), 'website blog: articles with their Labor Law article numbers and a worked example')
+    for kp, sel, n in (('policies.html', '.kn-d', 6), ('jobs.html', '.kn-d', 10), ('glossary.html', '.kn-g', 25)):
+        sp.goto('file://' + kdir + '/' + kp); sp.wait_for_selector(sel); ok(sp.locator(sel).count() >= n, 'website knowledge: %s has %d+ entries' % (kp, n))
     ok(not sp.errors, 'no JS errors on the website %s' % sp.errors[:2]); sp.context.close()
     # announcements: posted in the admin site, shown above every screen of the system until closed
     go(pp, '#/news'); pp.wait_for_selector('#annadd'); pp.click('#annadd'); pp.wait_for_selector('#dlg textarea[name=body_ar]')

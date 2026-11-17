@@ -42,8 +42,14 @@ def guide_body(out):
             '<a class="btn gold" href="app/?start=staff#/guide"><span class="ar">دخول الموظفين إلى الدليل</span><span class="en">Employee sign-in to the guide</span></a>'
             '<p class="small"><a href="app/?start=signin#/guide"><span class="ar">مالك المنشأة أو الإدارة؟ ادخل بالبريد</span><span class="en">Company owner or admin? Sign in with e-mail</span></a></p></div></div></section>')
 
+# «المعرفة»: articles, policy templates, job descriptions and the glossary come from site/knowledge.py
+import sys; sys.path.insert(0, D)
+import knowledge
+KN = {out: body for _, out, _, _, body in knowledge.pages()}
+PAGES += [(p, out, t, d) for p, out, t, d, _ in knowledge.pages()]
+
 for page, out, title, desc in PAGES:
-    body = guide_body(out) if page == 'guide' else open(os.path.join(D, 'pages', page + '.html'), encoding='utf-8').read()
+    body = KN[out] if out in KN else guide_body(out) if page == 'guide' else open(os.path.join(D, 'pages', page + '.html'), encoding='utf-8').read()
     url = BASE if out == 'index.html' else BASE + out
     t = (layout.replace('__BODY__', body).replace('__TITLE__', title).replace('__DESC__', desc)
                .replace('__URL__', url).replace('__PAGE__', page).replace('__SB_URL__', SB.group(1)).replace('__SB_KEY__', SB.group(2)))
