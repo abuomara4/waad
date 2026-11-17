@@ -265,9 +265,32 @@ select t.ok((select count(*) from public.payroll_lines) = 0, 'employee cannot se
 reset role;
 insert into public.cost_centers(company_id, code, name) values (:'cid','PAYCC','الإدارة العامة') returning id as cc_pay \gset
 update public.employees set cost_center_id = :'cc_pay' where id = :'e_gm';
+-- three-step sign-off: HR, finance, then the general manager (0113)
 select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select public.payroll_sign('$$ || :'run' || $$')$$, '42501|غير مصرح', 'payroll sign-off: finance cannot sign before HR');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.ok(public.payroll_sign(:'run') = 'hr', 'payroll sign-off: HR signs first');
+select t.err($$select public.payroll_sign('$$ || :'run' || $$')$$, '42501|غير مصرح', 'payroll sign-off: HR cannot also sign the finance step');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select public.payroll_return(:'run', 'راجعوا الإضافي');
+select t.ok((select hr_ok_at is null and return_note = 'راجعوا الإضافي' from public.payroll_runs where id = :'run'), 'payroll sign-off: finance returns the draft with a note and the signatures are cleared');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.payroll_sign(:'run');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.err($$select public.payroll_approve('$$ || :'run' || $$')$$, 'المالية', 'payroll sign-off: the general manager cannot approve before finance');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.ok(public.payroll_sign(:'run') = 'fin', 'payroll sign-off: finance signs second');
+select t.err($$select public.payroll_approve('$$ || :'run' || $$')$$, 'للمدير العام', 'payroll sign-off: finance cannot give the final approval');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
 select public.payroll_approve(:'run') as run_je \gset
 reset role;
+select t.ok((select status = 'approved' and hr_ok_name is not null and fin_ok_name is not null and approved_name is not null from public.payroll_runs where id = :'run'), 'payroll sign-off: the general manager approves last and every signer is named for the print');
 select t.eq((select sum(debit) from public.journal_lines where entry_id = :'run_je' and account_code = '5200' and cost_center_id = :'cc_pay'),
   (select gross + arrears + overtime + bonus - absence - att_absence - late_deduction - sick_deduction - damages from public.payroll_lines where run_id = :'run' and employee_id = :'e_gm'), 'payroll salary expense carries the employee cost center');
 select t.eq((select sum(debit) from public.journal_lines where entry_id = :'run_je' and account_code = '5210' and cost_center_id = :'cc_pay'),
@@ -875,6 +898,7 @@ select public.payroll_prepare(:'cid', 2026, 12, '2026-12-27') as dec26 \gset
 select t.ok((select penalty_fine = 1750 from public.payroll_lines where run_id = :'dec26' and employee_id = :'e_emp'), 'fines deducted in a month never exceed five days'' wage (Art. 70)');
 reset role;
 select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.payroll_sign(:'dec26'); select public.payroll_sign(:'dec26');
 select public.payroll_approve(:'dec26') as dec_je \gset
 select t.ok((select credit from public.journal_lines where entry_id = :'dec_je' and account_code = '2450') >= 1750, 'fines go to the workers'' fines account, not income (Art. 73)');
 reset role;
@@ -1162,6 +1186,12 @@ select t.ok(not exists(select 1 from public.payroll_lines where run_id = :'jun27
 select t.ok((select absence_days = 0 from public.payroll_lines where run_id = :'jun27' and employee_id = :'e_emp'), 'unpaid leave after the cutoff is not in this month');
 reset role;
 select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.payroll_sign(:'jun27'); select public.payroll_sign(:'jun27');
+reset role;
+update public.payroll_lines set bonus = bonus where run_id = :'jun27';
+select t.ok((select hr_ok_at is null and fin_ok_at is null from public.payroll_runs where id = :'jun27'), 'payroll sign-off: editing a line after signing clears the signatures');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.payroll_sign(:'jun27'); select public.payroll_sign(:'jun27');
 select public.payroll_approve(:'jun27');
 reset role;
 select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
@@ -1173,6 +1203,7 @@ select t.ok((select absence_days = 2 from public.payroll_lines where run_id = :'
 select t.ok((select paid_days = 28 and absence_days = 2 from public.payroll_lines where run_id = :'jul27' and employee_id = :'cl'), 'a leaver''s last payroll runs to the last day (leave after the cutoff included)');
 reset role;
 select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.payroll_sign(:'jul27'); select public.payroll_sign(:'jul27');
 select t.ok(public.payroll_approve(:'jul27') is not null, 'approval posts a balanced entry including the dues');
 reset role;
 select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;

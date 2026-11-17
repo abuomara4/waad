@@ -227,6 +227,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أعد فتح وعد ثم حاول مرة أخرى	Reopen Waad and try again
 أعد للموظف	refund the employee
 أعداد وتواريخ فقط	Counts and dates only
+أعدّه واعتمده	Prepared and approved by
 أعزب	Single
 أعضاء الفريق	Team members
 أعط درجة لكل هدف قبل الإرسال	Score every goal before sending
@@ -411,7 +412,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أُضيفت الساعات	Hours added
 أُضيفت للإجازة التعويضية	Added to compensatory leave
 أُعيد التقييم للمقيّم	Review returned to the reviewer
+أُعيد المسير	Payroll returned
+أُعيد المسير للتعديل	Returned for correction
 أُعيد فتحها	Reopened
+أُعيد مسير الرواتب للتعديل	Payroll returned for correction
 أُغلق دخولك إلى النظام بعد آخر يوم عمل لك	Your access closed after your last working day
 أُغلق دخولك إلى النظام بعد آخر يوم عمل لك. للاستفسار تواصل مع الموارد البشرية في منشأتك.	Your access closed after your last working day. For questions, contact your company's HR.
 أُقفلت السنة	Year closed
@@ -514,6 +518,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إذا لم تُحدد النهاية فمدته سنة من تاريخ البداية	if no end is set, it runs one year from the start date
 إذا لم يترتب على ذلك تعطيل عمال آخرين	if it did not hold up other workers
 إذا لم يكن في المنشأة مدير مالي يعتمد المالك مرحلة المالية	If the company has no finance manager, the owner approves the finance step
+إرجاع	Return
+إرجاع المسير للتعديل	Return the payroll for correction
+إرجاع للتعديل	Return for correction
 إرسال	Send
 إرسال التسوية	Send settlement
 إرسال الرمز لبريدي	Email the code to me
@@ -1000,14 +1007,17 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اطّلعت	Acknowledged
 اطّلعت على التقييم	I have read the review
 اعتماد	Approve
+اعتماد المالية	Finance approval
 اعتماد المدير العام حسب المبلغ	General manager approval by amount
 اعتماد المسير	Approve payroll
+اعتماد الموارد البشرية	HR approval
 اعتماد بدلا من المدير	Approve in the manager's place
 اعتماد تلقائي	Automatic approval
 اعتماد طلبات فريقه ومتابعة حضورهم	approves the team's requests and follows their attendance
 اعتماد وترحيل القيد	Approve and post entry
 اعتماد وقيد	Approve and post
 اعتمد المسير قبل الصرف	Approve the payroll before paying it
+اعتمدته	Approved by
 اعتمدتها زاتكا	Cleared by ZATCA
 اعتمده	approved by
 اعتمده ثم نزّل ملف حماية الأجور	approve it, then download the wage protection file
@@ -1311,6 +1321,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الاعتداء بالإيذاء الجسدي على زملاء العمل أو على غيرهم بطريقة إباحية	Indecent physical assault on co-workers or others
 الاعتداء على زملاء العمل بالقول أو الإشارة أو باستعمال وسائل الاتصال الإلكترونية بالشتم أو التحقير	Insulting or demeaning co-workers by word, gesture or electronic means
 الاعتماد	Approvals
+الاعتماد النهائي	Final approval
+الاعتماد النهائي للمسير للمدير العام	The final payroll approval is for the general manager
+الاعتماد النهائي وترحيل القيد	Final approval and post the entry
 الاعتمادات	Approvals
 الافتراضي	Default
 الافتراضية	Default
@@ -2179,6 +2192,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المسمى الوظيفي بالإنجليزية	Job title in English
 المسمى بالانجليزي	English job title
 المسير	Payroll
+المسير بانتظار اعتماد المدير العام	The payroll awaits the general manager's approval
 المسير غير موجود	Payroll not found
 المسير فارغ	The payroll is empty
 المسير معتمد مسبقا	The payroll is already approved
@@ -2521,6 +2535,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بدل مجموعات الواتساب	instead of WhatsApp groups
 بدل نقدي	Cash allowance
 بدلات أخرى	Other allowances
+بدلات وإضافي ومكافآت	Allowances, overtime and bonuses
 بدون	None
 بدون أجر	Unpaid
 بدون أي بيانات من داخل المنشأة	without any data from inside the company
@@ -3205,6 +3220,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تُقصَّر الوردية تلقائياً بين التاريخين لمن يطبق عليه دوام رمضان في ملفه	The shift is shortened automatically between the dates for employees with Ramadan hours on their file
 تُقيد الفروقات على المخزون ولا يمكن التعديل بعدها	Differences are booked to stock and cannot be edited afterwards
 تُقيَّد الغرامات في سجل خاص	Fines are entered in a special register
+تُلغى الاعتمادات السابقة ويعود المسير لمدير الموارد البشرية	Earlier approvals are cleared and the payroll goes back to the HR manager
 تُلغى التأشيرة قبل تسجيل إصدارها فقط	A visa can be cancelled only before it is recorded as issued
 تُلغى الورديات الخاصة لموظفي هذا القسم ويطبق عليهم وردية القسم	Personal shifts in this department are cleared and the department shift applies
 تُلغى ورقة العد بدون أي أثر على المخزون	The count sheet is cancelled with no effect on stock
@@ -3457,6 +3473,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حسم أجر	Deduct the wage of
 حسم التأخير يكون بقدر الوقت الذي لم يُعمل فيه فقط	Lateness is deducted only for the time not worked
 حسم دقائق التأخير من الراتب	Deduct late minutes from salary
+حسميات أخرى	Other deductions
 حصة أكبر عميل من المبيعات	Largest customer's share of sales
 حصة المنشأة	Employer share
 حصة المنشأة في التأمينات	Employer GOSI share
@@ -3878,6 +3895,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ساعتين	two hours
 سامبا سابقا	formerly Samba
 سامبا سابقاً	formerly Samba
+سبب الإرجاع	Reason for return
 سبب الإلغاء	Void reason
 سبب الانتهاء	End reason
 سبب التأجيل	Reason for deferral
@@ -4215,6 +4233,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 طباعة الإشعار	Print notice
 طباعة القرار	Print decision
 طباعة المخالصة النهائية	Print the final settlement
+طباعة المسير	Print payroll
 طباعة للموردين	Print for suppliers
 طباعة محضر التحقيق	Print investigation minutes
 طباعة ورقة العد	Print count sheet
@@ -4893,6 +4912,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يشمل التقدير ذوي الإعاقة والطلاب والعمل الجزئي والمرن	The estimate does not cover disabled, student, part-time or flexible workers
 لا يصح تحديد تاريخ مؤجل للاستقالة	A resignation cannot carry a deferred date
 لا يطبق عليه	Does not apply
+لا يعتمد الشخص نفسه مرحلتين من المسير	The same person cannot sign two payroll steps
 لا يكون الموظف مديرا لنفسه	an employee cannot be their own manager
 لا يكون الموظف مديراً لنفسه	an employee cannot be their own manager
 لا يمكن إلغاء طلب تم البت فيه	A request already decided cannot be cancelled
@@ -5068,6 +5088,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لم تثبت	not proven
 لم ترسل أي طلبات دعم بعد	You haven't sent any support requests yet
 لم ترسل أي طلبات دعم بعد.	You haven't sent any support requests yet.
+لم تعتمد المالية المسير بعد	Finance has not approved the payroll yet
 لم تغيّر أي بيانات	You did not change anything
 لم تُحذف أي منشأة	No company has been deleted
 لم تُدخل عروض بعد	No offers yet
@@ -5089,9 +5110,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لم يسجّلوا بعد	Not in yet
 لم يصدر خطاب بعد	No letters issued yet
 لم يصل بعد	not reached yet
+لم يعتمد مدير الموارد البشرية المسير بعد	The HR manager has not approved the payroll yet
 لم يعد	Did not return
 لم يغيّر كلمة المرور بعد	Hasn't changed the password yet
 لم يقر بعد	Not acknowledged yet
+لم يكتمل الاعتماد	approval not complete
 لم يُؤكَّد البريد بعد	Email not confirmed yet
 لم يُجهَّز مسير رواتب	No payroll prepared for
 لم يُرسل	Not sent
@@ -5414,6 +5437,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مسير أكتوبر يحسب الحضور والغياب والإضافي والإجازات من	the October payroll counts attendance, absence, overtime and leave from
 مسير الرواتب	Payroll
 مسير الشهر معتمد	The month's payroll is approved
+مسير رواتب بانتظار اعتماد المالية	Payroll awaiting finance approval
+مسير رواتب بانتظار اعتمادك النهائي	Payroll awaiting your final approval
+مسير رواتب شهر	Payroll for
 مسير هذا الشهر معتمد	This month's payroll is approved
 مسيرات	payrolls
 مشاركة	Share

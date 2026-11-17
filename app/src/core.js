@@ -771,6 +771,9 @@ async function loadNotifs() {
     isHR() ? safe(db.get('penalties', { company_id: 'eq.' + S.cid, status: 'in.(open,applied)', select: 'id,status,inv_on,griev_on,griev_result' })) : null,
     S.emp ? safe(db.get('penalties', { employee_id: 'eq.' + S.emp, status: 'in.(open,applied)', select: 'id,status,inv_on,emp_defense,notified_on,griev_on' })) : null]);
   if (mine && mine.length) add(mine.length + ' طلبات بانتظار اعتمادك', '#/approvals', { hot: 1 });
+  if (has('owner', 'admin', 'hr', 'finance')) (await safe(db.get('payroll_runs', { company_id: 'eq.' + S.cid, status: 'eq.draft', select: 'id,year,month,hr_ok_at,fin_ok_at,return_note' })) || []).forEach(r => {
+    const t = !r.hr_ok_at ? (r.return_note && has('owner', 'admin', 'hr') ? 'أُعيد مسير الرواتب للتعديل' : null) : !r.fin_ok_at ? (has('owner', 'finance') ? 'مسير رواتب بانتظار اعتماد المالية' : null) : (has('owner') ? 'مسير رواتب بانتظار اعتمادك النهائي' : null);
+    if (t) add(tr(t) + ' ' + r.month + '/' + r.year, '#/payroll/' + r.id, { hot: 1 }); });
   if (typeof notesForMe === 'function') (await safe(notesForMe()) || []).forEach(n => add(tr('أشار إليك زميل في ملاحظة'), (NOTE_LINK[n.entity] || '#/home') + n.ref_id, { at: n.created_at, tail: '— ' + String(n.body).slice(0, 60) }));
   if (typeof coExpiring === 'function') { const ce = await safe(coExpiring()); if (ce) add(ce + ' مستندات أو سيارات للمنشأة تنتهي خلال 30 يوما أو انتهت', '#/companydocs', { hot: 1 }); }
   if (S.emp) { const sg = await safe(db.get('signature_requests', { employee_id: 'eq.' + S.emp, status: 'eq.pending', select: 'id' })); NAVC.sign = (sg || []).length; if (NAVC.sign) add(NAVC.sign + ' مستندات بانتظار توقيعك', '#/sign?open=1', { hot: 1 }); }

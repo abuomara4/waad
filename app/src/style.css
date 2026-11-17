@@ -413,3 +413,6 @@ button,input,select,textarea,optgroup{font-family:inherit}
 /* «الصلاحيات»: department rows in the role grid */
 tr.pgrp td{padding-top:14px;color:var(--muted,#6b7280);font-size:13px}
 .viewonly .head .btn,.viewonly .head button{display:none}
+.paysteps{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.pstep{flex:1 1 180px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}.pstep.done{border-color:var(--ok,#16a34a)}.pstep.now{border-color:var(--accent);background:var(--soft)}
+.ptbl{width:100%;border-collapse:collapse;font-size:11px}.ptbl th,.ptbl td{border:1px solid #999;padding:3px 5px;text-align:start}.ptbl td.num{text-align:end}.ptbl thead th{background:#eee}
+.psig{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px;font-size:12px;break-inside:avoid}.psig>div{display:flex;flex-direction:column;gap:6px}.psig .psl{margin-top:18px;border-top:1px dotted #555;padding-top:4px}

@@ -21,7 +21,8 @@ RELEASES = [
   ('إرسال الفواتير وعروض الأسعار للعميل، وبوابة العميل برابط خاص، والفواتير المتكررة', 'Send invoices and quotes to customers, a private customer portal and recurring invoices'),
   ('مستندات المنشأة والسيارات مع تنبيهات الانتهاء', 'Company documents and vehicles with expiry alerts'),
   ('الملاحظات على السجلات مع الإشارة إلى الزملاء، والحقول المخصصة', 'Notes on records with mentions, and custom fields'),
-  ('صفحة «الصلاحيات» في الموارد البشرية: صلاحيات كل وظيفة وكل شخص في كل الأقسام، ومن ينوب عن مدير الموارد البشرية', 'A «Permissions» page under HR: every job\'s and person\'s permissions in every section, and a deputy for the HR manager')]),
+  ('صفحة «الصلاحيات» في الموارد البشرية: صلاحيات كل وظيفة وكل شخص في كل الأقسام، ومن ينوب عن مدير الموارد البشرية', 'A «Permissions» page under HR: every job\'s and person\'s permissions in every section, and a deputy for the HR manager'),
+  ('اعتماد مسير الرواتب على ثلاث مراحل: الموارد البشرية ثم المالية ثم المدير العام، مع الإرجاع للتعديل وطباعة المسير بالتواقيع', 'Payroll approved in three steps: HR, finance, then the general manager, with return for correction and a printed sheet with signatures')]),
  ('16 نوفمبر 2026', '16 November 2026', [
   ('أقسام افتراضية لكل منشأة جديدة (تسعة أقسام بالعربي والإنجليزي)', 'Default departments for every new company (nine, Arabic and English)'),
   ('المرفقات عند إنشاء المستندات والعقود والعهد، وقائمة عهد جاهزة بالعربي والإنجليزي', 'Attachments when creating documents, contracts and custody, and a ready bilingual custody list'),

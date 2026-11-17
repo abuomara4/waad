@@ -15,7 +15,8 @@ const HELP = {
     ['تقدر تستورد الموظفين من ملف Excel بدل إدخالهم واحدا واحدا.', 'You can import employees from an Excel file instead of one by one.']] },
   '#/payroll': { t: ['مسير الرواتب', 'Payroll'], s: [
     ['جهّز مسير الشهر: يُحسب الراتب والإضافي والغياب والخصومات والسلف والتأمينات لكل موظف.', 'Prepare the month\'s run: pay, overtime, absence, deductions, advances and GOSI are calculated for each employee.'],
-    ['راجع الأسطر وعدّل ما يلزم، ثم يعتمده المالك، فيُنشأ قيده في الحسابات تلقائيا.', 'Review and adjust the lines, then the owner approves it and its journal entry is posted by itself.'],
+    ['راجع الأسطر وعدّل ما يلزم، ثم يعتمده مدير الموارد البشرية، ثم المالية، ثم المدير العام اعتمادا نهائيا فيُنشأ قيده في الحسابات تلقائيا. يمكن إرجاعه للتعديل في أي مرحلة، وأي تعديل يلغي الاعتمادات السابقة.', 'Review and adjust the lines; then the HR manager approves it, then finance, then the general manager gives the final approval and its journal entry is posted by itself. It can be returned for correction at any step, and any change clears earlier approvals.'],
+    ['«طباعة المسير» تطبع كشف الموظفين بالإجماليات وأسماء المعتمدين وتواريخهم وخانات التوقيع.', '«Print payroll» prints the employee sheet with totals, the approvers\' names and dates, and signature lines.'],
     ['بعد الاعتماد: نزّل ملف حماية الأجور لرفعه في مدد، وتظهر قسائم الراتب للموظفين.', 'After approval: download the wage protection file for Mudad; payslips appear for employees.']] },
   '#/requests': { t: ['طلباتي', 'My requests'], s: [
     ['قدّم طلب إجازة أو استئذان أو سلفة أو شهادة أو استقالة، ويمشي على مسار الاعتماد في منشأتك.', 'Request leave, a permission, an advance, a certificate or a resignation; it follows your company\'s approval route.'],

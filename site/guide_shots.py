@@ -29,7 +29,7 @@ with sync_playwright() as p:
     o.wait_for_selector('#ccok'); o.check('#ccok'); o.click('#mok'); o.wait_for_selector('#dlg', state='hidden')
     print(o.evaluate("""async () => { const c = S.cid; await db.rpc('demo_seed', { p_company: c }); const d = new Date();
       const d1 = new Date(d.getFullYear(), d.getMonth() - 1, 1); let r = 'ok';
-      try { const run = await db.rpc('payroll_prepare', { p_company: c, p_year: d1.getFullYear(), p_month: d1.getMonth() + 1 }); await db.rpc('payroll_approve', { p_run: run }); } catch (e) { r = 'payroll: ' + e.message; }
+      try { const run = await db.rpc('payroll_prepare', { p_company: c, p_year: d1.getFullYear(), p_month: d1.getMonth() + 1 }); await db.rpc('payroll_sign', { p_run: run }); await db.rpc('payroll_sign', { p_run: run }); await db.rpc('payroll_approve', { p_run: run }); } catch (e) { r = 'payroll: ' + e.message; }
       return r; }"""))
     cid = o.evaluate('S.cid'); code = o.evaluate('S.company.code')
     sqlx(f"update companies set att_enabled = true where id = '{cid}'")

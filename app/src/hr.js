@@ -546,15 +546,40 @@ VIEWS['#/payroll'] = async (page, arg) => {
     ok: 'إعداد', onOk: async f => { const id = await db.rpc('payroll_prepare', { p_company: S.cid, p_year: +f.y, p_month: +f.m, p_pay_date: blank(f.pd) }); location.hash = '#/payroll/' + id; }
   });
 };
+// the sign-off steps of a payroll run, with who signed and when
+function paySteps(run) {
+  const st = [['مدير الموارد البشرية', run.hr_ok_name, run.hr_ok_at], ['المالية', run.fin_ok_name, run.fin_ok_at], ['المدير العام', run.approved_name, run.status !== 'draft' ? run.approved_at : null]];
+  const next = st.findIndex(x => !x[2]);
+  return `<div class="paysteps">${st.map(([t, n, at], i) => `<div class="pstep${at ? ' done' : i === next ? ' now' : ''}"><b>${at ? '✓ ' : ''}${esc(tr(t))}</b><span class="small muted">${at ? esc(n || '') + ' · <span class="num">' + esc(String(at).slice(0, 10)) + '</span>' : esc(tr(i === next ? 'بانتظار الاعتماد' : '—'))}</span></div>`).join('')}</div>`;
+}
+// the printed payroll sheet: every employee with the totals, and the three approvals with names, dates and signature lines
+function payrollPrint(run, lines, em) {
+  const sum = f => lines.reduce((a, l) => a + n0(f(l)), 0);
+  const cols = [['الرقم', l => (em[l.employee_id] || {}).emp_no || '', 0], ['الموظف', l => (em[l.employee_id] || {}).full_name || '', 0], ['الأساسي', l => n0(l.basic), 1], ['السكن', l => n0(l.housing), 1],
+    ['بدلات وإضافي ومكافآت', l => lineOther(l), 1], ['التأمينات', l => n0(l.gosi), 1], ['حسميات أخرى', l => r2(lineDed(l) - n0(l.gosi)), 1], ['الصافي', l => n0(l.net), 1]];
+  const n = document.createElement('div'); n.className = 'pdoc';
+  const sig = [['أعدّه واعتمده: مدير الموارد البشرية', run.hr_ok_name, run.hr_ok_at], ['اعتمدته: المالية', run.fin_ok_name, run.fin_ok_at], ['الاعتماد النهائي: المدير العام', run.approved_name, run.status !== 'draft' ? run.approved_at : null]];
+  n.innerHTML = printHead(tr('مسير رواتب شهر') + ' ' + run.month + '/' + run.year) + (run.status === 'draft' ? `<p class="small"><b>${esc(tr('مسودة — لم يكتمل الاعتماد'))}</b></p>` : '') +
+    `<table class="ptbl"><thead><tr>${cols.map(c => `<th>${esc(tr(c[0]))}</th>`).join('')}</tr></thead><tbody>${lines.map(l => `<tr>${cols.map(c => `<td${c[2] ? ' class="num"' : ''}>${c[2] ? money(c[1](l)) : esc(c[1](l))}</td>`).join('')}</tr>`).join('')}</tbody>
+    <tfoot><tr><td colspan="2"><b>${esc(tr('الإجمالي'))} (${esc(arCount(lines.length, 'موظف'))})</b></td>${cols.slice(2).map(c => `<td class="num"><b>${money(sum(c[1]))}</b></td>`).join('')}</tr></tfoot></table>
+    <p class="small">${esc(tr('حصة المنشأة في التأمينات'))}: <span class="num">${money(sum(l => l.employer_gosi))}</span>${run.pay_date ? ' · ' + esc(tr('تاريخ الصرف')) + ': <span class="num">' + esc(run.pay_date) + '</span>' : ''}</p>
+    <div class="psig">${sig.map(([t, nm, at]) => `<div><b>${esc(tr(t))}</b><div>${esc(tr('الاسم'))}: ${esc(at ? nm || '' : '')}</div><div>${esc(tr('التاريخ'))}: <span class="num">${esc(at ? String(at).slice(0, 10) : '')}</span></div><div class="psl">${esc(tr('التوقيع'))}:</div></div>`).join('')}</div>`;
+  printWith(n, '@page{size:A4 landscape;margin:10mm}');
+}
 async function payrollRun(page, id) {
   const [[run], lines, em] = await Promise.all([db.get('payroll_runs', { id: 'eq.' + id }), db.get('payroll_lines', { run_id: 'eq.' + id }), employeesMap(true)]);
   if (!run) throw new Error('المسير غير موجود');
   lines.sort((a, b) => String((em[a.employee_id] || {}).emp_no).localeCompare(String((em[b.employee_id] || {}).emp_no)));
   const sum = k => lines.reduce((a, l) => a + n0(l[k]), 0);
   const draft = run.status === 'draft', hasArr = lines.some(l => n0(l.arrears));
+  // three-step sign-off (0113): HR, then finance, then the general manager's final approval that posts the entry
+  const step = !run.hr_ok_at ? 'hr' : !run.fin_ok_at ? 'fin' : 'gm';
+  const signBtn = !draft || !lines.length ? '' : step === 'hr' && has('owner', 'admin', 'hr') ? `<button class="btn pri" id="sg">${esc(tr('اعتماد الموارد البشرية'))}</button>`
+    : step === 'fin' && has('owner', 'finance') ? `<button class="btn pri" id="sg">${esc(tr('اعتماد المالية'))}</button>`
+    : step === 'gm' && has('owner') ? `<button class="btn pri" id="ap">${esc(tr('الاعتماد النهائي وترحيل القيد'))}</button>` : '';
   page.innerHTML = `<div class="head"><div><a href="#/payroll" class="small back">المسيرات</a><h1>مسير ${run.month}/${run.year} ${badge(run.status)}</h1><div class="muted">${esc(arCount(lines.length, 'موظف'))} · الصافي <b class="num">${money(sum('net'))}</b></div>${run.att_from ? `<div class="muted small">${esc(tr('فترة الحضور والغياب والإضافي'))}: <span class="num">${fdate(run.att_from)} – ${fdate(run.att_to)}</span></div>` : ''}</div>
-    <div class="row">${draft && isHR() ? '<button class="btn" id="re">إعادة الاحتساب</button>' : ''}${draft && has('owner', 'finance') ? '<button class="btn pri" id="ap">اعتماد وترحيل القيد</button>' : ''}${run.status === 'approved' && has('owner', 'finance') ? '<button class="btn pri" id="pd">تسجيل الصرف</button>' : ''}<button class="btn" id="gos">تقرير التأمينات</button>${run.status !== 'draft' ? '<button class="btn" id="wps">ملف حماية الأجور</button>' : ''}</div></div>
-    ${draft && !has('owner', 'finance') ? '<div class="note">بعد المراجعة يعتمده المدير العام أو المدير المالي.</div>' : ''}
+    <div class="row">${draft && isHR() ? '<button class="btn" id="re">إعادة الاحتساب</button>' : ''}${signBtn}${draft && (run.hr_ok_at || run.fin_ok_at) && has('owner', 'admin', 'hr', 'finance') ? `<button class="btn" id="rt">${esc(tr('إرجاع للتعديل'))}</button>` : ''}${run.status === 'approved' && has('owner', 'finance') ? '<button class="btn pri" id="pd">تسجيل الصرف</button>' : ''}<button class="btn" id="prn">${esc(tr('طباعة المسير'))}</button><button class="btn" id="gos">تقرير التأمينات</button>${run.status !== 'draft' ? '<button class="btn" id="wps">ملف حماية الأجور</button>' : ''}</div></div>
+    ${paySteps(run)}${draft && run.return_note ? `<div class="note">${esc(tr('أُعيد المسير للتعديل'))}: ${esc(run.return_note)}</div>` : ''}
     ${tbl([{ t: 'الموظف', h: l => esc((em[l.employee_id] || {}).full_name || '') + (l.paid_days != null && l.paid_days < 30 ? ` <span class="badge" title="${esc(tr('جزء من الشهر'))}">${l.paid_days}/30</span>` : '') }, { t: 'الإجمالي', r: 1, h: l => money(l.gross) }, ...(hasArr ? [{ t: 'مستحقات الشهر السابق', r: 1, h: l => n0(l.arrears) ? money(l.arrears) + ` <span class="muted small num">(${l.arrears_days})</span>` : '—' }] : []), { t: 'إضافي', r: 1, h: l => money(l.overtime) }, { t: 'مكافأة', r: 1, h: l => money(l.bonus) },
       { t: 'التأمينات', r: 1, h: l => money(l.gosi) }, { t: 'بدون أجر', r: 1, h: l => money(l.absence) }, { t: 'غياب وتأخير', r: 1, h: l => money(n0(l.att_absence) + n0(l.late_deduction)) }, { t: 'مرضية', r: 1, h: l => money(l.sick_deduction) }, { t: 'غرامات وجزاءات', r: 1, h: l => money(n0(l.deductions) + n0(l.penalty_fine)) }, { t: 'تلفيات', r: 1, h: l => money(l.damages) }, { t: 'سلفة', r: 1, h: l => money(l.advance) }, { t: 'الصافي', r: 1, h: l => '<b>' + money(l.net) + '</b>' }],
       lines, { onRow: true, foot: `<td>الإجمالي</td>${['gross', ...(hasArr ? ['arrears'] : []), 'overtime', 'bonus', 'gosi', 'absence', 'att', 'sick_deduction', 'fines', 'damages', 'advance', 'net'].map(k => `<td class="r num">${money(k === 'att' ? sum('att_absence') + sum('late_deduction') : k === 'fines' ? sum('deductions') + sum('penalty_fine') : sum(k))}</td>`).join('')}` })}
@@ -568,6 +593,10 @@ async function payrollRun(page, id) {
       { onOk: async f => { await db.rpc('payroll_set_line', { p_run: id, p_emp: l.employee_id, p_ot_hours: +f.ot || 0, p_bonus: +f.b || 0, p_fines: +f.d || 0, p_damages: +f.dm || 0 }); route(); } });
   });
   if ($('#re', page)) $('#re', page).onclick = () => busy($('#re', page), async () => { await db.rpc('payroll_prepare', { p_company: S.cid, p_year: run.year, p_month: run.month, p_pay_date: run.pay_date }); route(); });
+  if ($('#sg', page)) $('#sg', page).onclick = () => busy($('#sg', page), async () => { try { await db.rpc('payroll_sign', { p_run: id }); toast(tr('تم الاعتماد')); route(); } catch (e) { toast(e.message); } });
+  if ($('#rt', page)) $('#rt', page).onclick = () => modal(tr('إرجاع المسير للتعديل'), field('سبب الإرجاع', '<textarea name="n" rows="3"></textarea>') + `<p class="muted small">${esc(tr('تُلغى الاعتمادات السابقة ويعود المسير لمدير الموارد البشرية.'))}</p>`,
+    { ok: 'إرجاع', onOk: async f => { await db.rpc('payroll_return', { p_run: id, p_note: f.n || '' }); toast(tr('أُعيد المسير')); route(); } });
+  $('#prn', page).onclick = () => payrollPrint(run, lines, em);
   if ($('#ap', page)) $('#ap', page).onclick = async () => { if (!await confirmBox('اعتماد المسير', 'بعد الاعتماد يُرحّل قيد الاستحقاق ولا يمكن تعديل المسير.', 'اعتماد')) return; try { await db.rpc('payroll_approve', { p_run: id }); toast('اعتُمد المسير'); route(); } catch (e) { toast(e.message); } };
   if ($('#pd', page)) $('#pd', page).onclick = () => modal('تسجيل صرف الرواتب', field('من حساب', `<select name="acc">${opt('1120', 'البنك')}${opt('1110', 'الصندوق')}</select>`), { ok: 'تسجيل', onOk: async f => { await db.rpc('payroll_mark_paid', { p_run: id, p_account: f.acc }); toast('سُجل الصرف'); route(); } });
   if ($('#wps', page)) $('#wps', page).onclick = () => wpsFile(run, lines, em);
