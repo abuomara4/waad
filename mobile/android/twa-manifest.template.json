@@ -13,7 +13,7 @@
   "navigationDividerColorDark": "#131B2E",
   "backgroundColor": "#131B2E",
   "enableNotifications": true,
-  "startUrl": "{{APP_PATH}}",
+  "startUrl": "{{APP_PATH}}?src=app",
   "iconUrl": "https://{{DOMAIN}}{{APP_PATH}}icon-512.png",
   "maskableIconUrl": "https://{{DOMAIN}}{{APP_PATH}}icon-512.png",
   "splashScreenFadeOutDuration": 300,

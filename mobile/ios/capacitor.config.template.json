@@ -3,7 +3,7 @@
   "appName": "وعد",
   "webDir": "www",
   "server": {
-    "url": "https://{{DOMAIN}}{{APP_PATH}}",
+    "url": "https://{{DOMAIN}}{{APP_PATH}}?src=app",
     "cleartext": false,
     "allowNavigation": [
       "{{DOMAIN}}",

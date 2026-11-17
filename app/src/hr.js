@@ -846,9 +846,9 @@ VIEWS['#/settings'] = async page => {
      <label class="btn sm pri">${co.logo ? 'تغيير الشعار' : 'رفع الشعار'}<input type="file" id="lgf" accept="image/*" hidden></label>${co.logo ? '<button type="button" class="btn sm" id="lgd">إزالة الشعار</button>' : ''}</div>
      <div id="lgerr"></div><p class="muted small">يظهر أعلى الخطابات المطبوعة. يفضّل PNG بخلفية شفافة؛ نصغّر الصورة تلقائيا.</p></div>` : ''}
    ${admin && S.sub ? `<div class="card"><h2>${esc(tr('الاشتراك'))}</h2><p>${esc(tr('الباقة'))}: <b>${esc(S.sub.plan === 'trial' ? tr('تجريبية') : S.sub.plan)}</b> · <span class="badge ${subState(S.sub)[1]}">${esc(tr(subState(S.sub)[0]))}</span>${S.sub.status === 'trial' && S.sub.trial_ends ? ` · ${esc(tr('تنتهي التجربة'))} <span class="num">${esc(S.sub.trial_ends)}</span>` : ''}${S.sub.status === 'active' && S.sub.sub_ends ? ` · ${esc(tr('ينتهي الاشتراك'))} <span class="num">${esc(S.sub.sub_ends)}</span>` : ''}${S.sub.max_users ? ` · ${esc(tr('الحد الأعلى للمستخدمين'))} <span class="num">${S.sub.max_users}</span>` : ''}${S.sub.max_employees ? ` · ${esc(tr('الحد الأعلى للموظفين'))} <span class="num">${S.sub.max_employees}</span>` : ''}</p>
-     <p>${Object.entries(MODULES).map(([k, t]) => `<span class="badge ${modOn(k) ? 'ok' : ''}">${modOn(k) ? '✓' : '✕'} ${esc(tr(t))}</span>`).join(' ')}</p><p class="muted small">${esc(tr('لتغيير الباقة أو فتح قسم تواصل مع إدارة وعد.'))}</p></div>` : ''}
-   ${admin ? '<div class="card" id="refc"></div>' : ''}
-   ${admin ? '<div class="card" id="winvs"></div>' : ''}
+     <p>${Object.entries(MODULES).map(([k, t]) => `<span class="badge ${modOn(k) ? 'ok' : ''}">${modOn(k) ? '✓' : '✕'} ${esc(tr(t))}</span>`).join(' ')}</p>${IN_APP ? '' : `<p class="muted small">${esc(tr('لتغيير الباقة أو فتح قسم تواصل مع إدارة وعد.'))}</p>`}</div>` : ''}
+   ${admin && !IN_APP ? '<div class="card" id="refc"></div>' : ''}
+   ${admin && !IN_APP ? '<div class="card" id="winvs"></div>' : ''}
    ${admin && (modOn('finance') || modOn('sales')) ? '<div class="card" id="zcard"></div>' : ''}
    ${admin && seeded ? `<div class="card"><h2>${esc(tr('بيانات تجريبية'))}</h2>
      ${seeded

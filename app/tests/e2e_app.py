@@ -1542,6 +1542,10 @@ with sync_playwright() as pw:
     # «ادعُ منشأة» (0115): the owner's settings show the invitation link; this new company signs up from it
     go(o, '#/settings'); o.wait_for_selector('#refc input'); refl = o.input_value('#refc input'); refc = sql("select ref_code from companies where name = 'شركة وعد التجريبية'")
     ok(refl.endswith('?ref=' + refc) and 'سجّلت من رابطك' in o.inner_text('#refc'), 'settings: the owner gets an invitation link with the company code and counts')
+    ia = o.context.new_page(); ia.goto(BASE + '/waad-app.html?src=app#/settings'); ia.wait_for_selector('#cf input[name=unified_no]')
+    ok(ia.inner_text('#subbar').strip() == '' and ia.locator('#refc').count() == 0 and ia.locator('#winvs').count() == 0 and 'لتغيير الباقة' not in ia.inner_text('#page'),
+       'store app (?src=app): no subscription bar, invitation or invoices card, nor plan-change prompt')
+    ia.close()
     trial0 = sql("select coalesce(sub_ends, trial_ends)::text from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'شركة وعد التجريبية'")
     wp = new_page(b); wp.goto(BASE + '/waad-app.html?ref=' + refc.lower()); signup(wp, 'waiting@shop.test'); wp.wait_for_selector('#cf')
     wp.fill('#cf input[name=name]', 'منشأة تنتظر القبول'); wp.fill('#cf input[name=owner_phone]', '0511111111'); wp.fill('#cf input[name=city]', 'الرياض'); wp.select_option('#cf select[name=size_band]', '11-50'); wp.select_option('#cf select[name=industry]', 'trade'); wp.check('#cf input[name=xfer]'); wp.click('#cb'); wp.wait_for_selector('#pchk')
