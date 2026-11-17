@@ -37,6 +37,7 @@ VIEWS['#/reviews'] = async (page, arg) => {
     ${S.emp ? `<h2>تقييماتي</h2>${tbl([{ t: 'الدورة', h: r => esc((cyc[r.cycle_id] || {}).name || '') }, { t: 'النتيجة', h: r => ratingTxt(r.overall) }, { t: 'الاطلاع', h: r => r.ack_at ? '<span class="badge ok">اطّلعت</span>' : '<span class="badge wait">بانتظار اطلاعك</span>' }], mine, { empty: 'لا توجد تقييمات معتمدة لك بعد', onRow: true })}<div style="height:18px"></div>` : ''}
     ${hr ? `<h2>دورات التقييم</h2>${tbl([{ t: 'الدورة', k: 'name' }, { t: 'الفترة', h: c => fdate(c.period_start) + ' → ' + fdate(c.period_end) }, { t: 'الإنجاز', h: c => { const rs = revs.filter(r => r.cycle_id === c.id); return `<span class="num">${rs.filter(r => r.status === 'approved').length}/${rs.length}</span>`; } }, { t: 'الحالة', h: c => c.status === 'open' ? '<span class="badge info">مفتوحة</span>' : '<span class="badge">مغلقة</span>' }], cycles, { empty: 'لم تبدأ أي دورة تقييم', onRow: true })}` : ''}`;
   const tbls = $$('.tw', page); let i = 0;
+  if (typeof feedbackMine === 'function') feedbackMine(page, em).catch(() => {});
   if (team.length) bindRows(tbls[i++], team, r => reviewForm(r, em, cyc[r.cycle_id]));
   if (S.emp) bindRows(tbls[i++], mine, r => reviewView(r, em, cyc[r.cycle_id], { ack: !r.ack_at }));
   if (hr) bindRows(tbls[i++], cycles, c => location.hash = '#/reviews/' + c.id);
@@ -81,6 +82,8 @@ function reviewForm(r, em, c) {
     $('#go', d).innerHTML = ok ? ratingTxt(goals.reduce((a, g) => a + n0(g.w) * n0(g.s), 0) / 100) : '—'; };
   $('#ga', d).onclick = () => { if (goals.length < 10) { goals.push({ t: '', w: 0, s: null, c: '' }); draw(); } };
   draw();
+  if (typeof feedbackBox === 'function') { const fb = document.createElement('div'); $('.db', d).appendChild(fb);
+    feedbackBox(c.id, r.employee_id).then(h => { fb.innerHTML = h + `<button type="button" class="btn sm" id="fba">${esc(tr('طلب تقييم 360 من الزملاء'))}</button>`; $('#fba', fb).onclick = () => feedbackAsk(c.id, e, em); }); }
   const sv = document.createElement('button'); sv.type = 'button'; sv.className = 'btn'; sv.textContent = 'حفظ كمسودة';
   $('.df', d).insertBefore(sv, $('#mok', d));
   sv.onclick = async () => { try { await busy(sv, () => save(formData($('#mform', d)), false)); d.close(); toast('حُفظت المسودة'); route(); } catch (er) { showErr($('#merr', d), er); } };
@@ -95,6 +98,8 @@ function reviewView(r, em, c, { decide, ack } = {}) {
     ${decide ? field('ملاحظة (إلزامية عند الإعادة)', '<textarea name="note" rows="2"></textarea>') : ''}${ack ? field('تعليقك (اختياري)', '<textarea name="note" rows="2"></textarea>') : ''}`;
   const d = modal('تقييم الأداء', body, decide ? { ok: 'اعتماد', onOk: async f => { await db.rpc('decide_review', { p_id: r.id, p_approve: true, p_comment: blank(f.note) }); toast('اعتُمد التقييم'); route(); } }
     : ack ? { ok: 'اطّلعت على التقييم', onOk: async f => { await db.rpc('acknowledge_review', { p_id: r.id, p_comment: blank(f.note) }); toast('شكرا، سُجّل اطلاعك'); route(); } } : {});
+  if (c && (isHR() || r.reviewer_id === S.emp) && typeof feedbackBox === 'function') { const fb = document.createElement('div'); $('.db', d).appendChild(fb);
+    feedbackBox(c.id, r.employee_id).then(h => { fb.innerHTML = h + (c.status === 'open' ? `<button type="button" class="btn sm" id="fba">${esc(tr('طلب تقييم 360 من الزملاء'))}</button>` : ''); if ($('#fba', fb)) $('#fba', fb).onclick = () => feedbackAsk(c.id, e, em); }); }
   if (decide) {
     const rb = document.createElement('button'); rb.type = 'button'; rb.className = 'btn danger'; rb.textContent = 'إعادة للمقيّم';
     $('.df', d).insertBefore(rb, $('#mok', d));
@@ -114,18 +119,20 @@ VIEWS['#/recruit'] = async (page, arg) => {
   const [ops, cands, deps] = await Promise.all([db.get('job_openings', { company_id: 'eq.' + S.cid, order: 'created_at.desc' }), db.get('candidates', { company_id: 'eq.' + S.cid, select: 'opening_id,stage' }), db.get('departments', { company_id: 'eq.' + S.cid, order: 'name' })]);
   const dm = {}; deps.forEach(d => dm[d.id] = d.name);
   const cnt = (o, f) => cands.filter(c => c.opening_id === o.id && f(c)).length;
-  page.innerHTML = `<div class="head"><div><h1>التوظيف</h1><div class="muted">الوظائف الشاغرة والمرشحون حتى التعيين</div></div><button class="btn pri" id="no">وظيفة شاغرة جديدة</button></div>
+  page.innerHTML = `<div class="head"><div><h1>التوظيف</h1><div class="muted">الوظائف الشاغرة والمرشحون حتى التعيين</div></div><div class="row" style="gap:6px"><button class="btn" id="crl">${esc(tr('صفحة الوظائف'))}</button><button class="btn pri" id="no">وظيفة شاغرة جديدة</button></div></div>
     ${tbl([{ t: 'الوظيفة', k: 'title' }, { t: 'القسم', h: o => esc(dm[o.department_id] || '—') }, { t: 'العدد', r: 1, h: o => o.positions }, { t: 'المرشحون', r: 1, h: o => cnt(o, () => true) }, { t: 'في المقابلات', r: 1, h: o => cnt(o, c => c.stage === 'interview') }, { t: 'عُيّن', r: 1, h: o => cnt(o, c => c.stage === 'hired') }, { t: 'الحالة', h: o => `<span class="badge ${OPEN_ST[o.status][1]}">${esc(OPEN_ST[o.status][0])}</span>` }], ops, { empty: 'لا توجد وظائف شاغرة', onRow: true })}`;
   bindRows(page, ops, o => location.hash = '#/recruit/' + o.id);
   $('#no', page).onclick = () => openingForm(null, deps);
+  $('#crl', page).onclick = () => careersLinkDialog();
 };
 function openingForm(o, deps) {
   const v = o || { positions: 1, status: 'open' };
   modal(o ? 'تعديل الوظيفة' : 'وظيفة شاغرة جديدة', `<div class="fg">${field('المسمى الوظيفي', inp('title', v.title, 'required'))}${enF('title_en', v.title_en, 'المسمى الوظيفي بالإنجليزية')}${field('القسم', `<select name="dep"><option value="">—</option>${deps.map(d => opt(d.id, d.name, v.department_id)).join('')}</select>`)}
     ${field('عدد الشواغر', inp('pos', v.positions, 'type="number" min="1" max="100"'))}${field('الحالة', `<select name="st">${Object.entries(OPEN_ST).map(([k, [t]]) => opt(k, t, v.status)).join('')}</select>`)}
-    ${field('الوصف والمتطلبات', `<textarea name="desc" rows="4">${esc(v.description || '')}</textarea>`, 'wide')}</div>`, {
+    ${field('الوصف', `<textarea name="desc" rows="4">${esc(v.description || '')}</textarea>`, 'wide')}${field('المتطلبات', `<textarea name="req" rows="3" maxlength="3000">${esc(v.requirements || '')}</textarea>`, 'wide')}
+    <label class="row wide" style="gap:8px"><input type="checkbox" name="pub"${v.public ? ' checked' : ''}> ${esc(tr('تظهر في صفحة الوظائف العامة ويمكن التقديم عليها'))}</label></div>`, {
     onOk: async f => { if (f.title.length < 2) throw new Error('أدخل المسمى الوظيفي');
-      const row = { title: f.title, title_en: blank((f.title_en || '').trim()), department_id: blank(f.dep), positions: +f.pos || 1, status: f.st, description: blank(f.desc) };
+      const row = { title: f.title, title_en: blank((f.title_en || '').trim()), department_id: blank(f.dep), positions: +f.pos || 1, status: f.st, description: blank(f.desc), requirements: blank(f.req), public: !!f.pub };
       if (o) await db.upd('job_openings', { id: 'eq.' + o.id }, row); else { const [x] = await db.ins('job_openings', Object.assign(row, { company_id: S.cid })); location.hash = '#/recruit/' + x.id; return; }
       route(); } });
 }
@@ -156,6 +163,7 @@ function candidateForm(c, o, deps) {
     ${field('المرحلة', `<select name="stage" ${locked ? 'disabled' : ''}>${stages.map(([k, t]) => opt(k, t, v.stage)).join('')}</select>`)}
     ${field('موعد المقابلة', `<input type="datetime-local" name="iv" value="${local}">`)}
     ${field('نوع المقابلة', `<select name="itype"><option value="">—</option>${Object.entries(IV_TYPE).map(([k, t]) => opt(k, t, v.interview_type)).join('')}</select>`)}
+    ${field('رابط الاجتماع (مرئية)', inp('ivlink', v.interview_link, 'dir="ltr" placeholder="https://meet.google.com/…"'))}${field('مكان المقابلة (حضورية)', inp('ivplace', v.interview_place))}
     ${field('تقييم المقابلة', `<select name="rating"><option value="">—</option>${[1, 2, 3, 4, 5].map(k => opt(k, '★'.repeat(k), v.rating)).join('')}</select>`)}
     ${field('ملاحظات', `<textarea name="notes" rows="3">${esc(v.notes || '')}</textarea>`, 'wide')}
     ${c ? `<div class="wide"><label>${esc(tr('السيرة الذاتية والمرفقات'))}</label><div id="cvl" class="small muted">${esc(tr('جارٍ التحميل…'))}</div>
@@ -166,11 +174,14 @@ function candidateForm(c, o, deps) {
       if (f.full_name.length < 3) throw new Error('أدخل الاسم الكامل');
       if (f.national_id && !/^[12]\d{9}$/.test(f.national_id)) throw new Error('رقم الهوية/الإقامة 10 أرقام يبدأ بـ 1 أو 2');
       const row = { full_name: f.full_name, full_name_en: blank((f.full_name_en || '').trim()), phone: blank(f.phone), email: blank(f.email), national_id: blank(f.national_id), is_saudi: f.is_saudi === 'true', gender: f.gender, expected_salary: f.sal === '' ? null : +f.sal, interview_at: f.iv ? new Date(f.iv).toISOString() : null, interview_type: blank(f.itype), rating: f.rating ? +f.rating : null, notes: blank(f.notes) };
+      if (f.ivlink && !/^https:\/\//.test(f.ivlink.trim())) throw new Error('رابط الاجتماع يبدأ بـ https://');
+      Object.assign(row, { interview_link: blank((f.ivlink || '').trim()), interview_place: blank((f.ivplace || '').trim()) });
       if (!locked) row.stage = f.stage;
       if (c) await db.upd('candidates', { id: 'eq.' + c.id }, row); else await db.ins('candidates', Object.assign(row, { company_id: S.cid, opening_id: o.id }));
       toast('تم الحفظ'); route();
     } });
   if ($('#hire', d)) $('#hire', d).onclick = () => hireForm(c, o, deps);
+  if (c && c.interview_at) { const ib = document.createElement('button'); ib.type = 'button'; ib.className = 'btn'; ib.textContent = tr('رسالة دعوة المقابلة'); $('.df', d).insertBefore(ib, $('#mok', d)); ib.onclick = () => interviewInvite(c, o); }
   if (c) candFiles(c, d);
 }
 async function candFiles(c, d) {

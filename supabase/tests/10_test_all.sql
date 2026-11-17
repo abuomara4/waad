@@ -2104,7 +2104,7 @@ select t.err($$select * from public.code_lookups$$, 'permission denied', 'anon c
 select t.err($$select public.riyadh_today()$$, 'permission denied', 'anon cannot call helper functions');
 reset role;
 select t.ok((select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'
-  and has_function_privilege('anon', p.oid, 'execute') and p.proname not in ('company_by_code', 'ping', 'site_hit', 'site_content', 'portal_view')) = 0, 'anon can call only company_by_code, the health check, the website counter/texts and the customer portal');
+  and has_function_privilege('anon', p.oid, 'execute') and p.proname not in ('company_by_code', 'ping', 'site_hit', 'site_content', 'portal_view', 'careers_view', 'careers_apply')) = 0, 'anon can call only company_by_code, the health check, the website counter/texts, the customer portal and the careers page');
 select t.ok(has_function_privilege('authenticated', 'public.riyadh_today()', 'execute'), 'signed-in users keep helper functions');
 delete from public.code_lookups;
 select set_config('request.headers', '{"cf-connecting-ip":"203.0.113.7"}', false);
@@ -3200,6 +3200,127 @@ select set_config('request.jwt.claim.sub', :'u_other', false); set role authenti
 select t.err($$insert into public.onboarding_marks(company_id, employee_id, item) values ('$$ || :'cid' || $$', '$$ || :'e_emp' || $$', 'qiwa')$$, 'row-level', 'onboarding: another company cannot write marks');
 reset role;
 delete from public.onboarding_marks where employee_id = :'e_emp'; update public.companies set onboarding_items = '{}' where id = :'cid';
+
+-- ================= ANNOUNCEMENTS, SURVEYS, 360, CAREERS, EXPENSE POLICIES, WORKFORCE PLAN (0108) =================
+-- announcements
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+insert into public.company_announcements(company_id, title, body) values (:'cid', 'إجازة اليوم الوطني', 'الإجازة من الثلاثاء') returning id as ann1 \gset
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((select count(*) from public.company_announcements where id = :'ann1') = 1, 'announcements: every employee sees a company-wide announcement');
+insert into public.announcement_reads(announcement_id, company_id) values (:'ann1', :'cid');
+select t.err($$insert into public.company_announcements(company_id, title, body) values ('$$ || :'cid' || $$', 'xx', 'yy')$$, 'row-level', 'announcements: an employee cannot post');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.ok((select count(*) from public.company_announcements where id = :'ann1') = 0, 'announcements: another company does not see them');
+reset role;
+select t.ok((select count(*) from public.announcement_reads where announcement_id = :'ann1') = 1, 'announcements: the read receipt is kept');
+-- surveys (anonymous, results only from 3 answers)
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+insert into public.surveys(company_id, title, kind, questions) values (:'cid', 'رضا الموظفين', 'enps', '[{"t":"ما مدى احتمال أن توصي بنا؟","type":"enps"},{"t":"لماذا؟","type":"text"}]') returning id as sv1 \gset
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select public.survey_submit(:'sv1', '[9,"بيئة جيدة"]');
+select t.err($$select public.survey_submit('$$ || :'sv1' || $$', '[10,"x"]')$$, 'سبق أن أجبت', 'surveys: one answer per person');
+select t.err($$select * from public.survey_responses$$, 'permission denied', 'surveys: answers are not readable directly');
+select t.err($$select public.survey_results('$$ || :'sv1' || $$')$$, 'غير مصرح|42501', 'surveys: an employee cannot see results');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated; select public.survey_submit(:'sv1', '[6,""]'); reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.ok((public.survey_results(:'sv1')->>'hidden')::boolean and (public.survey_results(:'sv1')->>'n')::int = 2, 'surveys: an anonymous survey shows nothing under 3 answers');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated; select public.survey_submit(:'sv1', '[10,"ممتاز"]'); reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.ok(not (public.survey_results(:'sv1')->>'hidden')::boolean and jsonb_array_length(public.survey_results(:'sv1')->'answers') = 3 and jsonb_array_length(public.survey_results(:'sv1')->'who') = 0,
+  'surveys: from 3 answers HR sees them, without names');
+reset role;
+select t.ok((select count(*) from public.survey_responses where survey_id = :'sv1' and respondent is not null) = 0, 'surveys: anonymous answers keep no respondent');
+-- 360 feedback
+select id as fcyc from public.review_cycles where company_id = :'cid' and status = 'open' order by created_at desc limit 1 \gset
+select coalesce(:'fcyc', '') <> '' as has_cyc \gset
+\if :has_cyc
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.feedback_request(:'fcyc', :'e_emp', array[:'e_hr', :'e_fin']::uuid[]) as fbn \gset
+reset role;
+select t.ok(:'fbn'::int = 3 and (select count(*) from public.review_feedback where cycle_id = :'fcyc' and employee_id = :'e_emp') = 3, 'feedback 360: HR asks the employee (self) and two peers');
+select id as fb_self from public.review_feedback where cycle_id = :'fcyc' and employee_id = :'e_emp' and kind = 'self' \gset
+select id as fb_p1 from public.review_feedback where cycle_id = :'fcyc' and employee_id = :'e_emp' and rater_id = :'e_hr' \gset
+select id as fb_p2 from public.review_feedback where cycle_id = :'fcyc' and employee_id = :'e_emp' and rater_id = :'e_fin' \gset
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select public.feedback_submit(:'fb_self', '{"c1":4,"c2":4,"c3":5,"c4":3,"c5":4}', 'أحاول');
+select t.err($$select public.feedback_submit('$$ || :'fb_p1' || $$', '{"c1":1,"c2":1,"c3":1,"c4":1,"c5":1}', null)$$, 'غير مصرح|42501', 'feedback 360: nobody answers in someone else''s place');
+select t.err($$select public.feedback_summary('$$ || :'fcyc' || $$', '$$ || :'e_emp' || $$')$$, 'غير مصرح|42501', 'feedback 360: the employee does not read the summary');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.feedback_submit(:'fb_p1', '{"c1":5,"c2":4,"c3":4,"c4":4,"c5":5}', 'متعاون');
+select t.ok((public.feedback_summary(:'fcyc', :'e_emp')->'peer'->>'avg') is null, 'feedback 360: one peer answer is not shown (anonymity)');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select public.feedback_submit('$$ || :'fb_p2' || $$', '{"c1":9}', null)$$, 'من 1 إلى 5', 'feedback 360: every item is scored 1–5');
+select public.feedback_submit(:'fb_p2', '{"c1":3,"c2":4,"c3":4,"c4":4,"c5":3}', null);
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.ok((public.feedback_summary(:'fcyc', :'e_emp')->'peer'->'avg'->>'c1')::numeric = 4 and (public.feedback_summary(:'fcyc', :'e_emp')->'self'->'avg'->>'c3')::numeric = 5,
+  'feedback 360: the direct manager sees the self score and the peers'' average (from 2 answers)');
+reset role;
+delete from public.review_feedback where cycle_id = :'fcyc' and employee_id = :'e_emp';
+\endif
+-- careers page
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.careers_link_get(:'cid') as ctok \gset
+insert into public.job_openings(company_id, title, positions, status, public, requirements) values (:'cid', 'محاسب', 1, 'open', true, 'بكالوريوس محاسبة') returning id as jop \gset
+insert into public.job_openings(company_id, title, positions, status, public) values (:'cid', 'وظيفة داخلية', 1, 'open', false) returning id as jhid \gset
+reset role;
+set role anon;
+select public.careers_view(:'ctok') as cv \gset
+select t.ok(jsonb_array_length(:'cv'::jsonb->'jobs') = 1 and (:'cv'::jsonb->'jobs'->0->>'title') = 'محاسب', 'careers: the private link shows only the published openings');
+select t.ok(public.careers_view('00000000000000000000000000000000') is null, 'careers: a wrong link shows nothing');
+select public.careers_apply(:'ctok', :'jop', 'سارة القحطاني', '0551234567', 'sara@example.com', 'خبرة 3 سنوات', 'cv.pdf', 'application/pdf', 'JVBERi0xLjQK');
+select t.err($$select public.careers_apply('$$ || :'ctok' || $$', '$$ || :'jop' || $$', 'سارة القحطاني', '0551234567', null, null)$$, 'سبق أن تقدّمت', 'careers: one application per phone and opening');
+select t.err($$select public.careers_apply('$$ || :'ctok' || $$', '$$ || :'jhid' || $$', 'أحمد علي', '0559999999', null, null)$$, 'غير متاحة', 'careers: an internal opening cannot be applied for');
+select t.err($$select public.careers_apply('$$ || :'ctok' || $$', '$$ || :'jop' || $$', 'أحمد علي', '0558888888', null, null, 'x.exe', 'application/x-msdownload', 'TVo=')$$, 'PDF أو Word', 'careers: only PDF, Word or image CVs');
+select t.err($$select * from public.candidates$$, 'permission denied', 'careers: visitors cannot read candidates');
+reset role;
+select t.ok((select count(*) from public.candidates c join public.candidate_files f on f.candidate_id = c.id where c.opening_id = :'jop' and c.source = 'careers' and c.stage = 'applied') = 1,
+  'careers: the application lands in the candidates list with its CV');
+delete from public.candidates where opening_id in (:'jop', :'jhid'); delete from public.job_openings where id in (:'jop', :'jhid');
+-- expense policies
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+insert into public.expense_policies(company_id, category, per_claim, monthly, hard) values (:'cid', 'وقود', 500, 800, true), (:'cid', 'ضيافة', 300, null, false);
+reset role;
+select t.err($$insert into public.requests(company_id, employee_id, kind, amount, payload, route, step, status) values ('$$ || :'cid' || $$', '$$ || :'e_emp' || $$', 'expense', 600, '{"cat":"وقود"}', array['m','f'], 0, 'pending')$$,
+  'أعلى من حد المطالبة', 'expense policy: a claim above a blocking limit cannot be sent');
+insert into public.requests(company_id, employee_id, kind, amount, payload, route, step, status) values (:'cid', :'e_emp', 'expense', 450, '{"cat":"ضيافة"}', array['m','f'], 0, 'pending') returning id as ex1 \gset
+insert into public.requests(company_id, employee_id, kind, amount, payload, route, step, status) values (:'cid', :'e_emp', 'expense', 450, '{"cat":"ضيافة"}', array['m','f'], 0, 'pending') returning id as ex2 \gset
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select array_to_string(public.expense_flags(:'ex2'), ' | ') as exf \gset
+reset role;
+select t.ok(:'exf' like '%أعلى من حد المطالبة%' and :'exf' like '%نفس المبلغ والفئة%', 'expense policy: the approver is warned of an over-limit and a repeated claim');
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok(cardinality(public.expense_flags(:'ex2')) = 0, 'expense policy: the employee does not get the approver''s flags');
+reset role;
+delete from public.requests where id in (:'ex1', :'ex2'); delete from public.expense_policies where company_id = :'cid';
+-- workforce plan
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select public.headcount_submit(:'cid', 2027, null, 'مطوّر واجهات', 2, 12000, 3, 'توسع المشروع') as hp \gset
+select t.err($$select public.headcount_decide('$$ || :'hp' || $$', true, null)$$, 'ليس دورك', 'workforce plan: the requesting manager cannot approve it');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.headcount_submit('$$ || :'cid' || $$', 2027, null, 'x x', 1, 1, 1, null)$$, 'لمدراء الأقسام', 'workforce plan: an employee without a team cannot ask for positions');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.ok(public.headcount_decide(:'hp', true, null) = 'hr_ok', 'workforce plan: HR approves first');
+select t.err($$select public.headcount_decide('$$ || :'hp' || $$', true, null)$$, 'ليس دورك', 'workforce plan: then it waits for finance');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.ok(public.headcount_decide(:'hp', true, null) = 'approved', 'workforce plan: finance approves the cost');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.headcount_open(:'hp') as hpo \gset
+reset role;
+select t.ok((select positions = 2 and status = 'open' from public.job_openings where id = :'hpo') and (select status from public.headcount_plans where id = :'hp') = 'hired',
+  'workforce plan: an approved plan becomes a job opening');
+delete from public.headcount_plans where id = :'hp'; delete from public.job_openings where id = :'hpo';
 
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

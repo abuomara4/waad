@@ -78,6 +78,7 @@ html = f'''<!doctype html>
 {r('custom.js')}
 {r('compliance.js')}
 {r('onboarding.js')}
+{r('engage.js')}
 applyLang();
 boot();
 </script>

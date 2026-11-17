@@ -1104,6 +1104,29 @@ with sync_playwright() as pw:
     ok(sql("select count(*) from onboarding_marks where item = 'gosi'") == '1' and 'عقد عمل ساري' in o.inner_text('#dlg'), 'onboarding: a new employee has a checklist; HR ticks GOSI registration')
     o.click('#mok'); o.wait_for_timeout(400)
     sqlx("update employees set hire_date = '%s', probation_end = %s where %s" % (onb_old[0], ("'%s'" % onb_old[1]) if onb_old[1] else 'null', onb_w))
+    # company announcement: posted by HR, shown on the home page
+    go(o, '#/announcements'); o.wait_for_selector('#annn'); o.click('#annn'); o.wait_for_selector('#dlg[open] input[name=title]')
+    o.fill('#dlg input[name=title]', 'اجتماع عام الأحد'); o.fill('#dlg textarea[name=body]', 'اجتماع لكل الموظفين الساعة 10 صباحا'); modal_ok(o); o.wait_for_timeout(600)
+    go(o, '#/home'); o.wait_for_selector('.annc'); ok('اجتماع عام الأحد' in o.inner_text('.annc'), 'announcements: HR posts one and it shows on the home page')
+    # survey: eNPS from a template, answered once
+    go(o, '#/surveys'); o.wait_for_selector('#svn'); o.click('#svn'); o.wait_for_selector('#dlg[open] select[name=kind]'); modal_ok(o); o.wait_for_timeout(700)
+    ok(sql("select count(*) from surveys where kind = 'enps'") == '1', 'surveys: HR publishes an eNPS survey from the template')
+    if o.locator('#page .tw').first.locator('tbody tr[data-row]').count():
+        o.locator('#page .tw').first.locator('tbody tr[data-row]').first.click(); o.wait_for_selector('#dlg[open] .svb'); o.locator('#dlg .svb', has_text='9').first.click(); modal_ok(o); o.wait_for_timeout(700)
+        ok(sql("select count(*) from survey_takers") == '1' and sql("select count(*) from survey_responses where respondent is null") == '1', 'surveys: an answer is recorded once, without the name')
+    # workforce plan and expense policy
+    go(o, '#/workforce'); o.wait_for_selector('#hcn'); o.click('#hcn'); o.wait_for_selector('#dlg[open] input[name=title]'); o.fill('#dlg input[name=title]', 'محاسب أول'); o.fill('#dlg input[name=cost]', '9000'); modal_ok(o); o.wait_for_timeout(600)
+    ok(sql("select count(*) from headcount_plans where title = 'محاسب أول' and status = 'submitted'") == '1', 'workforce plan: a position is requested with its monthly cost')
+    go(o, '#/expensepolicy'); o.wait_for_selector('#epn'); o.click('#epn'); o.wait_for_selector('#dlg[open] input[name=cat]'); o.fill('#dlg input[name=cat]', 'وقود'); o.fill('#dlg input[name=pc]', '500'); modal_ok(o); o.wait_for_timeout(600)
+    ok(sql("select per_claim::int from expense_policies where category = 'وقود'") == '500', 'expense policy: a category with a per-claim limit is saved')
+    # careers page: a published opening, applied for without signing in
+    sqlx("insert into job_openings(company_id, title, positions, status, public) select id, 'أخصائي مبيعات', 1, 'open', true from companies where name = 'شركة وعد التجريبية'")
+    go(o, '#/recruit'); o.wait_for_selector('#crl'); o.click('#crl'); o.wait_for_selector('#dlg[open] #curl'); curl = o.input_value('#dlg #curl'); o.click('#mx')
+    cc = b.new_context(viewport={'width': 390, 'height': 844}, locale='ar-SA'); cc.add_init_script(INIT); cp = cc.new_page()
+    cp.goto(curl.replace('#/careers/', 'waad-app.html#/careers/') if 'waad-app.html' not in curl else curl); cp.wait_for_selector('[data-apply]')
+    ok('أخصائي مبيعات' in cp.inner_text('.portal'), 'careers page: the public link lists the published opening')
+    cp.click('[data-apply]'); cp.wait_for_selector('#dlg[open] input[name=name]'); cp.fill('#dlg input[name=name]', 'نورة الشهري'); cp.fill('#dlg input[name=phone]', '0551112233'); cp.click('#mok'); cp.wait_for_timeout(1200)
+    ok(sql("select count(*) from candidates where full_name = 'نورة الشهري' and source = 'careers' and stage = 'applied'") == '1', 'careers page: the application lands in the candidates list'); cc.close()
     # conditional approval: the GM step only above an amount
     go(o, '#/workflows'); o.wait_for_selector('[data-glim=advance]'); o.fill('[data-glim=advance]', '1000'); o.click('[data-gsave=advance]'); o.wait_for_timeout(800)
     ok(sql("select g_above::int from workflows w join companies c on c.id = w.company_id where c.name = 'شركة وعد التجريبية' and w.kind = 'advance'") == '1000', 'approval paths: the GM approves advances only above 1,000')
@@ -1433,6 +1456,11 @@ with sync_playwright() as pw:
        and 'hello@waad.test' in sp.get_attribute('[data-c=mail]', 'href'), 'website shows the contact details and notice bar set in the admin site')
     ok(sp.locator('.faq details').count() >= 1 and 'هل فيه دعم فني؟' in sp.inner_text('.faq'), 'website shows the FAQ set in the admin site')
     ok(int(sql("coalesce((select sum(visits) from site_stats where page='contact' and source='whatsapp'),0)")) == before + 1, 'website counts a visit with its source (no cookie)')
+    sp.goto('file://' + os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'site', 'tools.html'))); sp.wait_for_selector('#teos .trow')
+    sp.fill('#teos input[name=wage]', '10000'); sp.fill('#teos input[name=start]', '2020-01-01'); sp.fill('#teos input[name=end]', '2022-12-31'); sp.select_option('#teos select[name=reason]', 'resign'); sp.wait_for_timeout(200)
+    ok('5,005.00' in sp.inner_text('#teos .tout') and '33%' in sp.inner_text('#teos .tout'), 'website tools: resignation after 3 years = one third of half a month per year (Art. 85)')
+    sp.fill('#tgosi input[name=basic]', '8000'); sp.fill('#tgosi input[name=housing]', '2000'); sp.fill('#tgosi input[name=first]', '2020-01-01'); sp.wait_for_timeout(200)
+    ok('975.00' in sp.inner_text('#tgosi .tout') and '1,175.00' in sp.inner_text('#tgosi .tout'), 'website tools: GOSI 9.75% / 11.75% for a Saudi registered before July 2024')
     ok(not sp.errors, 'no JS errors on the website %s' % sp.errors[:2]); sp.context.close()
     # announcements: posted in the admin site, shown above every screen of the system until closed
     go(pp, '#/news'); pp.wait_for_selector('#annadd'); pp.click('#annadd'); pp.wait_for_selector('#dlg textarea[name=body_ar]')

@@ -34,6 +34,7 @@ VIEWS['#/home'] = async page => {
   // owners and finance hold the keys to payroll and money: nudge them to turn on two-step verification
   const mfaNote = has('owner', 'admin', 'finance') && S.mfa && !S.mfa.enrolled ? `<div class="note">${esc(tr('احمِ حسابك: فعّل التحقق بخطوتين حتى لا تكفي كلمة المرور وحدها للدخول.'))} <button class="btn sm" id="mfan">${esc(tr('تفعيل الآن'))}</button></div>` : '';
   page.innerHTML = `<div class="head"><div><h1>أهلا${S.myEmp ? '، ' + esc(S.myEmp.full_name.split(' ')[0]) : ''}</h1><div class="muted">${esc(S.company.name)}</div></div>${isHR() || has('finance') ? `<a class="btn" href="#/hrdash">${esc(tr('لوحة الموارد البشرية'))}</a>` : ''}</div>${homeTasks([setup, mfaNote, nudge, inst])}${polNote}<div class="grid">${cards.join('')}</div>`;
+  if (typeof annHome === 'function') annHome(page).catch(() => {});
   if ($('#instb', page)) $('#instb', page).onclick = installApp;
   if ($('#instx', page)) $('#instx', page).onclick = () => { LS.set('waad.instx', 1); $('#instg', page).remove(); };
   if ($('#setupx', page)) $('#setupx', page).onclick = () => { LS.set('waad.setupdone', 1); const g = $('#setupg', page); if (g) g.remove(); };
@@ -52,7 +53,9 @@ async function leaveBalance() {
 const LEAVE_TYPES = async () => cache.lt || (cache.lt = await db.get('leave_types', { order: 'code' }));
 VIEWS['#/requests'] = async page => {
   if (!S.emp) { page.innerHTML = '<div class="note">حسابك غير مربوط بسجل موظف.</div>'; return; }
-  const [rs, bal, cpr] = await Promise.all([db.get('requests', { employee_id: 'eq.' + S.emp, order: 'created_at.desc' }), leaveBalance(), db.rpc('my_purchase_allowed', { p_company: S.cid }).catch(() => false)]);
+  const [rs, bal, cpr, ecats] = await Promise.all([db.get('requests', { employee_id: 'eq.' + S.emp, order: 'created_at.desc' }), leaveBalance(), db.rpc('my_purchase_allowed', { p_company: S.cid }).catch(() => false),
+    db.get('expense_policies', { company_id: 'eq.' + S.cid, select: 'category,per_claim' }).catch(() => [])]);
+  S.ecats = ecats;
   S.canPR = cpr === true;
   const lt = await LEAVE_TYPES(); const ltn = {}; lt.forEach(l => ltn[l.code] = l.name_ar);
   page.innerHTML = `<div class="head"><div><h1>طلباتي</h1><div class="muted">رصيد الإجازة السنوية المتراكم: <b class="num">${bal.left}</b> يوما · الاستحقاق ${bal.ent} يوما في السنة (م109)</div></div><button class="btn pri" id="nr">طلب جديد</button></div>
@@ -100,6 +103,7 @@ function newRequest(lt) {
     <div data-k="purchase">${field('مطلوب بتاريخ', `<input type="date" name="pneed" min="${today()}">`)}</div>
     <div data-k="purchase" class="wide"><p class="muted small" style="margin:0">${esc(tr('يمر الطلب على مديرك ثم المالية ثم المدير العام، وبعد اعتماده يصدر قسم المشتريات أمر الشراء. اكتب الغرض في الملاحظات.'))}</p></div>
     <div data-k="advance expense">${field('المبلغ', `<input name="amount" type="number" step="0.01" min="0">`)}</div>
+    <div data-k="expense">${field('فئة المصروف', `<select name="ecat"><option value="">${esc(tr('عام'))}</option>${(S.ecats || []).map(c => opt(c.category, c.category + (c.per_claim ? ' — ' + tr('حتى') + ' ' + c.per_claim : ''), '')).join('')}</select>`)}</div>
     <div data-k="advance">${field('عدد الأقساط', `<input name="inst" type="number" min="1" max="24" value="1">`)}</div>
     <div data-k="advance" class="wide"><p class="muted small" id="advh" style="margin:0"></p></div>
     <div data-k="resign" class="wide"><div class="note">حسب المادة 79 مكرر: لا يُحدد للاستقالة تاريخ مؤجل، وتنتهي العلاقة من تاريخ قبولها. وإذا لم يُرد عليها خلال 30 يوما تُعد مقبولة. ويحق لك العدول عنها خلال 7 أيام من تقديمها. تبقى ملتزما بالعمل خلال هذه المدة.</div></div>
@@ -121,7 +125,7 @@ function newRequest(lt) {
       if (k === 'purchase') { const ls = $$('#prl tr').map(tr => ({ desc: $('[data-p=d]', tr).value.trim(), qty: +$('[data-p=q]', tr).value, price: +($('[data-p=p]', tr).value || 0) })).filter(l => l.desc);
         if (!ls.length) throw new Error('أضف بندا واحدا على الأقل'); if (ls.some(l => !(l.qty > 0))) throw new Error('الكمية أكبر من صفر');
         Object.assign(a, { p_from: blank(f.pneed), p_payload: { lines: ls } }); }
-      if (k === 'advance' || k === 'expense') { if (!(+f.amount > 0)) throw new Error('أدخل المبلغ'); a.p_amount = +f.amount; if (k === 'advance') a.p_payload = { inst: +f.inst || 1 }; }
+      if (k === 'advance' || k === 'expense') { if (!(+f.amount > 0)) throw new Error('أدخل المبلغ'); a.p_amount = +f.amount; if (k === 'advance') a.p_payload = { inst: +f.inst || 1 }; if (k === 'expense' && f.ecat) a.p_payload = { cat: f.ecat }; }
       await db.rpc('submit_request', a); toast('أُرسل الطلب'); route();
     }
   });
@@ -165,7 +169,7 @@ async function requestDetail(r, { decide } = {}) {
     ${r.payload && r.payload.event_date ? `<p class="muted small">تاريخ الواقعة: ${fdate(r.payload.event_date)}</p>` : ''}
     ${r.payload && r.payload.exam_mode ? `<p class="muted small">${esc(EXAM_MODE[r.payload.exam_mode] || '')}${r.payload.exam_missed ? ' — <span class="bad">' + esc('لم يؤدِّ الامتحان: حُوّلت إلى إجازة بدون أجر (م115)') + '</span>' : ''}</p>` : ''}
     ${r.payload && r.payload.defer_until ? `<div class="note">${esc('أُجّل قبول الاستقالة لمصلحة العمل حتى')} <b class="num">${fdate(r.payload.defer_until)}</b> (${esc('م79 مكرر')}) — ${esc(r.payload.defer_reason || '')}</div>` : ''}
-    ${r.note ? `<p>${esc(r.note)}</p>` : ''}
+    ${r.note ? `<p>${esc(r.note)}</p>` : ''}${r.kind === 'expense' && typeof expenseInfo === 'function' ? await expenseInfo(r, decide) : ''}
     ${!atts.length && !canAttach && lt.find(l => l.code === r.sub && l.doc_label) ? `<p class="muted small">${esc(tr('المرفق المطلوب') + ': ' + docLabel(lt.find(l => l.code === r.sub)))} — ${esc('تراه الموارد البشرية فقط')}</p>` : ''}
     ${atts.length || canAttach || (r.payload && r.payload.doc_ref) ? `<div class="card" style="margin:10px 0;padding:10px 12px"><b class="small">${esc('المرفقات')}</b>${r.payload && r.payload.doc_ref ? `<div class="small" style="margin-top:4px">${esc(refLabel(lt.find(l => l.code === r.sub) || {}) || tr('رقم المستند'))}: <b class="num" data-nt>${esc(r.payload.doc_ref)}</b>${r.sub === 'sick' && isHR() ? ` — <a href="https://www.seha.sa" target="_blank" rel="noopener">${esc('تحقق منه في منصة صحة')}</a>` : ''}</div>` : ''}${atts.length ? atts.map(x => `<div class="row small" style="justify-content:space-between;margin-top:6px"><span><span class="badge">${x.mime === 'application/pdf' ? 'PDF' : esc('صورة')}</span> ${esc(x.file_name)} <span class="muted num">${Math.ceil(x.size / 1024)} KB</span></span><button type="button" class="btn sm" data-att="${x.id}">${esc('عرض')}</button></div>`).join('') : `<p class="muted small" style="margin:6px 0 0">${esc('لا توجد مرفقات ظاهرة لك')}</p>`}
       ${canAttach ? `<div class="row" style="margin-top:8px"><label class="btn sm">${esc('إضافة مرفق')}<input type="file" id="ratt" multiple accept="image/*,application/pdf" hidden></label>${(lt.find(l => l.code === r.sub) || {}).ref_label ? `<button type="button" class="btn sm" id="rref">${esc(r.payload && r.payload.doc_ref ? 'تعديل رقم المستند' : 'إضافة رقم المستند')}</button>` : ''}</div>` : ''}</div>` : ''}

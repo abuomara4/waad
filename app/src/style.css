@@ -406,3 +406,6 @@ button,input,select,textarea,optgroup{font-family:inherit}
 .cmc{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;border-inline-start:4px solid var(--line)}
 .cmc.ok{border-inline-start-color:var(--ok,#1f9d55)}.cmc.warn{border-inline-start-color:#d98e04}.cmc.bad{border-inline-start-color:var(--bad)}.cmc.info{border-inline-start-color:#3b82f6}
 .cmc .v{font-size:26px;font-weight:700}.cmc .cml{color:var(--muted,#6b7280);margin-top:auto}.cmc:hover{box-shadow:0 8px 20px -14px rgba(20,32,57,.4)}
+
+/* surveys / 360 answer buttons (engage.js) */
+.svb{position:relative;cursor:pointer}.svb input{position:absolute;opacity:0;inset:0}.svb span{display:inline-flex;min-width:34px;height:34px;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:8px;padding:0 6px}.svb input:checked+span{background:var(--pri,#1e3a8a);color:#fff;border-color:transparent}.svb input:focus-visible+span{outline:2px solid var(--pri,#1e3a8a)}

@@ -489,6 +489,7 @@ async function boot() {
   if (link && link.error) return authView('in', link.error);
   if (link && link.type === 'recovery') return changePasswordView('recovery');
   if (typeof portalToken === 'function' && portalToken()) return portalView(portalToken());   // a customer's private link: no sign-in
+  if (typeof careersToken === 'function' && careersToken()) return careersView(careersToken());   // the company's public careers page: no sign-in
   if (!S.session) return legalHash() ? legalView(legalHash()) : authView(startTab());
   try {
     // startup calls that do not depend on each other go out together (each round trip to the server costs ~0.2 s)
@@ -535,11 +536,11 @@ const profileRow = f => Object.assign({ owner_phone: (f.owner_phone || '').repla
   'city' in f ? { city: (f.city || '').trim() || null } : {});
 const MODULES = { hr: 'الموارد البشرية', finance: 'المالية والمحاسبة', sales: 'المبيعات', purch: 'المشتريات', stock: 'المخزون', proj: 'المشاريع' };
 const MOD_ROUTES = {
-  hr: ['hrdash', 'compliance', 'onboarding', 'employees', 'grades', 'insurance', 'trainplan', 'docs', 'att', 'attendance', 'roster', 'policies', 'leavecal', 'penalties', 'payroll', 'payslips', 'eos', 'nitaqat', 'travel', 'workflows', 'clearance', 'reviews', 'recruit', 'training', 'hrreports', 'org', 'letter', 'path', 'profile', 'requests'],
+  hr: ['hrdash', 'compliance', 'onboarding', 'announcements', 'surveys', 'workforce', 'employees', 'grades', 'insurance', 'trainplan', 'docs', 'att', 'attendance', 'roster', 'policies', 'leavecal', 'penalties', 'payroll', 'payslips', 'eos', 'nitaqat', 'travel', 'workflows', 'clearance', 'reviews', 'recruit', 'training', 'hrreports', 'org', 'letter', 'path', 'profile', 'requests'],
   sales: ['quotes', 'orders', 'deliveries', 'sales', 'crm', 'marketing'],
   purch: ['purchreq', 'porders', 'receipts', 'purchases', 'rfq'],
   stock: ['items', 'warehouses', 'transfers', 'counts', 'expiry', 'reorder', 'serials'],
-  finance: ['payments', 'journal', 'reports', 'coa', 'bankrec', 'cheques', 'petty', 'mypetty', 'currencies', 'opening', 'assets', 'costcenters', 'budgets', 'periods'],
+  finance: ['expensepolicy', 'payments', 'journal', 'reports', 'coa', 'bankrec', 'cheques', 'petty', 'mypetty', 'currencies', 'opening', 'assets', 'costcenters', 'budgets', 'periods'],
   proj: ['projects'] };
 function routeModule(h) {
   const p = String(h || '').split('?')[0].split('/'), r = p[1] || '';
@@ -574,7 +575,7 @@ function navItems() {
   if (typeof GUIDE !== 'undefined') it.push({ h: '#/guide', t: 'دليل الاستخدام' });
   if (isHR() || isFin() || has('manager')) it.push({ h: '#/analytics', t: 'التحليلات' });
   if (S.emp) { g('خدماتي'); if (S.company && S.company.att_enabled && !(S.myEmp && S.myEmp.att_exempt)) it.push({ h: '#/attendance', t: 'حضوري' });
-    it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/sign', t: 'توقيعاتي', pill: NAVC.sign }, { h: '#/payslips', t: 'قسائم الراتب' }, { h: '#/reviews', t: 'تقييم الأداء' }, { h: '#/profile', t: 'ملفي' });
+    it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/sign', t: 'توقيعاتي', pill: NAVC.sign }, { h: '#/payslips', t: 'قسائم الراتب' }, { h: '#/reviews', t: 'تقييم الأداء' }, { h: '#/surveys', t: 'الاستبيانات' }, { h: '#/profile', t: 'ملفي' });
     if (S.hasPetty) it.push({ h: '#/mypetty', t: 'عهدتي النقدية' });
     if (!isHR()) it.push({ h: '#/policies', t: 'السياسات واللوائح' });
     const ov = (S.company && S.company.org_visibility) || 'all';
@@ -585,7 +586,9 @@ function navItems() {
   if (has('manager') && !(isHR() || has('finance'))) it.push({ h: '#/clearance', t: 'إخلاء الطرف' });
   if (isHR() || has('finance')) {
     g('الموارد البشرية');
-    if (isHR()) it.push({ h: '#/hrdash', t: 'لوحة الموارد البشرية' }, { h: '#/compliance', t: 'الامتثال' }, { h: '#/onboarding', t: 'التهيئة والترحيب' });
+    if (isHR()) it.push({ h: '#/hrdash', t: 'لوحة الموارد البشرية' }, { h: '#/compliance', t: 'الامتثال' }, { h: '#/onboarding', t: 'التهيئة والترحيب' }, { h: '#/announcements', t: 'الإعلانات الداخلية' });
+    if (isHR() && !S.emp) it.push({ h: '#/surveys', t: 'الاستبيانات' });
+    if (isHR() || has('finance')) it.push({ h: '#/workforce', t: 'خطة القوى العاملة' });
     if (isHR()) it.push({ h: '#/employees', t: 'الموظفون' }, { h: '#/docs', t: 'المستندات والعقود', pill: NAVC.docs });
     if (isHR()) it.push({ h: '#/org', t: 'الهيكل التنظيمي' });
     if (isHR()) it.push({ h: '#/att', t: 'الحضور والانصراف' });
@@ -601,7 +604,7 @@ function navItems() {
     if (isHR()) it.push({ h: '#/recruit', t: 'التوظيف' }, { h: '#/training', t: 'التدريب' }, { h: '#/trainplan', t: 'خطة التدريب السنوية' }, { h: '#/grades', t: 'الدرجات الوظيفية' }, { h: '#/insurance', t: 'التأمين الطبي' });
     it.push({ h: '#/hrreports', t: 'تقارير الموارد البشرية' });
   }
-  if (has('manager') && !isHR()) { g('فريقي'); it.push({ h: '#/att', t: 'حضور الفريق' }, { h: '#/leavecal', t: 'تقويم الإجازات' }); }
+  if (has('manager') && !isHR()) { g('فريقي'); it.push({ h: '#/att', t: 'حضور الفريق' }, { h: '#/leavecal', t: 'تقويم الإجازات' }); if (!has('finance')) it.push({ h: '#/workforce', t: 'خطة القوى العاملة' }); }
   if (isFin() && (can('sales') || can('stock') || can('mkt'))) {
     g('المبيعات');
     if (can('sales') || can('mkt')) it.push({ h: '#/crm', t: 'الفرص والعملاء المحتملون' }, { h: '#/marketing', t: 'التسويق والحملات' });
@@ -717,7 +720,7 @@ const NI = { home: 'M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z', 
   gear: 'M4 6h9M17 6h3M15 4v4M4 12h3M11 12h9M9 10v4M4 18h11M19 18h1M17 16v4', star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z', grad: 'M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5',
   search: 'M11 4a7 7 0 1 0 0 14a7 7 0 0 0 0-14zM21 21l-5-5', truck: 'M2 6h11v10H2zM13 9h4l4 4v3h-8M6 19a2 2 0 1 0 0-.01M17 19a2 2 0 1 0 0-.01', swap: 'M4 8h14l-3-3M20 16H6l3 3' };
 const NAV_IC = { home: 'home', analytics: 'chart', attendance: 'clock', att: 'clock', requests: 'doc', payslips: 'money', reviews: 'star', profile: 'user', policies: 'book', org: 'org', approvals: 'check', clearance: 'shield',
-  hrdash: 'chart', compliance: 'shield', onboarding: 'users', employees: 'users', docs: 'doc', roster: 'cal', leavecal: 'cal', penalties: 'shield', payroll: 'money', eos: 'money', nitaqat: 'chart', travel: 'plane', workflows: 'flow', recruit: 'search', training: 'grad',
+  hrdash: 'chart', compliance: 'shield', onboarding: 'users', announcements: 'doc', surveys: 'chart', workforce: 'users', expensepolicy: 'money', employees: 'users', docs: 'doc', roster: 'cal', leavecal: 'cal', penalties: 'shield', payroll: 'money', eos: 'money', nitaqat: 'chart', travel: 'plane', workflows: 'flow', recruit: 'search', training: 'grad',
   hrreports: 'chart', forms: 'doc', crm: 'users', rfq: 'doc', serials: 'check', grades: 'chart', insurance: 'shield', trainplan: 'cal', platform: 'gear', sales: 'cart', quotes: 'doc', orders: 'cart', deliveries: 'truck', purchreq: 'doc', porders: 'box', receipts: 'truck', warehouses: 'box', transfers: 'swap', counts: 'check', expiry: 'cal', reorder: 'cart', parties: 'users', purchases: 'box', payments: 'swap', items: 'box', journal: 'book', reports: 'chart', coa: 'book', bankrec: 'check', cheques: 'doc', petty: 'money', mypetty: 'money', currencies: 'swap', opening: 'book', assets: 'box', costcenters: 'org', budgets: 'chart', periods: 'shield', users: 'users', settings: 'gear' };
 const navIcon = h => `<svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="${NI[NAV_IC[h.split('/')[1]]] || NI.doc}"/></svg>`;
 function drawNav() {

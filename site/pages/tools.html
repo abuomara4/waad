@@ -1,0 +1,76 @@
+<div class="phero"><div class="wrap"><h1><span class="ar">أدوات مجانية للموارد البشرية</span><span class="en">Free HR tools</span></h1><p><span class="ar">احسب مكافأة نهاية الخدمة واشتراكات التأمينات ونسبة التوطين وفق الأنظمة السعودية، بنفس طريقة الحساب في نظام وعد</span><span class="en">Calculate end-of-service, GOSI contributions and the Saudization ratio under Saudi rules, the same way Waad does</span></p></div></div>
+
+<section>
+  <div class="wrap">
+    <div class="grid g3 tools">
+      <form class="card tool" id="teos" onsubmit="return false">
+        <h3><span class="ar">مكافأة نهاية الخدمة</span><span class="en">End-of-service award</span></h3>
+        <p class="small"><span class="ar">نظام العمل، المواد 84 و85</span><span class="en">Labor Law, Articles 84 and 85</span></p>
+        <label><span class="ar">آخر أجر شهري (الأساسي والبدلات الثابتة)</span><span class="en">Last monthly wage (basic and fixed allowances)</span><input type="number" name="wage" min="0" step="0.01" value="10000"></label>
+        <label><span class="ar">تاريخ المباشرة</span><span class="en">Start date</span><input type="date" name="start" value="2019-01-01"></label>
+        <label><span class="ar">تاريخ انتهاء الخدمة</span><span class="en">End date</span><input type="date" name="end"></label>
+        <label><span class="ar">سبب الانتهاء</span><span class="en">Reason</span><select name="reason">
+          <option value="employer">إنهاء من صاحب العمل أو انتهاء العقد · Employer / contract end</option>
+          <option value="resign">استقالة · Resignation</option>
+          <option value="art80">فصل وفق المادة 80 · Dismissal under Art. 80</option></select></label>
+        <div class="tout" aria-live="polite"></div>
+      </form>
+      <form class="card tool" id="tgosi" onsubmit="return false">
+        <h3><span class="ar">اشتراكات التأمينات الاجتماعية</span><span class="en">GOSI contributions</span></h3>
+        <p class="small"><span class="ar">الأجر الخاضع = الأساسي + السكن، بين 1,500 و45,000</span><span class="en">Contribution wage = basic + housing, between 1,500 and 45,000</span></p>
+        <label><span class="ar">الراتب الأساسي</span><span class="en">Basic salary</span><input type="number" name="basic" min="0" step="0.01" value="8000"></label>
+        <label><span class="ar">بدل السكن</span><span class="en">Housing allowance</span><input type="number" name="housing" min="0" step="0.01" value="2000"></label>
+        <label><span class="ar">الجنسية</span><span class="en">Nationality</span><select name="saudi"><option value="1">سعودي · Saudi</option><option value="0">غير سعودي · Non-Saudi</option></select></label>
+        <label><span class="ar">تاريخ أول تسجيل في التأمينات</span><span class="en">First GOSI registration date</span><input type="date" name="first" value="2020-01-01"></label>
+        <div class="tout" aria-live="polite"></div>
+      </form>
+      <form class="card tool" id="tnit" onsubmit="return false">
+        <h3><span class="ar">نسبة التوطين (تقدير)</span><span class="en">Saudization ratio (estimate)</span></h3>
+        <p class="small"><span class="ar">السعودي بأجر 4,000 فأكثر يُحتسب موظفا كاملا، ومن 3,000 نصف موظف</span><span class="en">A Saudi paid 4,000+ counts as one, from 3,000 as half</span></p>
+        <label><span class="ar">إجمالي العاملين</span><span class="en">Total employees</span><input type="number" name="total" min="1" value="20"></label>
+        <label><span class="ar">سعوديون بأجر 4,000 فأكثر</span><span class="en">Saudis paid 4,000+</span><input type="number" name="full" min="0" value="4"></label>
+        <label><span class="ar">سعوديون بأجر من 3,000 إلى أقل من 4,000</span><span class="en">Saudis paid 3,000 to under 4,000</span><input type="number" name="half" min="0" value="2"></label>
+        <label><span class="ar">النسبة المطلوبة لنطاقك من منصة قوى %</span><span class="en">Required ratio for your band from Qiwa %</span><input type="number" name="need" min="0" max="100" step="0.1" value="30"></label>
+        <div class="tout" aria-live="polite"></div>
+      </form>
+    </div>
+    <p class="small" style="text-align:center;margin-top:18px"><span class="ar">نتائج تقديرية للاسترشاد، والمرجع الرسمي هو الجهات المختصة (وزارة الموارد البشرية، التأمينات الاجتماعية، منصة قوى).</span><span class="en">Estimates for guidance only; the official reference is the relevant authorities (MHRSD, GOSI, Qiwa).</span></p>
+    <p style="text-align:center"><a class="btn gold" href="app/?start=signup"><span class="ar">احسبها لكل موظفيك تلقائيا: جرّب وعد مجانا</span><span class="en">Calculate them for all your staff automatically: try Waad free</span></a></p>
+  </div>
+</section>
+
+<script>
+(function () {
+  var ar = function () { return document.documentElement.lang !== 'en'; };
+  var fmt = function (n) { return Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+  var row = function (a, e, v) { return '<div class="trow"><span>' + (ar() ? a : e) + '</span><b class="num">' + v + '</b></div>'; };
+  // the same rules as Waad: eos_fraction / eos_calc (Art. 84, 85, 80)
+  function eos() {
+    var f = document.getElementById('teos'), w = +f.wage.value || 0, s = new Date(f.start.value), e = new Date(f.end.value || new Date().toISOString().slice(0, 10)), r = f.reason.value;
+    if (!f.end.value) f.end.value = new Date().toISOString().slice(0, 10);
+    if (!(e >= s)) { f.querySelector('.tout').innerHTML = row('تاريخ الانتهاء قبل المباشرة', 'End date is before the start', '—'); return; }
+    var y = (Math.round((e - s) / 864e5) + 1) / 365, full = y <= 5 ? w / 2 * y : w / 2 * 5 + w * (y - 5);
+    var fr = r === 'art80' ? 0 : r === 'resign' ? (y < 2 ? 0 : y < 5 ? 1 / 3 : y < 10 ? 2 / 3 : 1) : 1;
+    f.querySelector('.tout').innerHTML = row('مدة الخدمة (سنة)', 'Service (years)', y.toFixed(2)) + row('المكافأة الكاملة', 'Full award', fmt(full))
+      + row('النسبة المستحقة', 'Entitled share', Math.round(fr * 100) + '%') + row('المكافأة المستحقة', 'Award due', fmt(Math.round(full * fr)));
+  }
+  // gosi_base / gosi_rate / gosi_annuity: 9% annuity (+0.5 each 3 July 2025–2028 for those first registered from 3 July 2024), SANED 0.75%, occupational hazards 2% on the employer
+  function gosi() {
+    var f = document.getElementById('tgosi'), base = Math.min(Math.max((+f.basic.value || 0) + (+f.housing.value || 0), 1500), 45000), sa = f.saudi.value === '1';
+    var now = new Date(), isNew = f.first.value && new Date(f.first.value) >= new Date('2024-07-03');
+    var ann = !isNew ? 9 : 9 + 0.5 * ['2025-07-03', '2026-07-03', '2027-07-03', '2028-07-03'].filter(function (d) { return now >= new Date(d); }).length;
+    var emp = sa ? base * (ann + 0.75) / 100 : 0, er = base * (sa ? ann + 0.75 + 2 : 2) / 100;
+    f.querySelector('.tout').innerHTML = row('الأجر الخاضع للاشتراك', 'Contribution wage', fmt(base)) + row('حصة الموظف', 'Employee share', fmt(emp) + (sa ? ' (' + (ann + 0.75) + '%)' : ''))
+      + row('حصة صاحب العمل', 'Employer share', fmt(er) + ' (' + (sa ? ann + 2.75 : 2) + '%)') + row('الإجمالي الشهري', 'Monthly total', fmt(emp + er));
+  }
+  // nitW / nitNeed in Waad
+  function nit() {
+    var f = document.getElementById('tnit'), T = Math.max(+f.total.value || 0, 1), W = (+f.full.value || 0) + 0.5 * (+f.half.value || 0), p = W / T * 100, need = (+f.need.value || 0) / 100;
+    var add = W / T >= need ? 0 : Math.max(0, Math.ceil((need * T - W) / (1 - need) - 1e-9));
+    f.querySelector('.tout').innerHTML = row('نسبة التوطين المحتسبة', 'Counted ratio', p.toFixed(1) + '%')
+      + row('لبلوغ النسبة المطلوبة: سعوديون إضافيون بأجر 4,000 فأكثر', 'To reach it: extra Saudis paid 4,000+', add);
+  }
+  ['teos', 'tgosi', 'tnit'].forEach(function (id) { var f = document.getElementById(id), fn = { teos: eos, tgosi: gosi, tnit: nit }[id]; f.addEventListener('input', fn); f.addEventListener('change', fn); fn(); });
+  var lg = document.getElementById('lg'); if (lg) lg.addEventListener('click', function () { setTimeout(function () { eos(); gosi(); nit(); }, 0); });
+})();
+</script>

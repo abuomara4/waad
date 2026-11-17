@@ -1,4 +1,5 @@
 + حقل	+ Field
++ فئة	+ Category
 + فاتورة متكررة	+ Recurring invoice
 @ إشارة إلى زميل	@ Mention a colleague
 PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Word or image — up to 3 MB per file
@@ -25,10 +26,12 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 آخر نشاط	Last activity
 آخر يوم	Last day
 آخر يوم عمل	Last working day
+آراء الزملاء لا تظهر بأسمائهم	peers' opinions are not shown with their names
 آلات	machines
 أبها	Abha
 أثاث	furniture
 أثاث مكتبي	Office furniture
+أجب على كل الأسئلة المرقمة	Answer all the numbered questions
 أجب عن الأسئلة	Answer the questions
 أجب عن كل الأسئلة	Answer every question
 أجبت عن كل الأسئلة إجابة صحيحة	you answered every question correctly
@@ -63,6 +66,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أدخل اسم الوردية	Enter the shift name
 أدخل الإحداثيات أو استخدم موقعك الحالي	Enter the coordinates or use your current location
 أدخل الاسم الكامل	Enter the full name
+أدخل التكلفة الشهرية	Enter the monthly cost
 أدخل الراتب الأساسي	Enter the basic salary
 أدخل الرقم الوظيفي	Enter the employee number
 أدخل الرمز	Enter the code
@@ -197,6 +201,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أضف حقولا خاصة بمنشأتك لملف الموظف أو بطاقة العميل والمورد أو الصنف، مثل: فصيلة الدم، رقم رخصة القيادة، المنطقة، لون المنتج.	Add your company's own fields to the employee file, the customer/supplier card or the item, e.g. blood type, driving licence number, region, product colour.
 أضف خيارا واحدا على الأقل	Add at least one option
 أضف سؤالا	Add a question
+أضف سؤالا واحدا على الأقل	Add at least one question
 أضف سؤالاً	Add a question
 أضف سجلات الموظفين ورواتبهم ومديريهم المباشرين	Add employee records, salaries and direct managers
 أضف سطرا لكل مستند آخر للموظف نفسه	add a row for every other document of the same employee
@@ -236,6 +241,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أعلى راتب أساسي	Maximum basic salary
 أعلى راتب أقل من أدناه	The maximum is below the minimum
 أعلى عدد لخطأ واحد	most for a single error
+أعلى من الحد الشهري	above the monthly limit
+أعلى من حد المطالبة	Above the per-claim limit
 أعمار الذمم	Receivables and payables aging
 أعمار الذمم الدائنة	AP aging
 أعمار الذمم المدينة	AR aging
@@ -337,11 +344,13 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أو لمن وصلته دعوة بالبريد من الإدارة	or for someone invited by email by management
 أو ما يرفع الرصيد إلى ضعف الحد	or what brings stock to twice the level
 أو مبلغ ثابت يضاف للأساسي	Or a fixed amount added to basic
+أوافق تماما	strongly agree
 أوافق على	I agree to the
 أوافق على حفظ بيانات منشأتي وموظفيها وعملائها لدى مزوّد سحابي خارج المملكة	I agree that the data of my company, its employees and customers is stored with a cloud provider outside the Kingdom
 أوامر البيع	Sales orders
 أوامر الشراء	Purchase orders
 أوزبكي	Uzbek
+أوصي بشدة	highly recommend
 أوغندي	Ugandan
 أوقفها أولا ثم احذفها	suspend it first, then delete it
 أول	First
@@ -392,6 +401,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أُرسل للمالك التنبيهان	The owner got both notices
 أُرسل للمالك التنبيهان: قبل ٣٠ يوما وقبل ٧ أيام.	The owner got both notices: 30 days and 7 days before.
 أُرسلت التسوية	Settlement sent
+أُرسلت طلبات التقييم	Review requests sent
 أُرفق المستند	Document attached
 أُرفق مستند	Document attached
 أُزيل المستخدم	User removed
@@ -426,6 +436,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إتمام البيع	Complete sale
 إتمام التسوية	Complete reconciliation
 إثيوبي	Ethiopian
+إجابات على الأقل	answers at least
+إجابات على الأقل حفاظا على سرية المشاركين	answers at least, to protect the participants' privacy
+إجاباتك مجهولة الهوية	Your answers are anonymous
 إجازات بدون أجر تجاوزت	unpaid leave beyond
 إجازة	Leave
 إجازة اختبارات	Exam leave
@@ -505,6 +518,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إرسال التسوية	Send settlement
 إرسال الرمز لبريدي	Email the code to me
 إرسال الطلب	Send request
+إرسال بالبريد	Send by e-mail
 إرسال رمز المنشأة لبريدي	Email the company code to me
 إرسال طلب التوقيع	Send the signature request
 إرسال للاعتماد	Send for approval
@@ -593,9 +607,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إعدادات المالية	Finance settings
 إعدادات المنشآت الجديدة	Settings for new companies
 إعدادات المنشأة	Company settings
+إعلان	announcement
 إعلان جديد	New announcement
 إعلانات جوجل	Google Ads
 إغلاق	Close
+إغلاق الاستبيان	Close the survey
 إغلاق الباقي	Close remainder
 إغلاق الدورة	Close cycle
 إغلاق باقي الأمر	Close the rest of the order
@@ -839,6 +855,12 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 استئذان	Permission
 استبعاد أصل ثابت	Fixed asset disposal
 استبعده من التأمينات	remove from GOSI
+استبيان	survey
+استبيان الانضمام	Onboarding survey
+استبيان المغادرة	Exit survey
+استبيان بانتظار رأيك	A survey is waiting for your opinion
+استبيان جديد	New survey
+استبيان مخصص	Custom survey
 استجواب شفهي	Oral questioning
 استحقاق التذكرة	Ticket entitlement
 استحقاق رواتب	Payroll accrual
@@ -971,6 +993,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اطلبها من مالك المنصة	ask the platform owner for it
 اطّلع	Acknowledged
 اطّلع الموظف في	The employee acknowledged on
+اطّلع عليه	Read by
 اطّلع وأرسل ردك الكتابي	review it and send your written reply
 اطّلعت	Acknowledged
 اطّلعت على التقييم	I have read the review
@@ -1030,11 +1053,13 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اكتب اسم الحقل	Write the field name
 اكتب اسم العملة	Enter the currency name
 اكتب اسم العهدة	Enter the item name
+اكتب اسم الفئة	Write the category name
 اكتب اسم المستند	Write the document name
 اكتب اسم المستند الآخر	Enter the name of the other document
 اكتب اسم المنشأة كما هو للتأكيد	Type the company name exactly to confirm
 اكتب اسم الوحدة وكم تساوي من الوحدة الأساسية	Type the unit name and how many base units it equals
 اكتب اسما جديدا	type a new name
+اكتب اسمك الكامل	Write your full name
 اكتب الرد	Write the reply
 اكتب الرد أولا	Write the reply first
 اكتب الرد أولاً	Write the reply first
@@ -1130,6 +1155,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الأرصدة غير متوازنة	Balances do not balance
 الأرقام التسلسلية	Serial numbers
 الأرقام التسلسلية للأصناف المخزنية فقط	Serial numbers are for stock items only
+الأسئلة	Questions
 الأسئلة الشائعة	Common questions
 الأساسي	Basic
 الأسباب	Grounds
@@ -1169,6 +1195,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الأول سابقاً	formerly Alawwal
 الأولى	first
 الأيام	Days
+الإجابات غير مكتملة	The answers are incomplete
 الإجازات المعتمدة في	Approved leave in
 الإجازات المعتمدة وتحت الاعتماد	approved and pending leave
 الإجازات حسب النوع	Leave by type
@@ -1200,8 +1227,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الإضافي المعتمد بين	Approved overtime must be between
 الإضافي لا يُحتسب إلا بعد اعتماده	Overtime counts only once approved
 الإعدادات	Settings
+الإعلان	Announcement
 الإعلان غير موجود	Announcement not found
 الإعلانات	Announcements
+الإعلانات الداخلية	Company announcements
 الإغلاق المتوقع	Expected close
 الإقامات ورخص العمل والجوازات والعقود	Iqamas, work permits, passports and contracts
 الإقامات ورخص العمل والجوازات والعقود ونهاية فترات التجربة وإكمال	Iqamas, work permits, passports, contracts, probation ends and completing
@@ -1238,6 +1267,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الاحتمال	Probability
 الاستئذان من دقائق حتى	A permission runs from a few minutes up to
 الاستئذان هذا الشهر	Permits this month
+الاستبيان	Survey
+الاستبيان غير موجود	Survey not found
+الاستبيان مغلق	The survey is closed
+الاستبيانات	Surveys
+الاستبيانات مجهولة الهوية ما لم يُذكر غير ذلك	surveys are anonymous unless stated otherwise
 الاستجواب الشفهي فقط للمخالفات البسيطة التي جزاؤها إنذار أو غرامة لا تزيد على أجر يوم	Oral questioning is only for minor violations punished by a warning or a fine of up to one day's wage
 الاستحقاق	Due
 الاستحقاق القادم	Next entitlement
@@ -1282,6 +1316,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الالتزام بالمواعيد	On time
 الالتزام بالمواعيد سابقا	Past on-time delivery
 الالتزام بالمواعيد سابقاً	Past on-time delivery
+الالتزام والانضباط	Commitment and discipline
 الامتثال	Compliance
 الامتناع عن إجراء الكشف الطبي عند طلب طبيب المنشأة أو رفض اتباع التعليمات الطبية أثناء العلاج	Refusing a medical examination requested by the company doctor, or refusing medical instructions during treatment
 الامتناع عن ارتداء الملابس والأجهزة المقررة للوقاية وللسلامة	Refusing to wear the prescribed protective and safety clothing and equipment
@@ -1403,6 +1438,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 التصنيف الرسمي في منصة قوى	the official band is in Qiwa
 التظلم	Grievance
 التظلم على جزاء صادر فقط	A grievance is only against an issued penalty
+التعاون وروح الفريق	Cooperation and teamwork
 التعديل يظهر في الموقع فورا	Changes show on the website right away
 التعديل يظهر في الموقع فوراً	Changes show on the website right away
 التعديل يمر على الموارد البشرية	Changes go through HR
@@ -1419,13 +1455,16 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 التقارير	Reports
 التقدير	Rating
 التقديري	Estimate
+التقديم على وظيفة	Applying for a job
 التقييم	Rating
+التقييم الذاتي	Self-review
 التقييم غير موجود	Review not found
 التقييم للمدير المباشر أو الموارد البشرية	reviews are for the direct manager or HR
 التقييم لم يُعتمد بعد	The review is not approved yet
 التقييم ليس بانتظار الاعتماد	The review is not awaiting approval
 التكرار	Repeats
 التكلفة	Cost
+التكلفة الشهرية للفرد	Monthly cost per person
 التكلفة الفعلية	Actual cost
 التكلفة تُحسب تقديريا من أجر الموظف مقسوما على ساعات الشهر	Cost is estimated from the employee wage divided by monthly hours
 التكلفة تُحسب تقديرياً من أجر الموظف مقسوماً على ساعات الشهر	Cost is estimated from the employee wage divided by monthly hours
@@ -1489,6 +1528,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الحد الأعلى للموظفين (فارغ = بدون حد)	Employee limit (empty = no limit)
 الحد الأقصى	The maximum is
 الحد الأقصى لهذه الإجازة	The maximum for this leave is
+الحد الشهري	Monthly limit
+الحد الشهري للموظف	Monthly limit per employee
 الحد لا يكون سالباً	The limit cannot be negative
 الحدود الشهرية من لائحة المنشأة الداخلية	Monthly limits come from the company's internal regulation
 الحذف النهائي لمالك المنصة فقط	Permanent deletion is for the platform owner only
@@ -1580,6 +1621,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الراتب الأساسي رقم مطلوب	Basic salary is a required number
 الراتب المتوقع	Expected salary
 الراتب والبدلات	Pay and allowances
+الراتب والبدلات والتأمينات	salary, allowances and GOSI
 الراحة	Break
 الربح	Profit
 الربط مع فاتورة	Link with Fatoora
@@ -1640,6 +1682,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الرواتب والمزايا والسلف	Payroll, benefits and advances
 الرياض	Riyadh
 الريال هو العملة الأساسية	The riyal is the base currency
+الزملاء	Peers
 الزواج	marriage
 الزوج	Husband
 الزوجة	Wife
@@ -1662,6 +1705,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الساعات	Hours
 الساعات المسجلة	Logged hours
 الساعات هذه السنة	Hours this year
+الساعة	at
 السبب	Reason
 السبت	Saturday
 السجل	Log
@@ -1709,6 +1753,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 السياسات واللوائح	Policies & regulations
 السياسة	Policy
 السياسة غير موجودة	Policy not found
+السيرة الذاتية	CV
 السيرة الذاتية والمرفقات	CV and attachments
 الشارع	Street
 الشاشة	Screen
@@ -1766,6 +1811,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الطلب الذي يتأخر عند مرحلة أكثر من المهلة يظهر	A request waiting at a step longer than the deadline shows as
 الطلب غير موجود	Request not found
 الطلب لا يخص هذا الموظف	The request does not belong to this employee
+الطلب لم يُعتمد بعد	The request is not approved yet
 الطلب ليس بانتظار قرار	The request is not awaiting a decision
 الطلب ليس عند المدير المباشر	The request is not at the direct manager's step
 الطلب ليس مفتوحا	The request is not open
@@ -1884,6 +1930,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الفرق يُحسب على الكمية في النظام لحظة الترحيل	the difference is taken against the system quantity at posting
 الفروقات عن أشهر معتمدة تُضاف مكافأة في المسير القادم	differences for approved months are added as a bonus in the next payroll
 الفروقات عن أشهر معتمدة تُضاف مكافأةً في المسير القادم	differences for approved months are added as a bonus in the next payroll
+الفريق	Team
 الفصل دون مكافأة أو إشعار أو تعويض وفق المادة	Dismissal without award, notice or compensation under Article
 الفصل في المرة الرابعة مع المكافأة إذا لم يتجاوز مجموع الغياب	Dismissal with the end-of-service award on the fourth time if total absence does not exceed
 الفصل مع المكافأة	Dismissal with the end-of-service award
@@ -1970,8 +2017,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المالية	Finance
 المالية حسب الصلاحيات المحددة له تحت	finance, limited to the permissions chosen below
 المالية والمحاسبة	Finance and accounting
+المبادرة وحل المشكلات	Initiative and problem solving
 المباشرة	Start
 المبلغ	Amount
+المبلغ أعلى من حد المطالبة لفئة	The amount is above the claim limit for category
 المبلغ أكبر من المتبقي	The amount exceeds the remaining balance
 المبلغ أكبر من سقف العهدة	Amount exceeds the fund ceiling
 المبلغ الشهري	Monthly amount
@@ -1996,6 +2045,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المتبقي للتسليم من	Remaining to deliver of
 المتبقي للفوترة في أحد البنود	Remaining to invoice on a line is
 المتدربون	Trainees
+المتطلبات	Requirements
 المتعلقات	Pending items
 المتوفر في المصدر	Available at source
 المتوقع	Expected
@@ -2146,6 +2196,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المعادل بالريال	Equivalent in SAR
 المعادن المؤهلة	Qualifying metals
 المعتمد نفسه في المرحلة السابقة	same approver as the previous step
+المعتمد يرى تنبيها عند التجاوز أو تكرار المطالبة أو الإيصال	the approver is warned of an overrun or a repeated claim or receipt
+المعتمدة	Approved
 المعدود	Counted
 المغادر يُحسب له إلى آخر يوم عمل	A leaver is paid up to the last working day
 المغادرون	Leavers
@@ -2302,8 +2354,13 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الوصف	Description
 الوصف والمتطلبات	Description and requirements
 الوضع الليلي	Dark
+الوظائف	Jobs
 الوظائف الشاغرة والمرشحون حتى التعيين	Openings and candidates through to hiring
+الوظائف المتاحة	Open jobs
+الوظائف المطلوبة	Positions requested
 الوظيفة	Job
+الوظيفة الشاغرة	The job opening
+الوظيفة غير متاحة	The job is not available
 الوظيفة غير موجودة	Opening not found
 الوفاة	death
 الوقت	Time
@@ -2321,6 +2378,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 امسح الباركود أو اكتب رمز الصنف ثم اضغط إدخال	Scan the barcode or type the item code, then press Enter
 امسح الباركود أو اكتب رمز الصنف ثم اضغط إدخال — كل مسحة تزيد المعدود	Scan the barcode or type the item code, then press Enter — each scan adds one
 امسح الرمز التالي من التطبيق	Scan this code with the app
+امنع المطالبة إذا تجاوزت حد المطالبة الواحدة	Block a claim above the per-claim limit
 انتظر ساعة ثم أعد المحاولة	wait an hour and try again
 انتظر قليلا ثم أعد المحاولة	wait a little and try again
 انتظر قليلاً ثم أعد المحاولة	wait a little and try again
@@ -2358,6 +2416,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 انسخه يدويا	Copy it manually
 انسخه يدوياً	Copy it manually
 انسخها من منصة قوى	copy them from Qiwa
+انشره في موقعك أو حساباتك	share it on your website or accounts
 انصراف	out
 انضم إلى منشأتك	Join your company
 انضمام	Join
@@ -2398,7 +2457,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بانتظار الرد	Awaiting reply
 بانتظار الصرف	Awaiting payment
 بانتظار القبول	Awaiting approval
+بانتظار المالية	Waiting for finance
+بانتظار الموارد البشرية	Waiting for HR
 بانتظار توقيعك	Awaiting your signature
+بانتظار رأيك	Waiting for your opinion
 بانتظار صرف البدل من المالية	Waiting for finance to pay the allowance
 بانتظار قرار الحذف	Awaiting deletion decision
 بانتظار منذ	Waiting for
@@ -2443,6 +2505,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بدل جديد	New allowance
 بدل صلاحيات دوره العامة في	instead of his role's general permissions in
 بدل طبيعة عمل	Nature-of-work allowance
+بدل مجموعات الواتساب	instead of WhatsApp groups
 بدل نقدي	Cash allowance
 بدلات أخرى	Other allowances
 بدون	None
@@ -2686,6 +2749,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تتوقف كلمة المرور الحالية وتظهر لك كلمة مؤقتة جديدة	The current password stops working and a new temporary one is shown to you
 تتوقف ولا تُحذف الفواتير التي صدرت منها	It stops; the invoices already issued from it are not deleted
 تتوقف ولا تُحذف الفواتير التي صدرت منها.	It stops; the invoices already issued from it are not deleted.
+تثبيت أعلى الصفحة الرئيسية	Pin to the top of the home page
 تثبيت التطبيق	Install app
 تجارب تنتهي خلال	Trials ending within
 تجارب تنتهي قريبا	Trials ending soon
@@ -2749,6 +2813,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تحويل لغير محدد المدة	Convert to indefinite
 تحويلات المخزون	Stock transfers
 تحوّل إلى غير محدد المدة	Converted to indefinite
+تحوّل إلى وظيفة شاغرة	Turned into a job opening
 تحية طيبة	Greetings
 تحية طيبة،	Greetings,
 تختلف النسب حسب النشاط وعدد العاملين	Thresholds depend on the activity and headcount
@@ -2856,8 +2921,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تظلم من الجزاء	Grievance against the penalty
 تظلمات بانتظار البت	Grievances awaiting decision
 تظلمات من جزاءات بانتظار البت خلال	penalty grievances awaiting a decision within
+تظهر النتائج بعد	Results show after
 تظهر في الفواتير والخطابات	they appear on invoices and letters
 تظهر في المطبوع	shown on the printout
+تظهر في صفحة الوظائف	shows on the careers page
+تظهر في صفحة الوظائف العامة ويمكن التقديم عليها	Shows on the public careers page and accepts applications
 تظهر قسيمتك كل شهر بعد اعتماد الرواتب	Your payslip appears each month once payroll is approved
 تظهر قسيمتك كل شهر بعد اعتماد الرواتب.	Your payslip appears each month once payroll is approved.
 تظهر لكل موظف جديد مع البنود الأساسية	They show for every new employee with the basic steps
@@ -2875,6 +2943,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تعديل الحضور	Correct attendance
 تعديل الحملة	Edit campaign
 تعديل الدورة	Edit course
+تعديل الفئة	Edit category
 تعديل الفرصة	Edit opportunity
 تعديل المشروع	Edit project
 تعديل المهمة	Edit task
@@ -2984,10 +3053,13 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تكلفة التدريب	Training cost
 تكلفة الرواتب	Payroll cost
 تكلفة الرواتب من الإيرادات	Payroll cost as share of revenue
+تكلفة السنة	Cost for the year
 تكلفة العمل	Labor cost
 تكلفة العميل	Cost per lead
 تكلفة المبيعات	Cost of sales
+تكلفة المعتمد في السنة	Approved cost for the year
 تكلفة الوحدة	Unit cost
+تكلفة كل المطلوب	Cost of all requested
 تلزم بصرف الأجر الشهري مرة في الشهر على الأقل	requires a monthly wage to be paid at least once a month
 تلفيات	Damages
 تلقائي	automatic
@@ -2995,6 +3067,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تم إخلاء الطرف	Approved
 تم إنشاء الحساب	Account created
 تم الإيقاف	Suspended
+تم الاطلاع	Got it
 تم الاعتماد	Approved
 تم الاعتماد وانتقل الطلب للمرحلة التالية	Approved; the request moved to the next step
 تم الانضمام	Joined
@@ -3032,6 +3105,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تمسحها بضغطة من الإعدادات لما تبدأ فعليا	Remove it with one click in settings when you start for real
 تمسحها بضغطة من الإعدادات لما تبدأ فعلياً	Remove it with one click in settings when you start for real
 تنبيه	Note
+تنبيه للمعتمد	Warn the approver
 تنبيه مهم	Important notice
 تنبيهات خلال	Alerts within
 تنتهي	Expiring:
@@ -3045,6 +3119,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تنزيل القالب بأسماء الموظفين	Download template with employees
 تنزيل الملف	Download file
 تنقفل كل الأقسام لين تعيد تفعيلها	All modules close until you reactivate it
+تنقلات	transport
 تواصل مع الموارد البشرية	contact HR
 تواصل معنا	Contact us
 تواصل معنا بالواتساب إذا الأمر عاجل	contact us on WhatsApp if it is urgent
@@ -3095,6 +3170,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تُحسم الغرامة من أجرك بما لا يزيد على أجر خمسة أيام في الشهر	The fine is deducted from your wage at no more than five days' wage a month
 تُحمَّل عليه رواتبه	their salaries are charged to it
 تُرحّل الفاتورة بسعر الأمر بعد الخصم	The invoice is posted at the order's net price
+تُرسل بياناتك إلى المنشأة لغرض التوظيف فقط	Your details go to the company for hiring only
 تُستخدم قبل	Use by
 تُسجَّل محاسبيا في حساب	They are booked to the account
 تُسجَّل محاسبياً في حساب	They are booked to the account
@@ -3118,6 +3194,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تُلغى الورديات الخاصة لموظفي هذا القسم ويطبق عليهم وردية القسم	Personal shifts in this department are cleared and the department shift applies
 تُلغى ورقة العد بدون أي أثر على المخزون	The count sheet is cancelled with no effect on stock
 تُمنح هذه الإجازة بعد	This leave is granted after
+تُمنع المطالبة	Claim blocked
 تُنشأ ورقة بكل الأصناف المخزنية وكمياتها في النظام الآن	A sheet is created with every stock item and its system quantity now
 تُوسم بها بنود الإيرادات والمصروفات في الفواتير والقيود	used to tag revenue and expense lines in invoices and entries
 ثانوي	Secondary
@@ -3210,6 +3287,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 جوال المالك	Owner mobile
 جوال الموظف	Employee mobile
 جوال الواتساب والاتصال	Mobile for WhatsApp and calls
+جودة العمل	Quality of work
 جُدد العقد	Contract renewed
 جُدد العقد ثلاث مرات أو بلغت مدته أربع سنوات	The contract was renewed three times or reached four years
 جُدّد	Renewed
@@ -3225,6 +3303,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حان موعده	Due now
 حاول بعد ربع ساعة	try again in 15 minutes
 حاول بعد عشر دقائق	try again in ten minutes
+حاول بعد قليل	try again shortly
 حاولت التصدير كثيرا	Too many exports
 حاولت التصدير كثيرا — انتظر ساعة ثم أعد المحاولة	Too many exports — wait an hour and try again
 حاولت التصدير كثيراً	Too many exports
@@ -3248,9 +3327,13 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حد الائتمان لا يكون سالبا	Credit limit cannot be negative
 حد الائتمان لا يكون سالباً	Credit limit cannot be negative
 حد الطلب	Reorder level
+حد المطالبة	Per-claim limit
+حد المطالبة الواحدة	Per-claim limit
 حد ساعات الاستئذان بين	Permit hours limit between
 حد ساعات الاستئذان في الشهر	Permit hours per month
 حد طلبات نسيان البصمة في الشهر	Forgotten-fingerprint requests per month
+حد لكل فئة مطالبة	A limit for each claim category
+حد للمطالبة الواحدة وحد شهري	a per-claim limit and a monthly limit
 حد نسيان البصمة بين	Forgotten-fingerprint limit between
 حدث خطأ غير متوقع	An unexpected error occurred
 حدد آخر يوم عمل	Set the last working day
@@ -3275,6 +3358,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حدد طريقة التحقيق	Choose the investigation method
 حدد فترة التقييم بشكل صحيح	Set a valid review period
 حدد قيمة التذكرة في ملف الموظف	Set the ticket value in the employee file
+حدد موعد المقابلة أولا	Set the interview time first
 حدد نسبة أو مبلغ الزيادة	Set a percentage or an amount
 حدد يوما مضى	Choose a past day
 حدد يوماً مضى	Choose a past day
@@ -3294,6 +3378,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حذف السيارة	Delete vehicle
 حذف الشريط	Remove the bar
 حذف العطلة	Delete holiday
+حذف الفئة	Delete category
 حذف الفاتورة المتكررة	Delete recurring invoice
 حذف المرفق	Delete attachment
 حذف المستند	Delete document
@@ -3359,6 +3444,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حصة المنشأة في التأمينات الاجتماعية	Employer GOSI contribution
 حصة الموظف	Employee share
 حصة الموظفين	Employees' share
+حصلت على الأدوات والصلاحيات التي أحتاجها	I got the tools and access I need
 حضور	in
 حضور الفريق	Team attendance
 حضور اليوم	Today's attendance
@@ -3446,6 +3532,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 خطاب تعريف بالراتب	Salary certificate
 خطاباتي	My letters
 خطة التدريب السنوية	Annual training plan
+خطة القوى العاملة	Workforce plan
 خطوات تجهيز منشأتك	Your company's setup steps
 خطوات قصيرة لما تستخدمه في وعد	Short steps for what you use in Waad
 خطوات قصيرة لما تستخدمه في وعد، والصور من منشأة تجريبية.	Short steps for what you use in Waad; the pictures come from a sample company.
@@ -3473,8 +3560,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 درجة الهدف	Score of goal
 درجة تذكرة السفر	Travel ticket class
 درجة جديدة	New grade
+دعوة المقابلة	Interview invitation
 دعوة للانضمام إلى	Invitation to join
 دعوة مستخدم	Invite user
+دعوة مقابلة	Interview invitation
 دفتر الأستاذ	General ledger
 دفعات غير مخصصة	Unallocated payments
 دفعات وتواريخ انتهاء	batches and expiry dates
@@ -3515,13 +3604,22 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ذمم موردين متأخرة أكثر من	Payables overdue more than
 رأس المال	Capital
 رأس المال والمسحوبات	Capital and drawings
+رأيك لا يظهر باسمك	Your opinion is not shown with your name
+رأيك يهم	Your opinion matters
 رئيس القسم	Department head
 رئيس القسم ليس من موظفي المنشأة	The department head is not an employee of this company
+رابط الاجتماع	Meeting link
+رابط الاجتماع (مرئية)	Meeting link (video)
+رابط الاجتماع يبدأ بـ	The meeting link starts with
 رابط الدخول	Sign-in link
 رابط اللوحة	Admin link
+رابط المقابلة	Interview link
+رابط جديد	New link
+رابط جديد (يلغي القديم)	New link (cancels the old one)
 رابط خاص يفتح للعميل فواتيره والمتبقي عليه دون تسجيل دخول	A private link that opens the customer's invoices and balance without signing in
 رابط خاص يفتح للعميل فواتيره والمتبقي عليه دون تسجيل دخول. أرسله للعميل فقط.	A private link that opens the customer's invoices and balance without signing in. Send it to the customer only.
 رابط دخول الموظفين	Employee sign-in link
+رابط عام لمنشأتك يعرض الوظائف التي فعّلت لها	A public link for your company showing the openings you set to
 راتب	pay
 راج كومار	Raj Kumar
 راجع إجراءات الغياب وإبلاغ الجهات	Follow the absence procedures and notify the authorities
@@ -3563,7 +3661,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ردّك	Your reply
 ردّك يظهر لهم في النظام ويوصلهم على الإيميل	Your reply shows in their system and reaches them by e-mail
 رسائل نصية	SMS
+رسالة دعوة المقابلة	Interview invitation message
 رسالة قصيرة تظهر أعلى النظام لكل المستخدمين في كل المنشآت	A short message shown at the top of the system to every user in every company
+رسالة واحدة تصل لكل الموظفين في الصفحة الرئيسية وعلى أجهزتهم	One message that reaches every employee on the home page and on their devices
 رسوم أو عمولة أو فائدة	fees, commission or interest
 رصيد	balance
 رصيد أول المدة	Opening balance
@@ -3592,6 +3692,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 رصيدك المستحق حتى نهاية الإجازة	Your accrued balance up to the end of the leave is
 رصيدك من الإجازة التعويضية	Your compensatory leave balance
 رصيده من الإجازة السنوية كما في نهاية التاريخ المحدد	their annual leave balance as at the end of the date given
+رضا الموظفين	Employee satisfaction
+رضا الموظفين (eNPS)	Employee satisfaction (eNPS)
 رفض	Reject
 رفض التسوية	Reject settlement
 رفض التظلم	Reject grievance
@@ -3614,6 +3716,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 رقم الجوال	mobile number
 رقم الجوال أو البريد غير صحيح	The mobile number or e-mail is not valid
 رقم الجوال بصيغة	Mobile number format
+رقم الجوال غير صحيح	Invalid mobile number
 رقم الحجز	Booking no.
 رقم الحجز أو التذكرة	Booking or ticket number
 رقم الحساب يبدأ بالرقم	The account number must start with
@@ -3718,6 +3821,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 زيدت رواتب	Salaries raised:
 س	h
 سؤال	Question
+سؤال لكل سطر	one question per line
+سؤال مفتوح	an open question
 سارة أحمد	Sara Ahmed
 سارة العتيبي	Sara Al-Otaibi
 ساري	Valid
@@ -3766,7 +3871,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 سبب انتهاء خدمة غير معروف	Unknown end-of-service reason
 سبب توقيعها	Reason imposed
 سبتمبر إلى	September to
+سبق أن أجبت على هذا الاستبيان	You have already answered this survey
 سبق أن اطّلعت على التقييم	You have already acknowledged this review
+سبق أن تقدّمت لهذه الوظيفة بهذا الجوال	You already applied for this job with this mobile
 سبق تأجيل قبول هذه الاستقالة	Acceptance of this resignation was already deferred
 ستظهر المعاينة بالتغييرات فقط	The preview shows only the changes
 ستكون مالك المنشأة	You will be the company owner
@@ -3895,6 +4002,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 سيارات	vehicles
 سيارة	car
 سيارة جديدة	New vehicle
+سياسات المصروفات	Expense policies
 سياسات بانتظار إقرارك	Policies awaiting your acknowledgement
 سياسة	Policy
 سياسة الخصوصية	Privacy Policy
@@ -3941,6 +4049,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 شغّل الإهلاك بالترتيب	run depreciation in order
 شكرا	Thank you
 شكرا لزيارتكم	Thank you for your visit
+شكرا لك	Thank you
 شكراً	Thank you
 شكراً لزيارتكم	Thank you for your visit
 شهادات تنتهي خلال	Certificates expiring within
@@ -3964,6 +4073,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 شهري	Monthly
 شهري أو غير شهري	monthly or not monthly
 شهريا	Monthly
+شواغر	openings
 شيك	Cheque
 شيك رقم	Cheque no.
 شيك صادر	Issued cheque
@@ -4020,6 +4130,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 صرف مصروف عام	Pay a general expense
 صفحات	Pages
 صفحة	page
+صفحة الوظائف	Careers page
 صفحة لكل زيارة	pages per visit
 صفر للإتلاف	zero for write-off
 صفرية أو معفاة	zero-rated or exempt
@@ -4066,6 +4177,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ضريبية	Standard tax invoice
 ضغطات	Clicks
 ضغطات التجربة	Trial clicks
+ضيافة	hospitality
 طابعة	Printer
 طابعة فواتير	Receipt printer
 طابق حركات البنك في الدفاتر مع كشف الحساب	Match bank lines in the books against the bank statement
@@ -4086,9 +4198,12 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 طلب الشراء غير معتمد	The purchase request is not approved
 طلب الشراء متاح لمدراء الأقسام ومن تحددهم المنشأة	Purchase requests are for department managers and employees the company selects
 طلب المالك	Owner's request
+طلب الوظائف لمدراء الأقسام والموارد البشرية	Requesting positions is for department managers and HR
 طلب بانتظار اعتمادك	A request is waiting for your approval
 طلب تعديل بيانات	Data change request
 طلب تعديل بياناتي	Request a change to my data
+طلب تقييم	Request a review
+طلب تقييم 360 من الزملاء	Request 360 feedback from colleagues
 طلب توقيع	Request signature
 طلب توقيع إلكتروني	Electronic signature request
 طلب توقيع المخالصة	Request settlement signature
@@ -4099,6 +4214,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 طلب لم يُقبل	Request not accepted
 طلب معتمد	approved request
 طلب نسيان البصمة خلال	A forgotten-fingerprint request is within
+طلب وظيفة	Position request
 طلبات أو رواتب أو مستندات	requests, payroll or documents
 طلبات الدعم	Support requests
 طلبات الشراء	Purchase requests
@@ -4111,6 +4227,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 طلبات دعم مفتوحة	Open support requests
 طلبات عروض الأسعار	Requests for quotation
 طلبات في اليوم	requests per day
+طلبات كثيرة الآن	Too many applications right now
 طلبات معلقة	Pending requests
 طلباتك	Your requests
 طلباتي	My requests
@@ -4136,6 +4253,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عدد الأقساط حتى	Installments: up to
 عدد الأقساط من	Installments: from
 عدد الأقسام	Departments
+عدد الإجابات	Answers
 عدد التابعين	Number of dependents
 عدد التجديدات	renewals
 عدد الساعات	Number of hours
@@ -4238,6 +4356,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عن بُعد	Remote
 عند	at
 عند الإيقاف يكفي البريد وكلمة المرور للدخول إلى حسابك	When turned off, e-mail and password alone sign in to your account
+عند التجاوز	When exceeded
 عند التجديد عدّل تاريخ الانتهاء أو أضف المستند الجديد	On renewal, update the expiry date or add the new document
 عند المعتمد وفي مسار الطلب	to the approver and in the request journey
 عند تتبع الصلاحية يُطلب تاريخ الانتهاء عند الاستلام	With expiry tracking, the expiry date is required on receipt
@@ -4313,6 +4432,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 غيّر كلمة مرورك من حسابك	change your password from your account
 غيّر ما تريد تعديله فقط	Change only what you want to update
 فأكثر	or more
+فئة	category
+فئة المصروف	Expense category
+فئة جديدة	New category
 فاتورة	Invoice
 فاتورة المورد	Supplier bill
 فاتورة المورد من الأمر	Supplier bill from the order
@@ -4338,6 +4460,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فتح المسير	Open the payroll
 فتح الموقع	Open the website
 فتح النظام	Open the system
+فتح وظيفة شاغرة	Open a job opening
 فتحت رابط استعادة كلمة المرور	You opened a password recovery link
 فتدخل في المسير والعمل الإضافي والغياب ومكافأة نهاية الخدمة	so they count in payroll, overtime, absence and end-of-service
 فترة التجربة لا تزيد على	Probation cannot exceed
@@ -4346,6 +4469,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فترة تجربة تنتهي	probation period(s) ending
 فترة مخصصة	Custom period
 فتظهر لك خدمات الطلبات والإجازات وقسائم راتبك	so you get requests, leave and payslip services
+فتعتمدها الموارد البشرية ثم المالية	HR then finance approve them
 فتنتهي في	so it ends on
 فتُباع قبل وصول فاتورة المورد	so they can be sold before the supplier bill arrives
 فتُحوَّل إلى إجازة بدون أجر وتُخصم في المسير	so it becomes unpaid leave and is deducted in payroll
@@ -4390,6 +4514,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فلن يستطيع الموظف الدخول حتى يُطفأ	so the employee cannot sign in until it is turned off
 فما تفتح إلا بعد تفعيل التحقق بخطوتين لحسابك	so it opens only after two-step verification is on for your account
 فني عمليات	Operations technician
+فهمت مهامي وما هو متوقع مني	I understood my tasks and what is expected of me
 فواتير المبيعات	Sales invoices
 فواتير المشتريات	Purchase bills
 فواتير المورد	Supplier bills
@@ -4400,6 +4525,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 في إجازة خلال نفس الفترة من الفريق	On leave from the team in the same period
 في إعدادات	in the settings of
 في الآيفون تعمل التنبيهات بعد تثبيت وعد على الشاشة الرئيسية	On iPhone, notifications work after adding Waad to the home screen
+في الاستبيان المخصص	In a custom survey
 في الشهر السابق إلى يوم	of the previous month to day
 في المالية	in finance
 في المخزون	In stock
@@ -4446,6 +4572,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قبول تجربة	Accept trial
 قبول مؤجل	Deferred acceptance
 قد يستغرق الربط دقيقة	Linking may take a minute
+قدّم الآن	Apply now
 قدّم الطلب قبل	Submit the request
 قدّم تسوية بما صرفته من العهدة مع أرقام الفواتير	Submit a settlement of what you spent from the fund with the invoice numbers
 قرار التظلم	Grievance decision
@@ -4474,6 +4601,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قيمة المخزون	Inventory value
 قيمة غير صالحة في أحد الحقول	Invalid value in one of the fields
 قيود الرواتب	Payroll entries
+قيّم كل البنود من	Rate every item from
+قيّم نفسك بصدق	Rate yourself honestly
 قُبل التظلم وأُلغي الجزاء	Grievance accepted and penalty cancelled
 قُدّم التظلم	Grievance submitted
 قُدّم تظلم على هذا الجزاء	A grievance was already filed against this penalty
@@ -4483,6 +4612,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كاملة أو على دفعات	in full or in parts
 كاميرا	Camera
 كان	was
+كان الراتب والمزايا مناسبة	The salary and benefits were suitable
+كانت أيامي الأولى منظمة وواضحة	My first days were organised and clear
+كانت علاقتي بمديري المباشر جيدة	My relationship with my direct manager was good
 كسبناها	Won
 كشف بتاريخ	Statement dated
 كشف حساب	Statement
@@ -4492,6 +4624,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كل الأعضاء يرون المنشآت ويسجلون التواصل معها. اختر ما يقدر يعدّله.	All members see the companies and log contact with them. Choose what they can change.
 كل الأقسام	All departments
 كل الأنواع	All types
+كل الاستبيانات	All surveys
 كل الجنسيات	All nationalities
 كل الدورات	All courses
 كل الدورات، بما فيها قيد التنفيذ	All courses, including those in progress
@@ -4518,6 +4651,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كل سؤال يحتاج سؤالا وجوابا بالعربي	Every question needs a question and an answer in Arabic
 كل سؤال يحتاج سؤالا وجوابا بالعربية	Each item needs a question and an answer in Arabic
 كل سؤال يحتاج سؤالاً وجواباً بالعربي	Every question needs a question and an answer in Arabic
+كل سطر سؤال تقييم من	each line is a rating question from
 كل سنة	Every year
 كل سنة أو سنتين	every year or two
 كل سنتين	Every two years
@@ -4560,6 +4694,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا	No
 لا أحد	Nobody
 لا أحد من الفريق في إجازة خلال هذه الفترة	Nobody from the team is on leave in this period
+لا أوافق أبدا	strongly disagree
+لا أوصي أبدا	would never recommend
 لا بد أن يبقى للمنشأة مالك واحد على الأقل	The company must keep at least one owner
 لا تتغير	they stay unchanged
 لا تزيد الإجازة التعويضية في السنة على	Compensatory leave cannot exceed per year
@@ -4568,6 +4704,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا تشاركوا رابطها	do not share its link
 لا تشمل الأرقام الأجر المستحق عن أيام الشهر الأخير	The figures exclude wages due for the days of the final month
 لا تصرف أجر هذه الساعات في المسير	Do not pay these hours in payroll
+لا تظهر باسمك	not shown with your name
 لا تظهر هنا بيانات المنشآت نفسها	company records are never shown here
 لا تعويض إذا وافق اليوم الوطني أو يوم التأسيس أحد العيدين	no compensation when National Day or Founding Day falls on one of the Eids
 لا تغييرات تحتاج تحديثا في التأمينات حسب آخر مسير	No changes to update in GOSI according to the last payroll
@@ -4591,12 +4728,16 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد أقسام	No departments
 لا توجد أوامر بيع	No sales orders
 لا توجد أوامر شراء	No purchase orders
+لا توجد إجابات	No answers
 لا توجد إجازات سنوية	No annual leave taken
 لا توجد إجازات معتمدة هذه السنة	No approved leave this year
 لا توجد إشعارات تسليم	No delivery notes
 لا توجد إعلانات	No announcements
+لا توجد إعلانات بعد	No announcements yet
 لا توجد إيرادات أو مصروفات في هذه السنة	No revenue or expenses in this year
 لا توجد إيميل للمالك	No owner e-mail
+لا توجد استبيانات بانتظارك	No surveys waiting for you
+لا توجد استبيانات بعد	No surveys yet
 لا توجد باقات	No plans
 لا توجد بدلات أخرى	No other allowances
 لا توجد برامج لهذه السنة	No programmes for this year
@@ -4644,6 +4785,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد طلبات بعد	No requests yet
 لا توجد طلبات شراء معتمدة	No approved purchase requests
 لا توجد طلبات قيد الاعتماد	No requests in approval
+لا توجد طلبات لهذه السنة	No requests for this year
 لا توجد طلبات هنا	No requests here
 لا توجد عروض أسعار	No quotations
 لا توجد عطل	No holidays
@@ -4655,6 +4797,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد عهد نقدية	No petty cash funds
 لا توجد عهدة نقدية باسمك	There is no petty cash fund in your name
 لا توجد غرامات	No fines
+لا توجد فئات بعد	No categories yet
 لا توجد فترة مقفلة	No closed period
 لا توجد فرص بعد	No opportunities yet
 لا توجد فواتير	No invoices
@@ -4684,6 +4827,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد ورديات	No shifts
 لا توجد ورديات عمل بعد	No work shifts yet
 لا توجد وظائف شاغرة	No job openings
+لا توجد وظائف متاحة حاليا	No open jobs at the moment
 لا تُسجل حركات بتاريخ قبلها	no transactions may be dated on or before it
 لا تُعدَّل بنوده	its lines cannot be changed
 لا تُعدّل التكلفة أو العمر أو التاريخ	cost, life and date cannot be changed
@@ -4940,6 +5084,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لوعد موثوق	a promise you can trust
 لون المنتج	product colour
 ليبي	Libyan
+ليس دورك في اعتماد هذا الطلب	It is not your turn to approve this request
 ليس صورة أو	is not an image or
 ليس في ورقة هذا الجرد	Not on this count sheet
 ليست لديك صلاحية لهذا الإجراء	You don't have permission for this action
@@ -4961,6 +5106,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مؤقتة	Temporary
 مؤهلة	Qualified
 ما أرسلت طلبات للحين	You haven't sent any requests yet
+ما أهم سبب لتقييمك	What is the main reason for your score
+ما الذي تقترح تحسينه	What do you suggest improving
+ما الذي كان سيجعل انضمامك أسهل	What would have made joining easier
+ما السبب الرئيسي لمغادرتك	What is the main reason you are leaving
 ما طُبع شي للحين	Nothing printed yet
 ما فيه أخطاء في هذي الفترة	No errors in this period
 ما فيه أسئلة	No questions
@@ -4980,6 +5129,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ما فيه نماذج في هذا القسم	No forms in this section
 ما فيها أي بيانات من داخل المنشآت	with no data from inside the companies
 ما لقيت جوابك	Didn't find your answer
+ما مدى احتمال أن توصي بمنشأتنا كمكان عمل لصديق	How likely are you to recommend our company to a friend as a place to work
 ما نُسب للعامل وأقواله ودفاعه	the charge, the worker's statement and defence
 ما نُسب للعامل ودفاعه	the charge and the worker's defence
 ما يحتاج متابعتك اليوم	What needs your attention today
@@ -5031,6 +5181,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 متوسط الأجر	Average wage
 متوسط التقييم	Average rating
 متوسط الراتب	Average salary
+متوسط الزملاء والفريق يظهر من رأيين فأكثر	The peers' and team's average shows from two answers
 متوسط العدد	average headcount
 متوسط الفاتورة	Average invoice
 متوسط تكلفة الموظف في الفترة	Average employee cost in the period
@@ -5041,6 +5192,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 متوقفة مؤقتاً	Paused
 مثال	Example
 مثال يوم	Example, day
+مثبّت	Pinned
 مثل	such as
 مثل كرتون	e.g. carton
 مثل: إيجار المكتب لشهر نوفمبر	e.g. office rent for November
@@ -5062,9 +5214,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مجموع أوزان الأهداف يجب أن يساوي	Goal weights must total
 مجموع الأوزان	Total weight
 مجموع الحسميات لا يتجاوز نصف الأجر	Total deductions cannot exceed half the wage
+مجموع الشهر	Month total
 مجموع المدفوع	Total paid
 مجموعة روابي	Rawabi Group
 مجمّعة حسب الرسالة	grouped by message
+مجهول الهوية	Anonymous
 محاسب	Accountant
 محاسبة	Accountant
 محاولات كثيرة	Too many attempts
@@ -5116,6 +5270,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مدخلات	Input
 مدد	Mudad
 مدراء الأقسام فقط	Department managers only
+مدراء الأقسام يطلبون الوظائف بتكلفتها	Department managers request positions with their cost
 مدفوعات للموردين	Payments to suppliers
 مدير الموارد البشرية	HR manager
 مدير الموارد البشرية يُختار من مستخدمي الموارد البشرية	The HR manager is chosen from HR users
@@ -5126,6 +5281,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مديرهم المباشر انتهت خدمته	Their direct manager has left
 مدين	Debit
 مدين تذاكر سفر الموظفين	debit employee travel tickets
+مرئية	video
 مرات	times
 مرات الحدوث	Occurrences
 مراجعة قبل الترحيل	Review before posting
@@ -5160,6 +5316,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مركز المساعدة	Help center
 مركز تكلفة جديد	New cost center
 مركز جديد	New center
+مروّجون	Promoters
 مرّ	It has been
 مرّ ٦٠ يوما على انتهائها دون تجديد، ونبّهنا المالك قبلها بالإيميل. لا يُحذف شيء إلا بقرارك: افتح المنشأة واحذفها أو مدّد المهلة.	60 days have passed since it ended without renewal, and we e-mailed the owner before that. Nothing is deleted without your decision: open the company and delete it or extend the period.
 مسؤول المشتريات	Purchasing officer
@@ -5240,12 +5397,17 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مصنفة حسب الحساب المقابل	classified by the counter-account
 مطابقة ثلاثية	Three-way match
 مطاعم وأغذية	Restaurants & food
+مطالبة بنفس المبلغ والفئة خلال	A claim with the same amount and category within
+مطالبة بنفس المبلغ والفئة خلال 30 يوما	A claim with the same amount and category within 30 days
 مطالبة مصروفات	Expense claim
 مطبوعات	Print
 مطلق	Divorced
 مطلقة	Divorced
 مطلوب	Required
 مطلوب بتاريخ	Needed by
+مطلوب رأيك	Your opinion is needed
+مطلوب رأيك (تقييم 360)	Your opinion is needed (360 feedback)
+مطلوب رأيك في تقييم	Your opinion is needed in a review
 مطلوب في الفاتورة الضريبية للعميل المسجل في ضريبة القيمة المضافة	Required on the tax invoice for a VAT-registered customer
 مع إنذار بالفصل وفق المادة	with a dismissal warning under Article
 مع اسمه	with its name
@@ -5309,6 +5471,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مكافأة	Bonus
 مكافأة نهاية الخدمة	End-of-service award
 مكافأة نهاية الخدمة والمخالصة	End-of-service award and settlement
+مكان المقابلة	Interview place
+مكان المقابلة (حضورية)	Interview place (in person)
 مكان الموظف في الهيكل	Position in the chart
 مكة المكرمة	Makkah
 مكتب العقار	real estate office
@@ -5355,6 +5519,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 من الأمر يُسجَّل استلام البضاعة ثم فاتورة المورد	From the order record the goods receipt, then the supplier bill
 من الإعدادات	from settings
 من التدريب	from training
+من الزملاء	from colleagues
 من القائمة بعد دخولك	from the menu after you sign in
 من اللائحة التنفيذية	of the Implementing Regulations
 من الملف	from the file
@@ -5376,6 +5541,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 من زر	from the button
 من سبل	from Saudi Post (SPL)
 من سقف	of a ceiling of
+من شهر	From month
 من طلب شراء	From purchase request of
 من طلب شراء معتمد	from an approved purchase request
 من طلب عروض الأسعار	from request for quotations
@@ -5390,9 +5556,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 من وين عرفت عن وعد	How did you hear about Waad
 من وين عرفوا عن وعد	How they heard about Waad
 من يرفع طلب الشراء	Who raises purchase requests
+من يرفعون له	direct reports
 من يرى الهيكل التنظيمي	Who sees the organisation chart
 من يعتمد كل نوع طلب وبأي ترتيب	Who approves each request type and in what order
 من ينضم يوم	Whoever joins on day
+منتقدون	Detractors
 منته	Ended
 منتهي	Expired
 منتهي منذ	Expired for
@@ -5476,11 +5644,13 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مُسحت البيانات التجريبية	Sample data cleared
 نأمل تجهيز متطلبات التجديد والتواصل مع الموارد البشرية	Please prepare the renewal requirements and contact HR
 ناجح	Passed
+نبذة عنك	About you
 نتائج اختبار الدليل	User-guide quiz results
 نتائج جديدة لاختبار دليل الاستخدام	new user-guide quiz results
 نتيجتك	Your result
 نجران	Najran
 نحفظ الأرقام والتواريخ فقط بدون صور المستندات	we keep numbers and dates only, no scans
+نرجو تأكيد حضورك بالرد على هذه الرسالة	Please confirm your attendance by replying to this message
 نزّل القالب	Download the template
 نزّل القالب واملأ سطرا لكل اسم	Download the template and fill one row per name
 نزّل القالب واملأ سطرا لكل صنف	Download the template and fill one row per item
@@ -5506,6 +5676,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نسبة الكسب	Win rate
 نسبة النساء	Share of women
 نسبة النطاق بين	Band percentage between
+نسخ	Copy
 نسخ إيميلات المنشآت الظاهرة	Copy the e-mails of the companies shown
 نسخ الإيميل	Copy e-mail
 نسخ الرابط	Copy link
@@ -5523,9 +5694,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نسيت كلمة المرور	Forgot your password
 نسيتها	Forgot it
 نشاط المنشأة	Company activity
+نشر	Publish
 نشط	Active
 نشطة	Active
 نص	Text
+نص الإعلان	Announcement text
 نص النموذج بالعربي	Form text in Arabic
 نص النموذج بالعربية	Form text in Arabic
 نص حر	free text
@@ -5544,6 +5717,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نظرة عامة	Overview
 نعم	Yes
 نعم أو لا	yes or no
+نفس الإيصال مرفق في مطالبة أخرى	The same receipt is attached to another claim
 نفيدكم بأن مصلحة العمل تقتضي تأجيل قبول الاستقالة مدة	we inform you that work needs require deferring acceptance of the resignation for
 نقاط القوة	Strengths
 نقدا	Cash
@@ -5602,6 +5776,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نُسخ	Copied
 نُسخ الرابط	Link copied
 نُسخت	Copied
+نُشر الإعلان	Announcement published
+نُشر الاستبيان	Survey published
 نُقلت الفرصة إلى	Opportunity moved to
 نُكمل الباقي	we do the rest
 هاتفية	Phone
@@ -5640,6 +5816,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 هذه السنة	This year
 هذه الصفحة خاصة بكم	This page is private to you
 هذه الصفحة خاصة بكم؛ لا تشاركوا رابطها.	This page is private to you; do not share its link.
+هذه الصفحة للإدارة والمالية	This page is for management and finance
 هذه الصفحة للمالك والإدارة والموارد البشرية والمالية	This page is for the owner, admins, HR and finance
 هذه الصفحة للمالك والإدارة والموارد البشرية والمالية.	This page is for the owner, admins, HR and finance.
 هذه الصفحة للمالك والموارد البشرية	This page is for the owner and HR
@@ -5651,6 +5828,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 هذه الصفحة للموارد البشرية والمدراء	This page is for HR and managers
 هذي السنة	This year
 هل تريد إلغاء هذا الطلب	Do you want to cancel this request
+هل تنصح غيرك بالعمل هنا	Would you recommend working here
 هل يتضمن شرط تجديد تلقائي	Does it include an automatic renewal clause
 هندي	Indian
 هوية	ID
@@ -5707,11 +5885,13 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 والرقم الضريبي إن كنت مسجّلاً	and the VAT number if registered
 والرمادية من وردية الموظف أو قسمه أو الافتراضية	grey ones from the employee's, department or default shift
 والسجل التجاري	and the C.R.
+والسطر الذي يبدأ بـ	and a line starting with
 والصور من منشأة تجريبية	the pictures come from a sample company
 والغرامة عن المخالفة الواحدة لا تزيد على أجر خمسة أيام	and a fine for one violation never exceeds five days' wage
 والمادة	and Article
 والمالك والمالية	plus the owner and finance
 والمبسطة تُبلَّغ خلال	and a simplified one is reported within
+والمتقدمون يصلون مباشرة إلى قائمة المرشحين	and applicants go straight to the candidates list
 والمخزون	and stock
 والمدراء من	and managers from
 والمدير العام لا يعتمد طلبه بنفسه	and the general manager does not approve his own request
@@ -5722,6 +5902,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 والوجهة	and destination
 وبالجزاء	and of the penalty
 وبحد	up to
+وبدون أسماء	and without names
 وبسعر الأمر	at the order price
 وبعد اعتماده يصدر قسم المشتريات أمر الشراء	once approved, purchasing issues the purchase order
 وبعدها ادخل من هنا	then sign in here
@@ -5732,6 +5913,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وتبقى الفاتورة ظاهرة بحالة ملغاة	and the invoice stays visible as void
 وتبقى ملتزما بأداء عملك خلالها	and you remain bound to perform your work during it
 وتبقى ملتزماً بأداء عملك خلالها	and you remain bound to perform your work during it
+وتتحول المعتمدة إلى وظيفة شاغرة	and the approved ones become job openings
 وتصل نتيجتك لمالك المنشأة والموارد البشرية	your result goes to the company owner and HR
 وتمر على مديره ثم المالية ثم المدير العام	go to their manager, then finance, then the GM
 وتنتهي العلاقة بانتهائها	and employment ends when it ends
@@ -5795,9 +5977,13 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وسماع دفاعك	and hearing your defence
 وسيارات المنشأة	and the company's vehicles
 وسيتذكره النظام	and the system will remember it
+وسيتواصلون معك إذا تأهلت للمرحلة التالية	and they will contact you if you qualify for the next stage
 وسيصل المالك إيميل بذلك	the owner will get an e-mail about it
 وسيُطلب منك تغييرها	and you will be asked to change it
 وصف الواقعة	Description of the incident
+وصل رأيك	your opinion was received
+وصل طلبك	Your application was received
+وصل طلبك إلى المنشأة	Your application reached the company
 وصلت المنشأة إلى الحد الأعلى للمستخدمين في باقتها	The company has reached its plan's user limit
 وصلت المنشأة إلى الحد الأعلى للموظفين في باقتها	The company has reached its plan's employee limit
 وصلت حد	You reached the limit of
@@ -5840,12 +6026,15 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وقت رمضان	Ramadan time
 وقد اكتُشفت بتاريخ	and discovered on
 وقع	Fell
+وقود	fuel
 وقّع بإصبعك أو بالفأرة داخل المربع	Sign with your finger or the mouse inside the box
 وكل خطوة تنتهي تتعلّم تلقائيا	each step is ticked by itself once done
 وكل خطوة تنتهي تتعلّم تلقائياً	each step is ticked by itself once done
 وكلمة مرور مؤقتة تظهر لك الآن	and a temporary password shown to you now
 وكميات الأصناف وتكلفتها	item quantities and their cost
 ولا تتضمن أي بيانات من داخل المنشآت	with no data from inside the companies
+ولا تُعرض إلا من رأيين فأكثر	and are shown only from two answers
+ولا تُعرض النتائج إلا بعد	and results show only after
 ولا تُفوتر بضاعة لم تُستلم	goods not received cannot be billed
 ولا مقابل الإشعار إن لم يُراعَ	or pay in lieu of notice if notice was not given
 ولا يتجاوز أجر	and may not exceed
@@ -5867,6 +6056,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ومديونية كل عميل	what each customer owes
 ومرحلة مدير الموارد البشرية تُتخطى إن لم يُعيَّن	and the HR-manager step is skipped if none is appointed
 ومقارنتها بالفعلي	compared with actuals
+ومن الزملاء الذين تختارهم	and from the colleagues you choose
 ومنذ متى	and since when
 وموقع العمل باسمه	and the work site by its name
 ونبّهنا المالك قبلها بالإيميل	and we e-mailed the owner before that
@@ -5964,6 +6154,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يحق لك التظلم كتابة لدى إدارة الموارد البشرية خلال	You may file a written grievance with HR within
 يحق لك التظلم كتابةً لدى إدارة الموارد البشرية خلال	You may file a written grievance with HR within
 يحمي الأرقام بعد تقديم الإقرار أو القوائم	protects the figures after filing returns or statements
+يختفي بعد	Hide after
+يختفي بعد (اختياري)	Hide after (optional)
+يختفي من عند كل الموظفين	It disappears for all employees
 يدخل البدل مسير الشهر إذا كان ساريا في آخر يوم منه	An allowance enters a month's payroll if active on its last day
 يدخل البدل مسير الشهر إذا كان سارياً في آخر يوم منه	An allowance enters a month's payroll if active on its last day
 يدخل بالرقم الوظيفي	Signs in with employee number
@@ -5984,10 +6177,12 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يستعيد كلمة المرور من	and recovers the password from
 يسجّل بنفس البريد ثم يُدخل الرمز	They sign up with the same email, then enter the code
 يسجّل حضوره فيه فقط	checks in there only
+يسرّنا دعوتك لمقابلة وظيفة	We are pleased to invite you to an interview for
 يسقط الأجر إذا ثبت عدم أداء الامتحان	Pay is lost if the exam was not sat
 يسقط الأجر عن إجازة الاختبارات إذا ثبت أن العامل لم يؤدِّ الامتحان	exam leave pay is lost if the worker did not sit the exam
 يصدر الخطاب بعد اعتماد طلب التعريف بالراتب	The letter is issued after the salary certificate request is approved
 يصدر النموذج لـ	Form issued to
+يصل إلى	Goes to
 يصل الطلب للموظف في	The request reaches the employee in
 يصل للمالك أول كل شهر بمبيعات الشهر الماضي ومشترياته ورواتبه والمتأخرات وما ينتظر الاعتماد	sent to the owner at the start of each month with last month's sales, purchases, payroll, overdue invoices and pending approvals
 يصير أدمن بعد التفعيل	It becomes an admin once activated
@@ -6034,6 +6229,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يلبي التوقعات	Meets expectations
 يلزم موافقة العامل الكتابية	the worker's written consent is required
 يلزم موافقة العامل الكتابية لسنة	the worker's written consent is required for year
+يلغي القديم	cancels the old one
 يمدّد الاشتراك بالأيام	Extends the subscription by days
 يمر الطلب على مديرك ثم المالية ثم المدير العام	The request goes to your manager, then finance, then the general manager
 يمر على المدير العام إذا زاد عن	Goes to the general manager above
@@ -6065,6 +6261,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ينتهي بانتهاء مدته	Ends when its term ends
 ينتهي بعد	Ends after
 ينتهي بعد (اختياري)	Ends after (optional)
+ينتهي في	Ends on
+ينتهي في (اختياري)	Ends on (optional)
 ينشأ أمر شراء للمورد	A purchase order will be created for
 ينشئ حسابا بنفس البريد ثم يُدخل الرمز	they create an account with the same email, then enter the code
 ينشئ حساباً بنفس البريد ثم يُدخل الرمز	they create an account with the same email, then enter the code
@@ -6187,6 +6385,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يُصرف خلال	Payable within
 يُصرف من مستودع	Issue from warehouse
 يُطلب رمز من تطبيق المصادقة عند كل دخول	a code from the authenticator app is required at every sign-in
+يُطلب من الموظف تقييم نفسه	The employee is asked to rate themselves
 يُعاد احتساب الحضور تلقائيا	Attendance is recalculated automatically
 يُعاد احتساب الحضور تلقائياً	Attendance is recalculated automatically
 يُعاد الرصيد المتبقي	The remaining balance
