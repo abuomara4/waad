@@ -1,0 +1,62 @@
+"""«ما الجديد في وعد»: every customer-facing update, newest first, taken from the project's history (git log).
+Add a new block at the top with each release. (date ar, date en, [(item ar, item en)])"""
+
+RELEASES = [
+ ('17 نوفمبر 2026', '17 November 2026', [
+  ('مركز وعد للمعرفة: مقالات موثقة بمواد نظام العمل، ومكتبة سياسات مفصلة، ودليل الوظائف لكل الإدارات، وقاموس المنشأة، وحاسبات مجانية أكثر', 'Waad Knowledge Centre: articles cited to the Labor Law, a detailed policy library, job descriptions for every department, a company glossary and more free calculators'),
+  ('الإعلانات الداخلية للموظفين في الصفحة الرئيسية وعلى أجهزتهم، مع معرفة من اطّلع', 'Company announcements on the home page and devices, with read receipts'),
+  ('استبيانات الموظفين ومؤشر الرضا (eNPS) واستبيانات الانضمام والمغادرة، مجهولة الهوية', 'Employee surveys, eNPS, onboarding and exit surveys, anonymous'),
+  ('تقييم 360 درجة: التقييم الذاتي وآراء الزملاء بجانب تقييم المدير', '360 feedback: self-review and peers beside the manager\'s review'),
+  ('صفحة وظائف عامة للمنشأة يتقدم منها المرشحون بسيرهم الذاتية', 'A public careers page where candidates apply with their CV'),
+  ('دعوة المقابلة جاهزة للواتساب والبريد مع رابط الاجتماع أو المكان', 'Interview invitations ready for WhatsApp and e-mail with the meeting link or place'),
+  ('سياسات المصروفات: حد لكل فئة وحد شهري، ومنع أو تنبيه عند التجاوز، وكشف تكرار المطالبة أو الإيصال', 'Expense policies: per-category and monthly limits, blocking or warning, and duplicate claim or receipt detection'),
+  ('خطة القوى العاملة: طلب الوظائف بتكلفتها، واعتماد الموارد البشرية ثم المالية، وتحويلها لوظيفة شاغرة', 'Workforce plan: request positions with cost, HR then finance approval, then a job opening'),
+  ('صفحة الامتثال: حماية الأجور والتأمينات والوثائق والعقود وفترات التجربة ونطاقات والتأمين الطبي في مكان واحد', 'Compliance page: wage protection, GOSI, documents, contracts, probation, Nitaqat and medical insurance in one place'),
+  ('التهيئة والترحيب: قائمة مهام لكل موظف جديد يكتمل بعضها تلقائيا', 'Onboarding: a checklist for every new employee, partly completed automatically'),
+  ('اعتماد المدير العام حسب المبلغ أو عدد أيام الإجازة', 'General manager approval by amount or leave days'),
+  ('تنبيهات فورية على الجوال: طلب بانتظار اعتمادك، وقرار على طلبك، ومستند للتوقيع، وقسيمة الراتب', 'Instant phone notifications: approvals waiting, decisions, documents to sign and payslips'),
+  ('تصدير كامل لبيانات المنشأة: ملف Excel لكل قسم مع المرفقات', 'Full company data export: an Excel file per section with attachments'),
+  ('التوقيع الإلكتروني للعقود والعهد والجزاءات والمخالصات، وصفحة «توقيعاتي»', 'E-signature for contracts, custody, penalties and settlements, with «My signatures»'),
+  ('البحث الشامل في النظام (Ctrl+K)', 'Global search (Ctrl+K)'),
+  ('إرسال الفواتير وعروض الأسعار للعميل، وبوابة العميل برابط خاص، والفواتير المتكررة', 'Send invoices and quotes to customers, a private customer portal and recurring invoices'),
+  ('مستندات المنشأة والسيارات مع تنبيهات الانتهاء', 'Company documents and vehicles with expiry alerts'),
+  ('الملاحظات على السجلات مع الإشارة إلى الزملاء، والحقول المخصصة', 'Notes on records with mentions, and custom fields')]),
+ ('16 نوفمبر 2026', '16 November 2026', [
+  ('أقسام افتراضية لكل منشأة جديدة (تسعة أقسام بالعربي والإنجليزي)', 'Default departments for every new company (nine, Arabic and English)'),
+  ('المرفقات عند إنشاء المستندات والعقود والعهد، وقائمة عهد جاهزة بالعربي والإنجليزي', 'Attachments when creating documents, contracts and custody, and a ready bilingual custody list'),
+  ('جهات جاهزة لخطاب التعريف بالراتب (الوزارات والبنوك والسفارات)', 'Ready addressees for the salary certificate (ministries, banks, embassies)'),
+  ('أدوار منفصلة للمبيعات والمشتريات والتسويق والمشاريع، ومرحلة اعتماد لمسؤول المشتريات', 'Separate sales, purchasing, marketing and projects roles, and a purchasing approval step'),
+  ('انتهاء صلاحية دخول الموظف المنتهية خدمته تلقائيا، والتواريخ بتوقيت الرياض', 'Access ends automatically for employees whose service ended; dates in Riyadh time')]),
+ ('14 نوفمبر 2026', '14 November 2026', [
+  ('دليل الاستخدام داخل النظام حسب الوظيفة مع صور، واختبار قصير «اختبر فهمك» تصل نتيجته للإدارة', 'An in-app user guide by role with screenshots, and a short «check your understanding» quiz reported to management'),
+  ('الاعتمادات لا تتوقف: المالك ينوب عند غياب المعتمد، و«متابعة كل الطلبات»، وتجاوز المدير المباشر بسبب موثق', 'Approvals never stall: the owner stands in, «track all requests», and overriding the direct manager with a logged reason'),
+  ('مدة الانتظار الدقيقة لكل طلب', 'Exact waiting time for each request'),
+  ('حد الموظفين لكل باقة، وتجربة مجانية 14 يوما', 'An employee limit per plan and a 14-day free trial'),
+  ('البحث عن الموظف أو العميل داخل النماذج وتعبئة بياناته', 'Search an employee or customer inside forms and fill their data')]),
+ ('12 نوفمبر 2026', '12 November 2026', [
+  ('الربط مع منصة «فاتورة» (المرحلة الثانية): بناء الفاتورة وتوقيعها وإرسالها بالتسلسل، وحالتها على كل مستند', 'Linking with Fatoora (phase two): building, signing and sending invoices in sequence, with status on each document'),
+  ('ملخص شهري بالبريد لمالك المنشأة: المبيعات والتحصيل والرواتب والوثائق المنتهية والاعتمادات', 'A monthly e-mail summary for the owner: sales, collections, payroll, expiring documents and approvals'),
+  ('مركز المساعدة وقائمة «ابدأ هنا» وتثبيت وعد على الجوال', 'Help centre, a «start here» checklist and installing Waad on your phone'),
+  ('نسخ احتياطي يومي مشفّر مع اختبار استعادة شهري', 'Encrypted daily backup with a monthly restore test')]),
+ ('11 نوفمبر 2026', '11 November 2026', [
+  ('مكتبة النماذج: 109 نماذج جاهزة بالعربي والإنجليزي لكل الإدارات، تُعبأ من السجلات وتُرقّم وتُطبع على ترويسة المنشأة', 'Forms library: 109 bilingual ready forms for every department, filled from records, numbered and printed on the letterhead'),
+  ('الدعم الفني من داخل النظام', 'Support requests from inside the system'),
+  ('التحقق بخطوتين وتذكير قبل انتهاء الاشتراك', 'Two-step verification and reminders before the subscription ends')]),
+ ('أوائل نوفمبر 2026', 'Early November 2026', [
+  ('التسويق وإدارة العملاء المحتملين، والمشاريع وساعات العمل عليها', 'Marketing and leads, and projects with timesheets'),
+  ('الرسوم البيانية في التحليلات', 'Charts in analytics'),
+  ('مرفقات المستندات والعقود، وحساب فترة التجربة تلقائيا', 'Attachments on documents and contracts, and automatic probation dates'),
+  ('وعد كتطبيق على الجوال', 'Waad as a phone app')]),
+ ('أكتوبر 2026', 'October 2026', [
+  ('المالية الكاملة: القيود والتقارير وإقفال الفترات والتسوية البنكية والأصول الثابتة ومراكز التكلفة والموازنات والشيكات والعملات والعهد النقدية', 'Full finance: entries, reports, period close, bank reconciliation, fixed assets, cost centres, budgets, cheques, currencies and petty cash'),
+  ('دورة المبيعات (عروض وأوامر وسندات تسليم وفواتير ضريبية برمز QR) ونقطة البيع', 'The sales cycle (quotes, orders, delivery notes, tax invoices with QR) and point of sale'),
+  ('دورة المشتريات مع المطابقة الثلاثية، وطلبات عروض الأسعار وتقييم الموردين', 'The purchasing cycle with three-way matching, RFQs and supplier rating'),
+  ('المخزون: المستودعات والتحويلات والجرد والدفعات والصلاحية وحد إعادة الطلب والأرقام التسلسلية', 'Inventory: warehouses, transfers, counts, batches, expiry, reorder levels and serial numbers'),
+  ('الرواتب لجزء من الشهر، ويوم الإقفال، وملف حماية الأجور، وتقرير التأمينات، وحاسبة نطاقات', 'Part-month payroll, the cut-off day, the wage protection file, the GOSI report and the Nitaqat calculator'),
+  ('الحضور من الجوال بالموقع، والورديات ودوام رمضان، والعمل الإضافي', 'Attendance from the phone with location, shifts, Ramadan hours and overtime'),
+  ('العهد وإخلاء الطرف، والمخالفات والجزاءات وفق جداول اللائحة النموذجية', 'Custody and clearance, and violations and penalties per the model regulation tables'),
+  ('مسار الطلب خطوة بخطوة، وتذاكر السفر وتأشيرات الخروج والعودة', 'The request journey step by step, travel tickets and exit/re-entry visas'),
+  ('مركز التحليلات مع التصدير PDF وExcel وCSV وWord', 'The analytics centre with PDF, Excel, CSV and Word export'),
+  ('الإجازات والسلف والحسميات والمخالصة وفق نظام العمل، والخطابات الجاهزة على ترويسة المنشأة', 'Leave, advances, deductions and final settlement under the Labor Law, and ready letters on the letterhead'),
+  ('الهيكل التنظيمي، واستيراد الموظفين والمستندات من Excel، والواجهة الإنجليزية الكاملة', 'The organisation chart, importing staff and documents from Excel, and the full English interface')]),
+]

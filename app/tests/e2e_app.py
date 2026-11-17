@@ -1468,9 +1468,16 @@ with sync_playwright() as pw:
     sp.goto('file://' + kdir + '/knowledge.html'); sp.wait_for_selector('.kn-tile')
     ok(sp.locator('.kn-tile').count() == 6 and sp.locator('header a[href="knowledge.html"]').count() == 1, 'website knowledge: the hub links blog, policies, job descriptions, glossary, tools and updates')
     sp.goto('file://' + kdir + '/blog.html'); sp.wait_for_selector('.kn-tile'); n_art = sp.locator('.kn-tile').count()
-    sp.goto('file://' + kdir + '/blog-eos.html'); sp.wait_for_selector('.kn-art h2')
-    ok(n_art >= 5 and 'المادة 84' in sp.inner_text('.kn-art') and '45,000' in sp.inner_text('.kn-art'), 'website blog: articles with their Labor Law article numbers and a worked example')
-    for kp, sel, n in (('policies.html', '.kn-d', 6), ('jobs.html', '.kn-d', 10), ('glossary.html', '.kn-g', 25)):
+    sp.goto('file://' + kdir + '/blog-end-of-service.html'); sp.wait_for_selector('.kn-art h2')
+    ok(n_art >= 25 and 'المادة 84' in sp.inner_text('.kn-art') and '45,000' in sp.inner_text('.kn-art'), 'website guides: 25+ articles cited to the Labor Law, with worked examples')
+    sp.goto('file://' + kdir + '/blog-probation.html'); sp.wait_for_selector('.kn-art h2')
+    ok('180' in sp.inner_text('.kn-art') and 'المادة 53' in sp.inner_text('.kn-art'), 'website guides: probation per the amended Article 53 (180 days)')
+    sp.goto('file://' + kdir + '/policy-leave.html'); sp.wait_for_selector('.kn-policy')
+    ok(all(h in sp.inner_text('.kn-policy') for h in ('الغرض', 'النطاق', 'الأحكام', 'الإجراءات', 'المسؤوليات')), 'website policies: each policy has purpose, scope, provisions, procedures and responsibilities')
+    sp.goto('file://' + kdir + '/glossary.html'); sp.wait_for_selector('[data-kn-search]'); sp.fill('[data-kn-search]', 'ساند'); sp.wait_for_timeout(200)
+    ok(sp.locator('.kn-g:not([hidden])').count() >= 1 and sp.locator('.kn-g:not([hidden])').count() < 5, 'website glossary: search filters the terms')
+    sp.goto('file://' + kdir + '/updates.html'); sp.wait_for_selector('.kn-rel'); ok(sp.locator('.kn-rel').count() >= 6, 'website: what\'s new lists every release since launch')
+    for kp, sel, n in (('policies.html', '.kn-tile', 12), ('jobs.html', '.kn-d', 20), ('glossary.html', '.kn-g', 100)):
         sp.goto('file://' + kdir + '/' + kp); sp.wait_for_selector(sel); ok(sp.locator(sel).count() >= n, 'website knowledge: %s has %d+ entries' % (kp, n))
     ok(not sp.errors, 'no JS errors on the website %s' % sp.errors[:2]); sp.context.close()
     # announcements: posted in the admin site, shown above every screen of the system until closed
