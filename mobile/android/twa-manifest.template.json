@@ -1,0 +1,40 @@
+{
+  "packageId": "{{PACKAGE_ID}}",
+  "host": "{{DOMAIN}}",
+  "name": "وعد — الموارد البشرية والمالية",
+  "launcherName": "وعد",
+  "display": "standalone",
+  "orientation": "default",
+  "themeColor": "#131B2E",
+  "themeColorDark": "#131B2E",
+  "navigationColor": "#131B2E",
+  "navigationColorDark": "#131B2E",
+  "navigationDividerColor": "#131B2E",
+  "navigationDividerColorDark": "#131B2E",
+  "backgroundColor": "#131B2E",
+  "enableNotifications": true,
+  "startUrl": "{{APP_PATH}}",
+  "iconUrl": "https://{{DOMAIN}}{{APP_PATH}}icon-512.png",
+  "maskableIconUrl": "https://{{DOMAIN}}{{APP_PATH}}icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./waad-upload.keystore",
+    "alias": "waad"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://{{DOMAIN}}{{APP_PATH}}manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://{{DOMAIN}}{{APP_PATH}}",
+  "minSdkVersion": 21,
+  "fingerprints": []
+}
