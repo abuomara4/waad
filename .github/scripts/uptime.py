@@ -47,6 +47,13 @@ def notify(subject, body):
             sent = True
         except Exception as e:
             print('::warning::e-mail not sent:', type(e).__name__)
+    tok, chat = os.environ.get('TELEGRAM_BOT_TOKEN', '').strip(), os.environ.get('TELEGRAM_CHAT_ID', '').strip()
+    if tok and chat:
+        try:
+            data = urllib.parse.urlencode({'chat_id': chat, 'text': subject + '\n' + body}).encode()
+            with urllib.request.urlopen('https://api.telegram.org/bot%s/sendMessage' % tok, data=data, timeout=30) as r: sent = sent or r.status == 200
+        except Exception as e:
+            print('::warning::Telegram not sent:', type(e).__name__)
     if WA_PHONE and WA_KEY:
         try:
             q = urllib.parse.urlencode({'phone': WA_PHONE, 'text': subject + '\n' + body, 'apikey': WA_KEY})

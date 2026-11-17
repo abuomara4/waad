@@ -10,6 +10,7 @@
 Channels (each optional, set as repository secrets):
   e-mail   : NOTIFY_GMAIL_USER + NOTIFY_GMAIL_APP_PASSWORD (a Google «App password»); team mail goes to NOTIFY_EMAIL_TO or to itself
   WhatsApp : CALLMEBOT_PHONE + CALLMEBOT_APIKEY (free CallMeBot key for your own number) — team notices only
+  Telegram : TELEGRAM_BOT_TOKEN (from @BotFather) + TELEGRAM_CHAT_ID (your id, e.g. from @userinfobot; send /start to the bot first) — team notices only
 Something is marked as done only after it was delivered; with no channel set nothing is marked."""
 import json, os, re, smtplib, subprocess, sys, urllib.parse, urllib.request
 from email.mime.text import MIMEText
@@ -45,6 +46,16 @@ def whatsapp(text):
     except Exception as e:
         print('::warning::WhatsApp not sent:', type(e).__name__); return False
 
+TG_TOKEN, TG_CHAT = os.environ.get('TELEGRAM_BOT_TOKEN', '').strip(), os.environ.get('TELEGRAM_CHAT_ID', '').strip()
+def telegram(text):
+    if not (TG_TOKEN and TG_CHAT): return False
+    try:
+        data = urllib.parse.urlencode({'chat_id': TG_CHAT, 'text': text[:4000], 'disable_web_page_preview': 'true'}).encode()
+        with urllib.request.urlopen('https://api.telegram.org/bot%s/sendMessage' % TG_TOKEN, data=data, timeout=30) as r:
+            return r.status == 200
+    except Exception as e:
+        print('::warning::Telegram not sent:', type(e).__name__); return False
+
 # ---------- 1. new requests → the Waad team ----------
 def team():
     rows = [{'company_id': None, 'name': 'رسالة تجربة من وعد', 'email': 'test@example.com', 'at': 'الآن'}] if TEST else json.loads(psql("""select coalesce(json_agg(x), '[]') from (
@@ -58,7 +69,7 @@ def team():
     lines = ['• %s — %s — %s' % (r['name'], ' · '.join(x for x in (r['email'], r.get('phone'), r.get('city'), r.get('size') and r['size'] + ' موظف') if x) or '—', r['at']) for r in rows]
     title = 'وعد: %d طلب تجربة جديد' % len(rows) if len(rows) > 1 else 'وعد: طلب تجربة جديد'
     body = title + '\n\n' + '\n'.join(lines) + '\n\nللقبول افتح لوحة الإدارة ← المنشآت:\n' + ADMIN
-    sent = [n for n, ok in (('email', mail(os.environ.get('NOTIFY_EMAIL_TO', '').strip() or USER, title, body)), ('whatsapp', whatsapp(body))) if ok]
+    sent = [n for n, ok in (('email', mail(os.environ.get('NOTIFY_EMAIL_TO', '').strip() or USER, title, body)), ('whatsapp', whatsapp(body)), ('telegram', telegram(body))) if ok]
     if TEST:
         print('test message sent by %s' % (' + '.join(sent) or 'nothing — check the secrets')); sys.exit(0 if sent else 1)
     if not sent:
@@ -202,7 +213,7 @@ def support_team():
     title = 'وعد: %d طلب دعم جديد' % len(rows) if len(rows) > 1 else 'وعد: طلب دعم جديد'
     body = title + '\n\n' + '\n\n'.join('• [%s] %s — %s (%s)\n%s' % (kinds.get(r['kind'], r['kind']), r['subject'], r['name'], r['author'] or '—', r['body']) for r in rows) \
         + '\n\nللرد افتح لوحة الإدارة ← طلبات الدعم:\n' + ADMIN + '#/support'
-    sent = [n for n, ok in (('email', mail(os.environ.get('NOTIFY_EMAIL_TO', '').strip() or USER, title, body)), ('whatsapp', whatsapp(body))) if ok]
+    sent = [n for n, ok in (('email', mail(os.environ.get('NOTIFY_EMAIL_TO', '').strip() or USER, title, body)), ('whatsapp', whatsapp(body)), ('telegram', telegram(body))) if ok]
     if sent:
         psql('update public.support_tickets set notified_at = now() where id in (%s)' % ','.join("'%s'" % r['id'] for r in rows))
         print('support: told the team about %d request(s)' % len(rows))
