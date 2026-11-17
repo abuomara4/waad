@@ -26,6 +26,10 @@ jobs:
           CALLMEBOT_APIKEY: ${{ secrets.CALLMEBOT_APIKEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WA_TOKEN: ${{ secrets.WA_TOKEN }}
+          WA_PHONE_ID: ${{ secrets.WA_PHONE_ID }}
+          WA_TO: ${{ secrets.WA_TO }}
+          WA_TEMPLATE: ${{ secrets.WA_TEMPLATE }}
         run: |
           command -v psql >/dev/null || sudo apt-get install -y -qq postgresql-client > /dev/null
           pip install --break-system-packages -q pywebpush==2.0.3 > /dev/null 2>&1 || echo '::warning::pywebpush not installed'
@@ -45,6 +49,10 @@ jobs:
           CALLMEBOT_APIKEY: ${{ secrets.CALLMEBOT_APIKEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WA_TOKEN: ${{ secrets.WA_TOKEN }}
+          WA_PHONE_ID: ${{ secrets.WA_PHONE_ID }}
+          WA_TO: ${{ secrets.WA_TO }}
+          WA_TEMPLATE: ${{ secrets.WA_TEMPLATE }}
         run: timeout 150 python3 .github/scripts/uptime.py
       - uses: actions/cache/save@v4
         if: always() && !inputs.test

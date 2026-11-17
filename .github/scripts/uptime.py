@@ -47,6 +47,8 @@ def notify(subject, body):
             sent = True
         except Exception as e:
             print('::warning::e-mail not sent:', type(e).__name__)
+    import wa_cloud
+    sent = wa_cloud.send(subject + ' — ' + body) or sent
     tok, chat = os.environ.get('TELEGRAM_BOT_TOKEN', '').strip(), os.environ.get('TELEGRAM_CHAT_ID', '').strip()
     if tok and chat:
         try:
