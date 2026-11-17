@@ -721,7 +721,7 @@ function printBlock(node, title) {
 // Waad's own invoice for a subscription payment (0114): a tax invoice with the QR code when Waad has a VAT number, else a plain invoice
 async function waadInvoicePrint(id) {
   const v = await db.rpc('waad_invoice', { p_payment: id }), s = v.seller || {}, b = v.buyer || {}, m = x => money(+x);
-  const t = v.tax ? tr('فاتورة ضريبية مبسطة') : tr('فاتورة');
+  const t = !v.tax ? tr('فاتورة') : b.vat ? tr('فاتورة ضريبية') : tr('فاتورة ضريبية مبسطة');   // a VAT-registered customer gets a (standard) tax invoice
   const qr = v.tax && typeof QR !== 'undefined' ? QR.svg(QR.zatca({ seller: s.name, vat: s.vat, time: new Date(v.at).toISOString().replace(/\.\d{3}Z$/, 'Z'), total: v.total, tax: v.vat }), 120) : '';
   const n = document.createElement('div'); n.className = 'pdoc winv';
   n.innerHTML = `<div class="ph"><div class="ph-brand"><img class="ph-logo" src="${LOGO_L}" alt=""><div><div class="ph-co">${esc(s.name || 'وعد')}</div>
