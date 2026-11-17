@@ -28,7 +28,7 @@ VIEWS['#/reviews'] = async (page, arg) => {
           <div class="card kpi"><div class="muted small">الأعلى أداء (4–5)</div><div class="v num">${done.filter(r => n0(r.overall) >= 3.5).length}</div></div>
           <div class="card kpi"><div class="muted small">يحتاج متابعة (أقل من 3)</div><div class="v num">${done.filter(r => r.overall != null && n0(r.overall) < 3).length}</div></div>
         </div>
-        ${done.length ? `<div class="muted small" style="margin-bottom:6px">توزيع التقديرات (عدد الموظفين لكل درجة)</div>${barChart(bars, [{ name: 'عدد الموظفين', color: '#2563eb' }])}` : `<p class="muted small">لا توجد تقييمات معتمدة بعد في آخر دورة.</p>`}</div>`;
+        ${done.length ? `<div class="muted small" style="margin-bottom:6px">توزيع التقديرات (عدد الموظفين لكل درجة)</div>${barChart(bars, [{ name: 'عدد الموظفين', color: '#217FE1' }])}` : `<p class="muted small">لا توجد تقييمات معتمدة بعد في آخر دورة.</p>`}</div>`;
     }
   }
   page.innerHTML = `<div class="head"><div><h1>تقييم الأداء</h1><div class="muted">أهداف بأوزان ودرجات من 1 إلى 5، يقيّم المدير المباشر وتعتمد الموارد البشرية ثم يطّلع الموظف</div></div>${hr ? '<button class="btn pri" id="nc">دورة تقييم جديدة</button>' : ''}</div>

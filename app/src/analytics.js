@@ -3,7 +3,7 @@
    Every section comes from company_analytics() and is shown only to whoever may see it. Exports: PDF, Excel (one sheet
    per table), CSV, Word and a PNG of the charts — all built in the browser from the same model. ===== */
 
-const AN_C = ['#3b82f6', '#c9a35c', '#ef4444', '#3fc392', '#8b5cf6', '#06b6d4'];
+const AN_C = ['#217FE1', '#C9B27B', '#ef4444', '#3fc392', '#8b5cf6', '#06b6d4'];
 const anISO = d => d.toISOString().slice(0, 10);
 const anEnd = (y, m) => anISO(new Date(Date.UTC(y, m, 0)));   // last day of month m (1-12)
 function anPreset(k) {

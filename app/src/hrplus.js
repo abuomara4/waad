@@ -39,7 +39,7 @@ function bullet(value, target, { max, fmt = v => String(v), good } = {}) {
 }
 
 // donut for genuine part-to-whole: top 5 slices, the rest folded into "أخرى"; legend carries label + value + %
-const DONUT_C = ['#3b82f6', '#c9a35c', '#ef4444', '#3fc392', '#8b5cf6'];
+const DONUT_C = ['#217FE1', '#C9B27B', '#ef4444', '#3fc392', '#8b5cf6'];
 function donut(rows, fmt = v => String(v)) {
   const all = (rows || []).map(r => ({ label: r.label, v: Math.max(0, n0(r.v)) })).filter(r => r.v > 0).sort((a, b) => b.v - a.v);
   const total = all.reduce((a, r) => a + r.v, 0);
@@ -71,9 +71,9 @@ VIEWS['#/hrdash'] = async page => {
       ${d.docs30 != null ? kpi('مستندات وعقود تنتهي خلال 30 يوما', d.docs30, '#/docs', d.docs30 ? 'bad' : '') : ''}${kpi('إخلاء طرف غير مكتمل', d.clearance_open, '#/clearance', d.clearance_open ? 'bad' : '')}
       ${kpi('إقرارات سياسات ناقصة', d.policies_unacked, '#/policies', d.policies_unacked ? 'bad' : '')}${last ? kpi('تكلفة آخر مسير', money(n0(last.gross) + n0(last.employer_gosi)), '#/payroll') : ''}</div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
-      <div class="card"><h2>${esc(tr('عدد الموظفين والحركة — 12 شهرا'))}</h2>${barChart(d.months.map(m => ({ label: m.m.slice(5), values: [m.hc, m.joins, m.leaves] })), [{ name: 'العدد نهاية الشهر', color: '#2563eb' }, { name: 'منضمون', color: '#16a34a' }, { name: 'مغادرون', color: '#dc2626' }])}</div>
+      <div class="card"><h2>${esc(tr('عدد الموظفين والحركة — 12 شهرا'))}</h2>${barChart(d.months.map(m => ({ label: m.m.slice(5), values: [m.hc, m.joins, m.leaves] })), [{ name: 'العدد نهاية الشهر', color: '#217FE1' }, { name: 'منضمون', color: '#16a34a' }, { name: 'مغادرون', color: '#dc2626' }])}</div>
       <div class="card"><h2>${esc(tr('الموظفون حسب القسم'))}</h2>${hbars(d.by_dept.map(x => ({ label: x.name === '—' ? tr('بلا قسم') : nm(x), v: x.n })))}</div>
-      <div class="card"><h2>${esc(tr('تكلفة الرواتب — آخر 6 مسيرات'))}</h2>${(d.payroll || []).length ? barChart(d.payroll.map(p => ({ label: p.p.slice(2), values: [p.gross, p.net, p.employer_gosi] })), [{ name: 'الإجمالي', color: '#2563eb' }, { name: 'الصافي', color: '#16a34a' }, { name: 'تأمينات المنشأة', color: '#f59e0b' }], { fmt: money }) : `<p class="muted small">${esc(tr('لا توجد مسيرات'))}</p>`}</div>
+      <div class="card"><h2>${esc(tr('تكلفة الرواتب — آخر 6 مسيرات'))}</h2>${(d.payroll || []).length ? barChart(d.payroll.map(p => ({ label: p.p.slice(2), values: [p.gross, p.net, p.employer_gosi] })), [{ name: 'الإجمالي', color: '#217FE1' }, { name: 'الصافي', color: '#16a34a' }, { name: 'تأمينات المنشأة', color: '#f59e0b' }], { fmt: money }) : `<p class="muted small">${esc(tr('لا توجد مسيرات'))}</p>`}</div>
       <div class="card"><h2>${esc(tr('أرصدة إجازات متراكمة (أكثر من 30 يوما)'))}</h2>${att(d.leave_high, [{ t: 'الموظف', h: x => esc(nm(x)) }, { t: 'الرصيد', r: 1, h: x => `<b class="num">${Math.floor(x.days)}</b>` }])}</div>
       <div class="card"><h2>${esc(tr('عمل إضافي قريب من 720 ساعة'))}</h2>${att(d.ot_near_cap, [{ t: 'الموظف', h: x => esc(nm(x)) }, { t: 'الساعات هذه السنة', r: 1, h: x => `<b class="num ${x.hours >= 720 ? 'bad' : ''}">${x.hours}</b>` }])}</div>
       <div class="card"><h2>${esc(tr('ساعات تعويضية تنتهي خلال 14 يوما'))}</h2>${att(d.comp_expiring, [{ t: 'الموظف', h: x => esc(nm(x)) }, { t: 'الرصيد', r: 1, h: x => `<span class="num">${r2(x.hours)}</span>` }, { t: 'تنتهي', h: x => fdate(x.use_by) }])}</div>

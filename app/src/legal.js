@@ -2,11 +2,11 @@
 /* Privacy policy and terms of use. Each text exists in Arabic and English and is shown in the interface language
    (data-nt: not passed through the UI translator). Bump TERMS_VERSION when either text changes materially. */
 const TERMS_VERSION = '2026-11';
-const LEGAL_CONTACT = '';   // privacy contact e-mail; shown when set
+const LEGAL_CONTACT = 'waad.erp@gmail.com';   // privacy contact e-mail; shown when set
 const LEGAL = {
   privacy: {
     ar: { t: 'سياسة الخصوصية', d: 'آخر تحديث: 17 نوفمبر 2026 — الإصدار 2026-11', s: [
-      ['من نحن', 'وعد نظام سحابي لإدارة الموارد البشرية والمالية والمبيعات والمشتريات والمخزون للمنشآت.'],
+      ['من نحن', 'وعد نظام سحابي لإدارة الموارد البشرية والمالية والمبيعات والمشتريات والمخزون للمنشآت، تقدّمه شركة وعد لتقنية المعلومات (الرياض).'],
       ['دور كل طرف', 'المنشأة التي تسجّل في وعد هي «جهة التحكم» في البيانات التي تُدخلها عن موظفيها وعملائها ومورديها، ووعد «جهة معالجة» تحفظ هذه البيانات وتعالجها نيابة عنها ولغرض تشغيل الخدمة فقط، وفق نظام حماية البيانات الشخصية في المملكة العربية السعودية ولوائحه.'],
       ['البيانات التي نجمعها', 'بيانات الحساب: البريد الإلكتروني وكلمة المرور (تُحفظ مشفّرة لدى مزوّد الدخول ولا نراها). بيانات المنشأة وما يُدخله مستخدموها: الموظفون والرواتب والحضور والفواتير والعملاء والموردون وغيرها. بيانات تقنية محدودة: رسائل الأخطاء التقنية دون محتوى السجلات، وعنوان IP عند إدخال رمز منشأة خاطئ (لمنع التخمين، ويُحذف بعد يوم). بيانات التسجيل عن المنشأة: جوال المالك والمدينة وعدد الموظفين التقريبي ونشاط المنشأة ومن أين عرفت عن وعد.'],
       ['لماذا نستخدمها', 'لتشغيل الخدمة وحساب الرواتب والفواتير والتقارير التي تطلبها المنشأة، وحماية الحسابات من الدخول غير المصرّح به، وإصلاح الأعطال. لا نبيع البيانات، ولا نستخدمها للإعلانات، ولا نشاركها مع منشأة أخرى.'],
@@ -17,7 +17,7 @@ const LEGAL = {
       ['حقوقك', 'لصاحب البيانات حق العلم بمعالجتها، والوصول إليها، وطلب تصحيحها أو إتلافها، والرجوع عن موافقته. يُقدَّم الطلب أولا إلى المنشأة التي يعمل لديها أو يتعامل معها، وسنساعدها في تنفيذه.'],
       ['التغييرات', 'إذا تغيّرت هذه السياسة تغييرا جوهريا سنطلب موافقتك على الإصدار الجديد عند الدخول.']] },
     en: { t: 'Privacy Policy', d: 'Last updated: 17 November 2026 — version 2026-11', s: [
-      ['Who we are', 'Waad is a cloud system for HR, finance, sales, purchasing and inventory.'],
+      ['Who we are', 'Waad is a cloud system for HR, finance, sales, purchasing and inventory, provided by Waad Information Technology Company (Riyadh).'],
       ['Roles', 'The company that signs up is the "controller" of the data it enters about its employees, customers and suppliers. Waad is a "processor" that stores and processes that data on the company\'s behalf, only to run the service, under the Saudi Personal Data Protection Law and its regulations.'],
       ['Data we collect', 'Account data: e-mail and password (stored hashed by the sign-in provider; we never see it). Company data entered by its users: employees, payroll, attendance, invoices, customers, suppliers and so on. Limited technical data: technical error messages without record contents, and the IP address when a wrong company code is entered (to prevent guessing; deleted after one day). Sign-up details about the company: the owner\'s mobile, city, approximate number of employees, activity, and how it heard about Waad.'],
       ['Why we use it', 'To run the service and produce the payroll, invoices and reports the company asks for, to protect accounts from unauthorised access, and to fix faults. We do not sell data, use it for advertising, or share it with any other company.'],

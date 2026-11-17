@@ -16,15 +16,15 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>وعد — الموارد البشرية والمالية</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@600;700&family=Plus+Jakarta+Sans:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f5f7fb;--surface:#fff;--side:#fff;--gold:#8a641f;--ink:#0f172a;--muted:#56657a;--line:#e2e8f0;--line2:#cbd5e1;--line3:#f1f5f9;--accent:#2563eb;--accent-ink:#fff;--soft:#eff4ff;--soft2:#f1f5f9;--ok:#0f766e;--okbg:rgba(13,148,136,.10);--bad:#b91c1c;--badbg:rgba(239,68,68,.10);--wait:#b45309;--waitbg:rgba(245,158,11,.12);--prim:#142039;--prim-h:#1e293b;--prim-ink:#fff;--sh1:0 1px 3px 0 rgba(15,23,42,.04),0 1px 2px -1px rgba(15,23,42,.04);--sh2:0 10px 15px -3px rgba(15,23,42,.06),0 4px 6px -4px rgba(15,23,42,.04);color-scheme:light}
+:root{--bg:#f5f7fb;--surface:#fff;--side:#fff;--gold:#8a641f;--ink:#0f172a;--muted:#56657a;--line:#e2e8f0;--line2:#cbd5e1;--line3:#f1f5f9;--accent:#1B6CC9;--accent-ink:#fff;--soft:#eff4ff;--soft2:#f1f5f9;--ok:#0f766e;--okbg:rgba(13,148,136,.10);--bad:#b91c1c;--badbg:rgba(239,68,68,.10);--wait:#b45309;--waitbg:rgba(245,158,11,.12);--prim:#142039;--prim-h:#1e293b;--prim-ink:#fff;--sh1:0 1px 3px 0 rgba(15,23,42,.04),0 1px 2px -1px rgba(15,23,42,.04);--sh2:0 10px 15px -3px rgba(15,23,42,.06),0 4px 6px -4px rgba(15,23,42,.04);color-scheme:light}
 @media(prefers-color-scheme:dark){:root[data-theme="auto-dark"]{--bg:#131b29;--surface:#1c2636;--side:#182131;--ink:#e8edf4;--muted:#8d9bb0;--line:#29364a;--line2:#34435a;--line3:#222d3f;--accent:#4c8df6;--accent-ink:#0b1220;--soft:rgba(76,141,246,.15);--soft2:#172030;--ok:#3fc392;--okbg:rgba(63,195,146,.15);--bad:#f87171;--badbg:rgba(239,68,68,.16);--wait:#e0b45e;--waitbg:rgba(224,180,94,.15);--prim:#2f6fe8;--prim-h:#2563eb;--prim-ink:#fff;--gold:#C9B27B;--sh1:0 1px 2px 0 rgba(0,0,0,.35);--sh2:0 12px 28px -6px rgba(0,0,0,.55);color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#131b29;--surface:#1c2636;--side:#182131;--ink:#e8edf4;--muted:#8d9bb0;--line:#29364a;--line2:#34435a;--line3:#222d3f;--accent:#4c8df6;--accent-ink:#0b1220;--soft:rgba(76,141,246,.15);--soft2:#172030;--ok:#3fc392;--okbg:rgba(63,195,146,.15);--bad:#f87171;--badbg:rgba(239,68,68,.16);--wait:#e0b45e;--waitbg:rgba(224,180,94,.15);--prim:#2f6fe8;--prim-h:#2563eb;--prim-ink:#fff;--gold:#C9B27B;--sh1:0 1px 2px 0 rgba(0,0,0,.35);--sh2:0 12px 28px -6px rgba(0,0,0,.55);color-scheme:dark}
 @media(prefers-color-scheme:dark){:root:not([data-theme]){--bg:#131b29;--surface:#1c2636;--side:#182131;--ink:#e8edf4;--muted:#8d9bb0;--line:#29364a;--line2:#34435a;--line3:#222d3f;--accent:#4c8df6;--accent-ink:#0b1220;--soft:rgba(76,141,246,.15);--soft2:#172030;--ok:#3fc392;--okbg:rgba(63,195,146,.15);--bad:#f87171;--badbg:rgba(239,68,68,.16);--wait:#e0b45e;--waitbg:rgba(224,180,94,.15);--prim:#2f6fe8;--prim-h:#2563eb;--prim-ink:#fff;--gold:#C9B27B;--sh1:0 1px 2px 0 rgba(0,0,0,.35);--sh2:0 12px 28px -6px rgba(0,0,0,.55);color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{min-height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Arabic",Tahoma,Arial,sans-serif;line-height:1.7;font-size:15px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter","IBM Plex Sans Arabic",system-ui,Tahoma,Arial,sans-serif;line-height:1.7;font-size:15px}
 [hidden]{display:none!important}
 a{color:var(--accent);text-decoration:none}
 h1{font-size:22px;margin:0 0 4px;font-weight:700}
@@ -439,6 +439,16 @@ tr.pgrp td{padding-top:14px;color:var(--muted,#6b7280);font-size:13px}
 .winv .ptbl{font-size:13px;margin-top:10px}.winv .ptbl tfoot td{background:#f6f6f6}
 .hmore,.hmore-i{display:contents}.hmore-t{display:none}
 @media(max-width:700px){.hmore{display:block;position:relative}.hmore-t{display:inline-flex}.hmore-i{display:none;position:absolute;inset-inline-end:0;top:calc(100% + 4px);z-index:40;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--sh2);padding:6px;flex-direction:column;gap:4px;min-width:230px}.hmore.open .hmore-i{display:flex}.hmore-i .btn{width:100%;justify-content:flex-start}}
+/* ===== Waad brand guidelines (2026): tokens, type, focus, motion ===== */
+:root{--brand-navy:#142039;--brand-gold:#C9B27B;--brand-blue:#217FE1;--brand-sage:#81988C}
+h1,h2,h3,.ph-co{font-family:"Plus Jakarta Sans","Noto Kufi Arabic","IBM Plex Sans Arabic",system-ui,sans-serif;letter-spacing:0}
+.btn{border-radius:8px;transition:background-color .15s,border-color .15s,color .15s,box-shadow .15s}
+.card{border-radius:12px}
+:focus-visible{outline:2px solid var(--brand-blue);outline-offset:2px}
+#page>div{animation:wfade .25s cubic-bezier(.22,1,.36,1)}
+@keyframes wfade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){#page>div{animation:none}.btn{transition:none}}
+@media print{h1,h2,h3{font-family:inherit}}
 
 </style>
 </head>
@@ -2506,7 +2516,7 @@ VIEWS['#/reviews'] = async (page, arg) => {
           <div class="card kpi"><div class="muted small">الأعلى أداء (4–5)</div><div class="v num">${done.filter(r => n0(r.overall) >= 3.5).length}</div></div>
           <div class="card kpi"><div class="muted small">يحتاج متابعة (أقل من 3)</div><div class="v num">${done.filter(r => r.overall != null && n0(r.overall) < 3).length}</div></div>
         </div>
-        ${done.length ? `<div class="muted small" style="margin-bottom:6px">توزيع التقديرات (عدد الموظفين لكل درجة)</div>${barChart(bars, [{ name: 'عدد الموظفين', color: '#2563eb' }])}` : `<p class="muted small">لا توجد تقييمات معتمدة بعد في آخر دورة.</p>`}</div>`;
+        ${done.length ? `<div class="muted small" style="margin-bottom:6px">توزيع التقديرات (عدد الموظفين لكل درجة)</div>${barChart(bars, [{ name: 'عدد الموظفين', color: '#217FE1' }])}` : `<p class="muted small">لا توجد تقييمات معتمدة بعد في آخر دورة.</p>`}</div>`;
     }
   }
   page.innerHTML = `<div class="head"><div><h1>تقييم الأداء</h1><div class="muted">أهداف بأوزان ودرجات من 1 إلى 5، يقيّم المدير المباشر وتعتمد الموارد البشرية ثم يطّلع الموظف</div></div>${hr ? '<button class="btn pri" id="nc">دورة تقييم جديدة</button>' : ''}</div>
@@ -4267,7 +4277,7 @@ function bullet(value, target, { max, fmt = v => String(v), good } = {}) {
 }
 
 // donut for genuine part-to-whole: top 5 slices, the rest folded into "أخرى"; legend carries label + value + %
-const DONUT_C = ['#3b82f6', '#c9a35c', '#ef4444', '#3fc392', '#8b5cf6'];
+const DONUT_C = ['#217FE1', '#C9B27B', '#ef4444', '#3fc392', '#8b5cf6'];
 function donut(rows, fmt = v => String(v)) {
   const all = (rows || []).map(r => ({ label: r.label, v: Math.max(0, n0(r.v)) })).filter(r => r.v > 0).sort((a, b) => b.v - a.v);
   const total = all.reduce((a, r) => a + r.v, 0);
@@ -4299,9 +4309,9 @@ VIEWS['#/hrdash'] = async page => {
       ${d.docs30 != null ? kpi('مستندات وعقود تنتهي خلال 30 يوما', d.docs30, '#/docs', d.docs30 ? 'bad' : '') : ''}${kpi('إخلاء طرف غير مكتمل', d.clearance_open, '#/clearance', d.clearance_open ? 'bad' : '')}
       ${kpi('إقرارات سياسات ناقصة', d.policies_unacked, '#/policies', d.policies_unacked ? 'bad' : '')}${last ? kpi('تكلفة آخر مسير', money(n0(last.gross) + n0(last.employer_gosi)), '#/payroll') : ''}</div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
-      <div class="card"><h2>${esc(tr('عدد الموظفين والحركة — 12 شهرا'))}</h2>${barChart(d.months.map(m => ({ label: m.m.slice(5), values: [m.hc, m.joins, m.leaves] })), [{ name: 'العدد نهاية الشهر', color: '#2563eb' }, { name: 'منضمون', color: '#16a34a' }, { name: 'مغادرون', color: '#dc2626' }])}</div>
+      <div class="card"><h2>${esc(tr('عدد الموظفين والحركة — 12 شهرا'))}</h2>${barChart(d.months.map(m => ({ label: m.m.slice(5), values: [m.hc, m.joins, m.leaves] })), [{ name: 'العدد نهاية الشهر', color: '#217FE1' }, { name: 'منضمون', color: '#16a34a' }, { name: 'مغادرون', color: '#dc2626' }])}</div>
       <div class="card"><h2>${esc(tr('الموظفون حسب القسم'))}</h2>${hbars(d.by_dept.map(x => ({ label: x.name === '—' ? tr('بلا قسم') : nm(x), v: x.n })))}</div>
-      <div class="card"><h2>${esc(tr('تكلفة الرواتب — آخر 6 مسيرات'))}</h2>${(d.payroll || []).length ? barChart(d.payroll.map(p => ({ label: p.p.slice(2), values: [p.gross, p.net, p.employer_gosi] })), [{ name: 'الإجمالي', color: '#2563eb' }, { name: 'الصافي', color: '#16a34a' }, { name: 'تأمينات المنشأة', color: '#f59e0b' }], { fmt: money }) : `<p class="muted small">${esc(tr('لا توجد مسيرات'))}</p>`}</div>
+      <div class="card"><h2>${esc(tr('تكلفة الرواتب — آخر 6 مسيرات'))}</h2>${(d.payroll || []).length ? barChart(d.payroll.map(p => ({ label: p.p.slice(2), values: [p.gross, p.net, p.employer_gosi] })), [{ name: 'الإجمالي', color: '#217FE1' }, { name: 'الصافي', color: '#16a34a' }, { name: 'تأمينات المنشأة', color: '#f59e0b' }], { fmt: money }) : `<p class="muted small">${esc(tr('لا توجد مسيرات'))}</p>`}</div>
       <div class="card"><h2>${esc(tr('أرصدة إجازات متراكمة (أكثر من 30 يوما)'))}</h2>${att(d.leave_high, [{ t: 'الموظف', h: x => esc(nm(x)) }, { t: 'الرصيد', r: 1, h: x => `<b class="num">${Math.floor(x.days)}</b>` }])}</div>
       <div class="card"><h2>${esc(tr('عمل إضافي قريب من 720 ساعة'))}</h2>${att(d.ot_near_cap, [{ t: 'الموظف', h: x => esc(nm(x)) }, { t: 'الساعات هذه السنة', r: 1, h: x => `<b class="num ${x.hours >= 720 ? 'bad' : ''}">${x.hours}</b>` }])}</div>
       <div class="card"><h2>${esc(tr('ساعات تعويضية تنتهي خلال 14 يوما'))}</h2>${att(d.comp_expiring, [{ t: 'الموظف', h: x => esc(nm(x)) }, { t: 'الرصيد', r: 1, h: x => `<span class="num">${r2(x.hours)}</span>` }, { t: 'تنتهي', h: x => fdate(x.use_by) }])}</div>
@@ -4431,7 +4441,7 @@ async function leaveStatementCard(box, e) {
    Every section comes from company_analytics() and is shown only to whoever may see it. Exports: PDF, Excel (one sheet
    per table), CSV, Word and a PNG of the charts — all built in the browser from the same model. ===== */
 
-const AN_C = ['#3b82f6', '#c9a35c', '#ef4444', '#3fc392', '#8b5cf6', '#06b6d4'];
+const AN_C = ['#217FE1', '#C9B27B', '#ef4444', '#3fc392', '#8b5cf6', '#06b6d4'];
 const anISO = d => d.toISOString().slice(0, 10);
 const anEnd = (y, m) => anISO(new Date(Date.UTC(y, m, 0)));   // last day of month m (1-12)
 function anPreset(k) {
@@ -6240,11 +6250,11 @@ async function finNotifs(add, safe) {
 /* Privacy policy and terms of use. Each text exists in Arabic and English and is shown in the interface language
    (data-nt: not passed through the UI translator). Bump TERMS_VERSION when either text changes materially. */
 const TERMS_VERSION = '2026-11';
-const LEGAL_CONTACT = '';   // privacy contact e-mail; shown when set
+const LEGAL_CONTACT = 'waad.erp@gmail.com';   // privacy contact e-mail; shown when set
 const LEGAL = {
   privacy: {
     ar: { t: 'سياسة الخصوصية', d: 'آخر تحديث: 17 نوفمبر 2026 — الإصدار 2026-11', s: [
-      ['من نحن', 'وعد نظام سحابي لإدارة الموارد البشرية والمالية والمبيعات والمشتريات والمخزون للمنشآت.'],
+      ['من نحن', 'وعد نظام سحابي لإدارة الموارد البشرية والمالية والمبيعات والمشتريات والمخزون للمنشآت، تقدّمه شركة وعد لتقنية المعلومات (الرياض).'],
       ['دور كل طرف', 'المنشأة التي تسجّل في وعد هي «جهة التحكم» في البيانات التي تُدخلها عن موظفيها وعملائها ومورديها، ووعد «جهة معالجة» تحفظ هذه البيانات وتعالجها نيابة عنها ولغرض تشغيل الخدمة فقط، وفق نظام حماية البيانات الشخصية في المملكة العربية السعودية ولوائحه.'],
       ['البيانات التي نجمعها', 'بيانات الحساب: البريد الإلكتروني وكلمة المرور (تُحفظ مشفّرة لدى مزوّد الدخول ولا نراها). بيانات المنشأة وما يُدخله مستخدموها: الموظفون والرواتب والحضور والفواتير والعملاء والموردون وغيرها. بيانات تقنية محدودة: رسائل الأخطاء التقنية دون محتوى السجلات، وعنوان IP عند إدخال رمز منشأة خاطئ (لمنع التخمين، ويُحذف بعد يوم). بيانات التسجيل عن المنشأة: جوال المالك والمدينة وعدد الموظفين التقريبي ونشاط المنشأة ومن أين عرفت عن وعد.'],
       ['لماذا نستخدمها', 'لتشغيل الخدمة وحساب الرواتب والفواتير والتقارير التي تطلبها المنشأة، وحماية الحسابات من الدخول غير المصرّح به، وإصلاح الأعطال. لا نبيع البيانات، ولا نستخدمها للإعلانات، ولا نشاركها مع منشأة أخرى.'],
@@ -6255,7 +6265,7 @@ const LEGAL = {
       ['حقوقك', 'لصاحب البيانات حق العلم بمعالجتها، والوصول إليها، وطلب تصحيحها أو إتلافها، والرجوع عن موافقته. يُقدَّم الطلب أولا إلى المنشأة التي يعمل لديها أو يتعامل معها، وسنساعدها في تنفيذه.'],
       ['التغييرات', 'إذا تغيّرت هذه السياسة تغييرا جوهريا سنطلب موافقتك على الإصدار الجديد عند الدخول.']] },
     en: { t: 'Privacy Policy', d: 'Last updated: 17 November 2026 — version 2026-11', s: [
-      ['Who we are', 'Waad is a cloud system for HR, finance, sales, purchasing and inventory.'],
+      ['Who we are', 'Waad is a cloud system for HR, finance, sales, purchasing and inventory, provided by Waad Information Technology Company (Riyadh).'],
       ['Roles', 'The company that signs up is the "controller" of the data it enters about its employees, customers and suppliers. Waad is a "processor" that stores and processes that data on the company\'s behalf, only to run the service, under the Saudi Personal Data Protection Law and its regulations.'],
       ['Data we collect', 'Account data: e-mail and password (stored hashed by the sign-in provider; we never see it). Company data entered by its users: employees, payroll, attendance, invoices, customers, suppliers and so on. Limited technical data: technical error messages without record contents, and the IP address when a wrong company code is entered (to prevent guessing; deleted after one day). Sign-up details about the company: the owner\'s mobile, city, approximate number of employees, activity, and how it heard about Waad.'],
       ['Why we use it', 'To run the service and produce the payroll, invoices and reports the company asks for, to protect accounts from unauthorised access, and to fix faults. We do not sell data, use it for advertising, or share it with any other company.'],
@@ -9489,7 +9499,7 @@ VIEWS['#/surveys'] = async page => {
         return `<div class="card"><b>${esc(x.t)}</b><div class="grid" style="margin-top:8px"><div class="card kpi"><div class="muted small">eNPS</div><div class="v num ${sc < 0 ? 'bad' : ''}">${sc}</div></div>
           <div class="card kpi"><div class="muted small">${esc(tr('مروّجون (9–10)'))}</div><div class="v num">${n ? Math.round(p / n * 100) : 0}%</div></div><div class="card kpi"><div class="muted small">${esc(tr('منتقدون (0–6)'))}</div><div class="v num">${n ? Math.round(d / n * 100) : 0}%</div></div></div></div>`; }
       const avg = vals.length ? vals.reduce((a, v) => a + v, 0) / vals.length : 0;
-      return `<div class="card"><b>${esc(x.t)}</b><div class="row" style="gap:8px;align-items:center;margin-top:6px"><div style="flex:1;height:10px;background:var(--line);border-radius:5px"><div style="width:${avg / 5 * 100}%;height:10px;border-radius:5px;background:#2563eb"></div></div><span class="num">${avg.toFixed(2)} / 5</span></div></div>`; };
+      return `<div class="card"><b>${esc(x.t)}</b><div class="row" style="gap:8px;align-items:center;margin-top:6px"><div style="flex:1;height:10px;background:var(--line);border-radius:5px"><div style="width:${avg / 5 * 100}%;height:10px;border-radius:5px;background:#217FE1"></div></div><span class="num">${avg.toFixed(2)} / 5</span></div></div>`; };
     const m = modal(s.title, `<p class="muted small" style="margin-top:0">${esc(tr('عدد الإجابات'))}: <b class="num">${r.n}</b>${s.anonymous ? ' · ' + esc(tr('مجهول الهوية')) : ''}</p>
       ${r.hidden ? `<div class="note">${esc(tr('تظهر النتائج بعد 3 إجابات على الأقل حفاظا على سرية المشاركين.'))}</div>` : s.questions.map(block).join('')}
       ${s.status === 'open' ? `<button type="button" class="btn sm" id="svc">${esc(tr('إغلاق الاستبيان'))}</button>` : ''}`, { wide: true });
