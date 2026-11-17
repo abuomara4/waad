@@ -473,7 +473,9 @@ async function updateEmployeesDialog() {
 const CUST_ST = { held: ['لدى الموظف', 'info'], returned: ['مُستلمة', 'ok'], lost: ['مفقودة / تالفة', 'bad'] };
 const CLR_T = { custody: 'العهد', advance: 'السلف', manager: 'المدير المباشر — تسليم المهام', it: 'تقنية المعلومات — الحسابات والأجهزة', finance: 'المالية — الذمم والمطالبات', hr: 'الموارد البشرية' };
 async function custodyCard(box, e) {
-  const [items, csig] = await Promise.all([db.get('custody_items', { employee_id: 'eq.' + e.id, order: 'issued_on.desc' }), db.get('signature_requests', { employee_id: 'eq.' + e.id, kind: 'eq.custody' }).catch(() => [])]);
+  // everything is loaded before the «+ عهدة» button appears, so a quick click is never lost
+  const [items, csig, own] = await Promise.all([db.get('custody_items', { employee_id: 'eq.' + e.id, order: 'issued_on.desc' }), db.get('signature_requests', { employee_id: 'eq.' + e.id, kind: 'eq.custody' }).catch(() => []),
+    isHR() ? db.get('custody_names', { company_id: 'eq.' + S.cid, order: 'name' }).catch(() => []) : []]);
   const held = items.filter(x => x.status === 'held');
   box.innerHTML = `<div class="card"><div class="row" style="justify-content:space-between"><h2>${esc(tr('العهد'))}</h2>${isHR() ? `<button class="btn sm pri" id="cunew">${esc(tr('+ عهدة'))}</button>` : ''}</div>
     ${tbl([{ t: 'العهدة', h: x => esc((LANG === 'en' && x.name_en) || x.name) + (x.serial ? ` <span class="num muted small">${esc(x.serial)}</span>` : '') }, { t: 'القيمة', r: 1, h: x => x.value == null ? '—' : money(x.value) },
@@ -482,7 +484,6 @@ async function custodyCard(box, e) {
       { t: '', h: x => isHR() && x.status === 'held' ? `<button class="btn sm" data-cret="${x.id}">${esc(tr('استلام'))}</button>` : '' }], items, { empty: 'لا توجد عهد مسجلة', onRow: isHR() })}
     ${held.length ? `<p class="small muted">${esc(tr('لدى الموظف'))} <b class="num">${held.length}</b> ${esc(tr('عهدة بقيمة'))} <b class="num">${money(held.reduce((a, x) => a + n0(x.value), 0))}</b></p>` : ''}</div>`;
   if (!isHR()) return;
-  const own = await db.get('custody_names', { company_id: 'eq.' + S.cid, order: 'name' }).catch(() => []);
   const lib = CUSTODY_LIB.concat(own.map(o => [o.name, o.name_en || ''])).filter((x, i, a) => a.findIndex(y => y[0] === x[0]) === i);
   const form = x => { const v = x || { issued_on: today() }, known = lib.find(l => l[0] === v.name);
     const m = modal(x ? tr('تعديل عهدة') : tr('تسليم عهدة'), `<div class="fg">${field('العهدة', `<select name="pick">${lib.map(([a, en]) => `<option value="${esc(a)}" data-en="${esc(en)}"${known && known[0] === a ? ' selected' : ''}>${esc(LANG === 'en' && en ? en : a)}</option>`).join('')}<option value="__new"${x && !known ? ' selected' : ''}>${esc(tr('أخرى — اكتب اسما جديدا'))}</option></select>`)}
