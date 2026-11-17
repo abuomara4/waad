@@ -47,7 +47,7 @@ async function fileBox(box, table, key, id) {
 }
 
 VIEWS['#/docs'] = async (page, arg) => {
-  if (!isHR()) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
+  if (!(isHR() || hrCan('hr_emp'))) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
   if (arg && arg !== 'all') return docsEmployee(page, arg);
   const within = +(new URLSearchParams(location.hash.split('?')[1] || '').get('d') || 90);
   const [alerts, em] = await Promise.all([db.rpc('doc_alerts', { p_company: S.cid, p_within: within }), employeesMap(true)]);

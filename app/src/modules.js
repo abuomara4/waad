@@ -269,7 +269,7 @@ VIEWS['#/insurance'] = async page => {
 /* ================= HR: annual training plan ================= */
 const TP_ST = { planned: ['مخطط', 'wait'], in_progress: ['قيد التنفيذ', 'info'], done: ['منفّذ', 'ok'], cancelled: ['ملغى', 'bad'] };
 VIEWS['#/trainplan'] = async (page, arg, q) => {
-  if (!(isHR() || has('finance') || has('manager'))) { page.innerHTML = '<div class="note">غير مصرح</div>'; return; }
+  if (!(isHR() || has('finance') || has('manager') || hrCan('hr_train'))) { page.innerHTML = '<div class="note">غير مصرح</div>'; return; }
   const y = +(q && q.get('y')) || new Date().getFullYear();
   const [rows, [sm], deps, trs] = await Promise.all([db.get('training_plans', { company_id: 'eq.' + S.cid, year: 'eq.' + y, order: 'quarter,title' }), db.rpc('training_plan_summary', { p_company: S.cid, p_year: y }),
     db.get('departments', { company_id: 'eq.' + S.cid, order: 'name' }), db.get('trainings', { company_id: 'eq.' + S.cid, order: 'start_date.desc', select: 'id,title,start_date,cost' })]);

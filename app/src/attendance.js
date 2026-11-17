@@ -64,7 +64,7 @@ function bindClock(page) {
 
 /* ---------- HR / managers ---------- */
 VIEWS['#/att'] = async (page, arg) => {
-  if (!isHR() && !has('manager', 'finance')) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
+  if (!isHR() && !has('manager', 'finance') && !hrCan('hr_att')) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
   const [tab, sub] = String(arg || 'today').split('/');
   const tabs = [['today', 'اليوم'], ['month', 'الكشف الشهري']].concat(isHR() ? [['settings', 'الإعدادات']] : []);
   page.innerHTML = `<div class="head"><div><h1>الحضور والانصراف</h1><div class="muted">${attOn() ? 'مفعّل منذ <span class="num">' + fdate(S.company.att_start) + '</span>' : 'غير مفعّل'}</div></div></div>
@@ -239,7 +239,7 @@ async function attSettings(box) {
 
 /* ===== team leave calendar: who is off when (HR: everyone, manager: own team) ===== */
 VIEWS['#/leavecal'] = async (page, arg, q) => {
-  if (!isHR() && !has('manager')) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية والمدراء.</div>'; return; }
+  if (!isHR() && !has('manager') && !hrCan('hr_att')) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية والمدراء.</div>'; return; }
   const m = /^\d{4}-\d{2}$/.test(q.get('m') || '') ? q.get('m') : today().slice(0, 7);
   const [y, mo] = m.split('-').map(Number), nd = new Date(y, mo, 0).getDate(), ms = m + '-01', me = m + '-' + String(nd).padStart(2, '0');
   const shiftM = (k) => { const d = new Date(y, mo - 1 + k, 1); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); };

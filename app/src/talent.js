@@ -7,7 +7,7 @@ const ratingTxt = o => o == null ? '—' : `<span class="num">${(+o).toFixed(2)}
 
 VIEWS['#/reviews'] = async (page, arg) => {
   if (arg) return reviewCycle(page, arg);
-  const hr = isHR();
+  const hr = isHR() || hrCan('hr_disc');
   const [cycles, revs, em] = await Promise.all([db.get('review_cycles', { company_id: 'eq.' + S.cid, order: 'period_end.desc' }), db.get('reviews', { company_id: 'eq.' + S.cid }), employeesMap().catch(() => ({}))]);
   const cyc = {}; cycles.forEach(c => cyc[c.id] = c);
   const mine = revs.filter(r => r.employee_id === S.emp && r.status === 'approved');
@@ -114,7 +114,7 @@ const STAGE_CLS = { applied: '', screening: 'info', interview: 'info', offer: 'w
 const OPEN_ST = { open: ['مفتوحة', 'ok'], onhold: ['معلّقة', 'wait'], closed: ['مغلقة', ''] };
 const stBadge = s => `<span class="badge ${STAGE_CLS[s]}">${esc(STAGES[s])}</span>`;
 VIEWS['#/recruit'] = async (page, arg) => {
-  if (!isHR()) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
+  if (!(isHR() || hrCan('hr_recruit'))) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
   if (arg) return opening(page, arg);
   const [ops, cands, deps] = await Promise.all([db.get('job_openings', { company_id: 'eq.' + S.cid, order: 'created_at.desc' }), db.get('candidates', { company_id: 'eq.' + S.cid, select: 'opening_id,stage' }), db.get('departments', { company_id: 'eq.' + S.cid, order: 'name' })]);
   const dm = {}; deps.forEach(d => dm[d.id] = d.name);
@@ -225,7 +225,7 @@ async function hireForm(c, o, deps) {
 /* ===== training ===== */
 const TA_ST = { enrolled: ['مسجّل', 'info'], completed: ['أكمل', 'ok'], no_show: ['لم يحضر', 'bad'] };
 VIEWS['#/training'] = async (page, arg) => {
-  if (!isHR()) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
+  if (!(isHR() || hrCan('hr_train'))) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
   if (arg) return training(page, arg);
   const [trs, att] = await Promise.all([db.get('trainings', { company_id: 'eq.' + S.cid, order: 'start_date.desc' }), db.get('training_attendees', { company_id: 'eq.' + S.cid, select: 'training_id,status,cert_expiry' })]);
   const y = today().slice(0, 4), thisYear = trs.filter(t => String(t.start_date).startsWith(y));

@@ -801,6 +801,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اختر حساب بنك أو صندوق	Choose a bank or cash account
 اختر حساب مصروف لكل بند	Choose an expense account for each line
 اختر سبب الصفر أو الإعفاء	Choose the zero-rate or exemption reason
+اختر شخصا يحدد صلاحيات الوظائف نيابة عن مدير الموارد البشرية	Choose someone who sets job permissions on behalf of the HR manager
 اختر صلاحية واحدة على الأقل	Choose at least one role
 اختر صنفا	pick an item
 اختر صنفا أو حساب مصروف صالحا	Choose an item or a valid expense account
@@ -1232,6 +1233,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الإعلان غير موجود	Announcement not found
 الإعلانات	Announcements
 الإعلانات الداخلية	Company announcements
+الإعلانات الداخلية والاستبيانات	Internal announcements and surveys
 الإغلاق المتوقع	Expected close
 الإقامات ورخص العمل والجوازات والعقود	Iqamas, work permits, passports and contracts
 الإقامات ورخص العمل والجوازات والعقود ونهاية فترات التجربة وإكمال	Iqamas, work permits, passports, contracts, probation ends and completing
@@ -1407,6 +1409,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 التخفيض يحتاج موافقة كل عامل	a reduction needs each worker's consent
 التدخين في الأماكن المحظورة والمعلن عنها للمحافظة على سلامة العمال والمنشأة	Smoking in prohibited areas posted for the safety of workers and the company
 التدريب	Training
+التدريب وخطته السنوية	Training and the annual plan
 التدفق النقدي	Cash flow
 التدفق النقدي شهريا	Monthly cash flow
 التدفق النقدي شهرياً	Monthly cash flow
@@ -1489,6 +1492,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 التوريد المتوقع	Expected delivery
 التوزيع	Allocation
 التوظيف	Recruitment
+التوظيف وخطة القوى العاملة	Recruitment and workforce plan
 التوقيع	Signature
 التوقيع الإلكتروني	Electronic signature
 التوقيع والتاريخ	Signature and date
@@ -2017,6 +2021,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المالك له كل الصلاحيات دائماً	The owner always has full access
 المالك له كل الصلاحيات دائماً ولا تُعدَّل	The owner always has full access and it cannot be changed
 المالك والمدير المالي يرون كل شيء	The owner and the finance manager see everything
+المالك ومدير النظام والمدير المالي والموارد البشرية يرون كل شيء دائما	The owner, system admin, finance manager and HR always see everything
 المالك ومدير النظام والمدير المالي يرون كل شيء دائما	The owner, the system admin and the finance manager always see everything
 المالك يملك كل الصلاحيات	The owner has full access
 المالية	Finance
@@ -2137,9 +2142,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المستخدم	used
 المستخدم غير موجود	User not found
 المستخدم غير موجود في المنشأة	User is not in this company
+المستخدم ليس من المنشأة	This user is not in the company
 المستخدم والمحجوز	Used and reserved
 المستخدمون	Users
 المستخدمون والدعوات	Users and invitations
+المستخدمون والصلاحيات	Users and permissions
 المستشفى	Hospital
 المستلم	Receiver
 المستلم ناقص المفوتر	received minus billed
@@ -4151,6 +4158,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 صلاحيات	Permissions of
 صلاحيات الأدوار حسب القسم	Role permissions by department
 صلاحيات المالك ومدير النظام والمدير المالي ثابتة	The owner's, system admin's and finance manager's permissions are fixed
+صلاحيات المالك ومدير النظام والمدير المالي والموارد البشرية ثابتة	The owner, system admin, finance manager and HR permissions are fixed
 صلاحيات المالية والمخزون لهذا الشخص	Finance and stock permissions for this person
 صلاحيات المحاسب وأمين المستودع	Accountant and storekeeper permissions
 صلاحيات المدير المالي ثابتة	The finance manager's permissions are fixed
@@ -4167,6 +4175,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 صلاحية غير معروفة	Unknown role
 صلاحية مالية	finance permissions
 صلاحية مخصصة	custom permissions
+صلاحيتك في هذه الصفحة	Your access on this page
 صلة القرابة	Relationship
 صناعة	Manufacturing
 صندوق التنمية العقارية	Real Estate Development Fund
@@ -4309,6 +4318,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عراقي	Iraqi
 عربي	Arabic
 عرض	Show
+عرض الجزاءات وتقييم الأداء	View penalties and performance reviews
+عرض الحضور وتقويم الإجازات	View attendance and the leave calendar
 عرض السعر	Quotation
 عرض السعر غير موجود	Quotation not found
 عرض القيود	View entries
@@ -4318,6 +4329,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عرض فقط	View only
 عرض كقائمة	Show as list
 عرض كمراحل	Show as stages
+عرض مسيرات الرواتب	View payroll runs
+عرض ملفات الموظفين والمستندات والعقود	View employee files, documents and contracts
 عرض مورد	Supplier offer
 عرض وظيفي	Offer
 عرعر	Arar
@@ -4876,6 +4889,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يجوز توقيع الجزاء بعد مضي	A penalty may not be imposed after
 لا يجوز توقيع جزاء قبل إبلاغ العامل والتحقيق معه وسماع دفاعه	No penalty before notifying the worker in writing, questioning them and hearing their defence
 لا يرى القسم	does not see the department
+لا يستطيع أن يغير أدوار الأشخاص	They cannot change people's roles
 لا يشمل التقدير ذوي الإعاقة والطلاب والعمل الجزئي والمرن	The estimate does not cover disabled, student, part-time or flexible workers
 لا يصح تحديد تاريخ مؤجل للاستقالة	A resignation cannot carry a deferred date
 لا يطبق عليه	Does not apply
@@ -5592,6 +5606,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 من يرى ماذا في كل قسم	who sees what in each department
 من يعتمد كل نوع طلب وبأي ترتيب	Who approves each request type and in what order
 من ينضم يوم	Whoever joins on day
+من ينوب عن الموارد البشرية في الصلاحيات	HR deputy for permissions
 منتقدون	Detractors
 منته	Ended
 منتهي	Expired
@@ -5860,6 +5875,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 هذه الصفحة للموارد البشرية	This page is for HR
 هذه الصفحة للموارد البشرية والمالية	This page is for HR and finance
 هذه الصفحة للموارد البشرية والمدراء	This page is for HR and managers
+هذه الصفحة للموارد البشرية ومن ينوب عنها	This page is for HR and its deputy
 هذي السنة	This year
 هل تريد إلغاء هذا الطلب	Do you want to cancel this request
 هل تنصح غيرك بالعمل هنا	Would you recommend working here

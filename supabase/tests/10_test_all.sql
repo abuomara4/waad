@@ -92,7 +92,7 @@ select t.ok((select count(*) from public.employees) = 3, 'manager sees self + 2 
 reset role;
 select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
 select t.ok((select count(*) from public.employees) = 6, 'HR sees all employees');
-select t.err($$select public.post_sales_invoice('$$ || :'cid' || $$', '{}'::jsonb)$$, '42501|غير مصرح', 'HR cannot post sales invoices');
+select t.err($$select public.post_sales_invoice('$$ || :'cid' || $$', '{}'::jsonb)$$, 'اختر العميل', 'HR has every permission (0112): it reaches the invoice checks');
 reset role;
 
 -- ================= APPROVAL WORKFLOW =================
@@ -300,7 +300,7 @@ select t.eq((select balance from (select balance, row_number() over () rn from p
             (select debit - credit from public.trial_balance(:'cid', current_date) where code = '1120'), 'bank ledger closing = trial balance');
 reset role;
 select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
-select t.err($$select * from public.trial_balance('$$ || :'cid' || $$', current_date)$$, '42501|غير مصرح', 'HR cannot read financial reports');
+select t.ok((select count(*) from public.trial_balance(:'cid', current_date)) >= 0, 'HR has every permission (0112): it reads financial reports');
 reset role;
 
 -- ================= FINANCE SUB-ROLES =================
@@ -330,7 +330,7 @@ select t.ok((select count(*) from public.parties) = 0, 'storekeeper cannot see c
 select t.ok((select count(*) from public.items) = 3, 'storekeeper sees items');
 select t.err($$select public.post_sales_invoice('$$ || :'cid' || $$', '{}'::jsonb)$$, 'غير مصرح', 'storekeeper cannot sell');
 reset role;
-select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
 select public.set_finance_permission(:'cid', 'accountant', 'reports', true);
 select t.err($$select public.set_finance_permission('$$ || :'cid' || $$', 'finance', 'reports', false)$$, 'ثابتة', 'finance manager permissions are fixed');
 reset role;
@@ -1423,7 +1423,7 @@ select t.err($$select public.company_analytics('$$ || :'cid' || $$', '2023-01-01
 reset role;
 select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
 select public.company_analytics(:'cid', '2026-01-01', '2026-12-31') as an \gset
-select t.ok((:'an'::jsonb ? 'hr') and not (:'an'::jsonb ? 'exec') and not (:'an'::jsonb ? 'finance'), 'HR sees HR analytics but not the finances');
+select t.ok((:'an'::jsonb ? 'hr') and (:'an'::jsonb ? 'finance'), 'HR has every permission (0112): HR and finance analytics');
 reset role;
 select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
 select public.company_analytics(:'cid', '2026-01-01', '2026-12-31') as an \gset
@@ -2131,7 +2131,7 @@ select t.ok((select short_address = 'RRRD2929' and email = 'info@waad.test' and 
   and address like 'مبنى 2345، طريق الملك فهد، حي العليا، الرياض%' from public.companies where id = :'cid'), 'company national address saved, normalised and composed into the letter address');
 reset role;
 insert into public.items(company_id, code, name, type, unit, sale_price) values (:'cid', 'SV-CL', 'خدمة استشارية', 'service', 'ساعة', 100) returning id as isv \gset
-select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
 select t.err($$insert into public.parties(company_id, kind, name, bld_no) values ('$$ || :'cid' || $$','customer','عميل عنوان خطأ','12')$$, 'رقم المبنى', 'building number must be 4 digits for Saudi parties');
 select t.err($$insert into public.parties(company_id, kind, name, country, vat_no) values ('$$ || :'cid' || $$','supplier','مورد خارجي ضريبي','AE','300000000000003')$$, 'داخل المملكة', 'foreign party cannot carry a Saudi VAT number');
 insert into public.parties(company_id, kind, name, country, phone, postal_code, city) values (:'cid', 'supplier', 'Gulf Trading LLC', 'ae', '+971 50 123 4567', 'PO 1234', 'Dubai') returning id as sfx \gset
@@ -2158,8 +2158,8 @@ select t.ok((:'imp'::jsonb->>'added')::int = 1 and (:'imp'::jsonb->>'updated')::
 select t.err($$select public.import_parties('$$ || :'cid' || $$', 'customer', '[{"_row":7,"name":"عميل خطأ","bld_no":"9"}]')$$, 'السطر 7: رقم المبنى', 'import errors name the row');
 select t.err($$select public.import_parties('$$ || :'cid' || $$', 'customer', '[{"_row":2,"name":"عميل مكرر"},{"_row":3,"name":"عميل مكرر"}]')$$, 'مكرر', 'duplicate names in the file refused');
 reset role;
-select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
-select t.err($$select public.import_parties('$$ || :'cid' || $$', 'customer', '[{"_row":2,"name":"عميل من الموارد"}]')$$, '42501|غير مصرح', 'HR cannot import customers');
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.import_parties('$$ || :'cid' || $$', 'customer', '[{"_row":2,"name":"عميل من الموارد"}]')$$, '42501|غير مصرح', 'an employee without permission cannot import customers');
 reset role;
 
 -- ================= STATEMENTS, ITEMS, CV, TERMS, MFA (0049) =================
@@ -2175,8 +2175,8 @@ select t.ok((select count(*) = 1 and max(kind) = 'opening_balance' and max(balan
 select t.ok((select count(*) filter (where kind = 'invoice') = 2 and sum(debit) = 172.5 from public.party_statement(:'clim', current_date - 1, current_date)), 'statement lists the invoices as debits');
 select t.err($$select * from public.party_statement('$$ || :'clim' || $$', current_date, current_date - 5)$$, 'حدد الفترة', 'statement period must be valid');
 reset role;
-select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
-select t.err($$select * from public.party_statement('$$ || :'c1' || $$', '2000-01-01', current_date)$$, '42501|غير مصرح', 'HR cannot read customer statements');
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select * from public.party_statement('$$ || :'c1' || $$', '2000-01-01', current_date)$$, '42501|غير مصرح', 'an employee without permission cannot read customer statements');
 reset role;
 select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
 update public.items set barcode = '6281000000017', category = 'خدمات', purchase_price = 60, vat_rate = 0 where id = :'isv';
@@ -2293,7 +2293,7 @@ select t.ok((select stage = 'won' and closed_at is not null and probability = 10
 select t.ok((select n = 1 and value = 230 from public.crm_summary(:'cid') where stage = 'won'), 'pipeline summary per stage');
 reset role;
 select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
-select t.ok((select count(*) = 0 from public.crm_leads), 'HR does not see sales opportunities');
+select t.ok((select count(*) > 0 from public.crm_leads), 'HR has every permission (0112): it sees sales opportunities');
 reset role;
 
 -- ================= RFQ & SUPPLIER RATING (0052) =================
@@ -3329,13 +3329,55 @@ select t.err($$select public.set_finance_permission('$$ || :'cid' || $$', 'manag
 reset role;
 select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
 select public.set_finance_permission(:'cid', 'manager', 'sales', true);
-select t.err($$select public.set_finance_permission('$$ || :'cid' || $$', 'owner', 'sales', false)$$, 'ثابتة', 'job permissions: the owner, admin and finance manager stay fixed');
+select t.err($$select public.set_finance_permission('$$ || :'cid' || $$', 'hr', 'sales', false)$$, 'ثابتة', 'job permissions: the owner, admin, finance manager and HR stay fixed');
 reset role;
 select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
 select t.ok(public.fin_can(:'cid', 'sales') and not public.fin_can(:'cid', 'reports') and (select count(*) from public.finance_permissions where role = 'manager') = 1,
   'job permissions: HR gives department managers sales, and they get only that (and can read their role''s grants)');
 reset role;
 delete from public.finance_permissions where company_id = :'cid' and role = 'manager';
+
+-- every permission set by HR, HR fixed with everything, HR-section permissions for other jobs, a deputy (0112)
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.ok(public.fin_can(:'cid', 'reports') and public.fin_can(:'cid', 'hr_pay'), 'HR permissions: HR always has every permission, finance included');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select public.set_finance_permission('$$ || :'cid' || $$', 'manager', 'sales', true)$$, 'غير مصرح', 'HR permissions: the finance manager no longer sets job permissions');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select (select count(*) from public.employees where company_id = :'cid') as mgr_emps0 \gset
+select t.err($$insert into public.job_openings(company_id, title, positions, status) values ('$$ || :'cid' || $$', 'xx', 1, 'open')$$, 'row-level', 'HR permissions: a manager cannot add job openings by default');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.set_finance_permission(:'cid', 'manager', 'hr_emp', true);
+select public.set_finance_permission(:'cid', 'manager', 'hr_recruit', true);
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.ok((select count(*) from public.employees where company_id = :'cid') > :'mgr_emps0'::int and (select count(*) from public.employee_documents where company_id = :'cid') >= 0
+  and public.fin_can(:'cid', 'hr_emp') and not public.fin_can(:'cid', 'hr_pay'), 'HR permissions: with «employee files» a manager sees every employee, not only his team, and nothing more');
+select t.ok(cardinality(array(select 1 from public.doc_alerts(:'cid', 30))) >= 0, 'HR permissions: the expiry list opens for that manager');
+update public.employees set basic = 1 where company_id = :'cid';
+select t.ok((select count(*) from public.employees where company_id = :'cid' and basic = 1) = 0, 'HR permissions: viewing employee files does not allow editing them');
+insert into public.job_openings(company_id, title, positions, status) values (:'cid', 'وظيفة من المدير', 1, 'open') returning id as mgr_jo \gset
+reset role;
+select t.ok(exists(select 1 from public.job_openings where id = :'mgr_jo'), 'HR permissions: with «recruitment» a manager manages job openings');
+delete from public.job_openings where id = :'mgr_jo';
+-- a deputy for the HR manager
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.set_finance_permission('$$ || :'cid' || $$', 'employee', 'hr_ann', true)$$, 'غير مصرح', 'HR permissions: an employee cannot set permissions');
+select t.err($$select public.perm_deputy_set('$$ || :'cid' || $$', '$$ || :'u_emp' || $$')$$, 'غير مصرح|42501|صلاحية', 'HR permissions: nor name himself deputy');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.perm_deputy_set(:'cid', :'u_emp');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select public.set_finance_permission(:'cid', 'employee', 'hr_ann', true);
+select t.ok(public.fin_can(:'cid', 'hr_ann'), 'HR permissions: the HR manager''s deputy sets job permissions');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.perm_deputy_set(:'cid', null);
+reset role;
+delete from public.finance_permissions where company_id = :'cid' and role in ('manager', 'employee');
 
 -- the owner's monthly e-mail also counts applicants, survey answers, new hires missing data and position requests (0110)
 select t.ok((select public.monthly_report(:'cid', current_date) ?& array['applicants','survey_answers','onb_missing','hc_pending']), 'monthly e-mail: applicants, survey answers, onboarding gaps and position requests are reported');

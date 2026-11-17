@@ -18,7 +18,7 @@ const VTYPES = async () => cache.vt || (cache.vt = await db.get('violation_types
 const isDismiss = a => a === 'eos' || a === 'a80';
 
 VIEWS['#/penalties'] = async (page, arg, q) => {
-  if (!isHR() && !has('finance')) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
+  if (!isHR() && !has('finance') && !hrCan('hr_disc')) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
   if (arg) return penDetail(page, arg);
   const tab = ['cases', 'register', 'table'].includes(q.get('t')) ? q.get('t') : 'cases';
   const [vt, em, ps] = await Promise.all([VTYPES(), employeesMap(true), db.get('penalties', { company_id: 'eq.' + S.cid, order: 'created_at.desc' })]);

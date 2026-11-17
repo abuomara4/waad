@@ -3,7 +3,7 @@
 
 /* ----- company announcements ----- */
 VIEWS['#/announcements'] = async page => {
-  if (!isHR()) { page.innerHTML = `<div class="note">${esc(tr('هذه الصفحة للمالك والموارد البشرية.'))}</div>`; return; }
+  if (!(isHR() || hrCan('hr_ann'))) { page.innerHTML = `<div class="note">${esc(tr('هذه الصفحة للمالك والموارد البشرية.'))}</div>`; return; }
   const [rows, reads, deps, mem] = await Promise.all([db.get('company_announcements', { company_id: 'eq.' + S.cid, order: 'created_at.desc' }),
     db.get('announcement_reads', { company_id: 'eq.' + S.cid, select: 'announcement_id' }).catch(() => []), db.get('departments', { company_id: 'eq.' + S.cid, order: 'name' }).catch(() => []),
     db.get('members', { company_id: 'eq.' + S.cid, select: 'user_id' }).catch(() => [])]);
@@ -58,7 +58,7 @@ const SV_TPL = {
   exit: [{ t: 'ما السبب الرئيسي لمغادرتك؟', type: 'text' }, { t: 'كانت علاقتي بمديري المباشر جيدة', type: 'scale' }, { t: 'كان الراتب والمزايا مناسبة', type: 'scale' }, { t: 'هل تنصح غيرك بالعمل هنا؟ (0 إلى 10)', type: 'enps' }, { t: 'ما الذي تقترح تحسينه؟', type: 'text' }],
   custom: [] };
 VIEWS['#/surveys'] = async page => {
-  const hr = isHR();
+  const hr = isHR() || hrCan('hr_ann');
   const [svs, took] = await Promise.all([db.get('surveys', { company_id: 'eq.' + S.cid, order: 'created_at.desc' }), db.get('survey_takers', { user_id: 'eq.' + S.session.user.id, select: 'survey_id' }).catch(() => [])]);
   const td = today(), open = s => s.status === 'open' && (!s.closes_on || s.closes_on >= td), done = s => took.some(t => t.survey_id === s.id);
   const mine = svs.filter(s => open(s) && !done(s));

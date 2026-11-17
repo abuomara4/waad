@@ -9,7 +9,7 @@ const expLeft = d => d ? Math.round((new Date(d) - new Date(today())) / 864e5) :
 const expBadge = d => { const n = expLeft(d); if (n == null) return '<span class="muted">—</span>';
   const c = n < 0 ? 'bad' : n <= 30 ? 'bad' : n <= 60 ? 'wait' : 'ok';
   return `<span class="num">${esc(d)}</span> <span class="badge ${c}">${esc(n < 0 ? tr('منتهي') : n === 0 ? tr('ينتهي اليوم') : tr('متبقي') + ' ' + arCount(n, 'يوم'))}</span>`; };
-const coCan = () => has('owner', 'admin', 'hr', 'finance');
+const coCan = () => has('owner', 'admin', 'hr', 'finance') || hrCan('hr_cdocs');
 
 VIEWS['#/companydocs'] = async (page, arg, q) => {
   if (!coCan()) { page.innerHTML = `<div class="note">${esc(tr('هذه الصفحة للمالك والإدارة والموارد البشرية والمالية.'))}</div>`; return; }

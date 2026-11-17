@@ -20,7 +20,8 @@ RELEASES = [
   ('البحث الشامل في النظام (Ctrl+K)', 'Global search (Ctrl+K)'),
   ('إرسال الفواتير وعروض الأسعار للعميل، وبوابة العميل برابط خاص، والفواتير المتكررة', 'Send invoices and quotes to customers, a private customer portal and recurring invoices'),
   ('مستندات المنشأة والسيارات مع تنبيهات الانتهاء', 'Company documents and vehicles with expiry alerts'),
-  ('الملاحظات على السجلات مع الإشارة إلى الزملاء، والحقول المخصصة', 'Notes on records with mentions, and custom fields')]),
+  ('الملاحظات على السجلات مع الإشارة إلى الزملاء، والحقول المخصصة', 'Notes on records with mentions, and custom fields'),
+  ('صفحة «الصلاحيات» في الموارد البشرية: صلاحيات كل وظيفة وكل شخص في كل الأقسام، ومن ينوب عن مدير الموارد البشرية', 'A «Permissions» page under HR: every job\'s and person\'s permissions in every section, and a deputy for the HR manager')]),
  ('16 نوفمبر 2026', '16 November 2026', [
   ('أقسام افتراضية لكل منشأة جديدة (تسعة أقسام بالعربي والإنجليزي)', 'Default departments for every new company (nine, Arabic and English)'),
   ('المرفقات عند إنشاء المستندات والعقود والعهد، وقائمة عهد جاهزة بالعربي والإنجليزي', 'Attachments when creating documents, contracts and custody, and a ready bilingual custody list'),

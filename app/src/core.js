@@ -214,9 +214,12 @@ const KIND = { leave: 'إجازة', permit: 'استئذان', cert: 'تعريف 
 const STATUS = { pending: ['بانتظار', 'wait'], approved: ['معتمد', 'ok'], rejected: ['مرفوض', 'bad'], cancelled: ['ملغى', ''], draft: ['مسودة', 'wait'], paid: ['مصروف', 'ok'], posted: ['مرحّلة', 'ok'], void: ['ملغاة', 'bad'] };
 const badge = s => { const [t, c] = STATUS[s] || [s, '']; return `<span class="badge ${c}">${esc(t)}</span>`; };
 const has = (...roles) => roles.some(r => (S.roles || new Set([S.role])).has(r));
-const FIN_ALL = ['owner', 'admin', 'finance'];
+const FIN_ALL = ['owner', 'admin', 'finance', 'hr'];   // HR has every permission too (0112)
 const can = p => has(...FIN_ALL) || S.perms.has(p);
-const isFin = () => has(...FIN_ALL, 'accountant', 'storekeeper') || (S.perms && S.perms.size > 0);
+const isFin = () => has(...FIN_ALL, 'accountant', 'storekeeper') || (S.perms && [...S.perms].some(p => !p.startsWith('hr_')));
+// an HR-section permission HR gave this job or person (0112); HR, the owner, the admin and the finance manager have them all
+const hrCan = p => has('owner', 'admin', 'hr', 'finance') || !!(S.perms && S.perms.has(p));
+const hrAny = () => !!(S.perms && [...S.perms].some(p => p.startsWith('hr_')));
 const isHR = () => has('owner', 'admin', 'hr');
 
 function toast(m) { const t = $('#toast'); t.textContent = String(m == null ? '' : m).replace(NOTANWEEN, ''); t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 3200); }
@@ -450,7 +453,7 @@ async function loadContext(pre) {
   if (!S.companies.length) return false;
   let c = S.companies.find(x => x.company_id === S.cid) || S.companies[0];
   S.cid = c.company_id; LS.set('waad.cid', S.cid); S.role = c.role; S.roles = new Set(c.roles && c.roles.length ? c.roles : [c.role]); S.emp = c.employee_id; S.mustChange = !!c.must_change_password; if (c.code) { LS.set('waad.ccode', c.code); LS.set('waad.cname', c.name); }
-  const fr = ['accountant', 'storekeeper', 'hr', 'manager', 'employee'].filter(r => S.roles.has(r));   // roles whose permissions HR sets (0111)
+  const fr = ['accountant', 'storekeeper', 'manager', 'employee'].filter(r => S.roles.has(r));   // jobs whose permissions HR sets (0111, 0112)
   const [[co], [sub], , fp, me, pf, team] = await Promise.all([db.get('companies', { id: 'eq.' + S.cid }), db.get('company_subscriptions', { company_id: 'eq.' + S.cid }).catch(() => []), preloadNames(),
     fr.length ? db.get('finance_permissions', { company_id: 'eq.' + S.cid, role: 'in.(' + fr.join(',') + ')', select: 'perm' }) : [],
     S.emp ? db.get('employees', { id: 'eq.' + S.emp }) : [], S.emp ? db.get('petty_funds', { employee_id: 'eq.' + S.emp, select: 'id', limit: 1 }).catch(() => []) : [],
@@ -542,6 +545,8 @@ const MOD_ROUTES = {
   stock: ['items', 'warehouses', 'transfers', 'counts', 'expiry', 'reorder', 'serials'],
   finance: ['expensepolicy', 'payments', 'journal', 'reports', 'coa', 'bankrec', 'cheques', 'petty', 'mypetty', 'currencies', 'opening', 'assets', 'costcenters', 'budgets', 'periods'],
   proj: ['projects'] };
+const VIEW_ONLY = { employees: 'hr_emp', docs: 'hr_emp', att: 'hr_att', leavecal: 'hr_att', payroll: 'hr_pay', penalties: 'hr_disc', reviews: 'hr_disc' };
+function viewOnlyPage(path) { const r = String(path || '').split('/')[1]; return !!VIEW_ONLY[r] && !isHR() && !has('owner', 'admin', 'finance') && hrCan(VIEW_ONLY[r]); }
 function routeModule(h) {
   const p = String(h || '').split('?')[0].split('/'), r = p[1] || '';
   if (r === 'parties') return p[2] === 'supplier' ? 'purch' : 'sales';
@@ -604,7 +609,15 @@ function navItems() {
     if (isHR()) it.push({ h: '#/recruit', t: 'التوظيف' }, { h: '#/training', t: 'التدريب' }, { h: '#/trainplan', t: 'خطة التدريب السنوية' }, { h: '#/grades', t: 'الدرجات الوظيفية' }, { h: '#/insurance', t: 'التأمين الطبي' });
     it.push({ h: '#/hrreports', t: 'تقارير الموارد البشرية' });
   }
-  if (has('manager') && !isHR()) { g('فريقي'); it.push({ h: '#/att', t: 'حضور الفريق' }, { h: '#/leavecal', t: 'تقويم الإجازات' }); if (!has('finance')) it.push({ h: '#/workforce', t: 'خطة القوى العاملة' }); }
+  const permDeputy = !isHR() && !!(S.company && S.company.perm_deputy && S.session && S.company.perm_deputy === S.session.user.id);
+  if (!isHR() && !has('finance') && (hrAny() || permDeputy)) {
+    g('الموارد البشرية'); if (permDeputy) it.push({ h: '#/permissions', t: 'الصلاحيات' }); const add = (p, ...xs) => { if (S.perms.has(p)) xs.forEach(x => { if (!it.some(y => y.h === x.h)) it.push(x); }); };
+    add('hr_emp', { h: '#/employees', t: 'الموظفون' }, { h: '#/docs', t: 'المستندات والعقود' }); add('hr_att', { h: '#/att', t: 'الحضور والانصراف' }, { h: '#/leavecal', t: 'تقويم الإجازات' });
+    add('hr_pay', { h: '#/payroll', t: 'مسير الرواتب' }); add('hr_disc', { h: '#/penalties', t: 'المخالفات والجزاءات' }, { h: '#/reviews', t: 'تقييم الأداء' });
+    add('hr_recruit', { h: '#/recruit', t: 'التوظيف' }, { h: '#/workforce', t: 'خطة القوى العاملة' }); add('hr_train', { h: '#/training', t: 'التدريب' }, { h: '#/trainplan', t: 'خطة التدريب السنوية' });
+    add('hr_ann', { h: '#/announcements', t: 'الإعلانات الداخلية' }, { h: '#/surveys', t: 'الاستبيانات' }); add('hr_cdocs', { h: '#/companydocs', t: 'مستندات المنشأة والسيارات' });
+  }
+  if (has('manager') && !isHR()) { g('فريقي'); [{ h: '#/att', t: 'حضور الفريق' }, { h: '#/leavecal', t: 'تقويم الإجازات' }].concat(has('finance') ? [] : [{ h: '#/workforce', t: 'خطة القوى العاملة' }]).forEach(x => { if (!it.some(y => y.h === x.h)) it.push(x); }); }
   if (isFin() && (can('sales') || can('stock') || can('mkt'))) {
     g('المبيعات');
     if (can('sales') || can('mkt')) it.push({ h: '#/crm', t: 'الفرص والعملاء المحتملون' }, { h: '#/marketing', t: 'التسويق والحملات' });
@@ -812,7 +825,7 @@ async function route() {
   const page = document.createElement('div'); page.innerHTML = '<div class="muted">جاري التحميل…</div>';
   $('#page').replaceChildren(page);
   if (!modOn(routeModule(path))) { page.innerHTML = `<div class="note">${esc(tr('هذا القسم غير مشمول في باقة منشأتك.'))} ${has('owner') ? esc(tr('لتفعيله تواصل مع إدارة وعد.')) : esc(tr('راجع مالك المنشأة.'))}</div>`; return; }
-  try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); setTimeout(() => page.isConnected && markWide(page), 60); if (key === '#/home' && typeof guideWelcome === 'function') guideWelcome(page); }
+  try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); if (viewOnlyPage(path) && page.isConnected) { page.classList.add('viewonly'); const h = $('.head', page); h && h.insertAdjacentHTML('afterend', `<div class="note small">${esc(tr('صلاحيتك في هذه الصفحة: عرض فقط.'))}</div>`); } setTimeout(() => page.isConnected && markWide(page), 60); if (key === '#/home' && typeof guideWelcome === 'function') guideWelcome(page); }
   catch (e) { if (e.status === 401 && !S.session) { if (!$('#af')) authView('in', 'انتهت الجلسة — سجّل الدخول مجددا'); return; } /* a late answer from a page left behind never replaces a sign-in screen already shown */ if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div><p style="margin-top:10px"><button type="button" class="btn" onclick="history.length > 1 ? history.back() : (location.hash = '#/home')">${esc(tr('رجوع'))}</button> <a class="btn" href="#/home">${esc(tr('الرئيسية'))}</a></p>`; }
 }
 window.addEventListener('hashchange', () => /(^#|&)(access_token|error_code)=/.test(location.hash) ? boot() : !S.session && legalHash() ? legalView(legalHash()) : ADMIN ? (S.platform && $('#ppage') ? platformView() : null) : S.platform && /^#\/platform/.test(location.hash) ? (location.href = ADMIN_URL) : S.platform && !$('#page') ? boot() : route());

@@ -335,7 +335,8 @@ VIEWS['#/profile'] = async page => {
 
 /* ===== employees (HR) ===== */
 VIEWS['#/employees'] = async (page, arg, q) => {
-  const [em, deps, logins, probs, als] = await Promise.all([employeesMap(true), db.get('departments', { company_id: 'eq.' + S.cid, order: 'name' }), db.rpc('staff_logins', { p_company: S.cid }), db.rpc('probation_ends', { p_company: S.cid }).catch(() => []),
+  if (!(isHR() || hrCan('hr_emp'))) { page.innerHTML = `<div class="note">${esc(tr('هذه الصفحة للموارد البشرية.'))}</div>`; return; }
+  const [em, deps, logins, probs, als] = await Promise.all([employeesMap(true), db.get('departments', { company_id: 'eq.' + S.cid, order: 'name' }), (isHR() ? db.rpc('staff_logins', { p_company: S.cid }) : Promise.resolve([])), db.rpc('probation_ends', { p_company: S.cid }).catch(() => []),
     db.get('employee_allowances', { company_id: 'eq.' + S.cid }).catch(() => [])]);
   const alSum = {}; als.filter(a => allowActive(a)).forEach(a => alSum[a.employee_id] = n0(alSum[a.employee_id]) + n0(a.amount));
   cache.deps = deps; const dm = {}; deps.forEach(d => dm[d.id] = d.name);
@@ -528,6 +529,7 @@ function credentialsBox(e, pw, warnConfirm) {
 
 /* ===== payroll ===== */
 VIEWS['#/payroll'] = async (page, arg) => {
+  if (!(isHR() || has('finance') || hrCan('hr_pay'))) { page.innerHTML = `<div class="note">${esc(tr('هذه الصفحة للموارد البشرية والمالية.'))}</div>`; return; }
   if (arg) return payrollRun(page, arg);
   const runs = await db.get('payroll_runs', { company_id: 'eq.' + S.cid, order: 'year.desc,month.desc' });
   const d = new Date();
@@ -709,7 +711,7 @@ function accessDialog(m, who, myPerms) {
       const roles = order.filter(r => f['r_' + r]), perms = Object.keys(FPERMS).filter(p => f['p_' + p]);
       if (!roles.length) throw new Error('اختر صلاحية واحدة على الأقل');
       await db.rpc('set_member_access', { p_company: S.cid, p_user: m.user_id, p_roles: roles, p_perms: perms }); toast('حُفظت الصلاحيات'); route(); } });
-  const sync = () => { const f = $('#mform', d); $('#aperms', d).hidden = !(f.r_accountant.checked || f.r_storekeeper.checked); };
+  const sync = () => { const f = $('#mform', d); $('#aperms', d).hidden = ['admin', 'hr', 'finance'].some(r => f['r_' + r] && f['r_' + r].checked);   /* every other job can get personal permissions (0112) */ };
   $$('input[type=checkbox]', d).forEach(x => x.addEventListener('change', sync)); sync();
   $('#atpl', d).onchange = ev => { const t = ACCESS_TPL[ev.target.value]; if (!t) return; const f = $('#mform', d);
     order.forEach(r => { if (!f['r_' + r].disabled) f['r_' + r].checked = t[0].includes(r); }); Object.keys(FPERMS).forEach(p => f['p_' + p].checked = t[1].includes(p)); sync(); };
@@ -766,7 +768,9 @@ function inviteBox(i) {
 }
 
 /* ===== company settings & finance permissions ===== */
-const FPERMS = { mkt: 'التسويق والحملات والفرص', proj: 'المشاريع وجداول الوقت', dash: 'لوحة المالية', sales: 'المبيعات والعملاء', purch: 'المشتريات والموردون', stock: 'عرض المخزون', stockadj: 'تسوية المخزون', items: 'إدارة الأصناف', void: 'الإلغاء والإشعارات الدائنة', je: 'عرض القيود', jepost: 'ترحيل القيود اليدوية', ledger: 'دفتر الأستاذ', reports: 'القوائم المالية', vat: 'إقرار الضريبة', coa: 'دليل الحسابات', payroll: 'قيود الرواتب', settings: 'إعدادات المالية' };
+const FPERMS = { mkt: 'التسويق والحملات والفرص', proj: 'المشاريع وجداول الوقت', dash: 'لوحة المالية', sales: 'المبيعات والعملاء', purch: 'المشتريات والموردون', stock: 'عرض المخزون', stockadj: 'تسوية المخزون', items: 'إدارة الأصناف', void: 'الإلغاء والإشعارات الدائنة', je: 'عرض القيود', jepost: 'ترحيل القيود اليدوية', ledger: 'دفتر الأستاذ', reports: 'القوائم المالية', vat: 'إقرار الضريبة', coa: 'دليل الحسابات', payroll: 'قيود الرواتب', settings: 'إعدادات المالية',
+  hr_emp: 'عرض ملفات الموظفين والمستندات والعقود', hr_att: 'عرض الحضور وتقويم الإجازات', hr_pay: 'عرض مسيرات الرواتب', hr_disc: 'عرض الجزاءات وتقييم الأداء',
+  hr_recruit: 'التوظيف وخطة القوى العاملة', hr_train: 'التدريب وخطته السنوية', hr_ann: 'الإعلانات الداخلية والاستبيانات', hr_cdocs: 'مستندات المنشأة والسيارات' };
 // «الربط مع فاتورة» (ZATCA Phase 2): the owner / an admin pastes the OTP from the Fatoora portal; the server does the rest
 async function zatcaCard(el) {
   const co = S.company || {}, [z] = await db.get('zatca_settings', { company_id: 'eq.' + S.cid }).catch(() => []);
