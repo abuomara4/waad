@@ -80,6 +80,7 @@ html = f'''<!doctype html>
 {r('onboarding.js')}
 {r('engage.js')}
 {r('permissions.js')}
+{r('spend.js')}
 applyLang();
 boot();
 </script>

@@ -26,7 +26,11 @@ RELEASES = [
   ('فواتير اشتراك وعد مرقّمة تراها وتطبعها من «إعدادات المنشأة»', 'Numbered Waad subscription invoices you can view and print from company settings'),
   ('جولة فيديو قصيرة في وعد على الصفحة الرئيسية', 'A short video tour of Waad on the home page'),
   ('«ادعُ منشأة»: شهر مجاني عن كل منشأة تدعوها وتشترك', '«Invite a company»: a free month for each company you invite that subscribes'),
-  ('«أي باقة تناسبني؟» في صفحة الأسعار', '«Which plan fits me?» on the pricing page')]),
+  ('«أي باقة تناسبني؟» في صفحة الأسعار', '«Which plan fits me?» on the pricing page'),
+  ('رحلات العمل (الانتداب) ببدل يومي حسب الدرجة الوظيفية', 'Business trips with a daily per diem by job grade'),
+  ('التحقق من الموازنة عند اعتماد طلبات الصرف، مع خيار منع التجاوز', 'Budget check when approving spend requests, with an option to block overruns'),
+  ('فواتير الموردين الواردة بملفاتها واعتمادها، والمطابقة الثلاثية لأوامر الشراء', 'Incoming supplier invoices with files and approval, and three-way matching of purchase orders'),
+  ('لوحة الإنفاق وتصدير القيود لأنظمة المحاسبة الأخرى', 'Spend overview and journal export for other accounting systems')]),
  ('16 نوفمبر 2026', '16 November 2026', [
   ('أقسام افتراضية لكل منشأة جديدة (تسعة أقسام بالعربي والإنجليزي)', 'Default departments for every new company (nine, Arabic and English)'),
   ('المرفقات عند إنشاء المستندات والعقود والعهد، وقائمة عهد جاهزة بالعربي والإنجليزي', 'Attachments when creating documents, contracts and custody, and a ready bilingual custody list'),

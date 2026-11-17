@@ -54,8 +54,8 @@ function travelBox(r, tl) {
 const badgeT = (t, c) => `<span class="badge ${c || ''}">${esc(tr(t))}</span>`;
 
 /* ----- approval settings: routes per request type, HR manager, deadline ----- */
-const WF_KINDS = ['leave', 'permit', 'punch', 'advance', 'expense', 'purchase', 'cert', 'update', 'ticket', 'visa', 'resign', 'settle'];
-const DEF_ROUTE = { leave: 'mphg', permit: 'mp', cert: 'p', punch: 'mp', advance: 'mphfg', resign: 'mphgf', settle: 'phfg', expense: 'mfg', ticket: 'mphf', visa: 'mph', update: 'p', purchase: 'mfg' };
+const WF_KINDS = ['leave', 'permit', 'punch', 'advance', 'expense', 'purchase', 'trip', 'cert', 'update', 'ticket', 'visa', 'resign', 'settle'];
+const DEF_ROUTE = { leave: 'mphg', permit: 'mp', cert: 'p', punch: 'mp', advance: 'mphfg', resign: 'mphgf', settle: 'phfg', expense: 'mfg', ticket: 'mphf', visa: 'mph', update: 'p', purchase: 'mfg', trip: 'mpf' };
 VIEWS['#/workflows'] = async page => {
   if (!isHR()) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
   const [wf, mem, em] = await Promise.all([db.get('workflows', { company_id: 'eq.' + S.cid }), db.get('members', { company_id: 'eq.' + S.cid }), employeesMap(true)]);

@@ -429,3 +429,6 @@ h1,h2,h3,.ph-co{font-family:"Plus Jakarta Sans","Noto Kufi Arabic","IBM Plex San
 @keyframes wfade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){#page>div{animation:none}.btn{transition:none}}
 @media print{h1,h2,h3{font-family:inherit}}
+.hbars{display:flex;flex-direction:column;gap:8px}.hb{display:grid;grid-template-columns:minmax(90px,1.2fr) 2fr auto;gap:8px;align-items:center}.hbt{height:10px;background:var(--line);border-radius:4px;overflow:hidden}.hbt i{display:block;height:100%;background:var(--brand-blue,#217FE1);border-radius:4px}
+.kpi b{font-size:22px;display:block;margin-top:4px}
+@media(max-width:480px){.hb{grid-template-columns:1fr auto}.hb .hbt{grid-column:1/-1;order:3}}

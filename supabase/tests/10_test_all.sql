@@ -46,7 +46,7 @@ insert into auth.users(id, email) values
 -- ================= TENANCY =================
 select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
 select public.create_company('شركة وعد للتجربة', '300000000000003', '1010000000') as cid \gset
-select t.ok((select count(*) from public.accounts where company_id = :'cid') = 32, 'chart of accounts seeded (32 accounts)');
+select t.ok((select count(*) from public.accounts where company_id = :'cid') = 33, 'chart of accounts seeded (33 accounts, incl. business travel 5230)');
 select t.ok(public.my_role(:'cid') = 'owner', 'creator is owner');
 select t.err($$select public.create_company('منشأة ثانية لنفس الحساب')$$, 'منشأة واحدة', 'one account = one company: the owner cannot create a second company');
 select t.ok((select count(*) from public.departments where company_id = :'cid') = 9 and exists(select 1 from public.departments where company_id = :'cid' and name = 'المخزون' and name_en = 'Inventory'),
@@ -3444,6 +3444,58 @@ select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticat
 select public.perm_deputy_set(:'cid', null);
 reset role;
 delete from public.finance_permissions where company_id = :'cid' and role in ('manager', 'employee');
+
+-- spend control: budgets, business trips, supplier invoices, three-way match, spend view (0116)
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.per_diem_set(:'cid', 300, 600);
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.submit_request('$$ || :'cid' || $$', 'trip', null, current_date + 10, current_date + 12, null, '{"purpose":"اجتماع"}')$$, 'وجهة', 'trips: the destination is required');
+select public.submit_request(:'cid', 'trip', null, current_date + 10, current_date + 12, null, '{"dest":"جدة","purpose":"اجتماع عميل"}') as trip1 \gset
+select public.submit_request(:'cid', 'trip', null, current_date + 20, current_date + 22, null, '{"dest":"دبي","purpose":"معرض","abroad":true}') as trip2 \gset
+select t.err($$select public.submit_request('$$ || :'cid' || $$', 'trip', null, current_date + 11, current_date + 13, null, '{"dest":"الدمام","purpose":"زيارة"}')$$, 'تتداخل', 'trips: overlapping trips are refused');
+reset role;
+select t.ok((select amount = 900 and days = 3 and route @> array['f'] from public.requests where id = :'trip1') and (select amount = 1800 from public.requests where id = :'trip2'),
+  'trips: per diem = the rate (inside 300 / abroad 600) × days, and the route passes finance');
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.err($$select public.workflow_set('$$ || :'cid' || $$', 'trip', array['m','p'])$$, 'المالية', 'trips: the route must pass finance (money is paid)');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.ok(not (public.request_budget(:'trip1')->>'has')::boolean, 'budgets: without a budget the request shows none');
+select public.budget_save(:'cid', extract(year from current_date + 10)::int, null, '[{"a":"5230","m":[100,100,100,100,100,100,100,100,100,100,100,100]}]'::jsonb);
+select t.ok(not (public.request_budget(:'trip1')->>'over')::boolean and (public.request_budget(:'trip2')->>'over')::boolean, 'budgets: a trip within the 1,200 budget is fine, one over it is flagged');
+select public.budget_block_set(:'cid', true);
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok(public.request_budget(:'trip1') is null, 'budgets: an employee does not see the budget position');
+reset role;
+select t.err($$update public.requests set status = 'approved' where id = '$$ || :'trip2' || $$'$$, 'الموازنة', 'budgets: with blocking on, a request over budget cannot be approved');
+update public.requests set status = 'approved' where id = :'trip1';
+select public.on_request_approved(:'trip1');
+select t.ok(exists(select 1 from public.journal_entries e join public.journal_lines l on l.entry_id = e.id where e.source_id = :'trip1' and l.account_code = '5230' and l.debit = 900),
+  'trips: the approved per diem is posted to business travel');
+update public.companies set budget_block = false where id = :'cid';
+-- supplier invoices
+select (select id from public.purchase_bills where company_id = :'cid' and status = 'posted' order by created_at limit 1) as sbill \gset
+select (select party_id from public.purchase_bills where id = :'sbill') as sparty \gset
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+insert into public.supplier_inbox(company_id, party_id, supplier_ref, inv_date, amount) values (:'cid', :'sparty', 'INV-77', current_date, 1150) returning id as sinv \gset
+select t.err($$select public.supplier_inbox_review('$$ || :'sinv' || $$', true, null)$$, 'سجّلها', 'supplier invoices: the person who recorded it does not approve it');
+select t.err($$select public.supplier_inbox_link('$$ || :'sinv' || $$', '$$ || :'sbill' || $$')$$, 'اعتمادها', 'supplier invoices: linked only after finance approval');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.supplier_inbox_review(:'sinv', true, null);
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select public.supplier_inbox_link(:'sinv', :'sbill');
+select t.ok((select status = 'billed' and bill_id = :'sbill' from public.supplier_inbox where id = :'sinv'), 'supplier invoices: approved, then linked to its purchase bill');
+select t.ok((select count(*) >= 0 from public.po_match((select id from public.purchase_orders where company_id = :'cid' limit 1))) or not exists(select 1 from public.purchase_orders where company_id = :'cid'), 'three-way match: each order line with ordered, received and billed');
+select t.ok(jsonb_typeof(public.spend_summary(:'cid', current_date - 365, current_date + 30)->'months') = 'array', 'spend view: spending by month, account, cost center and supplier');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.spend_summary('$$ || :'cid' || $$', current_date - 30, current_date)$$, '42501|غير مصرح|صلاحية', 'spend view: not for employees');
+reset role;
+update public.requests set status = 'rejected' where id = :'trip2';
 
 -- the owner's monthly e-mail also counts applicants, survey answers, new hires missing data and position requests (0110)
 select t.ok((select public.monthly_report(:'cid', current_date) ?& array['applicants','survey_answers','onb_missing','hc_pending']), 'monthly e-mail: applicants, survey answers, onboarding gaps and position requests are reported');

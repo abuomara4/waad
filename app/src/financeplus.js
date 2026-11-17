@@ -132,11 +132,13 @@ VIEWS['#/costcenters'] = async (page, arg, q) => {
 VIEWS['#/budgets'] = async (page, arg, q) => {
   const year = +(q.get('y')) || +today().slice(0, 4), cc = q.get('cc') || '', mode = q.get('m') === 'edit' && can('coa') ? 'edit' : 'report', tm = +(q.get('to')) || (year === +today().slice(0, 4) ? +today().slice(5, 7) : 12);
   const [acc, cs] = await Promise.all([accounts(), ccList()]);
+  const blockBox = has('owner', 'admin', 'finance') ? `<label class="row small" style="gap:6px;margin:8px 0"><input type="checkbox" id="bblk" style="width:auto" ${S.company && S.company.budget_block ? 'checked' : ''}> ${esc(tr('منع الاعتماد النهائي لطلبات الصرف (المصروفات والشراء ورحلات العمل والتذاكر) التي تتجاوز الموازنة'))}</label>` : '';
+  page.addEventListener('change', async ev => { const c = ev.target; if (c.id !== 'bblk') return; try { await db.rpc('budget_block_set', { p_company: S.cid, p_on: c.checked }); S.company.budget_block = c.checked; toast(tr('تم الحفظ')); } catch (e) { c.checked = !c.checked; toast(e.message); } });
   const pl = acc.filter(a => !a.is_header && (a.type === 'rev' || a.type === 'exp'));
   const MON = Array(12).fill(0);
   const head = `<div class="head"><div><h1>الموازنات</h1><div class="muted small">موازنة شهرية لكل حساب إيرادات ومصروفات، ومقارنتها بالفعلي</div></div>
       <div class="row">${can('coa') ? `<a class="btn ${mode === 'edit' ? 'pri' : ''}" href="#/budgets?${qs({ y: year, cc, m: 'edit' })}">${esc(tr('إعداد الموازنة'))}</a>` : ''}<a class="btn ${mode === 'report' ? 'pri' : ''}" href="#/budgets?${qs({ y: year, cc })}">${esc(tr('الموازنة مقابل الفعلي'))}</a></div></div>
-    <form id="bf" class="row card" style="padding:12px"><label style="margin:0">${esc(tr('السنة'))}</label><input type="number" name="y" value="${year}" min="2000" max="2100" style="width:100px">
+    ${blockBox}<form id="bf" class="row card" style="padding:12px"><label style="margin:0">${esc(tr('السنة'))}</label><input type="number" name="y" value="${year}" min="2000" max="2100" style="width:100px">
       ${cs.length ? `<select name="cc" style="width:auto"><option value="">${esc(tr('كل المنشأة'))}</option>${cs.map(c => opt(c.id, ccName(c), cc)).join('')}</select>` : ''}
       ${mode === 'report' ? `<label style="margin:0">${esc(tr('حتى شهر'))}</label><select name="to" style="width:auto">${MON.map((m, i) => opt(i + 1, String(i + 1).padStart(2, '0'), tm)).join('')}</select>` : '<input type="hidden" name="m" value="edit">'}<button class="btn">عرض</button>${mode === 'report' ? '<button type="button" class="btn" id="bprint">طباعة</button>' : ''}</form>`;
   if (mode === 'edit') {

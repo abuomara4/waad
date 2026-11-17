@@ -122,6 +122,15 @@ async function poView(page, id) {
       ${doc.terms ? `<p class="small"><b>الشروط:</b> ${esc(doc.terms)}</p>` : ''}${doc.note ? `<p class="muted small">${esc(doc.note)}</p>` : ''}${doc.reason ? `<p class="small">السبب: ${esc(doc.reason)}</p>` : ''}</div>
     ${grns.length ? '<h2>استلام البضاعة</h2><div id="tgr">' + tbl([{ t: 'الرقم', h: n => `<span class="num">${esc(n.no)}</span>` }, { t: 'التاريخ', h: n => fdate(n.date) }, { t: 'إشعار المورد', h: n => `<span class="num">${esc(n.supplier_doc || '—')}</span>` }, { t: 'الحالة', h: n => badge(n.status) }], grns, { onRow: true }) + '</div>' : ''}
     ${bills.length ? '<div style="height:12px"></div><h2>فواتير المورد</h2><div id="tbl">' + tbl([{ t: 'الرقم', h: v => `<span class="num">${esc(v.no)}</span>` }, { t: 'رقم المورد', h: v => `<span class="num">${esc(v.supplier_ref || '—')}</span>` }, { t: 'التاريخ', h: v => fdate(v.date) }, { t: 'الإجمالي', r: 1, h: v => money(v.total) }, { t: 'الحالة', h: v => badge(v.status) }], bills, { onRow: true }) + '</div>' : ''}`;
+  if (can('purch') && (grns.length || bills.length)) db.rpc('po_match', { p_order: id }).then(ms => {
+    const IS = { billed_over_received: tr('فُوتر أكثر من المستلم'), price_diff: tr('سعر الفاتورة يختلف عن أمر الشراء'), short_received: tr('لم تُستلم الكمية كاملة'), not_billed: tr('مستلم ولم يُفوتر بعد') };
+    const bad = ms.filter(m => m.issue && m.issue !== 'not_billed').length;
+    page.insertAdjacentHTML('beforeend', `<div class="card" style="margin-top:14px"><h2>${esc(tr('المطابقة الثلاثية'))} ${bad ? `<span class="badge bad">${bad}</span>` : `<span class="badge ok">${esc(tr('متطابق'))}</span>`}</h2>
+      <p class="muted small" style="margin-top:-4px">${esc(tr('أمر الشراء مقابل الاستلام مقابل فاتورة المورد، لكل بند.'))}</p>` +
+      tbl([{ t: 'البند', h: m => esc(m.label || '') }, { t: 'المطلوب', r: 1, h: m => qtyTxt(m.ordered) }, { t: 'المُستلم', r: 1, h: m => qtyTxt(m.received) }, { t: 'المُفوتر', r: 1, h: m => qtyTxt(m.billed) },
+        { t: 'سعر الأمر', r: 1, h: m => money(m.po_price) }, { t: 'سعر الفاتورة', r: 1, h: m => m.bill_price == null ? '—' : money(m.bill_price) },
+        { t: 'الحالة', h: m => m.issue ? `<span class="badge ${m.issue === 'not_billed' ? '' : 'bad'}">${esc(IS[m.issue])}</span>` : `<span class="badge ok">${esc(tr('متطابق'))}</span>` }], ms) + '</div>');
+  }).catch(() => {});
   if (grns.length) bindRows($('#tgr', page), grns, n => location.hash = '#/receipts/' + n.id);
   if (bills.length) bindRows($('#tbl', page), bills, v => location.hash = '#/purchases/' + v.id);
   const on = (s, fn) => { const b = $(s, page); if (b) b.onclick = fn; };

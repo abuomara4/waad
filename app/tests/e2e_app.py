@@ -73,7 +73,7 @@ with sync_playwright() as pw:
     o.fill('#dlg input[name=hire_date]', '2018-01-01'); o.fill('#dlg input[name=basic]', '25000'); o.fill('#dlg input[name=housing]', '6250'); o.fill('#dlg input[name=national_id]', '1021098767')
     o.fill('#dlg input[name=iban]', 'SA0380000000608010167519'); modal_ok(o)
     o.wait_for_selector('#nav a[href="#/requests"]'); ok(True, 'owner linked to own employee record → self-service menu appears')
-    ok(sql("select count(*) from accounts") == '32', 'chart of accounts seeded')
+    ok(sql("select count(*) from accounts") == '33', 'chart of accounts seeded (incl. business travel 5230)')
 
     def add_emp(no, name, basic, mgr=None, gender='m', hire='2023-03-01', nid=None):
         go(o, '#/employees'); o.click('#ne')
@@ -732,6 +732,29 @@ with sync_playwright() as pw:
     o.wait_for_selector('#dprint'); ok('PO-0001' in o.inner_text('#page') and '414.00' in o.inner_text('#page'), 'supplier bill from the PO (3 × 120 + VAT = 414), linked back')
     go(o, '#/porders'); o.wait_for_selector('#page tbody tr'); ok('60%' in o.inner_text('#page tbody'), 'PO list shows receiving 60%')
     go(o, '#/workflows'); o.wait_for_selector('[data-wk=purchase]'); ok(True, 'purchase request route is configurable in approval routes')
+
+    # ---------- spend control (0116) ----------
+    po1 = sql("select id from purchase_orders where no = 'PO-0001'")
+    go(o, '#/porders/' + po1); o.wait_for_selector('text=المطابقة الثلاثية'); ok('مستلم ولم يُفوتر بعد' in o.inner_text('#page') or 'متطابق' in o.inner_text('#page'), 'PO page: three-way match per line (ordered / received / billed / prices)')
+    bill1 = sql("select id from purchase_bills where supplier_ref = 'SUP-9001'")
+    go(o, '#/purchases/' + bill1); o.wait_for_selector('#pbfb label'); ok('فاتورة المورد الأصلية' in o.inner_text('#page'), 'purchase bill: a place for the supplier\'s original invoice file')
+    go(o, '#/supinbox'); o.wait_for_selector('#sinew'); o.click('#sinew'); o.wait_for_selector('#dlg select[name=p]')
+    o.select_option('#dlg select[name=p]', index=1); o.fill('#dlg input[name=ref]', 'SUP-9002'); o.fill('#dlg input[name=a]', '230'); o.set_input_files('#sif', LOGO); modal_ok(o); o.wait_for_timeout(500)
+    ok(sql("select status || ':' || (select count(*) from supplier_inbox_files f where f.inbox_id = i.id) from supplier_inbox i where supplier_ref = 'SUP-9002'") == 'new:1', 'supplier invoices: recorded with its file, waiting for finance')
+    o.locator('#page tbody tr', has_text='SUP-9002').click(); o.wait_for_selector('#siok'); o.click('#siok'); o.wait_for_timeout(600)
+    ok(sql("select status from supplier_inbox where supplier_ref = 'SUP-9002'") == 'approved', 'supplier invoices: finance (here the owner) approves it')
+    go(o, '#/spend'); o.wait_for_selector('.hbars'); ok('إجمالي المصروفات' in o.inner_text('#page') and o.locator('.hbars').count() >= 4, 'spend overview: by month, account, cost center, supplier and department')
+    go(o, '#/budgets'); o.wait_for_selector('#bblk'); o.check('#bblk'); o.wait_for_timeout(400); ok(sql("select budget_block from companies where name = 'شركة وعد التجريبية'") == 'true', 'budgets: the company can block approvals over budget')
+    o.uncheck('#bblk'); o.wait_for_timeout(400)
+    go(o, '#/journal'); o.wait_for_selector('#jx'); o.click('#jx'); o.wait_for_selector('#dlg select[name=x]'); o.select_option('#dlg select[name=x]', 'csv')
+    with o.expect_download() as dl: o.click('#mok')
+    jcsv = open(dl.value.path(), encoding='utf-8-sig').read(); ok(jcsv.startswith('"التاريخ","رقم القيد"') and jcsv.count('\n') >= 3, 'journal export: CSV with one row per entry line for other accounting systems')
+    go(o, '#/grades'); o.wait_for_selector('#pdf'); o.fill('#pdf input[name=i]', '300'); o.fill('#pdf input[name=o]', '600'); o.click('#pds'); o.wait_for_timeout(500)
+    ok(sql("select per_diem_in || '/' || per_diem_out from companies where name = 'شركة وعد التجريبية'") == '300.00/600.00', 'grades page: the company default per diem inside / outside the Kingdom')
+    go(e, '#/requests'); e.wait_for_selector('#nr'); e.click('#nr'); e.select_option('#rk', 'trip'); e.fill('#dlg input[name=tdest]', 'جدة'); e.fill('#dlg input[name=tpurp]', 'زيارة عميل')
+    e.fill('#dlg input[name=trfrom]', (datetime.date.today() + datetime.timedelta(days=5)).isoformat()); e.fill('#dlg input[name=trto]', (datetime.date.today() + datetime.timedelta(days=6)).isoformat()); e.wait_for_timeout(700)
+    ok('600.00' in e.inner_text('#trph'), 'business trip form: per diem 300 × 2 days shown before sending')
+    modal_ok(e); e.wait_for_timeout(500); ok(sql("select amount::text || ':' || days from requests where kind = 'trip' order by created_at desc limit 1") == '600.00:2', 'business trip request sent with its per diem')
 
     # ---------- inventory: warehouses, transfers, counts, expiry, reorder ----------
     ok(all(o.locator('#nav a[href="' + h + '"]').count() == 1 for h in ['#/items', '#/warehouses', '#/transfers', '#/counts', '#/expiry', '#/reorder']), 'inventory menu: items, warehouses, transfers, counts, expiry, reorder')

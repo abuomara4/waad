@@ -268,6 +268,10 @@ async function docView(page, key, id) {
         await db.rpc('post_credit_note_cc', { p_company: S.cid, p_doc: { kind: D.cnKind, doc: id, date: f.d, reason: f.reason, lines: ls } }); toast('رُحّل الإشعار'); route(); }
     });
   };
+  if (key === 'purchases' && can('purch') && typeof fileBox === 'function') {   // the supplier's own invoice (PDF / photo), 0116
+    page.insertAdjacentHTML('beforeend', `<div class="card" style="margin-top:14px"><h2>${esc(tr('فاتورة المورد الأصلية'))}</h2><div id="pbfb"></div></div>`);
+    fileBox($('#pbfb', page), 'purchase_bill_files', 'bill_id', id).catch(() => {});
+  }
 }
 
 /* ===== ZATCA Phase 2 on a sales document: status in the Fatoora chain, resend, debit note ===== */
@@ -336,12 +340,12 @@ async function paymentForm({ dir, party, doc, amount }) {
 }
 
 /* ===== journal ===== */
-const SRC = { manual: 'يدوي', reversal: 'عكس', sales: 'مبيعات', purchase: 'مشتريات', receipt: 'قبض', payment: 'صرف', stock: 'مخزون', payroll: 'رواتب', payroll_pay: 'صرف رواتب', advance: 'سلفة', expense: 'مصروفات', opening: 'افتتاحي', sales_return: 'مرتجع مبيعات', purchase_return: 'مرتجع مشتريات', asset: 'أصول ثابتة', depreciation: 'إهلاك' };
+const SRC = { manual: 'يدوي', reversal: 'عكس', sales: 'مبيعات', purchase: 'مشتريات', receipt: 'قبض', payment: 'صرف', stock: 'مخزون', payroll: 'رواتب', payroll_pay: 'صرف رواتب', advance: 'سلفة', expense: 'مصروفات', opening: 'افتتاحي', sales_return: 'مرتجع مبيعات', purchase_return: 'مرتجع مشتريات', asset: 'أصول ثابتة', depreciation: 'إهلاك', trip: 'بدل انتداب' };
 VIEWS['#/journal'] = async page => {
   const [jes, acc] = await Promise.all([db.get('journal_entries', Object.assign(C(), { order: 'date.desc,created_at.desc', limit: 200 })), accounts()]);
   const am = {}; acc.forEach(a => am[a.code] = a.name);
   const reversed = new Set(jes.filter(j => j.reverses).map(j => j.reverses));
-  page.innerHTML = `<div class="head"><div><h1>القيود اليومية</h1><div class="muted">آخر 200 قيد — القيود لا تُعدّل، تُعكس فقط</div></div>${can('jepost') ? '<button class="btn pri" id="nj">قيد يدوي</button>' : ''}</div>
+  page.innerHTML = `<div class="head"><div><h1>القيود اليومية</h1><div class="muted">آخر 200 قيد — القيود لا تُعدّل، تُعكس فقط</div></div><div class="row">${can('ledger') || can('je') ? `<button class="btn" id="jx">${esc(tr('تصدير القيود'))}</button>` : ''}${can('jepost') ? '<button class="btn pri" id="nj">قيد يدوي</button>' : ''}</div></div>
     ${tbl([{ t: 'الرقم', h: j => `<span class="num">${esc(j.no)}</span>` }, { t: 'التاريخ', h: j => fdate(j.date) }, { t: 'البيان', k: 'memo' }, { t: 'المصدر', h: j => `<span class="badge">${esc(SRC[j.source] || j.source)}</span>` + (reversed.has(j.id) ? ' <span class="badge bad">معكوس</span>' : '') }], jes, { empty: 'لا توجد قيود', onRow: true })}`;
   bindRows(page, jes, async j => {
     const ls = await db.get('journal_lines', { entry_id: 'eq.' + j.id, order: 'id' });
@@ -349,6 +353,7 @@ VIEWS['#/journal'] = async page => {
       ${j.source === 'manual' && !reversed.has(j.id) && can('jepost') ? '<button type="button" class="btn danger sm" id="rv" style="margin-top:12px">عكس القيد</button>' : ''}`);
     if ($('#rv', d)) $('#rv', d).onclick = async () => { try { await db.rpc('reverse_journal', { p_entry: j.id, p_date: today() }); d.close(); toast('عُكس القيد'); route(); } catch (e) { showErr($('#merr', d), e); } };
   });
+  if ($('#jx', page)) $('#jx', page).onclick = () => journalExport();
   if ($('#nj', page)) $('#nj', page).onclick = async () => {
     const post = acc.filter(a => !a.is_header); const ao = '<option value="">—</option>' + post.map(a => opt(a.code, a.code + ' — ' + a.name)).join('');
     const ccs = (await ccList()).filter(c => c.active), co = ccs.length ? `<option value="">—</option>${ccs.map(c => opt(c.id, ccName(c))).join('')}` : '';

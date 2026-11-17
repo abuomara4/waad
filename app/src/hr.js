@@ -72,7 +72,7 @@ const EVENT_LEAVES = { marriage: 'تُحتسب 5 أيام من تاريخ الز
 function newRequest(lt) {
   const g = S.myEmp && S.myEmp.gender;
   const leaveOpts = lt.filter(l => !l.gender || l.gender === g).map(l => opt(l.code, l.name_ar + (l.article ? ' (' + l.article + ')' : ''))).join('');
-  modal('طلب جديد', `<div class="fg">${field('نوع الطلب', `<select name="kind" id="rk">${Object.entries(Object.assign({ leave: 'إجازة', permit: 'استئذان' }, S.company && S.company.att_enabled ? { punch: 'نسيان بصمة' } : {}, { advance: 'سلفة', expense: 'مطالبة مصروفات' }, S.canPR ? { purchase: 'طلب شراء' } : {}, { cert: 'تعريف بالراتب' }, S.myEmp && S.myEmp.ticket_every ? { ticket: 'تذكرة سفر' } : {}, S.myEmp && S.myEmp.is_saudi === false ? { visa: 'تأشيرة خروج وعودة' } : {}, { resign: 'استقالة' })).map(([k, t]) => opt(k, t)).join('')}</select>`)}
+  modal('طلب جديد', `<div class="fg">${field('نوع الطلب', `<select name="kind" id="rk">${Object.entries(Object.assign({ leave: 'إجازة', permit: 'استئذان' }, S.company && S.company.att_enabled ? { punch: 'نسيان بصمة' } : {}, { advance: 'سلفة', expense: 'مطالبة مصروفات' }, S.canPR ? { purchase: 'طلب شراء' } : {}, { trip: 'رحلة عمل (انتداب)' }, { cert: 'تعريف بالراتب' }, S.myEmp && S.myEmp.ticket_every ? { ticket: 'تذكرة سفر' } : {}, S.myEmp && S.myEmp.is_saudi === false ? { visa: 'تأشيرة خروج وعودة' } : {}, { resign: 'استقالة' })).map(([k, t]) => opt(k, t)).join('')}</select>`)}
     <div data-k="leave">${field('نوع الإجازة', `<select name="sub">${leaveOpts}</select>`)}</div>
     <div data-k="leave permit">${field('من / التاريخ', `<input type="date" name="from" value="${today()}">`)}</div>
     <div data-k="punch">${field('يوم البصمة المنسية', `<input type="date" name="pday" value="${today()}" max="${today()}">`)}</div>
@@ -102,6 +102,13 @@ function newRequest(lt) {
       <tfoot><tr><td colspan="2">${esc(tr('الإجمالي التقديري'))}</td><td class="num" id="prt">0.00</td></tr></tfoot></table></div><button type="button" class="btn sm" id="pra" style="margin-top:6px">+ ${esc(tr('بند'))}</button></div>
     <div data-k="purchase">${field('مطلوب بتاريخ', `<input type="date" name="pneed" min="${today()}">`)}</div>
     <div data-k="purchase" class="wide"><p class="muted small" style="margin:0">${esc(tr('يمر الطلب على مديرك ثم المالية ثم المدير العام، وبعد اعتماده يصدر قسم المشتريات أمر الشراء. اكتب الغرض في الملاحظات.'))}</p></div>
+    <div data-k="trip">${field('الوجهة (المدينة / الدولة)', inp('tdest', '', 'maxlength="120"'))}</div>
+    <div data-k="trip">${field('الغرض من الرحلة', inp('tpurp', '', 'maxlength="300"'))}</div>
+    <div data-k="trip">${field('تاريخ الذهاب', `<input type="date" name="trfrom" value="${today()}">`)}</div>
+    <div data-k="trip">${field('تاريخ العودة', `<input type="date" name="trto" value="${today()}">`)}</div>
+    <div data-k="trip">${field('التنقل', `<select name="ttrans">${opt('none', tr('لا يحتاج'))}${opt('ticket', tr('تذكرة تحجزها المنشأة'))}${opt('car', tr('سيارة المنشأة أو سيارتي'))}</select>`)}</div>
+    <div data-k="trip"><label class="row small" style="gap:6px;margin-top:26px"><input type="checkbox" name="tabroad" style="width:auto"> ${esc(tr('خارج المملكة'))}</label></div>
+    <div data-k="trip" class="wide"><p class="small" id="trph" style="margin:0"></p></div>
     <div data-k="advance expense">${field('المبلغ', `<input name="amount" type="number" step="0.01" min="0">`)}</div>
     <div data-k="expense">${field('فئة المصروف', `<select name="ecat"><option value="">${esc(tr('عام'))}</option>${(S.ecats || []).map(c => opt(c.category, c.category + (c.per_claim ? ' — ' + tr('حتى') + ' ' + c.per_claim : ''), '')).join('')}</select>`)}</div>
     <div data-k="advance">${field('عدد الأقساط', `<input name="inst" type="number" min="1" max="24" value="1">`)}</div>
@@ -125,6 +132,8 @@ function newRequest(lt) {
       if (k === 'purchase') { const ls = $$('#prl tr').map(tr => ({ desc: $('[data-p=d]', tr).value.trim(), qty: +$('[data-p=q]', tr).value, price: +($('[data-p=p]', tr).value || 0) })).filter(l => l.desc);
         if (!ls.length) throw new Error('أضف بندا واحدا على الأقل'); if (ls.some(l => !(l.qty > 0))) throw new Error('الكمية أكبر من صفر');
         Object.assign(a, { p_from: blank(f.pneed), p_payload: { lines: ls } }); }
+      if (k === 'trip') { if (!(f.tdest || '').trim()) throw new Error(tr('اكتب وجهة الرحلة')); if (!(f.tpurp || '').trim()) throw new Error(tr('اكتب الغرض من الرحلة'));
+        Object.assign(a, { p_from: f.trfrom, p_to: f.trto, p_payload: { dest: f.tdest.trim(), purpose: f.tpurp.trim(), abroad: !!f.tabroad, transport: f.ttrans } }); }
       if (k === 'advance' || k === 'expense') { if (!(+f.amount > 0)) throw new Error('أدخل المبلغ'); a.p_amount = +f.amount; if (k === 'advance') a.p_payload = { inst: +f.inst || 1 }; if (k === 'expense' && f.ecat) a.p_payload = { cat: f.ecat }; }
       await db.rpc('submit_request', a); toast('أُرسل الطلب'); route();
     }
@@ -147,6 +156,11 @@ function newRequest(lt) {
     if (k === 'leave' && sub === 'comp' && !$('#comph', D).dataset.done) { $('#comph', D).dataset.done = 1; db.rpc('comp_balance', { p_emp: S.emp }).then(([b]) => { const h = n0(b && b.balance_hours); $('#comph', D).innerHTML = `${tr('رصيدك من الإجازة التعويضية')}: <b class="num">${r2(h)}</b> ${tr('ساعة')} (<span class="num">${Math.floor(h / 8)}</span> ${tr('يوم')}) — ${tr('تُحسب من ساعات العمل الإضافي التي اخترت التعويض عنها بإجازة بدل الأجر (م107).')}`; }).catch(() => {}); }
     if (ev) $('#evh', D).textContent = EVENT_LEAVES[sub];
     const amt = n0(D.querySelector('[name=amount]').value), cap = r2(gross * 0.10);
+    if (k === 'trip' && S.emp) { const ab = !!D.querySelector('[name=tabroad]').checked, fr = D.querySelector('[name=trfrom]').value, to = D.querySelector('[name=trto]').value;
+      const days = fr && to && to >= fr ? Math.round((new Date(to) - new Date(fr)) / 864e5) + 1 : 0, key = ab + '|' + days;
+      if ($('#trph', D).dataset.k !== key) { $('#trph', D).dataset.k = key; db.rpc('per_diem_rate', { p_emp: S.emp, p_abroad: ab }).then(rate => {
+        $('#trph', D).innerHTML = +rate ? `${esc(tr('بدل الانتداب'))}: <b class="num">${money(rate)}</b> × <span class="num">${days}</span> ${esc(tr('يوم'))} = <b class="num">${money(r2(rate * days))}</b> — ${esc(tr('حسب درجتك الوظيفية وسياسة المنشأة، ويُصرف بعد الاعتماد.'))}`
+          : esc(tr('لم تحدد منشأتك بدل انتداب بعد؛ يُرسل الطلب للاعتماد بدون مبلغ.')); }).catch(() => {}); } }
     if (k === 'advance') $('#advh', D).textContent = gross ? `القسط الشهري لا يزيد على 10% من أجرك (${money(cap)}) — م92.` + (amt ? ` أقل عدد أقساط لهذا المبلغ: ${Math.ceil(amt / cap)}.` : '') : '';
   };
   const prTot = () => { $('#prt', D).textContent = money($$('#prl tr', D).reduce((t, tr) => t + r2(n0($('[data-p=q]', tr).value) * n0($('[data-p=p]', tr).value)), 0)); };
@@ -155,6 +169,15 @@ function newRequest(lt) {
   D.addEventListener('input', sync); D.addEventListener('change', sync); sync();
 }
 const prRow = i => `<tr><td><input data-p="d" maxlength="200" style="min-width:180px" aria-label="${esc(tr('البند'))} ${i + 1}"></td><td><input data-p="q" type="number" min="0" step="0.001" value="1" style="width:80px"></td><td><input data-p="p" type="number" min="0" step="0.01" style="width:110px"></td></tr>`;
+// how a spend request stands against the budget (shown to finance, the owner, HR and the employee's manager)
+async function budgetBox(r) {
+  const b = await db.rpc('request_budget', { p_request: r.id }).catch(() => null); if (!b || !b.has) return '';
+  const pct = Math.min(100, Math.round(n0(b.after) / n0(b.budget) * 100));
+  return `<div class="card" style="margin:10px 0;padding:10px 12px;border-inline-start:4px solid ${b.over ? 'var(--bad)' : 'var(--ok)'}"><b class="small">${esc(tr('الموازنة'))} <span class="num">${b.year}</span>${b.cc ? ' — ' + esc(b.cc) : ''}</b>
+    <div class="small">${esc(tr('الموازنة'))} <span class="num">${money(b.budget)}</span> · ${esc(tr('المصروف حتى الآن'))} <span class="num">${money(b.actual)}</span> · ${esc(tr('بعد هذا الطلب'))} <b class="num">${money(b.after)}</b> (${pct}%)</div>
+    <div style="height:8px;background:var(--line);border-radius:4px;margin-top:6px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${b.over ? 'var(--bad)' : 'var(--brand-blue,#217FE1)'}"></div></div>
+    ${b.over ? `<div class="small bad" style="margin-top:4px">${esc(tr('يتجاوز الموازنة'))}${b.block ? ' — ' + esc(tr('منشأتك تمنع الاعتماد النهائي لما يتجاوز الموازنة')) : ''}</div>` : ''}</div>`;
+}
 async function requestDetail(r, { decide } = {}) {
   const [acts, tl] = await Promise.all([db.get('request_actions', { request_id: 'eq.' + r.id, order: 'at' }), db.rpc('request_timeline', { p_id: r.id }).catch(() => null)]);
   const label = { submitted: 'أُرسل', approved: 'اعتُمد', rejected: 'رُفض', cancelled: 'أُلغي', attached: 'أُرفق مستند' };
@@ -169,6 +192,10 @@ async function requestDetail(r, { decide } = {}) {
     ${r.payload && r.payload.event_date ? `<p class="muted small">تاريخ الواقعة: ${fdate(r.payload.event_date)}</p>` : ''}
     ${r.payload && r.payload.exam_mode ? `<p class="muted small">${esc(EXAM_MODE[r.payload.exam_mode] || '')}${r.payload.exam_missed ? ' — <span class="bad">' + esc('لم يؤدِّ الامتحان: حُوّلت إلى إجازة بدون أجر (م115)') + '</span>' : ''}</p>` : ''}
     ${r.payload && r.payload.defer_until ? `<div class="note">${esc('أُجّل قبول الاستقالة لمصلحة العمل حتى')} <b class="num">${fdate(r.payload.defer_until)}</b> (${esc('م79 مكرر')}) — ${esc(r.payload.defer_reason || '')}</div>` : ''}
+    ${r.kind === 'trip' && r.payload ? `<div class="card" style="margin:10px 0;padding:10px 12px"><b class="small">${esc(tr('رحلة العمل'))}</b><div class="small">${esc(tr('الوجهة'))}: <b>${esc(r.payload.dest || '')}</b>${r.payload.abroad ? ' · ' + esc(tr('خارج المملكة')) : ''} · ${esc(tr('الغرض'))}: ${esc(r.payload.purpose || '')}</div>
+      <div class="small">${esc(tr('بدل الانتداب'))}: <span class="num">${money(r.payload.rate || 0)}</span> × <span class="num">${r.days || 0}</span> = <b class="num">${money(r.amount || 0)}</b>${r.payload.transport && r.payload.transport !== 'none' ? ' · ' + esc(tr('التنقل')) + ': ' + esc(tr({ ticket: 'تذكرة تحجزها المنشأة', car: 'سيارة المنشأة أو سيارتي' }[r.payload.transport] || '')) : ''}</div>
+      <div class="muted small">${esc(tr('مصاريف الرحلة الفعلية (السكن والمواصلات) تُقدَّم بعد العودة كمطالبة مصروفات.'))}</div></div>` : ''}
+    ${['expense', 'purchase', 'trip', 'ticket'].includes(r.kind) ? await budgetBox(r) : ''}
     ${r.note ? `<p>${esc(r.note)}</p>` : ''}${r.kind === 'expense' && typeof expenseInfo === 'function' ? await expenseInfo(r, decide) : ''}
     ${!atts.length && !canAttach && lt.find(l => l.code === r.sub && l.doc_label) ? `<p class="muted small">${esc(tr('المرفق المطلوب') + ': ' + docLabel(lt.find(l => l.code === r.sub)))} — ${esc('تراه الموارد البشرية فقط')}</p>` : ''}
     ${atts.length || canAttach || (r.payload && r.payload.doc_ref) ? `<div class="card" style="margin:10px 0;padding:10px 12px"><b class="small">${esc('المرفقات')}</b>${r.payload && r.payload.doc_ref ? `<div class="small" style="margin-top:4px">${esc(refLabel(lt.find(l => l.code === r.sub) || {}) || tr('رقم المستند'))}: <b class="num" data-nt>${esc(r.payload.doc_ref)}</b>${r.sub === 'sick' && isHR() ? ` — <a href="https://www.seha.sa" target="_blank" rel="noopener">${esc('تحقق منه في منصة صحة')}</a>` : ''}</div>` : ''}${atts.length ? atts.map(x => `<div class="row small" style="justify-content:space-between;margin-top:6px"><span><span class="badge">${x.mime === 'application/pdf' ? 'PDF' : esc('صورة')}</span> ${esc(x.file_name)} <span class="muted num">${Math.ceil(x.size / 1024)} KB</span></span><button type="button" class="btn sm" data-att="${x.id}">${esc('عرض')}</button></div>`).join('') : `<p class="muted small" style="margin:6px 0 0">${esc('لا توجد مرفقات ظاهرة لك')}</p>`}

@@ -210,7 +210,7 @@ const arCount = (n, u) => { const f = AR_PL[u]; n = +n || 0; if (!f) return n + 
 const fdate = d => d ? String(d).slice(0, 10) : '—';
 const ROLES = { owner: 'المالك / المدير العام', admin: 'مدير النظام', hr: 'الموارد البشرية', finance: 'المدير المالي', accountant: 'محاسب', storekeeper: 'أمين مستودع', manager: 'مدير قسم', employee: 'موظف' };
 const STEP = { m: 'المدير المباشر', b: 'مسؤول المشتريات', p: 'الموارد البشرية', h: 'مدير الموارد البشرية', f: 'المالية', g: 'المدير العام' };
-const KIND = { leave: 'إجازة', permit: 'استئذان', cert: 'تعريف بالراتب', advance: 'سلفة', resign: 'استقالة', settle: 'مخالصة', expense: 'مطالبة مصروفات', update: 'تحديث بيانات', punch: 'نسيان بصمة', ticket: 'تذكرة سفر', visa: 'تأشيرة خروج وعودة', purchase: 'طلب شراء' };
+const KIND = { leave: 'إجازة', permit: 'استئذان', cert: 'تعريف بالراتب', advance: 'سلفة', resign: 'استقالة', settle: 'مخالصة', expense: 'مطالبة مصروفات', update: 'تحديث بيانات', punch: 'نسيان بصمة', ticket: 'تذكرة سفر', visa: 'تأشيرة خروج وعودة', purchase: 'طلب شراء', trip: 'رحلة عمل (انتداب)' };
 const STATUS = { pending: ['بانتظار', 'wait'], approved: ['معتمد', 'ok'], rejected: ['مرفوض', 'bad'], cancelled: ['ملغى', ''], draft: ['مسودة', 'wait'], paid: ['مصروف', 'ok'], posted: ['مرحّلة', 'ok'], void: ['ملغاة', 'bad'] };
 const badge = s => { const [t, c] = STATUS[s] || [s, '']; return `<span class="badge ${c}">${esc(t)}</span>`; };
 const has = (...roles) => roles.some(r => (S.roles || new Set([S.role])).has(r));
@@ -660,7 +660,7 @@ function navItems() {
     g('المشتريات');
     if (can('purch')) it.push({ h: '#/purchreq', t: 'طلبات الشراء' }, { h: '#/rfq', t: 'طلبات عروض الأسعار' });
     it.push({ h: '#/porders', t: 'أوامر الشراء' }, { h: '#/receipts', t: 'استلام البضاعة' });
-    if (can('purch')) it.push({ h: '#/purchases', t: 'فواتير المشتريات' }, { h: '#/parties/supplier', t: 'الموردون' });
+    if (can('purch')) it.push({ h: '#/supinbox', t: 'فواتير الموردين الواردة' }, { h: '#/purchases', t: 'فواتير المشتريات' }, { h: '#/parties/supplier', t: 'الموردون' });
   }
   if (isFin() && (can('stock') || can('items') || can('stockadj'))) {
     g('المخزون');
@@ -673,6 +673,7 @@ function navItems() {
     g('المالية');
     if (can('sales') || can('purch')) it.push({ h: '#/payments', t: 'سندات القبض والصرف' });
     if (can('je')) it.push({ h: '#/journal', t: 'القيود اليومية' });
+    if (can('reports')) it.push({ h: '#/spend', t: 'لوحة الإنفاق' });
     if (can('reports') || can('vat') || can('ledger') || can('sales') || can('purch')) it.push({ h: '#/reports', t: 'التقارير' });
     if (can('coa') || can('ledger')) it.push({ h: '#/coa', t: 'دليل الحسابات' });
     if (can('je')) it.push({ h: '#/bankrec', t: 'التسوية البنكية' });
