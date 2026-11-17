@@ -76,6 +76,8 @@ html = f'''<!doctype html>
 {r('notes.js')}
 {r('portal.js')}
 {r('custom.js')}
+{r('compliance.js')}
+{r('onboarding.js')}
 applyLang();
 boot();
 </script>
@@ -96,6 +98,6 @@ admin = admin.replace('<title>وعد — الموارد البشرية والم�
 # the admin site keeps its own look setting, light by default (the system stays dark by default)
 admin = admin.replace("localStorage.getItem('waad.theme')", "localStorage.getItem('waad.atheme')").replace("t==='light'?'light':'dark'}catch(e){document.documentElement.dataset.theme='dark'}", "t==='dark'?'dark':'light'}catch(e){document.documentElement.dataset.theme='light'}").replace('<meta name="theme-color" content="#131b29">', '<meta name="theme-color" content="#f5f7fb">')
 assert "waad.atheme" in admin and "dataset.theme='light'" in admin
-assert 'serviceWorker' not in admin and 'ADMIN_SITE' in admin and 'manifest' not in admin
+assert 'serviceWorker.register' not in admin and 'ADMIN_SITE' in admin and 'manifest' not in admin
 open(os.path.join(D, 'waad-admin.html'), 'w', encoding='utf-8').write(admin)
 print('built admin', len(admin), 'bytes')

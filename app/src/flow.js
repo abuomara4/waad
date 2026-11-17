@@ -81,6 +81,17 @@ VIEWS['#/workflows'] = async page => {
   $$('[data-wsave]', page).forEach(b => b.onclick = async () => { const k = b.dataset.wsave, tr_ = b.closest('tr');
     try { await db.rpc('workflow_set', { p_company: S.cid, p_kind: k, p_route: $$('[data-st]', tr_).filter(x => x.checked).map(x => x.dataset.st) }); toast(tr('تم الحفظ')); route(); } catch (er) { toast(er.message); } });
   $$('[data-wreset]', page).forEach(b => b.onclick = async () => { try { await db.rpc('workflow_set', { p_company: S.cid, p_kind: b.dataset.wreset, p_route: null }); toast(tr('تم الحفظ')); route(); } catch (er) { toast(er.message); } });
+  // conditional approval (0105): the GM / owner step only above an amount or a number of leave days
+  const lim = {}; wf.forEach(w => lim[w.kind] = w.g_above);
+  const RK = ['leave', 'advance', 'expense', 'settle', 'ticket', 'purchase'].filter(k => WF_KINDS.includes(k));
+  const box = document.createElement('div'); box.className = 'card'; box.style.marginTop = '14px';
+  box.innerHTML = `<h2>${esc(tr('اعتماد المدير العام حسب المبلغ'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('مرحلة المدير العام (المالك) تُطبَّق فقط إذا زاد المبلغ أو عدد أيام الإجازة عن الحد. اتركه فارغا ليمر كل طلب عليه.'))}</p>
+    <div class="tw"><table><thead><tr><th>${esc(tr('نوع الطلب'))}</th><th>${esc(tr('يمر على المدير العام إذا زاد عن'))}</th><th></th></tr></thead><tbody>
+    ${RK.map(k => `<tr><td>${esc(tr(KIND[k]))}</td><td><div class="row" style="gap:6px"><input type="number" min="0" step="any" style="width:120px" data-glim="${k}" value="${lim[k] == null ? '' : lim[k]}" placeholder="—">
+      <span class="small muted">${esc(tr(k === 'leave' ? 'يوم' : 'ريال'))}</span></div></td><td><button class="btn sm" data-gsave="${k}">${esc(tr('حفظ'))}</button></td></tr>`).join('')}</tbody></table></div>`;
+  page.appendChild(box);
+  $$('[data-gsave]', box).forEach(b => b.onclick = async () => { const k = b.dataset.gsave, v = $(`[data-glim="${k}"]`, box).value;
+    try { await db.rpc('workflow_rule_set', { p_company: S.cid, p_kind: k, p_above: v === '' ? null : +v }); toast(tr('تم الحفظ')); route(); } catch (er) { toast(er.message); } });
 };
 
 /* ----- travel desk ----- */

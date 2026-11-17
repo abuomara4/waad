@@ -1092,6 +1092,22 @@ with sync_playwright() as pw:
     with o.expect_download() as dl: o.click('#exj')
     import json as _j; xj = _j.loads(open(dl.value.path(), encoding='utf-8').read())
     ok(xj['with_files'] and len(xj['tables']['employees']) == int(sql("select count(*) from employees e join companies c on c.id=e.company_id where c.name='شركة وعد التجريبية'")), 'owner exports the full company data as JSON')
+    # compliance page: everything the company must act on, in one place
+    go(o, '#/compliance'); o.wait_for_selector('#page .cmpl .cmc')
+    t = o.inner_text('#page'); ok('نسبة الامتثال' in t and 'حماية الأجور' in t and 'وثائق الموظفين' in t and 'التأمينات الاجتماعية' in t and o.locator('#page .cmc').count() >= 8, 'compliance page: wage protection, GOSI, documents and more in one place with a score')
+    # onboarding: a checklist per new employee, some steps automatic, the rest ticked by HR
+    onb_w = "emp_no = '5000' and company_id = (select id from companies where name = 'شركة وعد التجريبية')"
+    onb_old = sql("select hire_date || '|' || coalesce(probation_end::text, '') from employees where " + onb_w).split('|')
+    sqlx("update employees set hire_date = current_date - 10, probation_end = null where " + onb_w)
+    go(o, '#/onboarding'); o.wait_for_selector('#page tbody tr'); o.locator('#page tbody tr', has_text='محمد العتيبي').click(); o.wait_for_selector('#dlg[open] [data-onb=gosi]')
+    o.check('#dlg [data-onb=gosi]'); o.wait_for_timeout(600)
+    ok(sql("select count(*) from onboarding_marks where item = 'gosi'") == '1' and 'عقد عمل ساري' in o.inner_text('#dlg'), 'onboarding: a new employee has a checklist; HR ticks GOSI registration')
+    o.click('#mok'); o.wait_for_timeout(400)
+    sqlx("update employees set hire_date = '%s', probation_end = %s where %s" % (onb_old[0], ("'%s'" % onb_old[1]) if onb_old[1] else 'null', onb_w))
+    # conditional approval: the GM step only above an amount
+    go(o, '#/workflows'); o.wait_for_selector('[data-glim=advance]'); o.fill('[data-glim=advance]', '1000'); o.click('[data-gsave=advance]'); o.wait_for_timeout(800)
+    ok(sql("select g_above::int from workflows w join companies c on c.id = w.company_id where c.name = 'شركة وعد التجريبية' and w.kind = 'advance'") == '1000', 'approval paths: the GM approves advances only above 1,000')
+    go(o, '#/workflows'); o.wait_for_selector('[data-glim=advance]'); o.fill('[data-glim=advance]', ''); o.click('[data-gsave=advance]'); o.wait_for_timeout(600)
     ok('noindex' in (o.get_attribute('meta[name=robots]', 'content') or ''), 'the site asks search engines not to index it')
     go(o, '#/parties/customer'); o.wait_for_selector('#page tbody tr'); o.locator('#page tbody tr', has_text='مؤسسة النخبة').first.click(); o.wait_for_selector('#dlg input[name=name_en]')
     cust = o.input_value('#dlg input[name=name]'); o.fill('#dlg input[name=name_en]', 'Al-Nakhla Est.'); modal_ok(o)

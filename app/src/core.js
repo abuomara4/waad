@@ -140,6 +140,25 @@ const db = {
 let installEvt = null;
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; });
 const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+// «تفعيل التنبيهات»: notifications on this device (0106) — the notify job sends them every few minutes
+const pushOk = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+const b64u = s => { const b = atob((s + '='.repeat((4 - s.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(b, c => c.charCodeAt(0)); };
+async function pushEnable() {
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (!pushOk() || (ios && !isStandalone())) return modal(tr('تفعيل التنبيهات'), `<p style="margin-top:0">${esc(tr(ios ? 'في الآيفون تعمل التنبيهات بعد تثبيت وعد على الشاشة الرئيسية (iOS 16.4 أو أحدث): ثبّته من القائمة، ثم افتحه من أيقونته وفعّل التنبيهات.' : 'متصفحك لا يدعم التنبيهات. جرّب Chrome أو Edge أو Safari حديث.'))}</p>`, { ok: 'تم' });
+  const reg = await navigator.serviceWorker.getRegistration();
+  if (!reg) return toast(tr('أعد فتح وعد ثم حاول مرة أخرى'));
+  const key = await db.rpc('push_public_key').catch(() => null);
+  if (!key) return toast(tr('التنبيهات تُجهَّز الآن، حاول بعد عشر دقائق'));
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') return toast(tr('لم يُسمح بالتنبيهات في المتصفح؛ فعّلها من إعدادات الموقع'));
+  try {
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64u(key) });
+    const j = sub.toJSON(); await db.rpc('push_subscribe', { p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth });
+    toast(tr('تم تفعيل التنبيهات على هذا الجهاز'));
+  } catch (e) { toast(tr('تعذّر تفعيل التنبيهات على هذا الجهاز')); }
+}
 async function installApp() {
   if (installEvt) { installEvt.prompt(); const r = await installEvt.userChoice.catch(() => null); installEvt = null; if (r && r.outcome === 'accepted') toast(tr('تم تثبيت وعد')); return; }
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -516,7 +535,7 @@ const profileRow = f => Object.assign({ owner_phone: (f.owner_phone || '').repla
   'city' in f ? { city: (f.city || '').trim() || null } : {});
 const MODULES = { hr: 'الموارد البشرية', finance: 'المالية والمحاسبة', sales: 'المبيعات', purch: 'المشتريات', stock: 'المخزون', proj: 'المشاريع' };
 const MOD_ROUTES = {
-  hr: ['hrdash', 'employees', 'grades', 'insurance', 'trainplan', 'docs', 'att', 'attendance', 'roster', 'policies', 'leavecal', 'penalties', 'payroll', 'payslips', 'eos', 'nitaqat', 'travel', 'workflows', 'clearance', 'reviews', 'recruit', 'training', 'hrreports', 'org', 'letter', 'path', 'profile', 'requests'],
+  hr: ['hrdash', 'compliance', 'onboarding', 'employees', 'grades', 'insurance', 'trainplan', 'docs', 'att', 'attendance', 'roster', 'policies', 'leavecal', 'penalties', 'payroll', 'payslips', 'eos', 'nitaqat', 'travel', 'workflows', 'clearance', 'reviews', 'recruit', 'training', 'hrreports', 'org', 'letter', 'path', 'profile', 'requests'],
   sales: ['quotes', 'orders', 'deliveries', 'sales', 'crm', 'marketing'],
   purch: ['purchreq', 'porders', 'receipts', 'purchases', 'rfq'],
   stock: ['items', 'warehouses', 'transfers', 'counts', 'expiry', 'reorder', 'serials'],
@@ -566,7 +585,7 @@ function navItems() {
   if (has('manager') && !(isHR() || has('finance'))) it.push({ h: '#/clearance', t: 'إخلاء الطرف' });
   if (isHR() || has('finance')) {
     g('الموارد البشرية');
-    if (isHR()) it.push({ h: '#/hrdash', t: 'لوحة الموارد البشرية' });
+    if (isHR()) it.push({ h: '#/hrdash', t: 'لوحة الموارد البشرية' }, { h: '#/compliance', t: 'الامتثال' }, { h: '#/onboarding', t: 'التهيئة والترحيب' });
     if (isHR()) it.push({ h: '#/employees', t: 'الموظفون' }, { h: '#/docs', t: 'المستندات والعقود', pill: NAVC.docs });
     if (isHR()) it.push({ h: '#/org', t: 'الهيكل التنظيمي' });
     if (isHR()) it.push({ h: '#/att', t: 'الحضور والانصراف' });
@@ -638,6 +657,7 @@ function shell() {
           ${S.platform ? '<a class="mi" href="' + ADMIN_URL + '" id="plat" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v6H4zM4 14h7v6H4zM15 14h5v6h-5z"/></svg><span>لوحة إدارة المنصة</span></a>' : ''}
           ${has('owner', 'admin', 'hr', 'finance', 'accountant') ? '<a class="mi" href="#/support" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2v-6h4M4 13v4a2 2 0 0 0 2 2h2v-6H4"/></svg><span>الدعم الفني</span></a>' : ''}
           ${ADMIN || isStandalone() ? '' : '<button type="button" class="mi" id="inst" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10v20H7zM11 18h2M12 6v7M9 10l3 3 3-3"/></svg><span>ثبّت وعد على جوالك</span></button>'}
+          ${ADMIN ? '' : '<button type="button" class="mi" id="pushon" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span>تفعيل التنبيهات على هذا الجهاز</span></button>'}
           <a class="mi" href="#/help" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17h.01"/></svg><span>مركز المساعدة</span></a>
           <a class="mi" href="#/privacy" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM9 12h7M9 16h7"/></svg><span>الخصوصية والشروط</span></a>
           <button type="button" class="mi out" id="lo" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg><span>تسجيل الخروج</span></button>
@@ -653,6 +673,7 @@ function shell() {
   const umSet = open => { $('#umenu').hidden = !open; $('#um').setAttribute('aria-expanded', open ? 'true' : 'false'); };
   if ($('#hb')) $('#hb').onclick = () => { if (typeof helpModal === 'function') helpModal(); };
   if ($('#inst')) $('#inst').onclick = () => { $('#umenu').hidden = true; installApp(); };
+  if ($('#pushon')) $('#pushon').onclick = () => { $('#umenu').hidden = true; pushEnable(); };
   $('#um').onclick = ev => { ev.stopPropagation(); const p = $('#bpanel'); if (!p.hidden) { p.hidden = true; return umSet(false); } umSet($('#umenu').hidden); };
   $('#bell').onclick = ev => { ev.stopPropagation(); umSet(false); const p = $('#bpanel'); p.hidden = false; drawBell(true); LS.set(seenKey(), new Date().toISOString()); };
   $('#pw').addEventListener('click', () => umSet(false));
@@ -696,7 +717,7 @@ const NI = { home: 'M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z', 
   gear: 'M4 6h9M17 6h3M15 4v4M4 12h3M11 12h9M9 10v4M4 18h11M19 18h1M17 16v4', star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z', grad: 'M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5',
   search: 'M11 4a7 7 0 1 0 0 14a7 7 0 0 0 0-14zM21 21l-5-5', truck: 'M2 6h11v10H2zM13 9h4l4 4v3h-8M6 19a2 2 0 1 0 0-.01M17 19a2 2 0 1 0 0-.01', swap: 'M4 8h14l-3-3M20 16H6l3 3' };
 const NAV_IC = { home: 'home', analytics: 'chart', attendance: 'clock', att: 'clock', requests: 'doc', payslips: 'money', reviews: 'star', profile: 'user', policies: 'book', org: 'org', approvals: 'check', clearance: 'shield',
-  hrdash: 'chart', employees: 'users', docs: 'doc', roster: 'cal', leavecal: 'cal', penalties: 'shield', payroll: 'money', eos: 'money', nitaqat: 'chart', travel: 'plane', workflows: 'flow', recruit: 'search', training: 'grad',
+  hrdash: 'chart', compliance: 'shield', onboarding: 'users', employees: 'users', docs: 'doc', roster: 'cal', leavecal: 'cal', penalties: 'shield', payroll: 'money', eos: 'money', nitaqat: 'chart', travel: 'plane', workflows: 'flow', recruit: 'search', training: 'grad',
   hrreports: 'chart', forms: 'doc', crm: 'users', rfq: 'doc', serials: 'check', grades: 'chart', insurance: 'shield', trainplan: 'cal', platform: 'gear', sales: 'cart', quotes: 'doc', orders: 'cart', deliveries: 'truck', purchreq: 'doc', porders: 'box', receipts: 'truck', warehouses: 'box', transfers: 'swap', counts: 'check', expiry: 'cal', reorder: 'cart', parties: 'users', purchases: 'box', payments: 'swap', items: 'box', journal: 'book', reports: 'chart', coa: 'book', bankrec: 'check', cheques: 'doc', petty: 'money', mypetty: 'money', currencies: 'swap', opening: 'book', assets: 'box', costcenters: 'org', budgets: 'chart', periods: 'shield', users: 'users', settings: 'gear' };
 const navIcon = h => `<svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="${NI[NAV_IC[h.split('/')[1]]] || NI.doc}"/></svg>`;
 function drawNav() {

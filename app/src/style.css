@@ -400,3 +400,9 @@ button,input,select,textarea,optgroup{font-family:inherit}
 .notes .nrow{border-bottom:1px solid var(--line3);padding:8px 0}.notes .nrow:last-child{border-bottom:0}.notes .nadd{margin-top:10px}
 /* customer portal */
 .portal{max-width:920px;margin:0 auto;padding:16px}.portal .brand{margin:24px auto}.phead{display:flex;gap:12px;align-items:center;margin-bottom:12px}.phead h1{margin:0}.plogo{height:52px;width:auto;border-radius:8px}
+
+/* «الامتثال» cards (compliance.js) */
+.cmpl{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:12px}
+.cmc{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;border-inline-start:4px solid var(--line)}
+.cmc.ok{border-inline-start-color:var(--ok,#1f9d55)}.cmc.warn{border-inline-start-color:#d98e04}.cmc.bad{border-inline-start-color:var(--bad)}.cmc.info{border-inline-start-color:#3b82f6}
+.cmc .v{font-size:26px;font-weight:700}.cmc .cml{color:var(--muted,#6b7280);margin-top:auto}.cmc:hover{box-shadow:0 8px 20px -14px rgba(20,32,57,.4)}

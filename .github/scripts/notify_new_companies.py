@@ -5,7 +5,8 @@
  5. send the welcome e-mail once a company is accepted;
  6. on the 1st–3rd of each month, e-mail each owner a summary of last month (once; they can switch it off in settings);
  7. a company that ended and was not renewed: e-mail its owner 30 and 7 days before the deletion decision (day 60);
- 8. the Waad team exported a company's data at its owner's request: e-mail the owner at once.
+ 8. the Waad team exported a company's data at its owner's request: e-mail the owner at once;
+ 9. notifications on users' devices (Web Push): approvals waiting, decisions, signatures, mentions, payslips.
 Channels (each optional, set as repository secrets):
   e-mail   : NOTIFY_GMAIL_USER + NOTIFY_GMAIL_APP_PASSWORD (a Google «App password»); team mail goes to NOTIFY_EMAIL_TO or to itself
   WhatsApp : CALLMEBOT_PHONE + CALLMEBOT_APIKEY (free CallMeBot key for your own number) — team notices only
@@ -141,6 +142,50 @@ def export_notices():
             psql("update public.company_exports_log set notified_at = now() where id = '%s'" % r['id']); n += 1
     print('export notices: sent %d of %d' % (n, len(rows)) if n else '::warning::%d export notice(s) due but none sent — check the e-mail secrets' % len(rows))
 
+# ---------- 9. notifications on the users' devices (Web Push, 0106) ----------
+def sqlq(x): return "'" + str(x).replace("'", "''") + "'"
+def push_notices():
+    try:
+        import base64
+        from pywebpush import webpush, WebPushException
+        from py_vapid import Vapid01
+        from cryptography.hazmat.primitives import serialization
+    except ImportError:
+        print('::warning::push: pywebpush is not installed'); return
+    k = json.loads(psql("select coalesce((select json_build_object('pub', public_key, 'pem', private_pem) from public.push_keys where id = 1)::text, 'null')"))
+    if not k:   # first run: make the key pair here; it never leaves the database (the app reads only the public half)
+        v = Vapid01(); v.generate_keys()
+        pub = base64.urlsafe_b64encode(v.public_key.public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)).decode().rstrip('=')
+        psql("insert into public.push_keys(id, public_key, private_pem) values (1, %s, %s) on conflict (id) do nothing" % (sqlq(pub), sqlq(v.private_pem().decode())))
+        print('push: key pair created'); return
+    vapid = Vapid01.from_pem(k['pem'].encode())
+    rows = json.loads(psql("select coalesce(json_agg(x), '[]') from (select * from public.push_due() limit 300) x"))
+    if not rows:
+        print('push: none due'); return
+    _, cmail = contact()
+    subs = {}
+    sent = gone = 0
+    for r in rows:
+        uid = r['user_id']
+        if uid not in subs:
+            subs[uid] = json.loads(psql("select coalesce(json_agg(json_build_object('endpoint', endpoint, 'keys', json_build_object('p256dh', p256dh, 'auth', auth))), '[]') from public.push_subscriptions where user_id = %s" % sqlq(uid)))
+        ok = False
+        data = json.dumps({'title': r['title'], 'body': r['body'] or '', 'url': r['url'] or '#/home', 'tag': r['key']}, ensure_ascii=False)
+        for sub in list(subs[uid]):
+            try:
+                webpush(subscription_info=sub, data=data, vapid_private_key=vapid, vapid_claims={'sub': 'mailto:' + cmail}, ttl=86400, timeout=15)
+                ok = True
+            except WebPushException as e:
+                code = getattr(getattr(e, 'response', None), 'status_code', None)
+                if code in (404, 410):   # the device turned it off or the browser was removed
+                    psql("delete from public.push_subscriptions where endpoint = %s" % sqlq(sub['endpoint'])); subs[uid].remove(sub); gone += 1
+            except Exception:
+                pass
+        if ok or not subs[uid]:
+            psql("insert into public.push_sent(user_id, key) values (%s, %s) on conflict do nothing" % (sqlq(uid), sqlq(r['key']))); sent += ok
+    psql("delete from public.push_sent where at < now() - interval '30 days'")
+    print('push: sent %d of %d, removed %d old device(s)' % (sent, len(rows), gone))
+
 def contact():
     c = json.loads(psql("select coalesce((select value from public.site_content where key = 'contact'), '{}')") or '{}')
     phone = ('0' + c['phone'][3:]) if re.fullmatch(r'9665\d{8}', c.get('phone') or '') else '0554003226'
@@ -242,4 +287,4 @@ def monthly():
 
 team()
 if not TEST:
-    remind(); support_team(); support_replies(); welcome(); monthly(); purge_notices(); export_notices()
+    remind(); support_team(); support_replies(); welcome(); monthly(); purge_notices(); export_notices(); push_notices()

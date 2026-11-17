@@ -3136,5 +3136,70 @@ select t.err($$select public.platform_remove_admin('admin1')$$, 'مالك الم
 reset role;
 delete from public.platform_admins where user_id = '00000000-0000-0000-0000-0000000000a2';
 
+-- ================= CONDITIONAL APPROVAL: THE GM STEP ONLY ABOVE A LIMIT (0105) =================
+select id as cond_emp from public.employees where company_id = :'cid' order by emp_no limit 1 \gset
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.workflow_rule_set(:'cid', 'advance', 1000);
+select t.err($$select public.workflow_rule_set('$$ || :'cid' || $$', 'cert', 5)$$, 'لطلبات الإجازة والمبالغ', 'conditional approval: only for leave and money requests');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.workflow_rule_set('$$ || :'cid' || $$', 'advance', 1)$$, 'غير مصرح|42501|صلاحية', 'conditional approval: an employee cannot change the rule');
+reset role;
+select t.ok((select 'g' = any(route) and g_above = 1000 from public.workflows where company_id = :'cid' and kind = 'advance'), 'conditional approval: saving a limit puts the GM step in the route');
+insert into public.requests(company_id, employee_id, kind, amount, route, step, status) values (:'cid', :'cond_emp', 'advance', 800, array['m','f','g'], 0, 'pending') returning id as rq_low \gset
+insert into public.requests(company_id, employee_id, kind, amount, route, step, status) values (:'cid', :'cond_emp', 'advance', 1500, array['m','f','g'], 0, 'pending') returning id as rq_high \gset
+select t.ok((select route = array['m','f'] from public.requests where id = :'rq_low') and (select route = array['m','f','g'] from public.requests where id = :'rq_high'),
+  'conditional approval: an advance of 800 skips the GM, 1,500 goes to the GM (limit 1,000)');
+insert into public.requests(company_id, employee_id, kind, amount, route, step, status) values (:'cid', :'cond_emp', 'advance', 10, array['g'], 0, 'pending') returning id as rq_only \gset
+select t.ok((select route = array['g'] from public.requests where id = :'rq_only'), 'conditional approval: a request never ends up with an empty route');
+delete from public.request_actions where request_id in (:'rq_low', :'rq_high', :'rq_only'); delete from public.requests where id in (:'rq_low', :'rq_high', :'rq_only');
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.workflow_rule_set(:'cid', 'advance', null);
+reset role;
+
+-- ================= NOTIFICATIONS ON THE DEVICE (0106) =================
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select public.push_subscribe('https://push.example/emp1', 'k1', 'a1');
+select t.err($$select * from public.push_subscriptions$$, 'permission denied', 'push: the subscriptions table is not readable from the app');
+select t.err($$select public.push_due()$$, 'permission denied', 'push: only the server job reads what is due');
+select t.ok(public.push_public_key() is null, 'push: no key until the job makes one');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select public.push_subscribe('https://push.example/mgr1', 'k2', 'a2');
+reset role;
+select pg_sleep(0.01);
+insert into public.requests(company_id, employee_id, kind, amount, route, step, status) values (:'cid', :'e_emp', 'advance', 300, array['m','f'], 0, 'pending') returning id as push_rq \gset
+insert into public.signature_requests(company_id, employee_id, kind, ref_id, title, body) values (:'cid', :'e_emp', 'contract', gen_random_uuid(), 'عقد العمل', 'نص') returning id as push_sig \gset
+insert into public.record_notes(company_id, entity, ref_id, body, mentions, created_by) values (:'cid', 'sales', gen_random_uuid(), 'راجع هذا', array[:'u_emp']::uuid[], :'u_mgr');
+select t.ok(exists(select 1 from public.push_due() where user_id = :'u_mgr' and key = 'req:' || :'push_rq' || ':0' and title = 'طلب بانتظار اعتمادك' and body like '%سلفة%'),
+  'push: the manager is told a request waits for his approval');
+select t.ok(not exists(select 1 from public.push_due() where user_id = :'u_emp' and key like 'req:%'), 'push: the employee is not asked to approve his own request');
+select t.ok(exists(select 1 from public.push_due() where user_id = :'u_emp' and key = 'sig:' || :'push_sig') and exists(select 1 from public.push_due() where user_id = :'u_emp' and key like 'note:%'),
+  'push: the employee hears about a document to sign and a mention');
+insert into public.push_sent(user_id, key) select user_id, key from public.push_due();
+select t.ok(not exists(select 1 from public.push_due()), 'push: each notice is sent once');
+update public.requests set status = 'approved', decided_at = now() where id = :'push_rq';
+select t.ok(exists(select 1 from public.push_due() where user_id = :'u_emp' and key = 'dec:' || :'push_rq' and title = 'اعتُمد طلبك'), 'push: the employee is told his request was approved');
+delete from public.request_actions where request_id = :'push_rq'; delete from public.requests where id = :'push_rq';
+delete from public.signature_requests where id = :'push_sig'; delete from public.push_subscriptions; delete from public.push_sent;
+
+-- ================= ONBOARDING CHECKLIST (0107) =================
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+insert into public.onboarding_marks(company_id, employee_id, item) values (:'cid', :'e_emp', 'gosi');
+select public.onboarding_items_set(:'cid', array['  بطاقة الدخول للمبنى ', '', 'بطاقة الدخول للمبنى', 'بريد العمل']);
+select t.ok((select onboarding_items = array['بريد العمل', 'بطاقة الدخول للمبنى'] or onboarding_items = array['بطاقة الدخول للمبنى', 'بريد العمل'] from public.companies where id = :'cid'),
+  'onboarding: HR sets the company''s own steps (trimmed, no blanks or repeats)');
+reset role;
+select t.ok((select count(*) from public.onboarding_marks where employee_id = :'e_emp' and item = 'gosi') = 1, 'onboarding: HR ticks a step for a new employee');
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((select count(*) from public.onboarding_marks) = 0, 'onboarding: an ordinary employee does not see the checklist marks');
+select t.err($$insert into public.onboarding_marks(company_id, employee_id, item) values ('$$ || :'cid' || $$', '$$ || :'e_emp' || $$', 'qiwa')$$, 'row-level', 'onboarding: nor ticks steps');
+select t.err($$select public.onboarding_items_set('$$ || :'cid' || $$', array['x'])$$, 'غير مصرح|42501|صلاحية', 'onboarding: nor changes the company steps');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.err($$insert into public.onboarding_marks(company_id, employee_id, item) values ('$$ || :'cid' || $$', '$$ || :'e_emp' || $$', 'qiwa')$$, 'row-level', 'onboarding: another company cannot write marks');
+reset role;
+delete from public.onboarding_marks where employee_id = :'e_emp'; update public.companies set onboarding_items = '{}' where id = :'cid';
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary
