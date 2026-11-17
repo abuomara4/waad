@@ -770,6 +770,12 @@ const adminEmail = user => String(user).trim().toLowerCase() + '@admin.waad.app'
 const staffEmail = (code, empNo) => String(empNo).trim().toLowerCase() + '.' + String(code).trim().toLowerCase() + '@staff.waad.app';
 // the public website (landing page) sits one folder up from the app: site/app/ -> site/, pages.dev/app/ -> pages.dev/
 const SITE_URL = new URL('../', location.href.split('#')[0]).href;
+// inside the store apps (Google Play TWA / iPhone Capacitor shell; both open the system with ?src=app): no subscription,
+// prices or payment prompts anywhere — subscribing happens on the website only (owner's decision, 2026-11-17)
+const IN_APP = (() => { try {
+  if (window.Capacitor && typeof Capacitor.isNativePlatform === 'function' && Capacitor.isNativePlatform()) return true;
+  if (new URLSearchParams(location.search).get('src') === 'app' || /^android-app:\/\//.test(document.referrer)) sessionStorage.setItem('waad.inapp', '1');
+  return sessionStorage.getItem('waad.inapp') === '1'; } catch (e) { return false; } })();
 // the admin site (site/admin/) is a separate build of the same code (build.py sets ADMIN_SITE): Waad's own team only
 const ADMIN = typeof ADMIN_SITE !== 'undefined';
 const DEV_FILE = /waad-(app|admin)\.html$/.test(location.pathname);   // the dev server serves the two builds side by side
@@ -1183,6 +1189,7 @@ const daysAr = n => n === 0 ? 'اليوم آخر يوم' : n === 1 ? 'متبقي
 // the owner sees how long the trial or the subscription has left, counting down every day
 function drawSubBar() {
   const box = $('#subbar'), s = S.sub; if (!box) return;
+  if (IN_APP) { box.innerHTML = ''; return; }
   if (!s || !has('owner', 'admin') || !['trial', 'active'].includes(s.status)) { box.innerHTML = ''; return; }
   const end = s.status === 'trial' ? s.trial_ends : s.sub_ends; if (!end) { box.innerHTML = ''; return; }
   const n = Math.round((new Date(end + 'T12:00:00Z') - new Date(today() + 'T12:00:00Z')) / 864e5), trial = s.status === 'trial';
@@ -1298,7 +1305,7 @@ async function route() {
   // each navigation renders into its own container, so a slow earlier page can never overwrite a newer one
   const page = document.createElement('div'); page.innerHTML = '<div class="muted">جاري التحميل…</div>';
   $('#page').replaceChildren(page);
-  if (!modOn(routeModule(path))) { page.innerHTML = `<div class="note">${esc(tr('هذا القسم غير مشمول في باقة منشأتك.'))} ${has('owner') ? esc(tr('لتفعيله تواصل مع إدارة وعد.')) : esc(tr('راجع مالك المنشأة.'))}</div>`; return; }
+  if (!modOn(routeModule(path))) { page.innerHTML = `<div class="note">${esc(tr('هذا القسم غير مشمول في باقة منشأتك.'))} ${IN_APP ? '' : has('owner') ? esc(tr('لتفعيله تواصل مع إدارة وعد.')) : esc(tr('راجع مالك المنشأة.'))}</div>`; return; }
   try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); if (viewOnlyPage(path) && page.isConnected) { page.classList.add('viewonly'); const h = $('.head', page); h && h.insertAdjacentHTML('afterend', `<div class="note small">${esc(tr('صلاحيتك في هذه الصفحة: عرض فقط.'))}</div>`); } setTimeout(() => page.isConnected && markWide(page), 60); if (key === '#/home' && typeof guideWelcome === 'function') guideWelcome(page); }
   catch (e) { if (e.status === 401 && !S.session) { if (!$('#af')) authView('in', 'انتهت الجلسة — سجّل الدخول مجددا'); return; } /* a late answer from a page left behind never replaces a sign-in screen already shown */ if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div><p style="margin-top:10px"><button type="button" class="btn" onclick="history.length > 1 ? history.back() : (location.hash = '#/home')">${esc(tr('رجوع'))}</button> <a class="btn" href="#/home">${esc(tr('الرئيسية'))}</a></p>`; }
 }
