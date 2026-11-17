@@ -580,6 +580,7 @@ PV.billing = async page => {
       ${tbl([{ t: 'الباقة', h: p => `<b>${esc(p.name)}</b>` + (p.active ? '' : ` <span class="badge">${esc(tr('موقوفة'))}</span>`) }, { t: 'السعر', r: 1, h: p => money0(p.price) },
         { t: 'المدة', h: p => `<span class="num">${p.period_days}</span> ${esc(tr('يوم'))}` }, { t: 'الأقسام', h: p => p.modules.map(m => `<span class="badge">${esc(tr(MODULES[m] || m))}</span>`).join(' ') },
         { t: 'المستخدمون', r: 1, h: p => p.max_users || '—' }, { t: 'الموظفون', r: 1, h: p => p.max_employees || '—' }, { t: '', h: () => `<span class="btn sm">${esc(tr('تعديل'))}</span>` }], plans, { empty: 'لا توجد باقات. أضف أول باقة.', onRow: true })}</div>
+    <div class="card" id="crefs" style="margin-bottom:14px" hidden></div>
     <div class="card" id="cpays"><h2>${esc(tr('آخر الدفعات'))}</h2>
       ${tbl([{ t: 'التاريخ', h: p => `<span class="num">${esc(p.paid_on)}</span>` }, { t: 'المنشأة', h: p => esc(p.company) }, { t: 'المبلغ', r: 1, h: p => money0(p.amount) },
         { t: 'الباقة', h: p => esc(p.plan || '—') }, { t: 'الطريقة', h: p => esc(tr(PAY_M[p.method] || p.method)) }, { t: 'الفاتورة', h: p => p.inv_no ? `<button class="btn sm" data-winv="${p.id}"><span class="num">${esc(p.inv_no)}</span></button>` : '' }], pays.slice(0, 50), { empty: 'لا توجد دفعات', onRow: true })}</div>`;
@@ -587,6 +588,12 @@ PV.billing = async page => {
   const cards = $$('.card', page);
   bindRows($('#cplans', page), plans, planForm);
   bindRows($('#cpays', page), pays.slice(0, 50), p => { location.hash = '#/company/' + p.company_id; });
+  db.rpc('platform_referrals').catch(() => []).then(rs => { const el = $('#crefs', page); if (!el || !rs.length) return; el.hidden = false;
+    el.innerHTML = `<h2>${esc(tr('الإحالات (ادعُ منشأة)'))}</h2><p class="muted small" style="margin-top:-4px">${esc(tr('عند أول دفعة للمنشأة المدعوة يُضاف للمنشأة الداعية 30 يوما تلقائيا؛ وإن لم يكن لها اشتراك قائم تبقى الأيام «بانتظار التفعيل» حتى تضيفها يدويا.'))}</p>` +
+      tbl([{ t: 'المنشأة الداعية', h: x => esc(x.referrer_name) }, { t: 'المنشأة المدعوة', h: x => esc(x.invited_name) }, { t: 'سجّلت', h: x => `<span class="num">${esc(x.joined_on)}</span>` },
+        { t: 'المكافأة', h: x => x.rewarded_at ? `<span class="badge ok">${esc(tr('أُضيف شهر'))}</span>` : `<span class="badge">${esc(tr('لم تشترك بعد'))}</span>` },
+        { t: 'بانتظار التفعيل', h: x => x.waiting_days ? `<span class="num">${x.waiting_days}</span> ${esc(tr('يوم'))} ${pcan('billing') ? `<button class="btn sm" data-rclr="${x.referrer}">${esc(tr('أضفتها'))}</button>` : ''}` : '—' }], rs);
+    $$('[data-rclr]', el).forEach(b => b.onclick = async () => { await db.rpc('platform_referral_credit_clear', { p_company: b.dataset.rclr }); toast(tr('تم الحفظ')); platformView(); }); });
   $$('[data-winv]', page).forEach(b => b.onclick = ev => { ev.stopPropagation(); waadInvoicePrint(b.dataset.winv).catch(e => toast(e.message)); });
   if ($('#pinvs', page)) $('#pinvs', page).onclick = async () => { const v = await db.rpc('platform_invoice_settings') || {};
     modal(tr('بيانات فواتير وعد'), `<div class="fg">${field('اسم البائع (كما في السجل التجاري)', inp('inv_name', v.inv_name, 'maxlength="120"'))}${field('الرقم الضريبي (فارغ = غير مسجل في الضريبة)', inp('inv_vat', v.inv_vat, 'inputmode="numeric" maxlength="15"'))}

@@ -1488,6 +1488,12 @@ with sync_playwright() as pw:
     ok('5,005.00' in sp.inner_text('#teos .tout') and '33%' in sp.inner_text('#teos .tout'), 'website tools: resignation after 3 years = one third of half a month per year (Art. 85)')
     sp.click('[data-tool=tgosi]'); sp.fill('#tgosi input[name=basic]', '8000'); sp.fill('#tgosi input[name=housing]', '2000'); sp.fill('#tgosi input[name=first]', '2020-01-01'); sp.wait_for_timeout(200)
     ok('975.00' in sp.inner_text('#tgosi .tout') and '1,175.00' in sp.inner_text('#tgosi .tout'), 'website tools: GOSI 9.75% / 11.75% for a Saudi registered before July 2024')
+    sp.goto('file://' + os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'site', 'pricing.html'))); sp.wait_for_selector('#pq .tout p')
+    sp.fill('#pq input[name=n]', '40'); sp.check('#pq input[name=sell]'); sp.wait_for_timeout(100)
+    ok('«نمو»' in sp.inner_text('#pq .tout') and '579' in sp.inner_text('#pq .tout'), 'website pricing: 40 employees who sell → «نمو» 499 + 10 extra × 8 = 579')
+    sp.fill('#pq input[name=n]', '12'); sp.check('#pq input[name=stock]'); sp.wait_for_timeout(100)
+    ok('«ريادة»' in sp.inner_text('#pq .tout') and '899' in sp.inner_text('#pq .tout'), 'website pricing: stock or projects → «ريادة»')
+    sp.goto('file://' + os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'site', 'tools.html'))); sp.wait_for_selector('#tpick')
     sp.click('[data-tool=tnet]'); sp.fill('#tnet input[name=basic]', '8000'); sp.fill('#tnet input[name=housing]', '2000'); sp.fill('#tnet input[name=other]', '800'); sp.fill('#tnet input[name=first]', '2020-01-01'); sp.wait_for_timeout(200)
     ok('9,825.00' in sp.inner_text('#tnet .tout'), 'website tools: net salary = 10,800 gross minus 975 GOSI')
     kdir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'site'))
@@ -1533,7 +1539,11 @@ with sync_playwright() as pw:
     ok('غير مفعّل في لوحة الإدارة' in op.inner_text('#app') and op.locator('#ppage').count() == 0, 'a company owner cannot open the admin site'); op.close()
     # new companies wait for approval: the owner sees a waiting screen until the admin accepts a 7-day trial
     sqlx("update platform_settings set require_approval = true")
-    wp = new_page(b); signup(wp, 'waiting@shop.test'); wp.wait_for_selector('#cf')
+    # «ادعُ منشأة» (0115): the owner's settings show the invitation link; this new company signs up from it
+    go(o, '#/settings'); o.wait_for_selector('#refc input'); refl = o.input_value('#refc input'); refc = sql("select ref_code from companies where name = 'شركة وعد التجريبية'")
+    ok(refl.endswith('?ref=' + refc) and 'سجّلت من رابطك' in o.inner_text('#refc'), 'settings: the owner gets an invitation link with the company code and counts')
+    trial0 = sql("select coalesce(sub_ends, trial_ends)::text from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'شركة وعد التجريبية'")
+    wp = new_page(b); wp.goto(BASE + '/waad-app.html?ref=' + refc.lower()); signup(wp, 'waiting@shop.test'); wp.wait_for_selector('#cf')
     wp.fill('#cf input[name=name]', 'منشأة تنتظر القبول'); wp.fill('#cf input[name=owner_phone]', '0511111111'); wp.fill('#cf input[name=city]', 'الرياض'); wp.select_option('#cf select[name=size_band]', '11-50'); wp.select_option('#cf select[name=industry]', 'trade'); wp.check('#cf input[name=xfer]'); wp.click('#cb'); wp.wait_for_selector('#pchk')
     ok('وصلنا طلبك' in wp.inner_text('#app') and wp.locator('#nav').count() == 0, 'a new company waits for approval before using the system')
     ok(sql("(select notified_at is null from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'منشأة تنتظر القبول')") == 'true', 'the new request is queued for the team notification')
@@ -1572,6 +1582,10 @@ with sync_playwright() as pw:
     ok(sql("(select sub_ends - current_date from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'منشأة تنتظر القبول')") == '67', 'quick action: +7 days')
     go(pp, '#/system'); pp.wait_for_selector('#ppage .pbars'); ok('حسب المدينة' in pp.inner_text('#ppage') and 'الرياض' in pp.inner_text('#ppage'), 'system numbers: companies by city, size, activity and source')
     go(pp, '#/billing'); pp.wait_for_selector('#ppage .pbars'); ok('299' in pp.inner_text('#ppage'), 'revenue page counts the payment')
+    ok(sql("select r.name from companies c join companies r on r.id = c.referred_by where c.name = 'منشأة تنتظر القبول' and c.ref_rewarded_at is not null") == 'شركة وعد التجريبية'
+       and sql("select (coalesce(sub_ends, trial_ends) - '%s'::date)::text from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'شركة وعد التجريبية'" % trial0) == '30',
+       'referrals: the company signed up from the link; its first payment gave the inviter 30 more days')
+    pp.wait_for_selector('#crefs:not([hidden])'); ok('منشأة تنتظر القبول' in pp.inner_text('#crefs'), 'admin site: the referrals list shows the invitation and its reward')
     # Waad's own invoices (0114): the seller's details, a numbered invoice printed with VAT and the QR code
     pp.click('#pinvs'); pp.wait_for_selector('#dlg input[name=inv_vat]'); pp.fill('#dlg input[name=inv_name]', 'مؤسسة وعد'); pp.fill('#dlg input[name=inv_vat]', '300000000000003'); modal_ok(pp); pp.wait_for_timeout(400)
     pp.evaluate("window.__print=window.print;window.print=()=>{};0"); pp.locator('[data-winv]').first.click(); pp.wait_for_timeout(600)

@@ -206,6 +206,7 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 .tourv{width:100%;height:auto;aspect-ratio:16/9;border-radius:16px;background:#142039;box-shadow:0 18px 40px -18px rgba(20,32,57,.45);display:block}
 .tourch{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}.tourch button{font:inherit;font-size:14px;border:1px solid rgba(20,32,57,.18);background:#fff;color:#142039;border-radius:999px;padding:6px 14px;cursor:pointer}.tourch button:hover,.tourch button:focus-visible{border-color:#8a641f;color:#8a641f}
+.pquiz{max-width:640px;margin:0 auto}.pquiz .tout p{margin:4px 0}
 </style>
 </head>
 <body data-page="trust">
@@ -347,6 +348,7 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
   var kind=function(h){h=(h||'').toLowerCase();return !h?'direct':/whatsapp|^wa\.me|^wa$/.test(h)?'whatsapp':/google\./.test(h)||h==='google'?'google':/bing\./.test(h)||h==='bing'?'bing':
     /(^|\.)(t\.co|x\.com|twitter\.com)$/.test(h)||h==='x'||h==='twitter'?'x':/linkedin|lnkd/.test(h)?'linkedin':/instagram/.test(h)?'instagram':/snapchat/.test(h)?'snapchat':
     /tiktok/.test(h)?'tiktok':/facebook|fb\.com|^fb$/.test(h)?'facebook':'other'};
+  try{var rf=new URLSearchParams(location.search).get('ref');if(rf&&/^[0-9A-Fa-f]{7}$/.test(rf))localStorage.setItem('waad.ref',JSON.stringify(rf.toUpperCase()))}catch(e){}
   if(!ls('waad.nocount')){
     var ref='';try{ref=new URL(document.referrer).hostname}catch(e){}
     var q=new URLSearchParams(location.search),tag=q.get('utm_source')||q.get('src'),first=!ss('waad.vsrc');

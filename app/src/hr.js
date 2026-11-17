@@ -847,6 +847,7 @@ VIEWS['#/settings'] = async page => {
      <div id="lgerr"></div><p class="muted small">يظهر أعلى الخطابات المطبوعة. يفضّل PNG بخلفية شفافة؛ نصغّر الصورة تلقائيا.</p></div>` : ''}
    ${admin && S.sub ? `<div class="card"><h2>${esc(tr('الاشتراك'))}</h2><p>${esc(tr('الباقة'))}: <b>${esc(S.sub.plan === 'trial' ? tr('تجريبية') : S.sub.plan)}</b> · <span class="badge ${subState(S.sub)[1]}">${esc(tr(subState(S.sub)[0]))}</span>${S.sub.status === 'trial' && S.sub.trial_ends ? ` · ${esc(tr('تنتهي التجربة'))} <span class="num">${esc(S.sub.trial_ends)}</span>` : ''}${S.sub.status === 'active' && S.sub.sub_ends ? ` · ${esc(tr('ينتهي الاشتراك'))} <span class="num">${esc(S.sub.sub_ends)}</span>` : ''}${S.sub.max_users ? ` · ${esc(tr('الحد الأعلى للمستخدمين'))} <span class="num">${S.sub.max_users}</span>` : ''}${S.sub.max_employees ? ` · ${esc(tr('الحد الأعلى للموظفين'))} <span class="num">${S.sub.max_employees}</span>` : ''}</p>
      <p>${Object.entries(MODULES).map(([k, t]) => `<span class="badge ${modOn(k) ? 'ok' : ''}">${modOn(k) ? '✓' : '✕'} ${esc(tr(t))}</span>`).join(' ')}</p><p class="muted small">${esc(tr('لتغيير الباقة أو فتح قسم تواصل مع إدارة وعد.'))}</p></div>` : ''}
+   ${admin ? '<div class="card" id="refc"></div>' : ''}
    ${admin ? '<div class="card" id="winvs"></div>' : ''}
    ${admin && (modOn('finance') || modOn('sales')) ? '<div class="card" id="zcard"></div>' : ''}
    ${admin && seeded ? `<div class="card"><h2>${esc(tr('بيانات تجريبية'))}</h2>
@@ -866,6 +867,12 @@ VIEWS['#/settings'] = async page => {
   if ($('#lgf', page)) $('#lgf', page).onchange = async ev => { const f = ev.target.files[0]; if (!f) return; try { await setLogo(await imgToLogo(f)); } catch (er) { showErr($('#lgerr', page), er); } };
   if ($('#lgd', page)) $('#lgd', page).onclick = () => setLogo(null);
   if ($('#zcard', page)) zatcaCard($('#zcard', page));
+  if ($('#refc', page)) db.rpc('my_referrals', { p_company: S.cid }).catch(() => null).then(r => { const el = $('#refc', page); if (!el) return; if (!r || !r.code) { el.remove(); return; }
+    const link = SITE_URL + '?ref=' + r.code, msg = tr('أستخدم «وعد» لإدارة الموارد البشرية والمالية في منشأتي، جرّبه 14 يوما مجانا:') + ' ' + link;
+    el.innerHTML = `<h2>${esc(tr('ادعُ منشأة واحصل على شهر مجاني'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('أرسل رابطك لمنشأة تعرفها. إذا سجّلت منه ثم اشتركت، يُضاف لاشتراكك شهر مجاني (30 يوما) عن كل منشأة.'))}</p>
+      <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center"><input readonly value="${esc(link)}" dir="ltr" style="flex:1;min-width:220px" aria-label="${esc(tr('رابط الدعوة'))}"><button class="btn" id="refcp">${esc(tr('نسخ الرابط'))}</button><a class="btn pri" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">${esc(tr('أرسل بالواتساب'))}</a></div>
+      <p class="small" style="margin-bottom:0">${esc(tr('سجّلت من رابطك'))}: <b class="num">${r.joined}</b> · ${esc(tr('اشتركت'))}: <b class="num">${r.paid}</b> · ${esc(tr('أيام مجانية حصلت عليها'))}: <b class="num">${r.days}</b>${r.waiting ? ` · ${esc(tr('بانتظار التفعيل'))}: <b class="num">${r.waiting}</b>` : ''}</p>`;
+    $('#refcp', el).onclick = () => { try { navigator.clipboard.writeText(link); toast(tr('نُسخ الرابط')); } catch (e) { toast(link); } }; });
   if ($('#winvs', page)) db.rpc('my_waad_invoices', { p_company: S.cid }).catch(() => []).then(inv => { const el = $('#winvs', page); if (!el) return; if (!inv.length) { el.remove(); return; }
     el.innerHTML = `<h2>${esc(tr('فواتير اشتراك وعد'))}</h2>` + tbl([{ t: 'رقم الفاتورة', h: x => `<span class="num">${esc(x.inv_no || '')}</span>` }, { t: 'التاريخ', h: x => `<span class="num">${esc(x.paid_on)}</span>` },
       { t: 'الباقة', h: x => esc(x.plan || '—') }, { t: 'المبلغ', r: 1, h: x => money(x.amount) }, { t: '', h: x => `<button class="btn sm" data-winv="${x.id}">${esc(tr('طباعة'))}</button>` }], inv);

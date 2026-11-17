@@ -450,6 +450,7 @@ function onboardView() {
     try { await busy($('#cb'), async () => { const pe = profileErr(f); if (pe) throw new Error(pe);
       if (!f.xfer) throw new Error('وافق على حفظ البيانات خارج المملكة لإكمال إنشاء المنشأة');
       const cid = await db.rpc('create_company', { p_name: f.name, p_vat: blank(f.vat), p_cr: blank(f.cr) }); S.cid = cid; LS.set('waad.cid', cid);
+      if (LS.get('waad.ref')) { await db.rpc('referral_claim', { p_company: cid, p_code: LS.get('waad.ref') }).catch(() => null); LS.set('waad.ref', null); }
       await db.upd('companies', { id: 'eq.' + cid }, Object.assign(profileRow(f), { xfer_consent_at: new Date().toISOString() }, (f.name_en || '').trim() ? { name_en: f.name_en.trim() } : {})); await boot(); if (S.sub && S.sub.status === 'pending') return; location.hash = '#/welcome'; setTimeout(() => companyCodeBox(true), 400); }); } catch (er) { showErr('#cerr', er); } };
 }
 
@@ -507,6 +508,7 @@ async function authFromLink() {
 // the landing page links to app/?start=signup (new company) or ?start=signin (owner/admin e-mail login)
 function startTab() {
   const q = new URLSearchParams(location.search), t = { signup: 'up', signin: 'in', staff: 'staff' }[q.get('start')];
+  if (/^[0-9A-Fa-f]{7}$/.test(q.get('ref') || '')) { LS.set('waad.ref', q.get('ref').toUpperCase()); q.delete('ref'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash); }   // «ادعُ منشأة» (0115)
   if (q.has('start')) { q.delete('start'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash); }
   return t;
 }

@@ -127,6 +127,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أرسل الرمز والرابط إلى	Send the code and link to
 أرسل الصورة للمطوّر	Send a screenshot to the developer
 أرسل الطلب للموردين ثم أدخل عرض كل مورد	send the request to suppliers, then enter each supplier's offer
+أرسل بالواتساب	Send on WhatsApp
+أرسل رابطك لمنشأة تعرفها	Send your link to a company you know
 أرسل له بياناته	Send them their details
 أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك	We sent a password reset link to your email
 أرسله إلى بريدي	Email it to me
@@ -168,6 +170,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أسبوعياً للعمال المسلمين	a week for Muslim workers
 أسبوعياً للعمال المسلمين فقط	a week, for Muslim workers only
 أسبوعين	two weeks
+أستخدم	I use
 أسترالي	Australian
 أسفل	Down
 أسفل الشاشة	at the bottom of the screen
@@ -218,6 +221,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أضف هدفا واحدا على الأقل	Add at least one goal
 أضف هدفاً واحداً على الأقل	Add at least one goal
 أضف وردية افتراضية قبل تفعيل الحضور	Add a default shift before enabling attendance
+أضفتها	I applied them
 أضفها أول	Add them first
 أضفها أولا	add them first
 أضفها إلى القائمة لاستخدامها لاحقا	Add it to the list for later
@@ -378,6 +382,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أيام تبدأ من اليوم التالي لـ	days starting the day after
 أيام تبدأ من يوم عرفة	days starting on the Day of Arafah
 أيام في الشهر	days per month
+أيام مجانية حصلت عليها	Free days earned
 أيام مستحقة	Days due
 أيام من تاريخ الزواج	days from the marriage date
 أيام من تاريخ الوفاة	days from the date of death
@@ -408,6 +413,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أُزيل المستخدم	User removed
 أُضيف	Added
 أُضيف الحساب	Account added
+أُضيف شهر	Month added
 أُضيفت البيانات التجريبية	Sample data added
 أُضيفت الساعات	Hours added
 أُضيفت للإجازة التعويضية	Added to compensatory leave
@@ -510,6 +516,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إذا حددت صلاحيات هنا فهي وحدها التي تُطبّق عليه	If you set permissions here, only these apply to him
 إذا حددت مدة أو باقة	If you set a length or a plan
 إذا رُفض التظلم أو لم يُبت فيه خلال	If the grievance is rejected or not decided within
+إذا سجّلت منه ثم اشتركت	if it signs up from it and subscribes
 إذا كان الشخص نفسه في مرحلتين متتاليتين يعتمد مرة واحدة	If the same person holds two consecutive steps, one approval covers both
 إذا كان في أي سطر خطأ لا يُحدَّث شيء	If any row has an error nothing is updated
 إذا كان في أي سطر خطأ لا يُستورد شيء	If any row has an error, nothing is imported
@@ -846,6 +853,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اخصم أجر الإجازة يدويا في المسير القادم	deduct the leave pay manually in the next payroll
 اخصم أجر الإجازة يدوياً في المسير القادم	deduct the leave pay manually in the next payroll
 ادخل بوابة فاتورة	Sign in to the Fatoora portal
+ادعُ منشأة	Invite a company
+ادعُ منشأة واحصل على شهر مجاني	Invite a company, get a free month
 اربط الفرصة بالحملة من صفحة الفرصة	link the opportunity to the campaign from its page
 اربط منشأتك ببوابة	Link your company to the
 اربط منشأتك ببوابة «فاتورة» لتُرسل فواتير المبيعات إلى زاتكا تلقائيا كما تشترط المرحلة الثانية من الفوترة الإلكترونية.	Link your company to the Fatoora portal so sales invoices go to ZATCA automatically, as Phase 2 of e-invoicing requires.
@@ -964,6 +973,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اشتراكك	Your subscription
 اشتراكها مفتوح وما أحد دخل منها من	Subscription is open and nobody has signed in for
 اشترك الآن	Subscribe now
+اشتركت	Subscribed
 اشرح المشكلة وموضع حدوثها	Describe the problem and where it happened
 اشرح المشكلة وموضع حدوثها، وأرفق نص رسالة الخطأ إن وجدت.	Describe the problem and where it happened, and include the error message if there is one.
 اضغط	press
@@ -1225,6 +1235,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الإجمالي شامل الضريبة	Total incl. VAT
 الإجمالي قبل الخصم	Total before discount
 الإجمالي قبل الضريبة	Total before VAT
+الإحالات	Referrals
 الإحداثيات	Coordinates
 الإدارة	Administration
 الإدارة العامة	General Administration
@@ -2236,6 +2247,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المغادرون حسب السبب	Leavers by reason
 المقابلة	Interview
 المقيّم	Reviewer
+المكافأة	Reward
 المكافأة الكاملة	Full award
 المكافأة المستحقة	Award due
 المكان	Location
@@ -2262,6 +2274,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المنشآت الجديدة تنتظر قبولي قبل ما تبدأ	New companies wait for my approval before they start
 المنشآت والاشتراكات	Companies and subscriptions
 المنشأة	Company
+المنشأة الداعية	Inviting company
+المنشأة المدعوة	Invited company
 المنشأة شغّالة	The company is live
 المنشأة شغّالة. أوقفها أولا ثم احذفها	The company is live. Suspend it first, then delete it
 المنشأة غير موجودة	Company not found
@@ -2485,6 +2499,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بانتظار الإرسال إلى زاتكا	Waiting to be sent to ZATCA
 بانتظار الإصدار	Awaiting issue
 بانتظار الاعتماد	Pending approval
+بانتظار التفعيل	Waiting to be applied
 بانتظار التوقيع	Awaiting signature
 بانتظار الرد	Awaiting reply
 بانتظار الصرف	Awaiting payment
@@ -3351,6 +3366,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حتى تاريخ	As of
 حتى تحذفه	until you delete it
 حتى تصل تنبيهات المادة	so the alerts of Article
+حتى تضيفها يدويا	until you add them by hand
 حتى شهر	Through month
 حتى لا تكفي كلمة المرور وحدها للدخول إلى الرواتب والأموال	so a password alone is not enough to reach payroll and money
 حتى يحصّله البنك	until the bank collects it
@@ -3657,6 +3673,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 رابط الاجتماع (مرئية)	Meeting link (video)
 رابط الاجتماع يبدأ بـ	The meeting link starts with
 رابط الدخول	Sign-in link
+رابط الدعوة	Invitation link
 رابط اللوحة	Admin link
 رابط المقابلة	Interview link
 رابط جديد	New link
@@ -3956,8 +3973,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 سجّل حضورك وانصرافك من جوالك	Check in and out from your phone
 سجّل حضورك وانصرافك من جوالك.	Check in and out from your phone.
 سجّل كل دفعة من صفحة المنشأة	Record each payment from the company page
+سجّلت	Signed up
 سجّلت الحضور والانصراف لهذا اليوم	You have checked in and out for today
 سجّلت حضورك قبل لحظات	You checked in moments ago
+سجّلت من رابطك	Signed up from your link
 سجّلنا منشأتك	We registered your company
 سجّله في التأمينات	register in GOSI
 سجّلها بقيد يدوي من	record it with a manual entry from
@@ -4415,7 +4434,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عميلاً	a customer
 عن المنشأة	About the company
 عن بُعد	Remote
+عن كل منشأة	for each company
 عند	at
+عند أول دفعة للمنشأة المدعوة يُضاف للمنشأة الداعية	On the invited company's first payment the inviting company gets
 عند الإيقاف يكفي البريد وكلمة المرور للدخول إلى حسابك	When turned off, e-mail and password alone sign in to your account
 عند التجاوز	When exceeded
 عند التجديد عدّل تاريخ الانتهاء أو أضف المستند الجديد	On renewal, update the expiry date or add the new document
@@ -4757,6 +4778,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كويتي	Kuwaiti
 كيف طلب المالك ومتى	How and when the owner asked
 كيني	Kenyan
+لإدارة الموارد البشرية والمالية في منشأتي	to run HR and finance in my company
 لإدارة منشأتك ادخل النظام	To manage your company, open the system
 لإضافة منشأة أخرى أنشئ حسابا جديدا ببريد آخر	to add another company, create a new account with a different email
 لإضافة منشأة أخرى أنشئ حساباً جديداً ببريد آخر	to add another company, create a new account with a different email
@@ -5101,6 +5123,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لم تثبت	not proven
 لم ترسل أي طلبات دعم بعد	You haven't sent any support requests yet
 لم ترسل أي طلبات دعم بعد.	You haven't sent any support requests yet.
+لم تشترك بعد	Not subscribed yet
 لم تعتمد المالية المسير بعد	Finance has not approved the payroll yet
 لم تغيّر أي بيانات	You did not change anything
 لم تُحذف أي منشأة	No company has been deleted
@@ -5945,6 +5968,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وإذا لم يُرد عليها خلال	If there is no reply within
 وإلا الوردية الافتراضية	otherwise the default shift
 وإلا وردية قسمه	otherwise the department's shift
+وإن لم يكن لها اشتراك قائم تبقى الأيام	if it has no running subscription the days stay
 وإن لم يُحدد تبدأ من بداية الدوام في رمضان أدناه بعدد الساعات	if none is set, it starts at the Ramadan start below for the set number of hours
 واتساب	WhatsApp
 واختر القالب المناسب	and choose the matching template
@@ -6392,6 +6416,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يوما بدون أجر	days unpaid
 يوما بدون أجر خلال سنة الإجازة المرضية	days unpaid within the sick-leave year
 يوما بعد الانتهاء	days after the end
+يوما تلقائيا	days automatically
 يوما تُعد مقبولة	days, it is deemed accepted
 يوما دون رد	days without a reply
 يوما عدا العطل الرسمية	days excluding public holidays
@@ -6404,6 +6429,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يوما كامل	days full pay
 يوما ما لم يُتفق على غير ذلك	days unless otherwise agreed
 يوما متراكما	days accrued
+يوما مجانا	days free
 يوما مرضية خلال سنة الإجازة المرضية	sick days within the sick-leave year
 يوما من أي طرف	days from either party
 يوما من إبلاغك بالقرار عدا العطل الرسمية	days from notification of the decision, public holidays excluded
@@ -6482,6 +6508,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يُسدَّد المورد الآن	The supplier is settled now
 يُصرف خلال	Payable within
 يُصرف من مستودع	Issue from warehouse
+يُضاف لاشتراكك شهر مجاني	your subscription gets a free month
 يُطلب رمز من تطبيق المصادقة عند كل دخول	a code from the authenticator app is required at every sign-in
 يُطلب من الموظف تقييم نفسه	The employee is asked to rate themselves
 يُعاد احتساب الحضور تلقائيا	Attendance is recalculated automatically

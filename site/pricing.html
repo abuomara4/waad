@@ -206,6 +206,7 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 .tourv{width:100%;height:auto;aspect-ratio:16/9;border-radius:16px;background:#142039;box-shadow:0 18px 40px -18px rgba(20,32,57,.45);display:block}
 .tourch{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}.tourch button{font:inherit;font-size:14px;border:1px solid rgba(20,32,57,.18);background:#fff;color:#142039;border-radius:999px;padding:6px 14px;cursor:pointer}.tourch button:hover,.tourch button:focus-visible{border-color:#8a641f;color:#8a641f}
+.pquiz{max-width:640px;margin:0 auto}.pquiz .tout p{margin:4px 0}
 </style>
 </head>
 <body data-page="pricing">
@@ -230,6 +231,19 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
 
 <main id="top">
 <div class="phero"><div class="wrap"><h1><span class="ar">الباقات والأسعار</span><span class="en">Plans & pricing</span></h1><p><span class="ar">اشتراك سنوي بسعر واضح لكل باقة، تدفعه مقدما فتوفّر شهرين، أو على أقساط شهرية</span><span class="en">A yearly subscription with a clear price for each plan: pay upfront and save two months, or pay in monthly instalments</span></p></div></div>
+
+<section id="which" style="padding-bottom:0">
+  <div class="wrap">
+    <form class="card tool pquiz" id="pq" onsubmit="return false">
+      <h3><span class="ar">أي باقة تناسبني؟</span><span class="en">Which plan fits me?</span></h3>
+      <p class="small"><span class="ar">ثلاثة أسئلة، ونقترح لك الباقة الأوفر لمنشأتك.</span><span class="en">Three questions, and we suggest the best-value plan for your company.</span></p>
+      <label><span class="ar">كم موظفا في منشأتك؟</span><span class="en">How many employees?</span><input type="number" name="n" min="1" max="2000" value="12" inputmode="numeric"></label>
+      <label class="row small" style="gap:8px;align-items:center"><input type="checkbox" name="sell" style="width:auto"> <span class="ar">أبيع وأصدر فواتير وأحتاج المحاسبة</span><span class="en">I sell, issue invoices and need accounting</span></label>
+      <label class="row small" style="gap:8px;align-items:center"><input type="checkbox" name="stock" style="width:auto"> <span class="ar">عندي مخزون أو مشتريات أو مشاريع</span><span class="en">I have stock, purchasing or projects</span></label>
+      <div class="tout" aria-live="polite"></div>
+    </form>
+  </div>
+</section>
 
 <section id="plans">
   <div class="wrap">
@@ -288,6 +302,7 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
     <details><summary><span class="ar">كيف أدفع الاشتراك؟</span><span class="en">How do I pay?</span></summary><p><span class="ar">في آخر التجربة أو متى ما قررت، <a href="contact.html#contact">تواصل معنا</a> ونرسل لك بيانات الحساب البنكي للتحويل. بعد وصول المبلغ نفعّل اشتراكك فورا على نفس بياناتك، وتصلك فاتورة ضريبية مرقّمة تراها وتطبعها من «إعدادات المنشأة».</span><span class="en">At the end of the trial, or whenever you decide, <a href="contact.html#contact">contact us</a> and we send you the bank details for a transfer. Once it arrives we activate your subscription at once on the same data, and you get a numbered tax invoice you can view and print in the company settings.</span></p></details>
     <details><summary><span class="ar">هل يتجدد الاشتراك تلقائيا؟</span><span class="en">Does the subscription renew by itself?</span></summary><p><span class="ar">لا. لا نحفظ بطاقتك ولا نسحب أي مبلغ تلقائيا؛ ننبهك بالإيميل قبل نهاية الاشتراك بثلاثة أيام، وتجدد متى ما أردت.</span><span class="en">No. We keep no card and charge nothing automatically; we e-mail you three days before the subscription ends, and you renew when you want.</span></p></details>
     <details><summary><span class="ar">ماذا يحدث إذا لم أجدد؟</span><span class="en">What happens if I don't renew?</span></summary><p><span class="ar">تُقفل الأقسام عند نهاية المدة، وتبقى بياناتك محفوظة كما هي 60 يوما تستطيع خلالها التجديد أو تنزيل نسخة كاملة منها، وننبهك قبل نهايتها. وللاستفسار عن الاسترداد <a href="contact.html#contact">تواصل معنا</a>.</span><span class="en">The modules close at the end of the period and your data stays as it is for 60 days, during which you can renew or download a full copy; we remind you before it ends. For refund questions, <a href="contact.html#contact">contact us</a>.</span></p></details>
+    <details><summary><span class="ar">ماذا أستفيد إذا دعوت منشأة أخرى؟</span><span class="en">What do I get for inviting another company?</span></summary><p><span class="ar">من «إعدادات المنشأة» انسخ رابط الدعوة وأرسله لمنشأة تعرفها. إذا سجّلت منه ثم اشتركت، يُضاف لاشتراكك شهر مجاني (30 يوما) عن كل منشأة.</span><span class="en">Copy your invitation link from the company settings and send it to a company you know. If it signs up from it and subscribes, your subscription gets a free month (30 days) for each company.</span></p></details>
     <details><summary><span class="ar">هل أستطيع تغيير الباقة لاحقا؟</span><span class="en">Can I change plans later?</span></summary><p><span class="ar">نعم، ترقّي أو تغيّر باقتك في أي وقت بالتواصل معنا، وتبقى بياناتك كما هي.</span><span class="en">Yes. Upgrade or change your plan at any time by contacting us; your data stays as it is.</span></p></details>
     </div>
   </div>
@@ -311,6 +326,26 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
     </div>
   </div>
 </section>
+
+<script>
+(function () {
+  var f = document.getElementById('pq'); if (!f) return;
+  var EXTRA = 8, P = [{ k: 'أساس', e: 'Asas', p: 249, y: 2490, max: 10, lv: 0 }, { k: 'نمو', e: 'Numow', p: 499, y: 4990, max: 30, lv: 1 }, { k: 'ريادة', e: 'Riyada', p: 899, y: 8990, max: 75, lv: 2 }];
+  var fmt = function (n) { return Number(n).toLocaleString('en-US'); };
+  var arEx = function (k) { return k === 1 ? 'موظف إضافي واحد' : k === 2 ? 'موظفان إضافيان' : k <= 10 ? k + ' موظفين إضافيين' : k + ' موظفا إضافيا'; };
+  var run = function () {
+    var n = Math.max(1, Math.round(+f.n.value || 1)), need = f.stock.checked ? 2 : f.sell.checked ? 1 : 0;
+    var opts = P.filter(function (x) { return x.lv >= need; }).map(function (x) { var ex = Math.max(0, n - x.max); return { x: x, ex: ex, m: x.p + ex * EXTRA }; });
+    opts.sort(function (a, b) { return a.m - b.m || a.x.lv - b.x.lv; }); var b = opts[0];
+    var ar = '<p><b>الباقة المناسبة: «' + b.x.k + '»</b></p><p>' + fmt(b.m) + ' ريال شهريا شامل الضريبة' + (b.ex ? ' (' + fmt(b.x.p) + ' للباقة + ' + arEx(b.ex) + ' × ' + EXTRA + ' ريال)' : '') + '</p>' +
+      '<p class="small">أو ' + fmt(b.x.y) + ' ريال للسنة دفعة واحدة للباقة' + (b.ex ? '، والموظفون الإضافيون كل شهر' : '') + '.' + (n > 75 ? ' ولأكثر من 75 موظفا <a href="contact.html#contact">تواصل معنا</a> لعرض خاص.' : '') + '</p>';
+    var en = '<p><b>Best fit: «' + b.x.e + '»</b></p><p>SAR ' + fmt(b.m) + ' / month incl. VAT' + (b.ex ? ' (' + fmt(b.x.p) + ' for the plan + ' + b.ex + ' extra employee' + (b.ex === 1 ? '' : 's') + ' × ' + EXTRA + ')' : '') + '</p>' +
+      '<p class="small">or SAR ' + fmt(b.x.y) + ' for the year upfront for the plan' + (b.ex ? ', extra employees monthly' : '') + '.' + (n > 75 ? ' Over 75 employees? <a href="contact.html#contact">Contact us</a> for an offer.' : '') + '</p>';
+    f.querySelector('.tout').innerHTML = '<span class="ar">' + ar + '</span><span class="en">' + en + '</span><p style="margin-top:10px"><a class="btn gold" href="app/?start=signup"><span class="ar">ابدأ التجربة المجانية 14 يوما</span><span class="en">Start the 14-day free trial</span></a></p>';
+  };
+  f.addEventListener('input', run); f.addEventListener('change', run); run();
+})();
+</script>
 </main>
 
 <footer>
@@ -380,6 +415,7 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
   var kind=function(h){h=(h||'').toLowerCase();return !h?'direct':/whatsapp|^wa\.me|^wa$/.test(h)?'whatsapp':/google\./.test(h)||h==='google'?'google':/bing\./.test(h)||h==='bing'?'bing':
     /(^|\.)(t\.co|x\.com|twitter\.com)$/.test(h)||h==='x'||h==='twitter'?'x':/linkedin|lnkd/.test(h)?'linkedin':/instagram/.test(h)?'instagram':/snapchat/.test(h)?'snapchat':
     /tiktok/.test(h)?'tiktok':/facebook|fb\.com|^fb$/.test(h)?'facebook':'other'};
+  try{var rf=new URLSearchParams(location.search).get('ref');if(rf&&/^[0-9A-Fa-f]{7}$/.test(rf))localStorage.setItem('waad.ref',JSON.stringify(rf.toUpperCase()))}catch(e){}
   if(!ls('waad.nocount')){
     var ref='';try{ref=new URL(document.referrer).hostname}catch(e){}
     var q=new URLSearchParams(location.search),tag=q.get('utm_source')||q.get('src'),first=!ss('waad.vsrc');

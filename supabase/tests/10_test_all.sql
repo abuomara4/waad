@@ -2573,6 +2573,26 @@ select set_config('request.jwt.claim.sub', :'u_fin', false); set role authentica
 select t.err($$select public.waad_invoice('$$ || :'pay1' || $$')$$, '42501|غير مصرح', 'Waad invoices: another company cannot read them');
 select t.err($$select * from public.my_waad_invoices('$$ || :'cbill' || $$')$$, '42501|غير مصرح|صلاحية', 'Waad invoices: nor list them');
 reset role;
+-- «ادعُ منشأة» (0115)
+insert into auth.users(id, email) values ('00000000-0000-0000-0000-0000000000f1', 'ref.owner@test.sa');
+select ref_code as cbill_code from public.companies where id = :'cbill' \gset
+select (select sub_ends from public.company_subscriptions where company_id = :'cbill') as cbill_end0 \gset
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000f1', false); set role authenticated;
+select public.create_company('منشأة مدعوة') as cinv \gset
+select t.ok(not public.referral_claim(:'cinv', (select ref_code from public.companies where id = :'cinv')), 'referrals: a company cannot invite itself');
+select t.ok(public.referral_claim(:'cinv', lower(:'cbill_code')) and not public.referral_claim(:'cinv', :'cbill_code'), 'referrals: the new owner records the inviting company once');
+select t.err($$update public.companies set ref_credit_days = 99 where id = '$$ || :'cinv' || $$'$$, 'غير مصرح', 'referrals: the reward columns cannot be edited directly');
+select t.err($$select public.my_referrals('$$ || :'cbill' || $$')$$, '42501|غير مصرح|صلاحية', 'referrals: another company cannot see the inviter''s numbers');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_add_payment(:'cinv', 299, current_date, 'transfer', :'plan1', null, null);
+reset role;
+select t.ok((select sub_ends from public.company_subscriptions where company_id = :'cbill') = :'cbill_end0'::date + 30, 'referrals: the invited company''s first payment gives the inviter 30 more days');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_add_payment(:'cinv', 299, current_date, 'transfer', :'plan1', null, null);
+select t.ok((select count(*) = 1 and bool_and(rewarded_at is not null) from public.platform_referrals() where referrer = :'cbill'), 'referrals: the Waad team sees each invitation and its reward');
+reset role;
+select t.ok((select sub_ends from public.company_subscriptions where company_id = :'cbill') = :'cbill_end0'::date + 30, 'referrals: only the first payment counts');
 
 -- ================= COMPANY PROFILE AND USAGE COUNTS FOR THE ADMIN SITE (0070) =================
 select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
