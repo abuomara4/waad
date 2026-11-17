@@ -1,5 +1,6 @@
 // Tests for the CSR and the onboarding flow, offline (ZATCA's API is replaced by a fake that checks each request).
-// The same flow ran against ZATCA's developer sandbox on 2026-11-11: 3 CLEARED + 3 REPORTED, production certificate issued.
+// The same flow ran against ZATCA's developer sandbox on 2026-11-11 and again on 2026-11-17: 3 CLEARED + 3 REPORTED, production certificate issued,
+// then a simplified invoice REPORTED and a standard one CLEARED with the production certificate.
 import { assert, assertEquals, assertRejects, assertThrows } from 'jsr:@std/assert@1.0.13';
 import { secp256k1 } from 'npm:@noble/curves@1.4.0/secp256k1';
 import { sha256 } from 'npm:@noble/hashes@1.4.0/sha256';

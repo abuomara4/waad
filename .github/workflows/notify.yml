@@ -11,7 +11,7 @@ concurrency: { group: notify, cancel-in-progress: false }
 jobs:
   notify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 12
     environment: production
     steps:
       - uses: actions/checkout@v4
@@ -28,6 +28,23 @@ jobs:
           command -v psql >/dev/null || sudo apt-get install -y -qq postgresql-client > /dev/null
           pip install --break-system-packages -q pywebpush==2.0.3 > /dev/null 2>&1 || echo '::warning::pywebpush not installed'
           python3 .github/scripts/notify_new_companies.py
+      # Uptime: the website, the system, the admin site, Supabase and the database; alerts the team on a change (state kept in the cache)
+      - uses: actions/cache/restore@v4
+        if: always() && !inputs.test
+        with: { path: .uptime, key: 'uptime-${{ github.run_id }}', restore-keys: 'uptime-' }
+      - name: Uptime
+        if: always() && !inputs.test
+        env:
+          DB: ${{ secrets.SUPABASE_DB_URL }}
+          NOTIFY_GMAIL_USER: ${{ secrets.NOTIFY_GMAIL_USER }}
+          NOTIFY_GMAIL_APP_PASSWORD: ${{ secrets.NOTIFY_GMAIL_APP_PASSWORD }}
+          NOTIFY_EMAIL_TO: ${{ secrets.NOTIFY_EMAIL_TO }}
+          CALLMEBOT_PHONE: ${{ secrets.CALLMEBOT_PHONE }}
+          CALLMEBOT_APIKEY: ${{ secrets.CALLMEBOT_APIKEY }}
+        run: timeout 150 python3 .github/scripts/uptime.py
+      - uses: actions/cache/save@v4
+        if: always() && !inputs.test
+        with: { path: .uptime, key: 'uptime-${{ github.run_id }}' }
       # ZATCA: send what waits (failed sends, or nobody opened the app) — simplified invoices must reach ZATCA within 24 hours
       - uses: denoland/setup-deno@v2
         if: always()

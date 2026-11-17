@@ -917,6 +917,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 استُورد	Imported
 اسحب الجدول جانبا لعرض باقي الأعمدة	Swipe the table sideways to see the other columns
 اسحب الجدول جانباً لعرض باقي الأعمدة	Swipe the table sideways to see the other columns
+اسم البائع	Seller name
 اسم الباقة	Plan name
 اسم الباقة مستخدم مسبقا	That plan name is already used
 اسم الباقة مستخدم مسبقاً	That plan name is already used
@@ -958,6 +959,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اشتراك التأمينات يبقى على الأساسي والسكن	the GOSI contribution stays on basic and housing
 اشتراك سنوي	Annual subscription
 اشتراك سنوي موسّع	Extended annual subscription
+اشتراك نظام وعد	Waad system subscription
 اشتراكات تنتهي خلال	Subscriptions ending within
 اشتراكك	Your subscription
 اشتراكها مفتوح وما أحد دخل منها من	Subscription is open and nobody has signed in for
@@ -1920,6 +1922,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الغياب والتأخير والإضافي المعتمد تنتقل إلى مسير الرواتب عند إعداده	Absence, lateness and approved overtime flow into payroll when it is prepared
 الفئة	Category
 الفئة المستهدفة	Target group
+الفاتورة	Invoice
 الفاتورة الأصلية غير موجودة	The original invoice was not found
 الفاتورة الضريبية	The tax invoice
 الفاتورة المتكررة غير موجودة	Recurring invoice not found
@@ -2048,6 +2051,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المبلغ أكبر من المتبقي	The amount exceeds the remaining balance
 المبلغ أكبر من سقف العهدة	Amount exceeds the fund ceiling
 المبلغ الشهري	Monthly amount
+المبلغ المدفوع شامل الضريبة	the amount paid includes VAT
 المبلغ المصروف الآن	Amount handed over now
 المبلغ بالعملة	Amount in currency
 المبلغ قبل الضريبة	Taxable amount
@@ -2558,6 +2562,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بدون نشر جديد	without a new release
 بدون نهاية	no end
 بدون يوم إقفال	No cutoff day
+بدونه تصدر فاتورة عادية بلا ضريبة	without it a plain invoice without VAT is issued
 بدونها يُقبل التسجيل من أي مكان	without one, check-in is accepted from anywhere
 برازيلي	Brazilian
 برسم التحصيل	Under collection
@@ -2636,6 +2641,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بيانات تجريبية	Sample data
 بيانات دخول	Sign-in details for
 بيانات دخولك لنظام وعد	Your Waad sign-in details
+بيانات فواتير وعد	Waad invoice details
 بيع أو استبعاد	Sell or dispose
 بيع أو استبعاد أصل	Sell or dispose of asset
 بيعت أرقام تسلسلية من هذا الاستلام	Serial numbers from this receipt were already sold
@@ -3329,6 +3335,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حاضرون	Present
 حاضرون اليوم	Present today
 حالة الدراسة	Study status
+حالة الدفع	Payment status
 حالة غير معروفة	Unknown status
 حان موعد قرار الحذف منذ	Deletion decision due since
 حان موعده	Due now
@@ -4451,6 +4458,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 غياب وتأخير	Absence and lateness
 غير	other than
 غير السعودي	Non-Saudi
+غير خاضعة لضريبة القيمة المضافة	Not subject to VAT
 غير سعودي	Non-Saudi
 غير سعودية	non-saudi
 غير سعوديه	non-saudi
@@ -4462,6 +4470,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 غير مرض	Unsatisfactory
 غير مرضٍ	Unsatisfactory
 غير مستحق	Not due
+غير مسجل في الضريبة	not VAT registered
 غير مسجّل	Not recorded
 غير مسجّلة	Not recorded
 غير مسلم	Non-Muslim
@@ -4570,6 +4579,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فما تفتح إلا بعد تفعيل التحقق بخطوتين لحسابك	so it opens only after two-step verification is on for your account
 فني عمليات	Operations technician
 فهمت مهامي وما هو متوقع مني	I understood my tasks and what is expected of me
+فواتير اشتراك وعد	Waad subscription invoices
 فواتير المبيعات	Sales invoices
 فواتير المشتريات	Purchase bills
 فواتير المورد	Supplier bills
@@ -4704,6 +4714,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كل جهة في سطر	one per line
 كل حالات الدخول	Any sign-in status
 كل حركة على حسابات النقد والبنوك	every movement on cash and bank accounts
+كل دفعة تُسجَّل تأخذ رقما متسلسلا	every recorded payment gets a sequential number
 كل سؤال يحتاج سؤالا وجوابا بالعربي	Every question needs a question and an answer in Arabic
 كل سؤال يحتاج سؤالا وجوابا بالعربية	Each item needs a question and an answer in Arabic
 كل سؤال يحتاج سؤالاً وجواباً بالعربي	Every question needs a question and an answer in Arabic
@@ -4733,6 +4744,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كم ريالا للوحدة	how many riyals per unit
 كم ريالاً للوحدة	how many riyals per unit
 كما في	as described in
+كما في السجل التجاري	as in the commercial registration
 كما في تاريخ	As at
 كمبيوتر	Computer
 كمية أو تكلفة الصنف	Quantity or cost of item
@@ -5339,6 +5351,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مدراء الأقسام فقط	Department managers only
 مدراء الأقسام يطلبون الوظائف بتكلفتها	Department managers request positions with their cost
 مدفوعات للموردين	Payments to suppliers
+مدفوعة	Paid
 مدير الموارد البشرية	HR manager
 مدير الموارد البشرية يُختار من مستخدمي الموارد البشرية	The HR manager is chosen from HR users
 مدير النظام	System admin
@@ -5482,6 +5495,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مطلوب في الفاتورة الضريبية للعميل المسجل في ضريبة القيمة المضافة	Required on the tax invoice for a VAT-registered customer
 مع إنذار بالفصل وفق المادة	with a dismissal warning under Article
 مع اسمه	with its name
+مع الرقم الضريبي تصبح كل فاتورة فاتورة ضريبية	With a VAT number every invoice becomes a tax invoice
 مع المرفقات	with attachments
 مع تنبيه قبل الانتهاء	with an alert before expiry
 مع دفعاتها وتواريخ صلاحيتها	with their batches and expiry dates
@@ -6083,6 +6097,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وعلى السعودي وأسرته في القطاع الخاص	and Saudi employees and their families in the private sector
 وعليه نأمل منك الرد كتابيا وحضور التحقيق لسماع أقوالك وتحقيق دفاعك	Accordingly, please reply in writing and attend the investigation to give your statement and defence
 وعليه نأمل منك الرد كتابياً وحضور التحقيق لسماع أقوالك وتحقيق دفاعك	Accordingly, please reply in writing and attend the investigation to give your statement and defence
+وعليها رمز	and carries a
 وعند الترحيل تُقيد الفروقات بمتوسط التكلفة	posting books the differences at average cost
 وعند قبوله يتحول إلى أمر بيع بضغطة	once accepted it becomes a sales order in one click
 وعند من	who has it
@@ -6151,6 +6166,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ويجوز حسم الديون المستحقة بسبب العمل كرصيد السلف	work-related debts such as outstanding advances may be deducted
 ويجوز شهر إضافي بدون أجر	plus an optional unpaid month
 ويحق لك العدول عنها خلال	You may withdraw it within
+ويراها مالك المنشأة في إعداداته	and the company owner sees it in settings
 ويسقط الأجر إذا ثبت عدم أداء الامتحان	and pay is lost if the exam was not sat
 ويصل المالك إيميل فوري بأن بياناته صُدّرت	and the owner gets an instant e-mail that his data was exported
 ويظهر ذلك في حساب نهاية الخدمة	and this shows in the end-of-service calculation

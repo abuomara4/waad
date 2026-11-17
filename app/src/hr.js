@@ -847,6 +847,7 @@ VIEWS['#/settings'] = async page => {
      <div id="lgerr"></div><p class="muted small">يظهر أعلى الخطابات المطبوعة. يفضّل PNG بخلفية شفافة؛ نصغّر الصورة تلقائيا.</p></div>` : ''}
    ${admin && S.sub ? `<div class="card"><h2>${esc(tr('الاشتراك'))}</h2><p>${esc(tr('الباقة'))}: <b>${esc(S.sub.plan === 'trial' ? tr('تجريبية') : S.sub.plan)}</b> · <span class="badge ${subState(S.sub)[1]}">${esc(tr(subState(S.sub)[0]))}</span>${S.sub.status === 'trial' && S.sub.trial_ends ? ` · ${esc(tr('تنتهي التجربة'))} <span class="num">${esc(S.sub.trial_ends)}</span>` : ''}${S.sub.status === 'active' && S.sub.sub_ends ? ` · ${esc(tr('ينتهي الاشتراك'))} <span class="num">${esc(S.sub.sub_ends)}</span>` : ''}${S.sub.max_users ? ` · ${esc(tr('الحد الأعلى للمستخدمين'))} <span class="num">${S.sub.max_users}</span>` : ''}${S.sub.max_employees ? ` · ${esc(tr('الحد الأعلى للموظفين'))} <span class="num">${S.sub.max_employees}</span>` : ''}</p>
      <p>${Object.entries(MODULES).map(([k, t]) => `<span class="badge ${modOn(k) ? 'ok' : ''}">${modOn(k) ? '✓' : '✕'} ${esc(tr(t))}</span>`).join(' ')}</p><p class="muted small">${esc(tr('لتغيير الباقة أو فتح قسم تواصل مع إدارة وعد.'))}</p></div>` : ''}
+   ${admin ? '<div class="card" id="winvs"></div>' : ''}
    ${admin && (modOn('finance') || modOn('sales')) ? '<div class="card" id="zcard"></div>' : ''}
    ${admin && seeded ? `<div class="card"><h2>${esc(tr('بيانات تجريبية'))}</h2>
      ${seeded
@@ -865,6 +866,10 @@ VIEWS['#/settings'] = async page => {
   if ($('#lgf', page)) $('#lgf', page).onchange = async ev => { const f = ev.target.files[0]; if (!f) return; try { await setLogo(await imgToLogo(f)); } catch (er) { showErr($('#lgerr', page), er); } };
   if ($('#lgd', page)) $('#lgd', page).onclick = () => setLogo(null);
   if ($('#zcard', page)) zatcaCard($('#zcard', page));
+  if ($('#winvs', page)) db.rpc('my_waad_invoices', { p_company: S.cid }).catch(() => []).then(inv => { const el = $('#winvs', page); if (!el) return; if (!inv.length) { el.remove(); return; }
+    el.innerHTML = `<h2>${esc(tr('فواتير اشتراك وعد'))}</h2>` + tbl([{ t: 'رقم الفاتورة', h: x => `<span class="num">${esc(x.inv_no || '')}</span>` }, { t: 'التاريخ', h: x => `<span class="num">${esc(x.paid_on)}</span>` },
+      { t: 'الباقة', h: x => esc(x.plan || '—') }, { t: 'المبلغ', r: 1, h: x => money(x.amount) }, { t: '', h: x => `<button class="btn sm" data-winv="${x.id}">${esc(tr('طباعة'))}</button>` }], inv);
+    $$('[data-winv]', el).forEach(b => b.onclick = () => waadInvoicePrint(b.dataset.winv).catch(e => toast(e.message))); });
   if ($('#ccb', page)) $('#ccb', page).onclick = () => companyCodeBox(false);
   ['exx', 'exj'].forEach(k => { const b = $('#' + k, page); if (b) b.onclick = async () => { try { await busy(b, () => exportCompany(k === 'exj')); } catch (er) { showErr($('#exerr', page), er); } }; });
   if ($('#cibn', page)) $('#cibn', page).oninput = e => { $('#cibk', page).textContent = ibanBank(e.target.value); };

@@ -2558,6 +2558,21 @@ select t.ok((select jsonb_array_length(d->'payments') = 2 and jsonb_array_length
 select t.ok((select sum(amount) = 598 from public.platform_payments_list(current_date - 1, current_date + 1) where company_id = :'cbill'), 'payments are listed by date for the revenue view');
 select t.err($$select public.platform_quick('$$ || :'cbill' || $$', 'explode')$$, 'غير معروف', 'unknown quick actions are refused');
 reset role;
+-- Waad's own invoices (0114)
+select t.ok((select count(distinct inv_no) = 2 and min(inv_no) = 'W-' || to_char(current_date, 'YYYY') || '-0001' from public.platform_payments where company_id = :'cbill'), 'Waad invoices: every payment gets a consecutive number W-YYYY-NNNN');
+select (select id from public.platform_payments where company_id = :'cbill' order by inv_no limit 1) as pay1 \gset
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select t.ok((select d->>'tax' = 'false' and (d->>'vat')::numeric = 0 and (d->>'total')::numeric = 299 from (select public.waad_invoice(:'pay1') d) x), 'Waad invoices: without a VAT number the invoice carries no VAT');
+select t.err($$select public.platform_invoice_settings_set('{"inv_vat":"123"}')$$, 'الرقم الضريبي', 'Waad invoices: the VAT number must be valid');
+select public.platform_invoice_settings_set('{"inv_name":"مؤسسة وعد","inv_vat":"300000000000003","inv_cr":"1010000000","inv_address":"الرياض"}');
+select t.ok((select d->>'tax' = 'true' and (d->>'net')::numeric = 260 and (d->>'vat')::numeric = 39 and d->'seller'->>'vat' = '300000000000003' and d->'buyer'->>'name' = 'منشأة الفوترة'
+  from (select public.waad_invoice(:'pay1') d) x), 'Waad invoices: with a VAT number the paid amount includes 15% VAT (299 = 260 + 39)');
+select public.platform_invoice_settings_set('{}');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select public.waad_invoice('$$ || :'pay1' || $$')$$, '42501|غير مصرح', 'Waad invoices: another company cannot read them');
+select t.err($$select * from public.my_waad_invoices('$$ || :'cbill' || $$')$$, '42501|غير مصرح|صلاحية', 'Waad invoices: nor list them');
+reset role;
 
 -- ================= COMPANY PROFILE AND USAGE COUNTS FOR THE ADMIN SITE (0070) =================
 select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;

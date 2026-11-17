@@ -1572,6 +1572,11 @@ with sync_playwright() as pw:
     ok(sql("(select sub_ends - current_date from company_subscriptions s join companies c on c.id = s.company_id where c.name = 'منشأة تنتظر القبول')") == '67', 'quick action: +7 days')
     go(pp, '#/system'); pp.wait_for_selector('#ppage .pbars'); ok('حسب المدينة' in pp.inner_text('#ppage') and 'الرياض' in pp.inner_text('#ppage'), 'system numbers: companies by city, size, activity and source')
     go(pp, '#/billing'); pp.wait_for_selector('#ppage .pbars'); ok('299' in pp.inner_text('#ppage'), 'revenue page counts the payment')
+    # Waad's own invoices (0114): the seller's details, a numbered invoice printed with VAT and the QR code
+    pp.click('#pinvs'); pp.wait_for_selector('#dlg input[name=inv_vat]'); pp.fill('#dlg input[name=inv_name]', 'مؤسسة وعد'); pp.fill('#dlg input[name=inv_vat]', '300000000000003'); modal_ok(pp); pp.wait_for_timeout(400)
+    pp.evaluate("window.__print=window.print;window.print=()=>{};0"); pp.locator('[data-winv]').first.click(); pp.wait_for_timeout(600)
+    ok('فاتورة ضريبية' in pp.inner_text('#printarea') and 'W-' in pp.inner_text('#printarea') and pp.locator('#printarea svg.qr').count() == 1, 'admin site: a payment prints as a numbered tax invoice with the QR code')
+    pp.evaluate("window.print=window.__print;window.dispatchEvent(new Event('afterprint'))"); sqlx("update platform_settings set inv_name = null, inv_vat = null")
     sqlx("update platform_settings set require_approval = false")
     # the Waad team: an admin adds a member who signs in with a username, then must change the temporary password
     go(pp, '#/team'); pp.wait_for_selector('#tadd'); pp.click('#tadd'); pp.wait_for_selector('#dlg input[name=user]')

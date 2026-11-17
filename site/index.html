@@ -204,6 +204,8 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
   nav.links.open{display:flex;flex-direction:column;position:absolute;top:68px;inset-inline:0;background:var(--navy);padding:16px 20px;gap:14px;border-bottom:1px solid rgba(255,255,255,.08)}
   .g3,.g2{grid-template-columns:1fr}.hero{padding:56px 0 64px}section{padding:60px 0}.band{padding:30px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+.tourv{width:100%;height:auto;aspect-ratio:16/9;border-radius:16px;background:#142039;box-shadow:0 18px 40px -18px rgba(20,32,57,.45);display:block}
+.tourch{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}.tourch button{font:inherit;font-size:14px;border:1px solid rgba(20,32,57,.18);background:#fff;color:#142039;border-radius:999px;padding:6px 14px;cursor:pointer}.tourch button:hover,.tourch button:focus-visible{border-color:#8a641f;color:#8a641f}
 </style>
 </head>
 <body data-page="home">
@@ -307,6 +309,16 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
       <a class="mtile" href="modules.html#modules"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h8l4 4v14H7zM15 3v4h4M10 12h6M10 16h6"/></svg><span class="ar">النماذج الجاهزة</span><span class="en">Ready forms</span></a>
       <a class="mtile" href="modules.html#modules"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20c3-1 4-4 6-4s2 3 4 3 3-6 6-8"/></svg><span class="ar">التوقيع الإلكتروني</span><span class="en">E-signature</span></a>
     </div>
+  </div>
+</section>
+
+<section id="tour" style="padding-top:10px">
+  <div class="wrap">
+    <div class="sh"><h2><span class="ar">جولة في وعد خلال دقيقة</span><span class="en">A one-minute tour of Waad</span></h2><p><span class="ar">من منشأة تجريبية ببيانات وهمية: اضغط أي قسم لتنتقل إليه في الفيديو.</span><span class="en">From a sample company with made-up data: click any section to jump to it.</span></p></div>
+    <div class="ar"><video class="tourv" id="tv-ar" controls playsinline preload="none" poster="img/tour-ar.webp" width="1280" height="720"><source src="img/tour-ar.mp4" type="video/mp4"></video>
+      <div class="tourch"><button type="button" data-tv="tv-ar" data-t="3.0">الرئيسية</button><button type="button" data-tv="tv-ar" data-t="7.9">الموظفون</button><button type="button" data-tv="tv-ar" data-t="12.8">الحضور</button><button type="button" data-tv="tv-ar" data-t="17.7">مسير الرواتب</button><button type="button" data-tv="tv-ar" data-t="22.6">الامتثال</button><button type="button" data-tv="tv-ar" data-t="27.5">الفواتير الإلكترونية</button><button type="button" data-tv="tv-ar" data-t="32.4">القوائم المالية</button><button type="button" data-tv="tv-ar" data-t="37.3">المخزون</button><button type="button" data-tv="tv-ar" data-t="42.2">النماذج</button></div></div>
+    <div class="en"><video class="tourv" id="tv-en" controls playsinline preload="none" poster="img/tour-en.webp" width="1280" height="720"><source src="img/tour-en.mp4" type="video/mp4"></video>
+      <div class="tourch"><button type="button" data-tv="tv-en" data-t="3.0">Home</button><button type="button" data-tv="tv-en" data-t="7.9">Employees</button><button type="button" data-tv="tv-en" data-t="12.8">Attendance</button><button type="button" data-tv="tv-en" data-t="17.7">Payroll</button><button type="button" data-tv="tv-en" data-t="22.6">Compliance</button><button type="button" data-tv="tv-en" data-t="27.5">E-invoices</button><button type="button" data-tv="tv-en" data-t="32.4">Financial statements</button><button type="button" data-tv="tv-en" data-t="37.3">Stock</button><button type="button" data-tv="tv-en" data-t="42.2">Forms</button></div></div>
   </div>
 </section>
 
@@ -490,6 +502,7 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
       set(s,x.qa,x.qe);set(p,x.aa,x.ae);dt.appendChild(s);dt.appendChild(p);f.appendChild(dt)})}
   }).catch(function(){});
 })();
+document.querySelectorAll('[data-tv]').forEach(b => b.addEventListener('click', () => { const v = document.getElementById(b.dataset.tv); if (!v) return; const t = +b.dataset.t; if (v.readyState) v.currentTime = t; else v.addEventListener('loadedmetadata', () => { v.currentTime = t; }, { once: true }); v.play().catch(() => {}); }));
 </script>
 <!-- visitor counts: Cloudflare Web Analytics (no cookies, no personal data). Website only, never in the system (app/). -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "4aa0abbd7176481fafd7e1065dc02077"}'></script>

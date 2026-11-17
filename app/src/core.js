@@ -274,6 +274,23 @@ function printBlock(node, title) {
   const cp = node.cloneNode(true); cp.removeAttribute('id'); cp.querySelectorAll('.btn,button,input[type=file],.wa').forEach(x => x.remove()); doc.appendChild(cp);
   printWith(doc, '@page{size:A4 portrait;margin:12mm}');
 }
+// Waad's own invoice for a subscription payment (0114): a tax invoice with the QR code when Waad has a VAT number, else a plain invoice
+async function waadInvoicePrint(id) {
+  const v = await db.rpc('waad_invoice', { p_payment: id }), s = v.seller || {}, b = v.buyer || {}, m = x => money(+x);
+  const t = v.tax ? tr('فاتورة ضريبية مبسطة') : tr('فاتورة');
+  const qr = v.tax && typeof QR !== 'undefined' ? QR.svg(QR.zatca({ seller: s.name, vat: s.vat, time: new Date(v.at).toISOString().replace(/\.\d{3}Z$/, 'Z'), total: v.total, tax: v.vat }), 120) : '';
+  const n = document.createElement('div'); n.className = 'pdoc winv';
+  n.innerHTML = `<div class="ph"><div class="ph-brand"><img class="ph-logo" src="${LOGO_L}" alt=""><div><div class="ph-co">${esc(s.name || 'وعد')}</div>
+      ${s.vat ? `<div class="ph-ids">${esc(tr('الرقم الضريبي'))} <span class="num">${esc(s.vat)}</span></div>` : ''}${s.cr ? `<div class="ph-ids">${esc(tr('السجل التجاري'))} <span class="num">${esc(s.cr)}</span></div>` : ''}${s.address ? `<div class="ph-ids">${esc(s.address)}</div>` : ''}</div></div>
+      <div class="ph-meta"><div class="ph-t">${esc(t)}</div><div>${esc(tr('رقم الفاتورة'))}: <span class="num">${esc(v.no || '')}</span></div><div>${esc(tr('التاريخ'))}: <span class="num">${esc(v.date)}</span></div></div></div>
+    <p><b>${esc(tr('العميل'))}:</b> ${esc(b.name || '')}${b.vat ? ` · ${esc(tr('الرقم الضريبي'))} <span class="num">${esc(b.vat)}</span>` : ''}${b.cr ? ` · ${esc(tr('السجل التجاري'))} <span class="num">${esc(b.cr)}</span>` : ''}${b.city ? ` · ${esc(b.city)}` : ''}</p>
+    <table class="ptbl"><thead><tr><th>${esc(tr('البيان'))}</th><th>${esc(tr('المدة'))}</th><th>${esc(tr('المبلغ'))}</th></tr></thead>
+      <tbody><tr><td>${esc(tr('اشتراك نظام وعد'))}${v.plan ? ' — ' + esc(v.plan) : ''}</td><td>${v.days ? `<span class="num">${v.days}</span> ${esc(tr('يوم'))}` : '—'}</td><td class="num">${m(v.net)}</td></tr></tbody>
+      <tfoot>${v.tax ? `<tr><td colspan="2">${esc(tr('الإجمالي قبل الضريبة'))}</td><td class="num">${m(v.net)}</td></tr><tr><td colspan="2">${esc(tr('ضريبة القيمة المضافة'))} <span class="num">${+v.rate}%</span></td><td class="num">${m(v.vat)}</td></tr>` : ''}
+      <tr><td colspan="2"><b>${esc(tr('الإجمالي'))}</b></td><td class="num"><b>${m(v.total)} ${esc(tr('ريال'))}</b></td></tr></tfoot></table>
+    <div class="row" style="justify-content:space-between;align-items:flex-end;margin-top:14px"><div class="small">${esc(tr('حالة الدفع'))}: ${esc(tr('مدفوعة'))}${v.note ? '<br>' + esc(v.note) : ''}${v.tax ? '' : '<br>' + esc(tr('غير خاضعة لضريبة القيمة المضافة'))}</div>${qr}</div>`;
+  printWith(n, '@page{size:A4 portrait;margin:14mm}');
+}
 // the browser's own print (Ctrl+P) on any page gets the same letterhead
 window.addEventListener('beforeprint', () => {
   if (document.body.classList.contains('printing')) return;

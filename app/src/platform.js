@@ -572,7 +572,7 @@ PV.billing = async page => {
   const months = Array.from({ length: 12 }, (_, i) => { const d = new Date(m0 + 'T12:00:00Z'); d.setUTCMonth(d.getUTCMonth() - 11 + i); return d.toISOString().slice(0, 7); });
   const paying = rows.filter(c => c.status === 'active' && subState(c)[1] !== 'bad').length;
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('الإيرادات والباقات'))}</h1><div class="muted">${esc(tr('سجّل كل دفعة من صفحة المنشأة، وتنحسب هنا.'))}</div></div>
-      <button class="btn pri" id="padd">${esc(tr('باقة جديدة'))}</button></div>
+      <div class="row">${pcan('billing') ? `<button class="btn" id="pinvs">${esc(tr('بيانات فواتير وعد'))}</button>` : ''}<button class="btn pri" id="padd">${esc(tr('باقة جديدة'))}</button></div></div>
     <div class="grid" style="margin-bottom:14px">${pkpi('هذا الشهر', money0(sumIf(p => p.paid_on >= m0)), 'ريال')}${pkpi('الشهر الماضي', money0(sumIf(p => p.paid_on >= lm && p.paid_on < m0)), 'ريال')}
       ${pkpi('هذه السنة', money0(sumIf(p => p.paid_on >= y0)), 'ريال')}${pkpi('منشآت مشتركة', paying)}</div>
     <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الإيرادات شهريا (آخر ١٢ شهر)'))}</h2>${pbars(months.map(k => ({ k, v: Math.round(sumIf(p => p.paid_on.slice(0, 7) === k)) })), 'الإيرادات شهريا (آخر ١٢ شهر)')}</div>
@@ -582,11 +582,18 @@ PV.billing = async page => {
         { t: 'المستخدمون', r: 1, h: p => p.max_users || '—' }, { t: 'الموظفون', r: 1, h: p => p.max_employees || '—' }, { t: '', h: () => `<span class="btn sm">${esc(tr('تعديل'))}</span>` }], plans, { empty: 'لا توجد باقات. أضف أول باقة.', onRow: true })}</div>
     <div class="card" id="cpays"><h2>${esc(tr('آخر الدفعات'))}</h2>
       ${tbl([{ t: 'التاريخ', h: p => `<span class="num">${esc(p.paid_on)}</span>` }, { t: 'المنشأة', h: p => esc(p.company) }, { t: 'المبلغ', r: 1, h: p => money0(p.amount) },
-        { t: 'الباقة', h: p => esc(p.plan || '—') }, { t: 'الطريقة', h: p => esc(tr(PAY_M[p.method] || p.method)) }], pays.slice(0, 50), { empty: 'لا توجد دفعات', onRow: true })}</div>`;
+        { t: 'الباقة', h: p => esc(p.plan || '—') }, { t: 'الطريقة', h: p => esc(tr(PAY_M[p.method] || p.method)) }, { t: 'الفاتورة', h: p => p.inv_no ? `<button class="btn sm" data-winv="${p.id}"><span class="num">${esc(p.inv_no)}</span></button>` : '' }], pays.slice(0, 50), { empty: 'لا توجد دفعات', onRow: true })}</div>`;
   $('#padd', page).onclick = () => planForm({});
   const cards = $$('.card', page);
   bindRows($('#cplans', page), plans, planForm);
   bindRows($('#cpays', page), pays.slice(0, 50), p => { location.hash = '#/company/' + p.company_id; });
+  $$('[data-winv]', page).forEach(b => b.onclick = ev => { ev.stopPropagation(); waadInvoicePrint(b.dataset.winv).catch(e => toast(e.message)); });
+  if ($('#pinvs', page)) $('#pinvs', page).onclick = async () => { const v = await db.rpc('platform_invoice_settings') || {};
+    modal(tr('بيانات فواتير وعد'), `<div class="fg">${field('اسم البائع (كما في السجل التجاري)', inp('inv_name', v.inv_name, 'maxlength="120"'))}${field('الرقم الضريبي (فارغ = غير مسجل في الضريبة)', inp('inv_vat', v.inv_vat, 'inputmode="numeric" maxlength="15"'))}
+      ${field('السجل التجاري', inp('inv_cr', v.inv_cr, 'maxlength="30"'))}${field('نسبة الضريبة %', inp('inv_vat_rate', v.inv_vat_rate == null ? 15 : v.inv_vat_rate, 'type="number" min="0" max="100" step="0.01"'))}
+      ${field('العنوان', inp('inv_address', v.inv_address, 'maxlength="200"'), 'wide')}</div>
+      <p class="muted small">${esc(tr('مع الرقم الضريبي تصبح كل فاتورة فاتورة ضريبية: المبلغ المدفوع شامل الضريبة، وعليها رمز QR. بدونه تصدر فاتورة عادية بلا ضريبة. كل دفعة تُسجَّل تأخذ رقما متسلسلا W-السنة-الرقم، ويراها مالك المنشأة في إعداداته.'))}</p>`,
+      { onOk: async f => { await db.rpc('platform_invoice_settings_set', { p: f }); toast(tr('تم الحفظ')); } }); };
 };
 function planForm(p) {
   modal(p.id ? tr('تعديل الباقة') : tr('باقة جديدة'), `<div class="fg">${field('اسم الباقة', inp('name', p.name, 'maxlength="40" required'))}

@@ -204,6 +204,8 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
   nav.links.open{display:flex;flex-direction:column;position:absolute;top:68px;inset-inline:0;background:var(--navy);padding:16px 20px;gap:14px;border-bottom:1px solid rgba(255,255,255,.08)}
   .g3,.g2{grid-template-columns:1fr}.hero{padding:56px 0 64px}section{padding:60px 0}.band{padding:30px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+.tourv{width:100%;height:auto;aspect-ratio:16/9;border-radius:16px;background:#142039;box-shadow:0 18px 40px -18px rgba(20,32,57,.45);display:block}
+.tourch{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}.tourch button{font:inherit;font-size:14px;border:1px solid rgba(20,32,57,.18);background:#fff;color:#142039;border-radius:999px;padding:6px 14px;cursor:pointer}.tourch button:hover,.tourch button:focus-visible{border-color:#8a641f;color:#8a641f}
 </style>
 </head>
 <body data-page="guide">
@@ -326,6 +328,7 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
       set(s,x.qa,x.qe);set(p,x.aa,x.ae);dt.appendChild(s);dt.appendChild(p);f.appendChild(dt)})}
   }).catch(function(){});
 })();
+document.querySelectorAll('[data-tv]').forEach(b => b.addEventListener('click', () => { const v = document.getElementById(b.dataset.tv); if (!v) return; const t = +b.dataset.t; if (v.readyState) v.currentTime = t; else v.addEventListener('loadedmetadata', () => { v.currentTime = t; }, { once: true }); v.play().catch(() => {}); }));
 </script>
 <!-- visitor counts: Cloudflare Web Analytics (no cookies, no personal data). Website only, never in the system (app/). -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "4aa0abbd7176481fafd7e1065dc02077"}'></script>
