@@ -955,8 +955,10 @@ with sync_playwright() as pw:
     ok('منشأة واحدة' in r2c, 'the server refuses a second company for the same account: ' + r2c)
     # settings & permissions
     go(o, '#/settings'); o.click('#ccb'); o.wait_for_selector('#ccv'); ok(o.inner_text('#ccv').strip() == code0, 'settings shows the company code with email and share buttons'); o.click('#mx')
+    go(o, '#/permissions'); o.wait_for_selector('input[data-r=accountant][data-p=vat]')
+    ok(o.locator('[data-pacc]').count() >= 1 and 'ماذا يرى كل دور' in o.inner_text('#page'), 'permissions page: every user with an edit button, and what each role sees')
     o.locator('input[data-r=accountant][data-p=vat]').check(); o.wait_for_timeout(400)
-    ok(sql("select count(*) from finance_permissions where role='accountant' and perm='vat'") == '1', 'finance permission toggled from settings')
+    ok(sql("select count(*) from finance_permissions where role='accountant' and perm='vat'") == '1', 'permissions page: a role permission is toggled by department')
 
     # ---------- approval routes, request journey, tickets and visas ----------
     go(o, '#/home'); go(o, '#/workflows'); o.wait_for_selector('[data-wk=leave]')
@@ -1457,7 +1459,10 @@ with sync_playwright() as pw:
        and 'hello@waad.test' in sp.get_attribute('[data-c=mail]', 'href'), 'website shows the contact details and notice bar set in the admin site')
     ok(sp.locator('.faq details').count() >= 1 and 'هل فيه دعم فني؟' in sp.inner_text('.faq'), 'website shows the FAQ set in the admin site')
     ok(int(sql("coalesce((select sum(visits) from site_stats where page='contact' and source='whatsapp'),0)")) == before + 1, 'website counts a visit with its source (no cookie)')
-    sp.goto('file://' + os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'site', 'tools.html'))); sp.wait_for_selector('#teos .trow')
+    sp.goto('file://' + os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'site', 'tools.html'))); sp.wait_for_selector('#tpick')
+    ok(sp.locator('.tool:not([hidden])').count() == 0, 'website tools: no calculator shows until one is picked')
+    sp.click('[data-tool=teos]'); sp.wait_for_selector('#teos .trow'); sp.click('[data-tool=tleave]'); sp.wait_for_timeout(150)
+    ok(sp.locator('.tool:not([hidden])').count() == 1 and sp.is_visible('#tleave') and not sp.is_visible('#teos'), 'website tools: picking another calculator hides the previous one')
     sp.click('[data-tool=teos]'); sp.fill('#teos input[name=wage]', '10000'); sp.fill('#teos input[name=start]', '2020-01-01'); sp.fill('#teos input[name=end]', '2022-12-31'); sp.select_option('#teos select[name=reason]', 'resign'); sp.wait_for_timeout(200)
     ok('5,005.00' in sp.inner_text('#teos .tout') and '33%' in sp.inner_text('#teos .tout'), 'website tools: resignation after 3 years = one third of half a month per year (Art. 85)')
     sp.click('[data-tool=tgosi]'); sp.fill('#tgosi input[name=basic]', '8000'); sp.fill('#tgosi input[name=housing]', '2000'); sp.fill('#tgosi input[name=first]', '2020-01-01'); sp.wait_for_timeout(200)

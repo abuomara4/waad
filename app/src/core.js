@@ -640,7 +640,7 @@ function navItems() {
     if (has('owner', 'admin', 'finance')) it.push({ h: '#/periods', t: 'إقفال الفترات والسنة' }, { h: '#/opening', t: 'الأرصدة الافتتاحية' });
   }
   if (has('owner', 'admin', 'finance', 'hr') || can('proj')) { g('المشاريع'); it.push({ h: '#/projects', t: 'المشاريع وجداول الوقت' }); }
-  if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); it.push({ h: '#/companydocs', t: 'مستندات المنشأة والسيارات' }); if (has('owner', 'admin')) it.push({ h: '#/customfields', t: 'الحقول المخصصة' }); if (has('owner', 'admin', 'hr')) it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); }
+  if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); it.push({ h: '#/companydocs', t: 'مستندات المنشأة والسيارات' }); if (has('owner', 'admin')) it.push({ h: '#/customfields', t: 'الحقول المخصصة' }); if (has('owner', 'admin', 'hr')) it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); it.push({ h: '#/permissions', t: 'الصلاحيات' }); }
   return it;
 }
 function shell() {
@@ -673,7 +673,8 @@ function shell() {
   $('#th').onclick = toggleTheme; applyTheme(curTheme());
   $('#lg').onclick = () => setLang(LANG === 'en' ? 'ar' : 'en');
   $('#pw').onclick = () => changePasswordView(false);
-  const umSet = open => { $('#umenu').hidden = !open; $('#um').setAttribute('aria-expanded', open ? 'true' : 'false'); };
+  // safe when the menu is gone (another screen, e.g. sign-in, replaced the shell before a late click or key)
+  const umSet = open => { const m = $('#umenu'), b = $('#um'); if (m) m.hidden = !open; if (b) b.setAttribute('aria-expanded', open ? 'true' : 'false'); };
   if ($('#hb')) $('#hb').onclick = () => { if (typeof helpModal === 'function') helpModal(); };
   if ($('#inst')) $('#inst').onclick = () => { $('#umenu').hidden = true; installApp(); };
   if ($('#pushon')) $('#pushon').onclick = () => { $('#umenu').hidden = true; pushEnable(); };
@@ -682,8 +683,12 @@ function shell() {
   $('#pw').addEventListener('click', () => umSet(false));
   $('#mfa').onclick = () => { umSet(false); mfaSetup(); };
   $$('#umenu a.mi').forEach(a => a.addEventListener('click', () => umSet(false)));
-  document.addEventListener('click', ev => { if (!$('#umenu') || ev.target.closest('.umw')) return; umSet(false); $('#bpanel').hidden = true; });
-  document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && $('#umenu')) { umSet(false); $('#bpanel').hidden = true; } });
+  if (!window.__umDoc) {   // once per page, not once per redraw of the shell
+    window.__umDoc = true;
+    const close = () => { const m = $('#umenu'), bp = $('#bpanel'); if (m) { m.hidden = true; const b = $('#um'); if (b) b.setAttribute('aria-expanded', 'false'); } if (bp) bp.hidden = true; };
+    document.addEventListener('click', ev => { if (!$('#umenu') || ev.target.closest('.umw')) return; close(); });
+    document.addEventListener('keydown', ev => { if (ev.key === 'Escape') close(); });
+  }
   if ($('#gsb')) $('#gsb').onclick = () => searchOpen();
   $('#lo').onclick = async () => { await authApi.signOut(); authView(); };
   if (multi) $('#cs').onchange = async e => { S.cid = e.target.value; LS.set('waad.cid', S.cid); await loadContext(); shell(); location.hash = '#/home'; route(); };
@@ -720,7 +725,7 @@ const NI = { home: 'M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z', 
   gear: 'M4 6h9M17 6h3M15 4v4M4 12h3M11 12h9M9 10v4M4 18h11M19 18h1M17 16v4', star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z', grad: 'M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5',
   search: 'M11 4a7 7 0 1 0 0 14a7 7 0 0 0 0-14zM21 21l-5-5', truck: 'M2 6h11v10H2zM13 9h4l4 4v3h-8M6 19a2 2 0 1 0 0-.01M17 19a2 2 0 1 0 0-.01', swap: 'M4 8h14l-3-3M20 16H6l3 3' };
 const NAV_IC = { home: 'home', analytics: 'chart', attendance: 'clock', att: 'clock', requests: 'doc', payslips: 'money', reviews: 'star', profile: 'user', policies: 'book', org: 'org', approvals: 'check', clearance: 'shield',
-  hrdash: 'chart', compliance: 'shield', onboarding: 'users', announcements: 'doc', surveys: 'chart', workforce: 'users', expensepolicy: 'money', employees: 'users', docs: 'doc', roster: 'cal', leavecal: 'cal', penalties: 'shield', payroll: 'money', eos: 'money', nitaqat: 'chart', travel: 'plane', workflows: 'flow', recruit: 'search', training: 'grad',
+  hrdash: 'chart', compliance: 'shield', permissions: 'shield', onboarding: 'users', announcements: 'doc', surveys: 'chart', workforce: 'users', expensepolicy: 'money', employees: 'users', docs: 'doc', roster: 'cal', leavecal: 'cal', penalties: 'shield', payroll: 'money', eos: 'money', nitaqat: 'chart', travel: 'plane', workflows: 'flow', recruit: 'search', training: 'grad',
   hrreports: 'chart', forms: 'doc', crm: 'users', rfq: 'doc', serials: 'check', grades: 'chart', insurance: 'shield', trainplan: 'cal', platform: 'gear', sales: 'cart', quotes: 'doc', orders: 'cart', deliveries: 'truck', purchreq: 'doc', porders: 'box', receipts: 'truck', warehouses: 'box', transfers: 'swap', counts: 'check', expiry: 'cal', reorder: 'cart', parties: 'users', purchases: 'box', payments: 'swap', items: 'box', journal: 'book', reports: 'chart', coa: 'book', bankrec: 'check', cheques: 'doc', petty: 'money', mypetty: 'money', currencies: 'swap', opening: 'book', assets: 'box', costcenters: 'org', budgets: 'chart', periods: 'shield', users: 'users', settings: 'gear' };
 const navIcon = h => `<svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="${NI[NAV_IC[h.split('/')[1]]] || NI.doc}"/></svg>`;
 function drawNav() {
@@ -887,7 +892,11 @@ function reportError(message, source) {
   if (!S.session || !S.cid || ERR_N++ > 20 || !message) return;
   db.rpc('log_client_error', { p_company: S.cid, p_message: String(message).slice(0, 500), p_source: String(source || '').slice(0, 300), p_route: (location.hash || '').split('?')[0], p_agent: navigator.userAgent.slice(0, 200) }).catch(() => {});
 }
-window.addEventListener('error', e => reportError(e.message, (e.filename || '').split('/').pop() + ':' + e.lineno + ':' + e.colno));
+// errors from outside Waad's own page are not ours to fix: browser extensions, translators and content blockers inject
+// scripts whose errors reach us only as a bare «Script error.» with no place, or from an extension address
+const foreignError = e => (/^Script error\.?$/.test(e.message || '') && !e.lineno) || /^(chrome|moz|safari(-web)?)-extension:|^webkit-masked-url:/.test(e.filename || '')
+  || (e.filename && !e.filename.startsWith(location.origin) && !/^blob:|^data:/.test(e.filename));
+window.addEventListener('error', e => { if (!foreignError(e)) reportError(e.message, (e.filename || '').split('/').pop() + ':' + e.lineno + ':' + e.colno); });
 window.addEventListener('unhandledrejection', e => { const r = e.reason || {}; if (r.status && r.status < 500) return; reportError(r.message || String(r), r.stack && String(r.stack).split('\n')[1]); });
 
 /* ===== request attachments: images are shrunk in the browser; PDFs up to 3 MB ===== */

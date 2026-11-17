@@ -409,3 +409,6 @@ button,input,select,textarea,optgroup{font-family:inherit}
 
 /* surveys / 360 answer buttons (engage.js) */
 .svb{position:relative;cursor:pointer}.svb input{position:absolute;opacity:0;inset:0}.svb span{display:inline-flex;min-width:34px;height:34px;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:8px;padding:0 6px}.svb input:checked+span{background:var(--pri,#1e3a8a);color:#fff;border-color:transparent}.svb input:focus-visible+span{outline:2px solid var(--pri,#1e3a8a)}
+
+/* «الصلاحيات»: department rows in the role grid */
+tr.pgrp td{padding-top:14px;color:var(--muted,#6b7280);font-size:13px}

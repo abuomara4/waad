@@ -3,8 +3,9 @@
 <section>
   <div class="wrap">
     <nav class="tchips" role="tablist" aria-label="calculators"><button type="button" role="tab" data-tool="teos"><span class="ar">نهاية الخدمة</span><span class="en">End of service</span></button><button type="button" role="tab" data-tool="tnet"><span class="ar">صافي الراتب</span><span class="en">Net salary</span></button><button type="button" role="tab" data-tool="tgosi"><span class="ar">التأمينات وتكلفة الموظف</span><span class="en">GOSI and employee cost</span></button><button type="button" role="tab" data-tool="tot"><span class="ar">العمل الإضافي</span><span class="en">Overtime</span></button><button type="button" role="tab" data-tool="tleave"><span class="ar">رصيد الإجازة</span><span class="en">Leave balance</span></button><button type="button" role="tab" data-tool="tsick"><span class="ar">الإجازة المرضية</span><span class="en">Sick leave</span></button><button type="button" role="tab" data-tool="tnot"><span class="ar">الإشعار والتعويض</span><span class="en">Notice and compensation</span></button><button type="button" role="tab" data-tool="tprob"><span class="ar">فترة التجربة</span><span class="en">Probation</span></button><button type="button" role="tab" data-tool="tvat"><span class="ar">ضريبة القيمة المضافة</span><span class="en">VAT</span></button><button type="button" role="tab" data-tool="tnit"><span class="ar">نطاقات</span><span class="en">Nitaqat</span></button></nav>
+    <p class="tpick" id="tpick"><span class="ar">اختر الحاسبة التي تحتاجها من الأعلى</span><span class="en">Pick the calculator you need above</span></p>
     <div class="tools tone">
-      <form class="card tool" id="teos" onsubmit="return false">
+      <form class="card tool" hidden id="teos" onsubmit="return false">
         <h3><span class="ar">مكافأة نهاية الخدمة</span><span class="en">End-of-service award</span></h3>
         <p class="small"><span class="ar">المواد 84 و85 و87 و80</span><span class="en">Articles 84, 85, 87 and 80</span></p>
         <label><span class="ar">آخر أجر شهري (الأساسي والبدلات الثابتة)</span><span class="en">Last monthly wage (basic and fixed allowances)</span><input type="number" name="wage" min="0" step="0.01" value="10000"></label>
@@ -17,7 +18,7 @@
           <option value="art80">فسخ وفق المادة 80 · Dismissal under Art. 80</option></select></label>
         <div class="tout" aria-live="polite"></div>
       </form>
-      <form class="card tool" id="tnet" onsubmit="return false">
+      <form class="card tool" hidden id="tnet" onsubmit="return false">
         <h3><span class="ar">صافي الراتب</span><span class="en">Net salary</span></h3>
         <p class="small"><span class="ar">الإجمالي ناقص حصة الموظف في التأمينات</span><span class="en">Gross minus the employee's GOSI share</span></p>
         <label><span class="ar">الراتب الأساسي</span><span class="en">Basic salary</span><input type="number" name="basic" min="0" step="0.01" value="8000"></label>
@@ -27,7 +28,7 @@
         <label><span class="ar">أول تسجيل في التأمينات</span><span class="en">First GOSI registration</span><input type="date" name="first" value="2020-01-01"></label>
         <div class="tout" aria-live="polite"></div>
       </form>
-      <form class="card tool" id="tgosi" onsubmit="return false">
+      <form class="card tool" hidden id="tgosi" onsubmit="return false">
         <h3><span class="ar">اشتراكات التأمينات وتكلفة الموظف</span><span class="en">GOSI and the employee's cost</span></h3>
         <p class="small"><span class="ar">الأجر الخاضع = الأساسي + السكن، بين 1,500 و45,000</span><span class="en">Contribution wage = basic + housing, between 1,500 and 45,000</span></p>
         <label><span class="ar">الراتب الأساسي</span><span class="en">Basic salary</span><input type="number" name="basic" min="0" step="0.01" value="8000"></label>
@@ -37,7 +38,7 @@
         <label><span class="ar">أول تسجيل في التأمينات</span><span class="en">First GOSI registration</span><input type="date" name="first" value="2020-01-01"></label>
         <div class="tout" aria-live="polite"></div>
       </form>
-      <form class="card tool" id="tot" onsubmit="return false">
+      <form class="card tool" hidden id="tot" onsubmit="return false">
         <h3><span class="ar">أجر العمل الإضافي</span><span class="en">Overtime pay</span></h3>
         <p class="small"><span class="ar">أجر الساعة + 50% من الأجر الأساسي للساعة (المادة 107)</span><span class="en">Hourly wage + 50% of the basic hourly wage (Article 107)</span></p>
         <label><span class="ar">الأجر الشهري الإجمالي</span><span class="en">Total monthly wage</span><input type="number" name="total" min="0" step="0.01" value="6000"></label>
@@ -46,7 +47,7 @@
         <label><span class="ar">عدد الساعات الإضافية</span><span class="en">Overtime hours</span><input type="number" name="ot" min="0" step="0.5" value="10"></label>
         <div class="tout" aria-live="polite"></div>
       </form>
-      <form class="card tool" id="tleave" onsubmit="return false">
+      <form class="card tool" hidden id="tleave" onsubmit="return false">
         <h3><span class="ar">رصيد الإجازة السنوية</span><span class="en">Annual leave balance</span></h3>
         <p class="small"><span class="ar">21 يوما، و30 بعد خمس سنوات متصلة (المادة 109)</span><span class="en">21 days, 30 after five continuous years (Article 109)</span></p>
         <label><span class="ar">تاريخ المباشرة</span><span class="en">Start date</span><input type="date" name="start" value="2022-03-01"></label>
@@ -55,7 +56,7 @@
         <label><span class="ar">الأجر الشهري (لحساب أجر الرصيد)</span><span class="en">Monthly wage (to value the balance)</span><input type="number" name="wage" min="0" step="0.01" value="9000"></label>
         <div class="tout" aria-live="polite"></div>
       </form>
-      <form class="card tool" id="tsick" onsubmit="return false">
+      <form class="card tool" hidden id="tsick" onsubmit="return false">
         <h3><span class="ar">أجر الإجازة المرضية</span><span class="en">Sick leave pay</span></h3>
         <p class="small"><span class="ar">30 يوما كاملة، ثم 60 بثلاثة أرباع، ثم 30 بدون أجر خلال السنة (المادة 117)</span><span class="en">30 days full, 60 at three-quarters, then 30 unpaid within the year (Article 117)</span></p>
         <label><span class="ar">الأجر الشهري</span><span class="en">Monthly wage</span><input type="number" name="wage" min="0" step="0.01" value="9000"></label>
@@ -63,7 +64,7 @@
         <label><span class="ar">أيام الإجازة الحالية</span><span class="en">Days of this leave</span><input type="number" name="days" min="0" value="25"></label>
         <div class="tout" aria-live="polite"></div>
       </form>
-      <form class="card tool" id="tnot" onsubmit="return false">
+      <form class="card tool" hidden id="tnot" onsubmit="return false">
         <h3><span class="ar">مهلة الإشعار والتعويض</span><span class="en">Notice and compensation</span></h3>
         <p class="small"><span class="ar">الإشعار (المادة 75) والتعويض عن الإنهاء لسبب غير مشروع (المادة 77)</span><span class="en">Notice (Article 75) and compensation for unjustified termination (Article 77)</span></p>
         <label><span class="ar">نوع العقد</span><span class="en">Contract</span><select name="ct"><option value="open">غير محدد المدة · Open-ended</option><option value="fixed">محدد المدة · Fixed-term</option></select></label>
@@ -73,7 +74,7 @@
         <label><span class="ar">الأشهر الباقية من العقد (للعقد محدد المدة)</span><span class="en">Months left on the contract (fixed-term)</span><input type="number" name="left" min="0" step="0.5" value="6"></label>
         <div class="tout" aria-live="polite"></div>
       </form>
-      <form class="card tool" id="tprob" onsubmit="return false">
+      <form class="card tool" hidden id="tprob" onsubmit="return false">
         <h3><span class="ar">نهاية فترة التجربة</span><span class="en">End of probation</span></h3>
         <p class="small"><span class="ar">بحد أقصى 180 يوما في جميع الأحوال (المادة 53)</span><span class="en">At most 180 days in all cases (Article 53)</span></p>
         <label><span class="ar">تاريخ المباشرة</span><span class="en">Start date</span><input type="date" name="start" value="2026-09-01"></label>
@@ -81,14 +82,14 @@
         <label><span class="ar">أيام لا تُحسب (إجازات بحسب اللائحة)</span><span class="en">Days not counted (leave per the regulations)</span><input type="number" name="ex" min="0" value="0"></label>
         <div class="tout" aria-live="polite"></div>
       </form>
-      <form class="card tool" id="tvat" onsubmit="return false">
+      <form class="card tool" hidden id="tvat" onsubmit="return false">
         <h3><span class="ar">ضريبة القيمة المضافة</span><span class="en">VAT</span></h3>
         <p class="small"><span class="ar">بنسبة 15%</span><span class="en">At 15%</span></p>
         <label><span class="ar">المبلغ</span><span class="en">Amount</span><input type="number" name="amt" min="0" step="0.01" value="1000"></label>
         <label><span class="ar">المبلغ المُدخل</span><span class="en">The amount is</span><select name="mode"><option value="ex">قبل الضريبة · Before VAT</option><option value="in">شامل الضريبة · Including VAT</option></select></label>
         <div class="tout" aria-live="polite"></div>
       </form>
-      <form class="card tool" id="tnit" onsubmit="return false">
+      <form class="card tool" hidden id="tnit" onsubmit="return false">
         <h3><span class="ar">نسبة التوطين (تقدير)</span><span class="en">Saudization ratio (estimate)</span></h3>
         <p class="small"><span class="ar">السعودي بأجر 4,000 فأكثر يُحتسب كاملا، ومن 3,000 نصفا. المرجع الرسمي منصة قوى</span><span class="en">A Saudi paid 4,000+ counts as one, from 3,000 as half. The official reference is Qiwa</span></p>
         <label><span class="ar">إجمالي العاملين</span><span class="en">Total employees</span><input type="number" name="total" min="1" value="20"></label>
@@ -154,10 +155,12 @@
   };
   var all = function () { Object.keys(calc).forEach(function (id) { calc[id]($(id)); }); };
   // one calculator at a time: the chips pick it, and the address (tools.html#tot) opens it directly
-  var show = function (id) { if (!calc[id]) id = 'teos';
+  var hint = document.getElementById('tpick');
+  var show = function (id) { if (!calc[id]) id = null;   // nothing is shown until a calculator is picked (or its link opens it)
+    if (hint) hint.hidden = !!id;
     Object.keys(calc).forEach(function (k) { $(k).hidden = k !== id; });
     document.querySelectorAll('[data-tool]').forEach(function (b) { b.setAttribute('aria-selected', b.dataset.tool === id ? 'true' : 'false'); });
-    calc[id]($(id)); };
+    if (id) { calc[id]($(id)); $(id).scrollIntoView({ block: 'nearest' }); } };
   document.querySelectorAll('[data-tool]').forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.tool); if (history.replaceState) history.replaceState(null, '', '#' + b.dataset.tool); }); });
   window.addEventListener('hashchange', function () { show(location.hash.slice(1)); });
   show(location.hash.slice(1));

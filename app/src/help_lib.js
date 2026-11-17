@@ -121,6 +121,10 @@ const HELP = {
     ['أضف الوظيفة الشاغرة، وفعّل «تظهر في صفحة الوظائف» لتقبل التقديم عليها من الرابط العام.', 'Add the opening and turn on «Shows on the careers page» to accept applications through the public link.'],
     ['من «صفحة الوظائف» انسخ رابط منشأتك وانشره، فيصل المتقدمون بسيرهم الذاتية إلى قائمة المرشحين.', 'Copy your company\'s link from «Careers page» and share it; applicants arrive with their CVs in the candidates list.'],
     ['حدد موعد المقابلة ورابطها أو مكانها، ثم أرسل «رسالة دعوة المقابلة» بالواتساب أو البريد.', 'Set the interview time and link or place, then send the «interview invitation» by WhatsApp or e-mail.']] },
+  '#/permissions': { t: ['الصلاحيات', 'Permissions'], s: [
+    ['كل صلاحيات المنشأة في صفحة واحدة: صلاحيات كل شخص، وصلاحيات الأدوار في كل قسم، وجدول بما يراه كل دور.', 'Every permission in one page: each person\'s permissions, role permissions per department, and a map of what each role sees.'],
+    ['«تعديل الصلاحيات» يحدد أدوار الشخص وصلاحياته الخاصة، والخاصة تحل محل صلاحيات دوره في المالية والمخزون.', '«Edit permissions» sets a person\'s roles and personal permissions; personal ones replace the role\'s finance and inventory permissions.'],
+    ['المالك له كل الصلاحيات دائما، وكل تغيير يُحفظ في سجل التدقيق.', 'The owner always has every permission, and every change is kept in the audit log.']] },
   '#/support': { t: ['الدعم الفني', 'Support'], s: [
     ['اكتب سؤالك أو المشكلة، ويصلك رد فريق وعد هنا وعلى بريدك.', 'Write your question or problem; the Waad team replies here and by e-mail.']] },
 };

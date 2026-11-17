@@ -607,6 +607,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إعدادات المالية	Finance settings
 إعدادات المنشآت الجديدة	Settings for new companies
 إعدادات المنشأة	Company settings
+إعدادات المنشأة والمستخدمون	Company settings and users
 إعلان	announcement
 إعلان جديد	New announcement
 إعلانات جوجل	Google Ads
@@ -1786,6 +1787,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الصفحات المفتوحة	Pages opened
 الصق الرمز هنا واضغط	Paste the code here and press
 الصلاحيات	Permissions
+الصلاحيات الخاصة تحل محل صلاحيات دوره في المالية والمخزون	Personal permissions replace the role's finance and inventory permissions
 الصلاحيات يحددها مالك المنصة	Permissions are set by the platform owner
 الصلاحية	Role
 الصندوق	Cash
@@ -2013,12 +2015,14 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المالك له كل الصلاحيات دائما ولا تُعدَّل	The owner always has full access and it cannot be changed
 المالك له كل الصلاحيات دائماً	The owner always has full access
 المالك له كل الصلاحيات دائماً ولا تُعدَّل	The owner always has full access and it cannot be changed
+المالك والمدير المالي يرون كل شيء	The owner and the finance manager see everything
 المالك يملك كل الصلاحيات	The owner has full access
 المالية	Finance
 المالية حسب الصلاحيات المحددة له تحت	finance, limited to the permissions chosen below
 المالية والمحاسبة	Finance and accounting
 المبادرة وحل المشكلات	Initiative and problem solving
 المباشرة	Start
+المبالغ	amounts
 المبلغ	Amount
 المبلغ أعلى من حد المطالبة لفئة	The amount is above the claim limit for category
 المبلغ أكبر من المتبقي	The amount exceeds the remaining balance
@@ -2943,6 +2947,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تعديل الحضور	Correct attendance
 تعديل الحملة	Edit campaign
 تعديل الدورة	Edit course
+تعديل الصلاحيات	Edit permissions
 تعديل الفئة	Edit category
 تعديل الفرصة	Edit opportunity
 تعديل المشروع	Edit project
@@ -3367,6 +3372,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حدّثهم في التأمينات	update them in GOSI
 حدّد رئيس القسم	set the department head
 حدّد سعر الساعة للمشروع بالساعة	Set the hourly rate for an hourly project
+حدّد هنا ما يراه المحاسب وأمين المستودع في كل قسم	Set here what the accountant and the storekeeper see in each department
 حدّد هنا ما يراه غيرهم	Choose here what others can see
 حذف	Delete
 حذف الإعلان	Delete announcement
@@ -3425,7 +3431,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حسب الأقسام	By department
 حسب الاحتمال	by probability
 حسب الجهاز	match device
+حسب الدور	By role
 حسب الديانة في ملف الموظف	by the religion on the employee file
+حسب الصلاحيات المحددة	by the set permissions
 حسب العقد	per contract
 حسب القسم	By department
 حسب المادة	Under Article
@@ -3510,6 +3518,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 خدمات مالية	Financial services
 خدمات مرتبطة بنقل الركاب الدولي	Services connected with international passenger transport
 خدمات مرتبطة بنقل السلع والركاب	Services relating to goods or passenger transport
+خدماته	own services
 خدماته الذاتية	Self-service
 خدماتي	My services
 خدمة	Service
@@ -4136,11 +4145,16 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 صفرية أو معفاة	zero-rated or exempt
 صفقات مكسوبة	Deals won
 صلاحيات	Permissions of
+صلاحيات الأدوار حسب القسم	Role permissions by department
 صلاحيات المالية والمخزون لهذا الشخص	Finance and stock permissions for this person
 صلاحيات المحاسب وأمين المستودع	Accountant and storekeeper permissions
 صلاحيات المدير المالي ثابتة	The finance manager's permissions are fixed
 صلاحيات الموارد البشرية ومدير النظام يعدّلها المالك	HR and system admin access is changed by the owner
 صلاحيات الموارد البشرية ومدير النظام يمنحها المالك	HR and system admin roles are granted by the owner
+صلاحيات خاصة	Personal permissions
+صلاحيات كل الأقسام وكل شخص في صفحة مستقلة	Permissions for every department and person are on their own page
+صلاحيات كل الأقسام وكل شخص في صفحة مستقلة.	Permissions for every department and person are on their own page.
+صلاحيات كل شخص	Each person's permissions
 صلاحية	Expiry
 صلاحية الأصناف	Item expiry
 صلاحية المالك لا تُمنح من هنا	The owner role is not granted here
@@ -4230,6 +4244,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 طلبات كثيرة الآن	Too many applications right now
 طلبات معلقة	Pending requests
 طلباتك	Your requests
+طلباته	own requests
 طلباتي	My requests
 طلباتي قيد المعالجة	My requests in progress
 طلبك	your request
@@ -4460,6 +4475,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فتح المسير	Open the payroll
 فتح الموقع	Open the website
 فتح النظام	Open the system
+فتح صفحة الصلاحيات	Open the permissions page
 فتح وظيفة شاغرة	Open a job opening
 فتحت رابط استعادة كلمة المرور	You opened a password recovery link
 فتدخل في المسير والعمل الإضافي والغياب ومكافأة نهاية الخدمة	so they count in payroll, overtime, absence and end-of-service
@@ -4487,6 +4503,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فروقات عملة	exchange differences
 فريق وعد	Waad team
 فريقك	Your team
+فريقه	own team
 فريقي	My team
 فسخ بدون مكافأة	Dismissal without award
 فصيلة الدم	blood type
@@ -4633,6 +4650,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كل السعوديين يُحتسبون كاملاً	All Saudis are counted in full
 كل الشروحات	All guides
 كل الصلاحيات	all permissions
+كل القسم	the whole department
 كل المالية واعتماد المسير والقيود	all finance, approving payroll and journal entries
 كل المستندات والعقود سارية	all documents and contracts are valid
 كل المعاملات بالريال	all transactions are in riyals
@@ -4656,6 +4674,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كل سنة أو سنتين	every year or two
 كل سنتين	Every two years
 كل شيء عدا ملكية المنشأة	everything except company ownership
+كل صلاحيات المنشأة في مكان واحد	All the company's permissions in one place
 كل طلبات الموظفين التي لم يُبت فيها بعد	All employee requests not decided yet
 كل طلبات الموظفين التي لم يُبت فيها بعد: أين وصلت، وعند من، ومنذ متى	All employee requests not decided yet: where each has reached, who has it, and since when
 كل عضو يدخل اللوحة باسم مستخدم وكلمة مرور	Each member signs in with a username and password
@@ -4850,6 +4869,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يجوز تشغيل من لم يتم	No one may be employed under the age of
 لا يجوز توقيع الجزاء بعد مضي	A penalty may not be imposed after
 لا يجوز توقيع جزاء قبل إبلاغ العامل والتحقيق معه وسماع دفاعه	No penalty before notifying the worker in writing, questioning them and hearing their defence
+لا يرى القسم	does not see the department
 لا يشمل التقدير ذوي الإعاقة والطلاب والعمل الجزئي والمرن	The estimate does not cover disabled, student, part-time or flexible workers
 لا يصح تحديد تاريخ مؤجل للاستقالة	A resignation cannot carry a deferred date
 لا يطبق عليه	Does not apply
@@ -4948,6 +4968,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لازمة لملف حماية الأجور	needed for the wage protection file
 لاسترداد الضريبة أدخل الرقم الضريبي للمورد	To reclaim VAT enter the supplier VAT number
 لبناني	Lebanese
+لتحدد أدوار الشخص	to set the person's roles
 لترسل فواتيرك لزاتكا تلقائيا كما تشترط المرحلة الثانية	to send your invoices to ZATCA automatically, as Phase 2 requires
 لترسل فواتيرك لزاتكا تلقائياً كما تشترط المرحلة الثانية	to send your invoices to ZATCA automatically, as Phase 2 requires
 لتسجيل تصحيحات داخل السنة أعد فتح الفترة أيضا	to post corrections inside the year reopen the period too
@@ -5129,6 +5150,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ما فيه نماذج في هذا القسم	No forms in this section
 ما فيها أي بيانات من داخل المنشآت	with no data from inside the companies
 ما لقيت جوابك	Didn't find your answer
+ما لم تكن للشخص صلاحيات خاصة	unless the person has personal permissions
 ما مدى احتمال أن توصي بمنشأتنا كمكان عمل لصديق	How likely are you to recommend our company to a friend as a place to work
 ما نُسب للعامل وأقواله ودفاعه	the charge, the worker's statement and defence
 ما نُسب للعامل ودفاعه	the charge and the worker's defence
@@ -5139,6 +5161,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ما يمدّد	no extension
 ماجستير	Master's
 ماذا لو	What if
+ماذا يرى كل دور	What each role sees
 مالك المنصة	Platform owner
 مالك المنصة: كل الصلاحيات	Platform owner: all permissions
 ماليزي	Malaysian
@@ -5323,6 +5346,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مسؤول مبيعات	sales officer
 مسؤول مشتريات	Purchasing officer
 مساحة التوقيع	Signature area
+مسار اعتماد كل نوع طلب ومن يرفع طلبات الشراء يُحددان في	Each request type's approval path and who may raise purchase requests are set in
 مسار الاعتماد	Approval route
 مسار الطلب	Request journey
 مسارات الاعتماد	Approval routes
@@ -5558,6 +5582,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 من يرفع طلب الشراء	Who raises purchase requests
 من يرفعون له	direct reports
 من يرى الهيكل التنظيمي	Who sees the organisation chart
+من يرى ماذا في كل قسم	who sees what in each department
 من يعتمد كل نوع طلب وبأي ترتيب	Who approves each request type and in what order
 من ينضم يوم	Whoever joins on day
 منتقدون	Detractors
@@ -5822,6 +5847,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 هذه الصفحة للمالك والموارد البشرية	This page is for the owner and HR
 هذه الصفحة للمالك والموارد البشرية.	This page is for the owner and HR.
 هذه الصفحة للمالك ومدير النظام	This page is for the owner and system admin
+هذه الصفحة للمالك ومدير النظام والموارد البشرية والمدير المالي	This page is for the owner, the system admin, HR and the finance manager
+هذه الصفحة للمالك ومدير النظام والموارد البشرية والمدير المالي.	This page is for the owner, the system admin, HR and the finance manager.
 هذه الصفحة للمالك ومدير النظام.	This page is for the owner and system admin.
 هذه الصفحة للموارد البشرية	This page is for HR
 هذه الصفحة للموارد البشرية والمالية	This page is for HR and finance
@@ -5984,6 +6011,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وصل رأيك	your opinion was received
 وصل طلبك	Your application was received
 وصل طلبك إلى المنشأة	Your application reached the company
+وصلاحيات كل شخص	and each person's permissions
+وصلاحياته الخاصة	and personal permissions
 وصلت المنشأة إلى الحد الأعلى للمستخدمين في باقتها	The company has reached its plan's user limit
 وصلت المنشأة إلى الحد الأعلى للموظفين في باقتها	The company has reached its plan's employee limit
 وصلت حد	You reached the limit of
@@ -6233,6 +6262,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يمدّد الاشتراك بالأيام	Extends the subscription by days
 يمر الطلب على مديرك ثم المالية ثم المدير العام	The request goes to your manager, then finance, then the general manager
 يمر على المدير العام إذا زاد عن	Goes to the general manager above
+يمكن أكثر من دور	more than one is allowed
 يمكن اختيار أكثر من دور	more than one can be chosen
 يمكنك إعادة الإعداد ما دام المسير مسودة	You can prepare it again while the payroll is a draft
 يمكنك إنشاء رابط جديد لاحقا	you can make a new one later
