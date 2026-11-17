@@ -3322,6 +3322,21 @@ select t.ok((select positions = 2 and status = 'open' from public.job_openings w
   'workforce plan: an approved plan becomes a job opening');
 delete from public.headcount_plans where id = :'hp'; delete from public.job_openings where id = :'hpo';
 
+-- «الصلاحيات» under HR: every job gets configurable permissions (0111)
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.ok(not public.fin_can(:'cid', 'sales'), 'job permissions: a department manager does not see sales by default');
+select t.err($$select public.set_finance_permission('$$ || :'cid' || $$', 'manager', 'sales', true)$$, 'غير مصرح', 'job permissions: a manager cannot grant himself permissions');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.set_finance_permission(:'cid', 'manager', 'sales', true);
+select t.err($$select public.set_finance_permission('$$ || :'cid' || $$', 'owner', 'sales', false)$$, 'ثابتة', 'job permissions: the owner, admin and finance manager stay fixed');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.ok(public.fin_can(:'cid', 'sales') and not public.fin_can(:'cid', 'reports') and (select count(*) from public.finance_permissions where role = 'manager') = 1,
+  'job permissions: HR gives department managers sales, and they get only that (and can read their role''s grants)');
+reset role;
+delete from public.finance_permissions where company_id = :'cid' and role = 'manager';
+
 -- the owner's monthly e-mail also counts applicants, survey answers, new hires missing data and position requests (0110)
 select t.ok((select public.monthly_report(:'cid', current_date) ?& array['applicants','survey_answers','onb_missing','hc_pending']), 'monthly e-mail: applicants, survey answers, onboarding gaps and position requests are reported');
 -- GOSI: the yearly pension step for new-regime contributors falls on 1 July (0109)

@@ -824,7 +824,7 @@ VIEWS['#/settings'] = async page => {
      <div id="demoerr"></div></div>` : ''}
    ${has('owner') ? `<div class="card"><h2>${esc(tr('تصدير بيانات المنشأة'))}</h2><p class="muted small">${esc(tr('نسخة كاملة من كل بيانات منشأتك لحفظها لديك أو نقلها. للمالك فقط، ويُسجَّل كل تصدير في سجل التدقيق.'))}</p>
      <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn pri" id="exx">${esc(tr('ملفات Excel لكل قسم مع المرفقات (ZIP)'))}</button><button type="button" class="btn" id="exj">${esc((LANG === 'en' ? 'Full JSON file (with attachments)' : 'ملف JSON كامل (مع المرفقات)'))}</button></div><div id="exerr"></div></div>` : ''}
-   ${can('settings') ? `<div class="card"><h2>${esc(tr('الصلاحيات'))}</h2><p class="muted small">${esc(tr('صلاحيات كل الأقسام وكل شخص في صفحة مستقلة.'))}</p><a class="btn" href="#/permissions">${esc(tr('فتح صفحة الصلاحيات'))}</a></div>` : ''}`;
+`;
   if ($('#cf', page)) $('#cf', page).onsubmit = async e => { e.preventDefault(); const f = formData(e.target);
     try { await busy($('#cb', page), async () => { const pe = profileErr(f, false); if (pe) throw new Error(pe); await db.upd('companies', { id: 'eq.' + S.cid }, Object.assign({ name: f.name, name_en: blank((f.name_en || '').trim()), vat_no: blank(f.vat_no), cr_no: blank(f.cr_no), unified_no: blank(f.unified_no), mhrsd_no: blank(f.mhrsd_no), gosi_no: blank(f.gosi_no),
       phone: blank(f.phone), email: blank(f.email), iban: blank(f.iban), monthly_report: !!f.monthly_report }, profileRow(f), Object.fromEntries(SA_ADDR.map(([k]) => [k, blank(f[k])])), 'address' in f ? { address: blank(f.address) } : {})); await loadContext(); shell(); toast('تم الحفظ'); route(); }); } catch (er) { showErr($('#cerr', page), er); } };

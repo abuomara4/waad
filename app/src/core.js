@@ -215,8 +215,8 @@ const STATUS = { pending: ['بانتظار', 'wait'], approved: ['معتمد', '
 const badge = s => { const [t, c] = STATUS[s] || [s, '']; return `<span class="badge ${c}">${esc(t)}</span>`; };
 const has = (...roles) => roles.some(r => (S.roles || new Set([S.role])).has(r));
 const FIN_ALL = ['owner', 'admin', 'finance'];
-const can = p => has(...FIN_ALL) || (has('accountant', 'storekeeper') && S.perms.has(p));
-const isFin = () => has(...FIN_ALL, 'accountant', 'storekeeper');
+const can = p => has(...FIN_ALL) || S.perms.has(p);
+const isFin = () => has(...FIN_ALL, 'accountant', 'storekeeper') || (S.perms && S.perms.size > 0);
 const isHR = () => has('owner', 'admin', 'hr');
 
 function toast(m) { const t = $('#toast'); t.textContent = String(m == null ? '' : m).replace(NOTANWEEN, ''); t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 3200); }
@@ -450,7 +450,7 @@ async function loadContext(pre) {
   if (!S.companies.length) return false;
   let c = S.companies.find(x => x.company_id === S.cid) || S.companies[0];
   S.cid = c.company_id; LS.set('waad.cid', S.cid); S.role = c.role; S.roles = new Set(c.roles && c.roles.length ? c.roles : [c.role]); S.emp = c.employee_id; S.mustChange = !!c.must_change_password; if (c.code) { LS.set('waad.ccode', c.code); LS.set('waad.cname', c.name); }
-  const fr = ['accountant', 'storekeeper'].filter(r => S.roles.has(r));
+  const fr = ['accountant', 'storekeeper', 'hr', 'manager', 'employee'].filter(r => S.roles.has(r));   // roles whose permissions HR sets (0111)
   const [[co], [sub], , fp, me, pf, team] = await Promise.all([db.get('companies', { id: 'eq.' + S.cid }), db.get('company_subscriptions', { company_id: 'eq.' + S.cid }).catch(() => []), preloadNames(),
     fr.length ? db.get('finance_permissions', { company_id: 'eq.' + S.cid, role: 'in.(' + fr.join(',') + ')', select: 'perm' }) : [],
     S.emp ? db.get('employees', { id: 'eq.' + S.emp }) : [], S.emp ? db.get('petty_funds', { employee_id: 'eq.' + S.emp, select: 'id', limit: 1 }).catch(() => []) : [],
@@ -586,7 +586,7 @@ function navItems() {
   if (has('manager') && !(isHR() || has('finance'))) it.push({ h: '#/clearance', t: 'إخلاء الطرف' });
   if (isHR() || has('finance')) {
     g('الموارد البشرية');
-    if (isHR()) it.push({ h: '#/hrdash', t: 'لوحة الموارد البشرية' }, { h: '#/compliance', t: 'الامتثال' }, { h: '#/onboarding', t: 'التهيئة والترحيب' }, { h: '#/announcements', t: 'الإعلانات الداخلية' });
+    if (isHR()) it.push({ h: '#/hrdash', t: 'لوحة الموارد البشرية' }, { h: '#/compliance', t: 'الامتثال' }, { h: '#/onboarding', t: 'التهيئة والترحيب' }, { h: '#/announcements', t: 'الإعلانات الداخلية' }, { h: '#/permissions', t: 'الصلاحيات' });
     if (isHR() && !S.emp) it.push({ h: '#/surveys', t: 'الاستبيانات' });
     if (isHR() || has('finance')) it.push({ h: '#/workforce', t: 'خطة القوى العاملة' });
     if (isHR()) it.push({ h: '#/employees', t: 'الموظفون' }, { h: '#/docs', t: 'المستندات والعقود', pill: NAVC.docs });
@@ -640,7 +640,7 @@ function navItems() {
     if (has('owner', 'admin', 'finance')) it.push({ h: '#/periods', t: 'إقفال الفترات والسنة' }, { h: '#/opening', t: 'الأرصدة الافتتاحية' });
   }
   if (has('owner', 'admin', 'finance', 'hr') || can('proj')) { g('المشاريع'); it.push({ h: '#/projects', t: 'المشاريع وجداول الوقت' }); }
-  if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); it.push({ h: '#/companydocs', t: 'مستندات المنشأة والسيارات' }); if (has('owner', 'admin')) it.push({ h: '#/customfields', t: 'الحقول المخصصة' }); if (has('owner', 'admin', 'hr')) it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); it.push({ h: '#/permissions', t: 'الصلاحيات' }); }
+  if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); it.push({ h: '#/companydocs', t: 'مستندات المنشأة والسيارات' }); if (has('owner', 'admin')) it.push({ h: '#/customfields', t: 'الحقول المخصصة' }); if (has('owner', 'admin', 'hr')) it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); }
   return it;
 }
 function shell() {

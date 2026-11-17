@@ -10,19 +10,21 @@ const PERM_DEPTS = [
   ['المالية والمحاسبة', ['dash', 'je', 'jepost', 'ledger', 'reports', 'vat', 'coa', 'payroll', 'settings']],
   ['المشاريع', ['proj']]];
 // what each role covers, per department (✓ all, ◐ by permission, — none)
+const PERM_ROLES = ['hr', 'manager', 'accountant', 'storekeeper', 'employee'];   // the jobs whose permissions HR sets (0111)
 const ROLE_MAP = [
   ['الموارد البشرية', { owner: '✓', admin: '✓', hr: '✓', finance: 'الرواتب', manager: 'فريقه', accountant: '—', storekeeper: '—', employee: 'خدماته' }],
   ['الاعتمادات', { owner: '✓', admin: '✓', hr: '✓', finance: 'المبالغ', manager: 'فريقه', accountant: '—', storekeeper: '—', employee: 'طلباته' }],
-  ['المالية والمحاسبة', { owner: '✓', admin: '✓', hr: '—', finance: '✓', manager: '—', accountant: '◐', storekeeper: '—', employee: '—' }],
-  ['المبيعات والتسويق', { owner: '✓', admin: '✓', hr: '—', finance: '✓', manager: '—', accountant: '◐', storekeeper: '—', employee: '—' }],
-  ['المشتريات', { owner: '✓', admin: '✓', hr: '—', finance: '✓', manager: 'طلب شراء', accountant: '◐', storekeeper: '◐', employee: '—' }],
-  ['المخزون', { owner: '✓', admin: '✓', hr: '—', finance: '✓', manager: '—', accountant: '◐', storekeeper: '◐', employee: '—' }],
-  ['المشاريع', { owner: '✓', admin: '✓', hr: '—', finance: '✓', manager: '—', accountant: '◐', storekeeper: '—', employee: '—' }],
+  ['المالية والمحاسبة', { owner: '✓', admin: '✓', hr: '◐', finance: '✓', manager: '◐', accountant: '◐', storekeeper: '◐', employee: '◐' }],
+  ['المبيعات والتسويق', { owner: '✓', admin: '✓', hr: '◐', finance: '✓', manager: '◐', accountant: '◐', storekeeper: '◐', employee: '◐' }],
+  ['المشتريات', { owner: '✓', admin: '✓', hr: '◐', finance: '✓', manager: '◐', accountant: '◐', storekeeper: '◐', employee: '◐' }],
+  ['المخزون', { owner: '✓', admin: '✓', hr: '◐', finance: '✓', manager: '◐', accountant: '◐', storekeeper: '◐', employee: '◐' }],
+  ['المشاريع', { owner: '✓', admin: '✓', hr: '◐', finance: '✓', manager: '◐', accountant: '◐', storekeeper: '◐', employee: '◐' }],
   ['إعدادات المنشأة والمستخدمون', { owner: '✓', admin: '✓', hr: 'المستخدمون', finance: 'المالية', manager: '—', accountant: '—', storekeeper: '—', employee: '—' }]];
 VIEWS['#/permissions'] = async page => {
   if (!(isHR() || can('settings'))) { page.innerHTML = `<div class="note">${esc(tr('هذه الصفحة للمالك ومدير النظام والموارد البشرية والمدير المالي.'))}</div>`; return; }
+  const editGrid = isHR() || can('settings');
   const [mem, em, mpr, fp, inv] = await Promise.all([db.get('members', { company_id: 'eq.' + S.cid, order: 'created_at' }), employeesMap(),
-    isHR() ? db.get('member_perms', { company_id: 'eq.' + S.cid }).catch(() => []) : [], can('settings') ? db.get('finance_permissions', { company_id: 'eq.' + S.cid }).catch(() => []) : [],
+    isHR() ? db.get('member_perms', { company_id: 'eq.' + S.cid }).catch(() => []) : [], db.get('finance_permissions', { company_id: 'eq.' + S.cid }).catch(() => []),
     db.get('invites', { company_id: 'eq.' + S.cid, select: 'email,accepted_by' }).catch(() => [])]);
   const mp = {}; mpr.forEach(x => (mp[x.user_id] = mp[x.user_id] || []).push(x.perm));
   const mail = {}; inv.forEach(i => { if (i.accepted_by) mail[i.accepted_by] = i.email; }); mail[S.session.user.id] = S.session.user.email;
@@ -37,10 +39,10 @@ VIEWS['#/permissions'] = async page => {
         { t: 'الأدوار', h: m => rolesOf(m).map(r => `<span class="badge${r === 'owner' ? ' info' : ''}">${esc(tr(ROLES[r] || r))}</span>`).join(' ') },
         { t: 'صلاحيات خاصة', h: m => (mp[m.user_id] || []).length ? `<span class="small">${mp[m.user_id].map(p => esc(tr(FPERMS[p] || p))).join('، ')}</span>` : `<span class="muted small">${esc(tr('حسب الدور'))}</span>` },
         { t: '', h: m => canAcc(m) ? `<button class="btn sm pri" data-pacc="${m.user_id}">${esc(tr('تعديل الصلاحيات'))}</button>` : '' }], mem)}</div>` : ''}
-    ${can('settings') ? `<div class="card"><h2>${esc(tr('صلاحيات الأدوار حسب القسم'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('المالك والمدير المالي يرون كل شيء. حدّد هنا ما يراه المحاسب وأمين المستودع في كل قسم، ما لم تكن للشخص صلاحيات خاصة.'))}</p>
-      <div class="tw"><table><thead><tr><th>${esc(tr('الصلاحيات'))}</th><th class="c">${esc(tr('محاسب'))}</th><th class="c">${esc(tr('أمين مستودع'))}</th></tr></thead><tbody>
-      ${PERM_DEPTS.map(([d, ps]) => `<tr class="pgrp"><td colspan="3"><b>${esc(tr(d))}</b></td></tr>` + ps.filter(p => FPERMS[p]).map(p => `<tr><td>${esc(tr(FPERMS[p]))}</td>${['accountant', 'storekeeper'].map(r => `<td class="c"><input type="checkbox" data-r="${r}" data-p="${p}" ${on(r, p) ? 'checked' : ''} aria-label="${esc(tr(FPERMS[p]) + ' — ' + tr(ROLES[r]))}"></td>`).join('')}</tr>`).join('')).join('')}
-      </tbody></table></div></div>` : ''}
+    ${editGrid ? `<div class="card"><h2>${esc(tr('صلاحيات كل وظيفة حسب القسم'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('حدد لكل وظيفة ما تراه وما تعمله في كل قسم. المالك ومدير النظام والمدير المالي يرون كل شيء دائما. الصلاحيات الخاصة لأي شخص تحل محل صلاحيات وظيفته.'))}</p>
+      <div class="tw"><table class="permg"><thead><tr><th>${esc(tr('الصلاحيات'))}</th>${PERM_ROLES.map(r => `<th class="c small">${esc(tr(ROLES[r]))}</th>`).join('')}</tr></thead><tbody>
+      ${PERM_DEPTS.map(([d, ps]) => `<tr class="pgrp"><td colspan="${PERM_ROLES.length + 1}"><b>${esc(tr(d))}</b></td></tr>` + ps.filter(p => FPERMS[p]).map(p => `<tr><td>${esc(tr(FPERMS[p]))}</td>${PERM_ROLES.map(r => `<td class="c"><input type="checkbox" data-r="${r}" data-p="${p}" ${on(r, p) ? 'checked' : ''} aria-label="${esc(tr(FPERMS[p]) + ' — ' + tr(ROLES[r]))}"></td>`).join('')}</tr>`).join('')).join('')}
+      </tbody></table></div><p class="muted small">${esc(tr('تنبيه: ما تمنحه لوظيفة «موظف» يصل لكل الموظفين.'))}</p></div>` : ''}
     <div class="card"><h2>${esc(tr('ماذا يرى كل دور'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('✓ كل القسم · ◐ حسب الصلاحيات المحددة · — لا يرى القسم'))}</p>
       <div class="tw"><table><thead><tr><th>${esc(tr('القسم'))}</th>${roles.map(r => `<th class="c small">${esc(tr(ROLES[r]))}</th>`).join('')}</tr></thead><tbody>
       ${ROLE_MAP.map(([d, m]) => `<tr><td>${esc(tr(d))}</td>${roles.map(r => `<td class="c small">${esc(m[r].length > 1 ? tr(m[r]) : m[r])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>

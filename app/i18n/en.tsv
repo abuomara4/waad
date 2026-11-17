@@ -1788,6 +1788,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الصق الرمز هنا واضغط	Paste the code here and press
 الصلاحيات	Permissions
 الصلاحيات الخاصة تحل محل صلاحيات دوره في المالية والمخزون	Personal permissions replace the role's finance and inventory permissions
+الصلاحيات الخاصة لأي شخص تحل محل صلاحيات وظيفته	A person's own permissions replace their job's permissions
 الصلاحيات يحددها مالك المنصة	Permissions are set by the platform owner
 الصلاحية	Role
 الصندوق	Cash
@@ -2016,6 +2017,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المالك له كل الصلاحيات دائماً	The owner always has full access
 المالك له كل الصلاحيات دائماً ولا تُعدَّل	The owner always has full access and it cannot be changed
 المالك والمدير المالي يرون كل شيء	The owner and the finance manager see everything
+المالك ومدير النظام والمدير المالي يرون كل شيء دائما	The owner, the system admin and the finance manager always see everything
 المالك يملك كل الصلاحيات	The owner has full access
 المالية	Finance
 المالية حسب الصلاحيات المحددة له تحت	finance, limited to the permissions chosen below
@@ -3112,6 +3114,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تنبيه	Note
 تنبيه للمعتمد	Warn the approver
 تنبيه مهم	Important notice
+تنبيه: ما تمنحه لوظيفة «موظف» يصل لكل الموظفين.	Note: what you give the «Employee» job reaches every employee.
 تنبيهات خلال	Alerts within
 تنتهي	Expiring:
 تنتهي التجربة	Trial ends
@@ -3363,6 +3366,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حدد طريقة التحقيق	Choose the investigation method
 حدد فترة التقييم بشكل صحيح	Set a valid review period
 حدد قيمة التذكرة في ملف الموظف	Set the ticket value in the employee file
+حدد لكل وظيفة ما تراه وما تعمله في كل قسم	Set what each job sees and does in each department
 حدد موعد المقابلة أولا	Set the interview time first
 حدد نسبة أو مبلغ الزيادة	Set a percentage or an amount
 حدد يوما مضى	Choose a past day
@@ -4146,6 +4150,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 صفقات مكسوبة	Deals won
 صلاحيات	Permissions of
 صلاحيات الأدوار حسب القسم	Role permissions by department
+صلاحيات المالك ومدير النظام والمدير المالي ثابتة	The owner's, system admin's and finance manager's permissions are fixed
 صلاحيات المالية والمخزون لهذا الشخص	Finance and stock permissions for this person
 صلاحيات المحاسب وأمين المستودع	Accountant and storekeeper permissions
 صلاحيات المدير المالي ثابتة	The finance manager's permissions are fixed
@@ -4155,6 +4160,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 صلاحيات كل الأقسام وكل شخص في صفحة مستقلة	Permissions for every department and person are on their own page
 صلاحيات كل الأقسام وكل شخص في صفحة مستقلة.	Permissions for every department and person are on their own page.
 صلاحيات كل شخص	Each person's permissions
+صلاحيات كل وظيفة حسب القسم	Each job's permissions by department
 صلاحية	Expiry
 صلاحية الأصناف	Item expiry
 صلاحية المالك لا تُمنح من هنا	The owner role is not granted here
@@ -5131,6 +5137,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ما الذي تقترح تحسينه	What do you suggest improving
 ما الذي كان سيجعل انضمامك أسهل	What would have made joining easier
 ما السبب الرئيسي لمغادرتك	What is the main reason you are leaving
+ما تمنحه لوظيفة	What you give the job
 ما طُبع شي للحين	Nothing printed yet
 ما فيه أخطاء في هذي الفترة	No errors in this period
 ما فيه أسئلة	No questions
@@ -6213,6 +6220,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يصدر النموذج لـ	Form issued to
 يصل إلى	Goes to
 يصل الطلب للموظف في	The request reaches the employee in
+يصل لكل الموظفين	reaches every employee
 يصل للمالك أول كل شهر بمبيعات الشهر الماضي ومشترياته ورواتبه والمتأخرات وما ينتظر الاعتماد	sent to the owner at the start of each month with last month's sales, purchases, payroll, overdue invoices and pending approvals
 يصير أدمن بعد التفعيل	It becomes an admin once activated
 يصير الاشتراك	the subscription becomes
