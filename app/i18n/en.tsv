@@ -462,6 +462,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إخلاء الطرف غير مكتمل	Clearance is incomplete
 إخلاء طرف غير مكتمل	Incomplete clearances
 إدارة الأصناف	Manage items
+إدارة الفريق	Team management
+إدارة الفريق (إضافة وحذف وكلمات المرور)	Team management (add, remove, passwords)
+إدارة الفريق لمالك المنصة فقط	Managing the team is for the platform owner only
+إدارة الفريق وصلاحياته لمالك المنصة	Managing the team and its permissions is for the platform owner
+إدارة الفريق وصلاحياته لمالك المنصة.	Managing the team and its permissions is for the platform owner.
 إدارة الورديات	Manage shifts
 إدخال عرض مورد	Enter a supplier offer
 إدخال يدوي	Manual entry
@@ -533,6 +538,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إضافة	Add
 إضافة أيام التعويض	Add compensation days
 إضافة إلى الشاشة الرئيسية	Add to Home Screen
+إضافة الأعضاء وحذفهم وتعيين كلمات مرورهم لمالك المنصة فقط	Adding and removing members and setting their passwords is for the platform owner only
+إضافة الأعضاء وحذفهم وتعيين كلمات مرورهم لمالك المنصة فقط.	Adding and removing members and setting their passwords is for the platform owner only.
 إضافة الملاحظة	Add note
 إضافة الموظفين الجدد	Add new employees
 إضافة بدل	Allowance added
@@ -550,6 +557,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إضافة مرفق	Add attachment
 إضافة من الفرص	Add from opportunities
 إضافة موظف	Add employee
+إضافة وحذف وكلمات المرور	add, remove, passwords
 إضافي	Overtime
 إضافي معتمد	Approved overtime
 إطلاق الخدمة	service launch
@@ -576,6 +584,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إعداد الموازنة	Set up budget
 إعداد مسير	Prepare payroll
 إعداد مسير شهر	Prepare monthly payroll
+إعدادات اللوحة	Panel settings
 إعدادات المالية	Finance settings
 إعدادات المنشآت الجديدة	Settings for new companies
 إعدادات المنشأة	Company settings
@@ -782,6 +791,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اختر كلمة مرور جديدة لحسابك	choose a new password for your account
 اختر كلمة مرور خاصة بك لا يعرفها غيرك	Choose your own password that nobody else knows
 اختر لكل بند الصنف أو حساب المصروف	Choose an item or expense account for each line
+اختر ما يقدر يعدّله	choose what they can change
 اختر مرحلة اعتماد واحدة على الأقل	Choose at least one approval step
 اختر مستودعين مختلفين	Choose two different warehouses
 اختر ملفا	Choose a file
@@ -928,6 +938,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اضغط على المنشأة لقبولها كتجربة أو اشتراك	Click a company to accept it as a trial or a subscription
 اضغط على خطأ لتشوف مكانه في الكود والمتصفح	Click an error to see where it happened in the code and browser
 اضغط على عضو لإعادة تعيين كلمة مروره أو حذفه من الفريق	Click a member to reset their password or remove them from the team
+اضغط على عضو لإعادة تعيين كلمة مروره أو حذفه من الفريق. الصلاحيات يحددها مالك المنصة.	Click a member to reset their password or remove them from the team. Permissions are set by the platform owner.
+اضغط على عضو لإعادة تعيين كلمة مروره أو صلاحية التصدير أو حذفه من الفريق	Click a member to reset their password, change the export permission or remove them from the team
+اضغط على عضو لإعادة تعيين كلمة مروره أو صلاحية التصدير أو حذفه من الفريق.	Click a member to reset their password, change the export permission or remove them from the team.
+اضغط على عضو لتحديد صلاحياته أو إعادة تعيين كلمة مروره أو حذفه من الفريق	Click a member to set their permissions, reset their password or remove them from the team
+اضغط على عضو لتحديد صلاحياته أو إعادة تعيين كلمة مروره أو حذفه من الفريق.	Click a member to set their permissions, reset their password or remove them from the team.
 اضغط لإضافة خانة تتعبّى تلقائيا	Click to add a field that fills in automatically
 اضغط لإضافة خانة تتعبّى تلقائياً	Click to add a field that fills in automatically
 اضغط لإضافة خانة تُعبّأ تلقائيا	Click to add a field that fills in automatically
@@ -945,6 +960,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اطلب عروضاً من أكثر من مورد	Ask several suppliers for offers
 اطلب من الموارد البشرية إعادة تعيينها	ask HR to reset it
 اطلب من الموارد البشرية ربطه	Ask HR to link it
+اطلبها من مالك المنصة	ask the platform owner for it
 اطّلع	Acknowledged
 اطّلع الموظف في	The employee acknowledged on
 اطّلع وأرسل ردك الكتابي	review it and send your written reply
@@ -1452,6 +1468,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الحد الأقصى	The maximum is
 الحد الأقصى لهذه الإجازة	The maximum for this leave is
 الحدود الشهرية من لائحة المنشأة الداخلية	Monthly limits come from the company's internal regulation
+الحذف النهائي لمالك المنصة فقط	Permanent deletion is for the platform owner only
+الحذف النهائي لمالك المنصة فقط.	Permanent deletion is for the platform owner only.
 الحذف نهائي	Deletion is permanent
 الحذف نهائي: تُحذف كل بيانات المنشأة وحسابات دخول موظفيها، ويبقى في وعد سجل مختصر بالحذف ودفعات الاشتراك فقط. النسخ الاحتياطية المشفّرة تُمسح تلقائيا خلال ٣٠ يوما.	Deletion is permanent: all the company's data and its staff sign-in accounts are deleted; Waad keeps only a short record of the deletion and the subscription payments. Encrypted backups are erased automatically within 30 days.
 الحساب	Account
@@ -1512,6 +1530,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الدفع	Payment
 الدفعات	Payments
 الدفعات التي تنتهي خلال المدة المختارة أو انتهت	Batches expiring within the chosen period or already expired
+الدفعات والباقات والأسعار	Payments, plans and prices
 الدفعة	Batch
 الدقائق المحوّلة	Minutes to convert
 الدقائق المحوّلة لا تُصرف في المسير	converted minutes are not paid in payroll
@@ -1543,6 +1562,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الربط مع فاتورة	Link with Fatoora
 الربط مع فاتورة لمالك المنشأة أو مديرها	Linking to Fatoora is for the company owner or an admin
 الربع	Quarter
+الرد على طلبات الدعم	Replying to support requests
 الرصيد	Balance
 الرصيد الافتتاحي يكون زيادة في الكمية	Opening stock must be an increase in quantity
 الرصيد المتاح	available balance
@@ -1697,6 +1717,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الصفحات المفتوحة	Pages opened
 الصق الرمز هنا واضغط	Paste the code here and press
 الصلاحيات	Permissions
+الصلاحيات يحددها مالك المنصة	Permissions are set by the platform owner
 الصلاحية	Role
 الصندوق	Cash
 الصنف	Item
@@ -2780,8 +2801,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تصدرها الموارد البشرية بعد الاعتماد	HR issues it after approval
 تصدير	Export
 تصدير الأقسام	Export departments
+تصدير البيانات بطلب المالك	Export data at the owner's request
 تصدير البيانات لمالك المنشأة فقط	Only the company owner can export the data
 تصدير الموظفين	Export employees
+تصدير بيانات المنشآت بطلب المالك	Exporting company data at the owner's request
 تصدير بيانات المنشآت لمالك منصة وعد فقط	Exporting company data is for the Waad platform owner only
 تصدير بيانات المنشأة	Export company data
 تصدير بيانات المنشأة بطلب المالك	Export the company data at the owner's request
@@ -3222,6 +3245,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حذف الفاتورة المتكررة	Delete recurring invoice
 حذف المرفق	Delete attachment
 حذف المستند	Delete document
+حذف المنشآت نهائيا	Deleting companies permanently
 حذف المنشأة نهائيا	Delete the company permanently
 حذف المنشأة نهائيا…	Delete the company permanently…
 حذف المهمة	Delete task
@@ -3252,6 +3276,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حساب جديد بالبريد	New account by email
 حساب فرعي	Sub-account
 حساب فرعي جديد	New sub-account
+حساب مالك المنصة لا يُعدّل إلا منه	The platform owner's account can only be changed by him
 حسابات	Accounts
 حسابات الدخول	Sign-in accounts
 حسابات المصروفات	Expense accounts
@@ -3726,6 +3751,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 سجّله في التأمينات	register in GOSI
 سجّلها بقيد يدوي من	record it with a manual entry from
 سحب	Revoke
+سحب صلاحية التصدير	Remove the export permission
 سداد الشراء	Purchase payment
 سريلانكي	Sri Lankan
 سطر	line
@@ -4087,6 +4113,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عرض المخزون	View stock
 عرض سعر	Quotation
 عرض سعر جديد	New quotation
+عرض فقط	View only
 عرض كقائمة	Show as list
 عرض كمراحل	Show as stages
 عرض مورد	Supplier offer
@@ -4343,6 +4370,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قبول	Accept
 قبول التظلم وإلغاء الجزاء	Accept grievance and cancel the penalty
 قبول العميل	Customer accepted
+قبول المنشآت والاشتراكات	Accepting companies and subscriptions
 قبول المنشأة	Accept company
 قبول تجربة	Accept trial
 قبول مؤجل	Deferred acceptance
@@ -4389,6 +4417,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كشف حساب	Statement
 كشف رصيد الإجازة السنوية	Annual leave statement
 كل	Every
+كل الأعضاء يرون المنشآت ويسجلون التواصل معها	All members see the companies and log contact with them
+كل الأعضاء يرون المنشآت ويسجلون التواصل معها. اختر ما يقدر يعدّله.	All members see the companies and log contact with them. Choose what they can change.
 كل الأقسام	All departments
 كل الأنواع	All types
 كل الجنسيات	All nationalities
@@ -4398,6 +4428,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كل السعوديين يُحتسبون كاملا	All Saudis are counted in full
 كل السعوديين يُحتسبون كاملاً	All Saudis are counted in full
 كل الشروحات	All guides
+كل الصلاحيات	all permissions
 كل المالية واعتماد المسير والقيود	all finance, approving payroll and journal entries
 كل المستندات والعقود سارية	all documents and contracts are valid
 كل المعاملات بالريال	all transactions are in riyals
@@ -4828,6 +4859,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ليس صورة أو	is not an image or
 ليس في ورقة هذا الجرد	Not on this count sheet
 ليست لديك صلاحية لهذا الإجراء	You don't have permission for this action
+ليست لديك هذه الصلاحية في لوحة الإدارة	You do not have this permission on the admin site
+ليست لديك هذه الصلاحية في لوحة الإدارة — اطلبها من مالك المنصة	You do not have this permission on the admin site — ask the platform owner for it
 ليظهر أعلى الخطاب	to show it at the top of letters
 ليظهر لك نظام الطلبات وقسائم الراتب	so requests and payslips appear for you
 ليلي	dark
@@ -4871,6 +4904,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ما يمدّد	no extension
 ماجستير	Master's
 ماذا لو	What if
+مالك المنصة	Platform owner
+مالك المنصة: كل الصلاحيات	Platform owner: all permissions
 ماليزي	Malaysian
 مباشر	Direct
 مبالغ سالبة في الحساب	Negative amounts in account
@@ -4890,6 +4925,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 متأخرون اليوم	Late today
 متابعات مستحقة	Follow-ups due
 متابعة	Continue
+متابعة المنشآت والدعم	Companies and support
 متابعة جديدة	New follow-up
 متابعة كل الطلبات	Track all requests
 متاح فقط قبل تسجيل أي عملية أخرى	Available only before any other transaction is recorded.
@@ -5271,6 +5307,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 منتهية	Ended
 منتهٍ	Ended
 منجزة	Done
+منح صلاحية التصدير	Give the export permission
 مندوب	Sales rep
 مندوب / مسؤول مبيعات	Sales rep
 منذ	for
@@ -5400,6 +5437,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نصغّر الصورة تلقائياً	the image is resized automatically
 نصف	half
 نصف قطر النطاق	Geofence radius
+نصوص الموقع والإعلانات	Website texts and announcements
 نطاقات	Nitaqat
 نطاقات والتوطين	Nitaqat & Saudization
 نظام التأمينات	GOSI regime
@@ -5480,6 +5518,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 هذا إيصال استلام وليس فاتورة ضريبية	This is a receipt of payment, not a tax invoice
 هذا الأسبوع	This week
 هذا الإجراء لا يمكن التراجع عنه	This action cannot be undone
+هذا الإجراء لمالك منصة وعد فقط	This action is for the Waad platform owner only
 هذا الإجراء يتطلب أحد الأدوار	this action requires one of the roles
 هذا البريد قبل الدعوة مسبقا	This email has already accepted the invitation
 هذا البريد قبل الدعوة مسبقاً	This email has already accepted the invitation

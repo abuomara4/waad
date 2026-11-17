@@ -19,7 +19,11 @@ async function quickAct(c, act, days, st) {
   else { await db.rpc('platform_quick', { p_company: c.company_id, p_action: act, p_days: days || null }); toast(tr('تم الحفظ')); }
   platformView();
 }
-const quickBtns = c => { const b = (a, t, d) => `<button type="button" class="btn sm" data-q="${a}" data-d="${d || ''}" data-c="${esc(c.company_id)}">${esc(tr(t))}</button>`;
+// what the signed-in team member may do (0104); the server checks every action again
+const PPERMS = [['subs', 'قبول المنشآت والاشتراكات'], ['billing', 'الدفعات والباقات والأسعار'], ['site', 'نصوص الموقع والإعلانات'], ['support', 'الرد على طلبات الدعم'],
+  ['settings', 'إعدادات اللوحة'], ['export', 'تصدير بيانات المنشآت بطلب المالك'], ['purge', 'حذف المنشآت نهائيا'], ['team', 'إدارة الفريق (إضافة وحذف وكلمات المرور)']];
+const pcan = p => !!(S.pme && (S.pme.super || (S.pme.perms || []).includes(p)));
+const quickBtns = c => { if (!pcan('subs')) return ''; const b = (a, t, d) => `<button type="button" class="btn sm" data-q="${a}" data-d="${d || ''}" data-c="${esc(c.company_id)}">${esc(tr(t))}</button>`;
   return c.status === 'pending' ? b('approve', 'قبول تجربة') : c.status === 'suspended' ? b('resume', 'إعادة تفعيل')
     : b('extend', '+٧ أيام', 7) + ' ' + b('extend', '+٣٠ يوم', 30); };
 function bindQuick(root, rows, st) {
@@ -345,13 +349,15 @@ const credsBox = (u, pw) => `<p>${esc(tr('أرسل له بياناته، وبي�
 PV.team = async page => {
   const rows = await db.rpc('platform_team');
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('فريق وعد'))}</h1><div class="muted">${esc(tr('كل عضو يدخل اللوحة باسم مستخدم وكلمة مرور. تضيفه بكلمة مرور مؤقتة، ويغيّرها أول ما يدخل.'))}</div></div>
-      <button class="btn pri" id="tadd">${esc(tr('إضافة عضو'))}</button></div>
+      ${pcan('team') ? `<button class="btn pri" id="tadd">${esc(tr('إضافة عضو'))}</button>` : ''}</div>
     ${tbl([{ t: 'اسم المستخدم', h: a => `<b dir="ltr">${esc(a.username || a.email)}</b>` + (a.is_me ? ` <span class="badge info">${esc(tr('أنت'))}</span>` : '') },
       { t: 'آخر دخول', h: a => a.last_sign_in ? `<span class="num">${esc(String(a.last_sign_in).slice(0, 10))}</span>` : '—' },
+      { t: 'الصلاحيات', h: a => a.is_super ? `<span class="badge info">${esc(tr('مالك المنصة: كل الصلاحيات'))}</span>`
+          : (a.perms || []).length ? PPERMS.filter(([k]) => a.perms.includes(k)).map(([, t]) => `<span class="badge">${esc(tr(t))}</span>`).join(' ') : `<span class="muted small">${esc(tr('عرض فقط'))}</span>` },
       { t: 'التحقق بخطوتين', h: a => `<span class="badge ${a.mfa ? 'ok' : 'wait'}">${esc(tr(a.mfa ? 'مفعّل' : 'غير مفعّل'))}</span>` },
       { t: 'كلمة المرور', h: a => a.must_change ? `<span class="badge wait">${esc(tr('مؤقتة'))}</span>` : `<span class="muted small">${esc(tr('خاصة به'))}</span>` }], rows, { empty: 'لا يوجد أعضاء', onRow: true })}
-    <p class="muted small">${esc(tr('اضغط على عضو لإعادة تعيين كلمة مروره أو حذفه من الفريق.'))}</p>`;
-  $('#tadd', page).onclick = () => {
+    <p class="muted small">${esc(tr((S.pme || {}).super ? 'اضغط على عضو لتحديد صلاحياته أو إعادة تعيين كلمة مروره أو حذفه من الفريق.' : pcan('team') ? 'اضغط على عضو لإعادة تعيين كلمة مروره أو حذفه من الفريق. الصلاحيات يحددها مالك المنصة.' : 'إدارة الفريق وصلاحياته لمالك المنصة.'))}</p>`;
+  if ($('#tadd', page)) $('#tadd', page).onclick = () => {
     const pw = tempPw();
     modal(tr('إضافة عضو لفريق وعد'), `<div class="fg">${field('اسم المستخدم (إنجليزي، بدون مسافات)', '<input name="user" required dir="ltr" autocapitalize="none" spellcheck="false" placeholder="sara">')}
         ${field('كلمة المرور المؤقتة', `<input name="pw" required dir="ltr" value="${esc(pw)}">`)}</div>`, {
@@ -367,14 +373,20 @@ PV.team = async page => {
   };
   bindRows(page, rows, a => {
     if (a.is_me) return changePasswordView(false);
+    if (!pcan('team') && !(S.pme || {}).super) return toast(tr('إدارة الفريق لمالك المنصة فقط'));
+    if (a.is_super) return toast(tr('حساب مالك المنصة لا يُعدّل إلا منه'));
     if (!a.username) return toast(tr('هذا الحساب يدخل بالبريد'));
     const pw = tempPw();
     const d = modal(tr('عضو الفريق') + ': ' + a.username, `<div class="fg">${field('كلمة مرور مؤقتة جديدة', `<input name="pw" required dir="ltr" value="${esc(pw)}">`)}</div>
-      <button type="button" class="btn sm" id="trm" style="margin-top:12px">${esc(tr('حذف من الفريق'))}</button>`, {
+      ${(S.pme || {}).super ? `<h3 style="margin:14px 0 6px">${esc(tr('الصلاحيات'))}</h3><div class="muted small" style="margin-bottom:6px">${esc(tr('كل الأعضاء يرون المنشآت ويسجلون التواصل معها. اختر ما يقدر يعدّله.'))}</div>
+        <div style="display:grid;gap:6px">${PPERMS.map(([k, t]) => `<label class="row" style="gap:8px"><input type="checkbox" data-pp="${k}"${(a.perms || []).includes(k) ? ' checked' : ''}> ${esc(tr(t))}</label>`).join('')}</div>
+        <button type="button" class="btn sm pri" id="tpp" style="margin-top:8px">${esc(tr('حفظ الصلاحيات'))}</button>` : ''}
+      <div class="row" style="gap:6px;margin-top:12px;flex-wrap:wrap"><button type="button" class="btn sm" id="trm">${esc(tr('حذف من الفريق'))}</button></div>`, {
       ok: 'إعادة تعيين كلمة المرور', onOk: async f => {
         await db.rpc('platform_reset_admin_password', { p_username: a.username, p_password: f.pw });
         setTimeout(() => { modal(tr('تم تعيين كلمة مرور مؤقتة'), credsBox(a.username, f.pw)); platformView(); }, 0);
       } });
+    if ($('#tpp', d)) $('#tpp', d).onclick = async () => { try { await db.rpc('platform_set_perms', { p_username: a.username, p_perms: $$('[data-pp]', d).filter(x => x.checked).map(x => x.dataset.pp) }); $('#dlg').close(); toast(tr('تم الحفظ')); } catch (e) { toast(e.message); } platformView(); };
     $('#trm', d).onclick = async () => {
       if (!(await confirmBox(tr('حذف من الفريق'), tr('ما يقدر يدخل اللوحة بعدها.') + ' ' + a.username, tr('حذف')))) return;
       try { await db.rpc('platform_remove_admin', { p_username: a.username }); toast(tr('تم الحذف')); } catch (e) { toast(e.message); } platformView();
@@ -390,7 +402,7 @@ function purgeCard(c, q) {
     <p class="muted small" style="margin-top:0">${q ? `${esc(tr('انتهت في'))} <span class="num">${esc(q.ended_on)}</span> · ${esc(tr(q.due ? 'حان موعد قرار الحذف منذ' : 'موعد قرار الحذف'))} <span class="num">${esc(q.purge_on)}</span>. ${esc(warned)}`
       : esc(tr('المنشأة موقوفة أو لم تُقبل بعد، فيمكن حذفها عند طلب المالك.'))}</p>
     <p class="small" style="margin-top:0">${esc(tr('الحذف نهائي: تُحذف كل بيانات المنشأة وحسابات دخول موظفيها، ويبقى في وعد سجل مختصر بالحذف ودفعات الاشتراك فقط. النسخ الاحتياطية المشفّرة تُمسح تلقائيا خلال ٣٠ يوما.'))}</p>
-    <div class="row" style="gap:6px;flex-wrap:wrap">${q ? `<button class="btn" id="pext">${esc(tr('تمديد المهلة ٣٠ يوما'))}</button>` : ''}<button class="btn danger" id="ppurge">${esc(tr('حذف المنشأة نهائيا…'))}</button></div></div>`;
+    <div class="row" style="gap:6px;flex-wrap:wrap">${q && pcan('subs') ? `<button class="btn" id="pext">${esc(tr('تمديد المهلة ٣٠ يوما'))}</button>` : ''}${pcan('purge') ? `<button class="btn danger" id="ppurge">${esc(tr('حذف المنشأة نهائيا…'))}</button>` : `<span class="muted small">${esc(tr('الحذف النهائي لمالك المنصة فقط.'))}</span>`}</div></div>`;
 }
 function bindPurge(page, c) {
   if ($('#pext', page)) $('#pext', page).onclick = async () => { const d = await db.rpc('platform_purge_extend', { p_company: c.company_id, p_days: 30 }); toast(tr('موعد قرار الحذف الجديد') + ' ' + d); platformView(); };
@@ -476,10 +488,10 @@ PV.company = async (page, id) => {
   page.innerHTML = `<div class="head"><div><a href="#/companies" class="small back">${esc(tr('المنشآت'))}</a><h1>${esc(c.name)} <span class="badge ${stk}">${esc(tr(stt))}</span></h1>
       <div class="muted small" dir="ltr">${esc(c.owner_email || '')}</div></div></div>
     <div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:14px">
-      ${c.status === 'pending' ? `<button class="btn pri" id="capp">${esc(tr('قبول…'))}</button>` : ''}
-      <button class="btn pri" id="cpay">${esc(tr('تسجيل دفعة'))}</button><button class="btn" id="csub">${esc(tr('تعديل الاشتراك'))}</button>
-      ${c.status === 'trial' || c.status === 'active' ? `<button class="btn" data-q="extend" data-d="7" data-c="${esc(id)}">${esc(tr('+٧ أيام'))}</button><button class="btn" data-q="extend" data-d="30" data-c="${esc(id)}">${esc(tr('+٣٠ يوم'))}</button>` : ''}
-      ${c.status === 'suspended' ? `<button class="btn" data-q="resume" data-c="${esc(id)}">${esc(tr('إعادة تفعيل'))}</button>` : c.status !== 'pending' ? `<button class="btn" data-q="suspend" data-c="${esc(id)}">${esc(tr('إيقاف'))}</button>` : ''}</div>
+      ${c.status === 'pending' && pcan('subs') ? `<button class="btn pri" id="capp">${esc(tr('قبول…'))}</button>` : ''}
+      ${pcan('billing') ? `<button class="btn pri" id="cpay">${esc(tr('تسجيل دفعة'))}</button>` : ''}${pcan('subs') ? `<button class="btn" id="csub">${esc(tr('تعديل الاشتراك'))}</button>` : ''}
+      ${(c.status === 'trial' || c.status === 'active') && pcan('subs') ? `<button class="btn" data-q="extend" data-d="7" data-c="${esc(id)}">${esc(tr('+٧ أيام'))}</button><button class="btn" data-q="extend" data-d="30" data-c="${esc(id)}">${esc(tr('+٣٠ يوم'))}</button>` : ''}
+      ${!pcan('subs') ? '' : c.status === 'suspended' ? `<button class="btn" data-q="resume" data-c="${esc(id)}">${esc(tr('إعادة تفعيل'))}</button>` : c.status !== 'pending' ? `<button class="btn" data-q="suspend" data-c="${esc(id)}">${esc(tr('إيقاف'))}</button>` : ''}</div>
     <div class="g2p">
       <div class="card"><h2>${esc(tr('الاشتراك'))}</h2><dl class="pdl">
         <dt>${esc(tr('الباقة'))}</dt><dd>${esc(plan ? plan.name : c.plan)}${plan ? ` · <span class="num">${money0(plan.price)}</span> ${esc(tr('ريال'))} / <span class="num">${plan.period_days}</span> ${esc(tr('يوم'))}` : ''}</dd>
@@ -522,8 +534,8 @@ PV.company = async (page, id) => {
   bindCopy(page); bindQuick(page, [c], st); bindPurge(page, Object.assign({ company_id: id }, c));
   if ($('#pexp', page)) $('#pexp', page).onclick = () => adminExport(Object.assign({ company_id: id }, c));
   if ($('#capp', page)) $('#capp', page).onclick = () => approveForm(c, st);
-  $('#csub', page).onclick = () => subForm(c);
-  $('#cpay', page).onclick = () => platPayForm(c, plans);
+  if ($('#csub', page)) $('#csub', page).onclick = () => subForm(c);
+  if ($('#cpay', page)) $('#cpay', page).onclick = () => platPayForm(c, plans);
   $('#nform', page).onsubmit = async ev => { ev.preventDefault();
     const f = ev.target; try { await db.rpc('platform_add_note', { p_company: id, p_body: f.body.value, p_channel: f.channel.value, p_on: f.on.value || null }); platformView(); } catch (er) { showErr($('#nerr', page), er); } };
   $$('[data-dn]', page).forEach(a => a.onclick = async ev => { ev.preventDefault(); await db.rpc('platform_delete_note', { p_id: a.dataset.dn }); platformView(); });

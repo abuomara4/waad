@@ -1341,7 +1341,7 @@ with sync_playwright() as pw:
     o.evaluate("window.print=window.__print;window.dispatchEvent(new Event('afterprint'))")
     # ---------- packages and the admin site (a separate page: waad-admin.html, published as site/admin/) ----------
     pp = new_page(b); signup(pp, 'platform@waad.test'); pp.wait_for_selector('#cf')
-    sqlx("insert into platform_admins(user_id, can_export) select id, true from auth.users where email='platform@waad.test'")
+    sqlx("insert into platform_admins(user_id, can_export, is_super) select id, true, true from auth.users where email='platform@waad.test'")
     pp.reload(); pp.wait_for_url(re.compile(r'waad-admin\.html'), timeout=8000); pp.wait_for_selector('#ptabs'); go(pp, '#/companies'); pp.wait_for_selector('.plat tbody tr')
     ok(True, 'the system sends a platform admin with no company to the admin site')
     ok(pp.evaluate("document.documentElement.dataset.theme") == 'light', 'the admin site is light by default')
@@ -1490,6 +1490,10 @@ with sync_playwright() as pw:
     pp.fill('#dlg input[name=user]', 'sara'); pp.fill('#dlg input[name=pw]', 'TempPass123'); pp.click('#mok')   # the dialog reopens with the credentials
     pp.wait_for_selector('#dlg[open] [data-nt]'); ok('sara' in pp.inner_text('#dlg') and 'TempPass123' in pp.inner_text('#dlg'), 'admin site: a team member is added with a username and a temporary password')
     pp.click('#mx'); pp.wait_for_timeout(500)
+    pp.locator('#ppage tbody tr', has_text='sara').click(); pp.wait_for_selector('#dlg[open] [data-pp=support]')
+    pp.check('#dlg [data-pp=support]'); pp.check('#dlg [data-pp=export]'); pp.click('#tpp'); pp.wait_for_timeout(800)
+    ok(sql("select array_to_string(perms, ',') from platform_admins where username = 'sara'") == 'export,support' and 'الرد على طلبات الدعم' in pp.inner_text('#ppage'),
+       'admin site: the platform owner gives a member chosen permissions and the team list shows them')
     tc = b.new_context(viewport={'width': 390, 'height': 844}, locale='ar-SA'); tc.add_init_script(INIT)
     tp = tc.new_page(); tp.errors = []; tp.on('pageerror', lambda e: tp.errors.append(str(e))); tp.goto(BASE + '/waad-admin.html')
     tp.wait_for_selector('#af input[name=user]'); ok(tp.locator('#af input[name=email]').count() == 0, 'admin site signs in with a username, not an e-mail')
@@ -1497,6 +1501,7 @@ with sync_playwright() as pw:
     tp.wait_for_selector('#pf'); tp.fill('#pf input[name=p1]', 'SaraOwnPass9'); tp.fill('#pf input[name=p2]', 'SaraOwnPass9'); tp.click('#pb')
     tp.wait_for_selector('#ptabs'); go(tp, '#/companies'); tp.wait_for_selector('.plat tbody tr'); ok('شركة وعد التجريبية' in tp.inner_text('#ppage'), 'the new member changes the temporary password and opens the admin site')
     ok(tp.evaluate('document.documentElement.scrollWidth') <= 390, 'admin site fits a phone screen')
+    go(tp, '#/team'); tp.wait_for_selector('#ppage table'); ok(tp.locator('#tadd').count() == 0 and 'مالك المنصة' in tp.inner_text('#ppage'), 'admin site: a team member cannot add members; the team shows each one\'s permissions')
     # a team account someone creates with ?setup is not an admin until it is activated
     tp.evaluate("localStorage.removeItem('waad.session')"); tp.goto(BASE + '/waad-admin.html?setup'); tp.wait_for_selector('#af input[name=password2]')
     tp.fill('#af input[name=user]', 'intruder'); tp.fill('#af input[name=password]', 'Intruder123'); tp.fill('#af input[name=password2]', 'Intruder123'); tp.click('#ab')

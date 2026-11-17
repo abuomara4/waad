@@ -2223,7 +2223,7 @@ delete from auth.mfa_factors;
 
 -- ================= SUBSCRIPTIONS & PLATFORM ADMIN (0050) =================
 insert into auth.users(id, email, last_sign_in_at) values ('00000000-0000-0000-0000-0000000000a1', 'platform@waad.test', now()) on conflict do nothing;
-insert into public.platform_admins(user_id) values ('00000000-0000-0000-0000-0000000000a1');
+insert into public.platform_admins(user_id, is_super, can_export) values ('00000000-0000-0000-0000-0000000000a1', true, true);
 select t.ok((select count(*) from public.company_subscriptions) = (select count(*) from public.companies), 'every company has a subscription row');
 select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
 select t.err($$select * from public.platform_companies()$$, '42501|غير مصرح', 'a company user cannot open the platform panel');
@@ -2453,7 +2453,7 @@ select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b1
 select t.ok(public.is_platform_admin() and (public.platform_admin_me()->>'must_change')::boolean, 'the new member is an admin and must change the temporary password');
 select public.password_changed();
 select t.ok(not (public.platform_admin_me()->>'must_change')::boolean, 'changing the password clears the temporary flag');
-select t.err($$select public.platform_remove_admin('sara')$$, 'حسابك', 'an admin cannot remove themself');
+select t.err($$select public.platform_remove_admin('sara')$$, 'حسابك|لمالك منصة وعد فقط|ليست لديك', 'an admin cannot remove themself');
 reset role;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
 select public.platform_remove_admin('sara');
@@ -3090,7 +3090,7 @@ select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenti
 select t.err($$select public.platform_company_export('$$ || :'cid' || $$', 'طلب المالك بالهاتف')$$, 'غير مصرح|42501', 'admin export: a company owner cannot use the platform export');
 reset role;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a2', false); set role authenticated;
-select t.err($$select public.platform_company_export('$$ || :'cid' || $$', 'طلب المالك بالهاتف')$$, 'لمالك منصة وعد فقط', 'admin export: a team member added later cannot export company data');
+select t.err($$select public.platform_company_export('$$ || :'cid' || $$', 'طلب المالك بالهاتف')$$, 'لمالك منصة وعد فقط|ليست لديك', 'admin export: a team member added later cannot export company data');
 select t.ok(not public.platform_can_export(), 'admin export: the button is hidden for that team member');
 reset role;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
@@ -3111,6 +3111,28 @@ select t.ok((select count(*) from public.company_exports_log where company_ref =
 select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
 select t.err($$select * from public.company_exports_log$$, 'permission denied|row-level', 'admin export: the log is not readable from the app');
 select t.err($$select public.company_export_data('$$ || :'cid' || $$', true)$$, 'permission denied', 'export: the internal data function cannot be called directly');
+reset role;
+-- ================= WHO MAY DO WHAT ON THE ADMIN SITE (0103) =================
+update public.platform_admins set username = 'team2' where user_id = '00000000-0000-0000-0000-0000000000a2';
+update public.platform_admins set username = 'admin1' where user_id = '00000000-0000-0000-0000-0000000000a1' and username is null;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a2', false); set role authenticated;
+select t.err($$select public.platform_reset_admin_password('x', 'password123')$$, 'ليست لديك', 'team: a member cannot reset another member''s password (no account takeover)');
+select t.err($$select public.platform_remove_admin('x')$$, 'ليست لديك', 'team: a member cannot remove members');
+select t.err($$select public.platform_add_admin('newbie')$$, 'ليست لديك', 'team: a member cannot add members');
+select t.err($$select public.platform_set_perms('team2', array['export'])$$, 'لمالك منصة وعد فقط', 'team: a member cannot give himself any permission');
+select t.err($$select public.platform_approve('$$ || :'cid' || $$', 'trial', 14)$$, 'ليست لديك', 'team: a new member cannot accept companies until given the permission');
+select t.err($$select public.platform_save_plan('{}'::jsonb)$$, 'ليست لديك', 'team: nor change plans and prices');
+select t.err($$select public.platform_company_purge('$$ || :'cid' || $$', 'x')$$, 'ليست لديك', 'team: a member cannot delete a company');
+select t.ok((public.platform_admin_me()->>'super')::boolean = false and (select count(*) from public.platform_team()) >= 2, 'team: a member still sees the team and his own permissions');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', false); set role authenticated;
+select public.platform_set_perms('team2', array['export', 'team', 'bogus']);
+select t.ok((public.platform_admin_me()->>'super')::boolean and (select perms = array['export', 'team'] from public.platform_team() where username = 'team2'), 'team: the platform owner gives a member chosen permissions (unknown ones ignored)');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a2', false); set role authenticated;
+select t.ok(public.platform_can_export() and (public.platform_admin_me()->'perms') ? 'team', 'team: that member can now export at an owner''s request');
+select t.err($$select public.platform_reset_admin_password('admin1', 'password123')$$, 'مالك المنصة لا يُعدّل', 'team: even with the team permission, nobody touches the platform owner''s account');
+select t.err($$select public.platform_remove_admin('admin1')$$, 'مالك المنصة لا يُعدّل', 'team: nor removes the platform owner');
 reset role;
 delete from public.platform_admins where user_id = '00000000-0000-0000-0000-0000000000a2';
 

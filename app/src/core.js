@@ -479,7 +479,7 @@ async function boot() {
     if (LS.get('waad.terms')) { db.rpc('accept_terms', { p_version: LS.get('waad.terms') }).catch(() => {}); LS.set('waad.terms', null); }
     if (ADMIN) {
       if (!S.platform) return (await db.rpc('platform_needs_mfa').catch(() => false)) ? adminMfaView() : notAdminView();
-      const me = await db.rpc('platform_admin_me').catch(() => null);
+      const me = await db.rpc('platform_admin_me').catch(() => null); S.pme = me || {};
       return me && me.must_change ? changePasswordView(true) : platformView();
     }
     if (S.platform && (/^#\/platform/.test(location.hash) || !(comps || []).length)) { location.href = ADMIN_URL; return; }
