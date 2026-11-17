@@ -3497,6 +3497,29 @@ select t.err($$select public.spend_summary('$$ || :'cid' || $$', current_date - 
 reset role;
 update public.requests set status = 'rejected' where id = :'trip2';
 
+-- OKRs and fingerprint devices (0118)
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+insert into public.okr_objectives(company_id, period, scope, employee_id, title) values (:'cid', extract(year from current_date)::text || '-Q4', 'employee', :'e_emp', 'رفع رضا العملاء') returning id as okr1 \gset
+insert into public.okr_key_results(company_id, objective_id, title, start_value, target, current) values (:'cid', :'okr1', 'تقييم العملاء', 3, 4.5, 3) returning id as kr1 \gset
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok(exists(select 1 from public.okr_objectives where id = :'okr1'), 'OKRs: the employee sees his objective');
+select t.err($$insert into public.okr_objectives(company_id, period, scope, title) values ('$$ || :'cid' || $$', '2026', 'company', 'هدف من موظف')$$, 'row-level', 'OKRs: an employee cannot add company objectives');
+select public.okr_progress(:'kr1', 4);
+select t.ok((select current = 4 from public.okr_key_results where id = :'kr1'), 'OKRs: the employee updates the progress of his own key result');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select public.okr_progress('$$ || :'kr1' || $$', 5)$$, '42501|غير مصرح', 'OKRs: someone else cannot update it');
+select t.err($$select public.att_import('$$ || :'cid' || $$', '[]'::jsonb)$$, '42501|غير مصرح|صلاحية', 'fingerprint import: HR only');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.att_import(:'cid', jsonb_build_array(jsonb_build_object('no', (select emp_no from public.employees where id = :'e_emp'), 'day', (current_date - 3)::text, 'in', '08:05', 'out', '17:10'),
+  jsonb_build_object('no', 'X999', 'day', (current_date - 3)::text, 'in', '08:00'))) as devr \gset
+reset role;
+select t.ok((:'devr'::jsonb->>'days')::int = 1 and :'devr'::jsonb->'unknown' ? 'X999'
+  and exists(select 1 from public.attendance where employee_id = :'e_emp' and day = current_date - 3 and note = 'استيراد من جهاز البصمة'),
+  'fingerprint import: the day is recorded, an unknown device number is reported');
+
 -- the owner's monthly e-mail also counts applicants, survey answers, new hires missing data and position requests (0110)
 select t.ok((select public.monthly_report(:'cid', current_date) ?& array['applicants','survey_answers','onb_missing','hc_pending']), 'monthly e-mail: applicants, survey answers, onboarding gaps and position requests are reported');
 -- GOSI: the yearly pension step for new-regime contributors falls on 1 July (0109)

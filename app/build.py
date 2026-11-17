@@ -81,6 +81,7 @@ html = f'''<!doctype html>
 {r('engage.js')}
 {r('permissions.js')}
 {r('spend.js')}
+{r('okr.js')}
 applyLang();
 boot();
 </script>

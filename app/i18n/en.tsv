@@ -72,6 +72,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أدخل الرمز	Enter the code
 أدخل الرمز والاسم	Enter the code and name
 أدخل السعر	Enter the price
+أدخل القيمة الحالية	Enter the current value
 أدخل الكمية المعدودة لصنف واحد على الأقل	Enter the counted quantity for at least one item
 أدخل المبلغ	Enter the amount
 أدخل المبلغ بالعملة	Enter the amount in the currency
@@ -147,6 +148,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أرقام النظام	System numbers
 أرقام تسلسلية غير متوفرة في المخزون للصنف	Serial numbers not in stock for item
 أرقام تسلسلية مسجلة من قبل للصنف	Serial numbers already registered for item
+أرقام في الجهاز لا تطابق رقما وظيفيا	Device numbers that match no employee number
 أرقام مثل	digits, e.g.
 أرقام من تطبيق المصادقة	digits from the authenticator app
 أرقام موجبة	positive numbers
@@ -217,6 +219,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أضف موردا أولا	Add a supplier first
 أضف مورداً أولاً	Add a supplier first
 أضف موقع العمل والوردية من	Add the work site and shift from
+أضف نتيجة رئيسية واحدة على الأقل	Add at least one key result
 أضف نفسك كموظف	Add yourself as an employee
 أضف هدفا واحدا على الأقل	Add at least one goal
 أضف هدفاً واحداً على الأقل	Add at least one goal
@@ -323,7 +326,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أنشئ دخوله	create his sign-in
 أنهِ خدمته بدلا من ذلك	end his service instead
 أنواع المستندات	Document types
+أهداف الأقسام	Department objectives
+أهداف المنشأة	Company objectives
+أهداف الموظفين	Employee objectives
 أهداف بأوزان ودرجات من	Weighted goals scored from
+أهدافي	My objectives
 أهلا	Welcome
 أهلا بك في وعد	Welcome to Waad
 أهلاً	Welcome
@@ -339,6 +346,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أو بدون موافقة المنشأة	or without the company's approval
 أو بعده لا يدخل مسير أكتوبر	or later is not in the October payroll
 أو تاريخ النهاية	Or end date
+أو تقرير	or a report
 أو حسابا فرعيا تحته	or a sub-account under it
 أو حساباً فرعياً تحته	or a sub-account under it
 أو خسارة	or a loss
@@ -363,6 +371,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أوقفها أولا ثم احذفها	suspend it first, then delete it
 أول	First
 أول إدخال لكمية موجودة عندك	the first entry of stock you already have
+أول بصمة في اليوم حضور	The first punch of the day is the check-in
 أول دخول	First sign-in
 أولا	first
 أولاً	first
@@ -384,6 +393,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أيام تؤخذ خلال	days taken within
 أيام تبدأ من اليوم التالي لـ	days starting the day after
 أيام تبدأ من يوم عرفة	days starting on the Day of Arafah
+أيام حضور	Attendance days
 أيام في الشهر	days per month
 أيام مجانية حصلت عليها	Free days earned
 أيام مستحقة	Days due
@@ -526,6 +536,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إذا كان في أي سطر خطأ لا يُحدَّث شيء	If any row has an error nothing is updated
 إذا كان في أي سطر خطأ لا يُستورد شيء	If any row has an error, nothing is imported
 إذا كان للموظف مستند من النوع نفسه يُحدَّث بدل تكراره	if the employee already has a document of that type it is updated instead of duplicated
+إذا كانت منشأتك تستخدم جهاز بصمة	If your company uses a fingerprint device
 إذا كانت نهاية الدوام قبل بدايته فالوردية ليلية تنتهي صباح اليوم التالي	If the end time is before the start time, it is a night shift that ends the next morning
 إذا لم تُحدد النهاية فمدته سنة من تاريخ البداية	if no end is set, it runs one year from the start date
 إذا لم يترتب على ذلك تعطيل عمال آخرين	if it did not hold up other workers
@@ -927,7 +938,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 استيراد المستندات	Import documents
 استيراد المستندات من	Import documents from
 استيراد الموظفين من	Import employees from
+استيراد سجل البصمات	Import the punch log
 استيراد من	Import from
+استيراد من جهاز البصمة	Import from the fingerprint device
 استُبعد أصل بعد هذا الإهلاك	An asset was disposed after this depreciation
 استُبعد في	Disposed on
 استُلم في	Received in
@@ -1225,11 +1238,14 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الأنشطة الاستثمارية	Investing activities
 الأنشطة التشغيلية	Operating activities
 الأنشطة التمويلية	Financing activities
+الأهداف	Objectives
 الأهداف من	Goals: from
+الأهداف والنتائج الرئيسية	Objectives and key results
 الأول سابقا	formerly Alawwal
 الأول سابقاً	formerly Alawwal
 الأولى	first
 الأيام	Days
+الأيام المستوردة تحل محل ما سُجل لنفس الموظف في نفس اليوم	Imported days replace what was recorded for the same employee on the same day
 الإجابات غير مكتملة	The answers are incomplete
 الإجازات المعتمدة في	Approved leave in
 الإجازات المعتمدة وتحت الاعتماد	approved and pending leave
@@ -1427,6 +1443,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 التاريخ غير صحيح	Invalid date
 التاريخ قبل تاريخ الفاتورة	The date is before the invoice date
 التاريخ لا يكون في المستقبل	The date cannot be in the future
+التاريخ والوقت	Date and time
 التالي	Next
 التبديل كل	Rotation every
 التجديد رقم	renewal no.
@@ -1594,6 +1611,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الحسم من الراتب	Deducted from salary
 الحضور	Check-in
 الحضور أو الانصراف أو كليهما	check-in, check-out or both
+الحضور من جهاز البصمة	Attendance from the fingerprint device
 الحضور والانصراف	Attendance
 الحضور والغياب حسب الشهر الميلادي	attendance and absence follow the calendar month
 الحضور والغياب والإضافي من يوم	attendance, absence and overtime from day
@@ -2213,6 +2231,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المستندات التي طلبت منك المنشأة توقيعها إلكترونيا.	Documents the company asked you to sign electronically.
 المستندات والعقود	Documents and contracts
 المستندات والعقود والخطابات	Documents, contracts and letters
+المستهدف	Target
+المستهدف مطلوب ويختلف عن نقطة البداية	The target is required and must differ from the start
 المستودع	Warehouse
 المستودع الرئيسي	Main warehouse
 المستودع غير موجود	Warehouse not found
@@ -2263,6 +2283,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المظهر	Appearance
 المعادل بالريال	Equivalent in SAR
 المعادن المؤهلة	Qualifying metals
+المعتاد في سياسات الجهات السعودية المنشورة	Common in published Saudi organisations' policies
+المعتاد في سياسات الجهات السعودية المنشورة: نحو 300 ريال يوميا داخل المملكة و600 خارجها للموظفين، وأعلى للمدراء (حدده في درجاتهم). وإذا أمّنت المنشأة السكن فيُخفض البدل بقدره.	Common in published Saudi organisations' policies: about SAR 300 a day inside the Kingdom and 600 outside for staff, higher for managers (set it on their grades). If the company provides accommodation, the allowance is reduced accordingly.
 المعتمد نفسه في المرحلة السابقة	same approver as the previous step
 المعتمد يرى تنبيها عند التجاوز أو تكرار المطالبة أو الإيصال	the approver is warned of an overrun or a repeated claim or receipt
 المعتمدة	Approved
@@ -2285,6 +2307,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الملخص الشهري بالإيميل	Monthly e-mail summary
 الملف	File
 الملف فارغ	The file is empty
+الملف كبير أو غير صحيح	The file is too large or not valid
 الملف لا يحتوي أسماء	The file has no names
 الملف لا يحتوي أصنافا	The file has no items
 الملف لا يحتوي أصنافاً	The file has no items
@@ -2357,7 +2380,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المُستلم	Received
 المُسلَّم	Delivered
 المُفوتر	Invoiced
+النتائج الرئيسية	Key results
 النتيجة	Result
+النتيجة غير موجودة	Key result not found
 النساء	Women
 النسب تتصاعد	Thresholds must rise
 النسب في الجدول من أجر يوم	Percentages in the table are of a day's wage
@@ -2375,6 +2400,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 النص بالإنجليزية (اختياري)	Text in English (optional)
 النص بالعربي	Text in Arabic
 النص بالعربية	Text in Arabic
+النصف	Half
 النطاق	Radius
 النطاق المتوقع	Expected band
 النظام	System
@@ -2622,6 +2648,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بريد	E-mail
 بريدة	Buraydah
 بريطاني	British
+بصمات	Punches
 بضاعة مستلمة لم تصل فاتورتها	Goods received not invoiced
 بطاقة	Card
 بطاقة الموظف	Employee card
@@ -2710,6 +2737,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تأشيرة الخروج والعودة لغير السعوديين	Exit/re-entry visas are for non-Saudis
 تأشيرة خروج وعودة	Exit/re-entry visa
 تأكد أن المالك نزّل نسخة من بياناته قبل الحذف	Make sure the owner downloaded a copy of their data before deleting
+تأكد أن فيه رقم الموظف والتاريخ والوقت	make sure it has the employee number, date and time
 تأكد أن هذا سجلك أنت	Make sure this is your own record
 تأكد من إبلاغ العامل كتابة	Make sure the worker is notified in writing
 تأكد من إبلاغ العامل كتابةً	Make sure the worker is notified in writing
@@ -2873,6 +2901,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تحتاج صلاحية المشتريات أو المخزون	requires purchasing or stock permission
 تحتاج مساعدة	Need help
 تحديث	Update
+تحديث التقدم	Update progress
 تحديث بيانات	Data change
 تحديث بيانات الموظفين من	Update employee data from
 تحديث جماعي من	Bulk update from
@@ -3040,6 +3069,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تعديل المشروع	Edit project
 تعديل المهمة	Edit task
 تعديل النموذج	Edit form
+تعديل الهدف	Edit objective
 تعديل الوظيفة	Edit opening
 تعديل بدل	Edit allowance
 تعديل برنامج	Edit programme
@@ -3065,6 +3095,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تعديل وثيقة	Edit policy
 تعديل وردية	Edit shift
 تعذر النسخ	Copy failed
+تعذّر	Failed
 تعذّر الإرسال	Could not be sent
 تعذّر الاتصال بالخادم	Could not reach the server
 تعذّر تحديد موقعك	Could not get your location
@@ -3159,6 +3190,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تم إخلاء الطرف	Approved
 تم إنشاء الحساب	Account created
 تم الإيقاف	Suspended
+تم الاستيراد	Imported
 تم الاطلاع	Got it
 تم الاعتماد	Approved
 تم الاعتماد وانتقل الطلب للمرحلة التالية	Approved; the request moved to the next step
@@ -3213,6 +3245,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تنزيل القالب	Download template
 تنزيل القالب بأسماء الموظفين	Download template with employees
 تنزيل الملف	Download file
+تنزيل قائمة الموظفين للجهاز	Download the employee list for the device
 تنقفل كل الأقسام لين تعيد تفعيلها	All modules close until you reactivate it
 تنقلات	transport
 تواصل مع الموارد البشرية	contact HR
@@ -3367,6 +3400,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 جهات أخرى	Other bodies
 جهات حكومية	Government bodies
 جهاز إنترنت متنقل	Mobile internet router
+جهاز البصمة	Fingerprint device
 جهاز عرض	Projector
 جهاز كمبيوتر مكتبي	Desktop computer
 جهاز لوحي	Tablet
@@ -3466,6 +3500,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حدد نسبة أو مبلغ الزيادة	Set a percentage or an amount
 حدد يوما مضى	Choose a past day
 حدد يوماً مضى	Choose a past day
+حدده في درجاتهم	set it on their grades
 حديث	recent
 حدّثه في التأمينات	update it in GOSI
 حدّثهم في التأمينات	update them in GOSI
@@ -3612,6 +3647,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حُوّلت إلى إجازة بدون أجر	converted to unpaid leave
 خارج	Out
 خارج المملكة	Outside the Kingdom
+خارجها للموظفين	outside for staff
 خاسرة	Lost
 خاصة به	Their own
 خالد الدوسري	Khalid Al-Dosari
@@ -3844,6 +3880,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 رقم اللوحة	Plate number
 رقم المبنى	Building No.
 رقم المدير	manager number
+رقم المستخدم في الجهاز يجب أن يساوي الرقم الوظيفي في وعد	The user number in the device must equal the employee number in Waad
 رقم المستند	Document no.
 رقم المنشأة في التأمينات	GOSI establishment number
 رقم المنشأة في التأمينات أرقام فقط	GOSI establishment number must be digits only
@@ -3912,6 +3949,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ريال سعودي	Saudi riyal
 ريال لكل وحدة	SAR per unit
 ريال للوحدة	SAR per unit
+ريال يوميا داخل المملكة و	SAR a day inside the Kingdom and
 رُحّل الإشعار	Note posted
 رُحّل الإشعار المدين	Debit note posted
 رُحّل التحويل	Transfer posted
@@ -4248,6 +4286,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 صدرت الفاتورة	Invoice issued
 صدرت قسيمة راتبك	Your payslip is out
 صديق أو معارف	A friend or contact
+صدّر سجل البصمات	export the punch log
+صدّر سجل البصمات منه واستورده هنا	export the punch log from it and import it here
 صدّر فقط إذا طلب مالك المنشأة نفسه	Export only if the company owner himself asked
 صدّر فقط إذا طلب مالك المنشأة نفسه، وسلّم الملف له وحده.	Export only if the company owner himself asked, and hand the file to him alone.
 صرف	Payment
@@ -4701,9 +4741,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 في نطاق حكم المادة	within the scope of Article
 في نظام وعد	in Waad
 فيتنامي	Vietnamese
+فيدخل في الكشف الشهري والرواتب مثل الحضور من الجوال	so it enters the monthly sheet and payroll like phone attendance
 فيديو	video
 فيسبوك	Facebook
 فيمكن حذفها عند طلب المالك	so it can be deleted when the owner asks
+فيه الرقم والتاريخ والوقت	with the number, date and time
 فيه بيانات كل الموظفين على رأس العمل كما هي الآن	it holds the current data of every active employee
 فيه سطر لكل موظف بنوع مستنده الأساسي	one row per employee with the main document type
 فيه سطر لكل موظف على رأس العمل	one row per active employee
@@ -4894,6 +4936,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد أصول	No assets
 لا توجد أعضاء	No members
 لا توجد أقسام	No departments
+لا توجد أهداف لهذه الفترة بعد	No objectives for this period yet
 لا توجد أوامر بيع	No sales orders
 لا توجد أوامر شراء	No purchase orders
 لا توجد إجابات	No answers
@@ -4992,6 +5035,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد موازنة ولا حركات لهذه السنة	No budget or activity for this year
 لا توجد مواقع	No sites
 لا توجد نتائج	No results
+لا توجد نتائج رئيسية	No key results
 لا توجد نماذج في هذا القسم	No forms in this section
 لا توجد وثائق	No policies
 لا توجد وحدات أخرى	No other units
@@ -5216,6 +5260,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لم تُضف مستندات المنشأة بعد	No company documents yet
 لم تُضف مستندات المنشأة بعد. ابدأ بالسجل التجاري.	No company documents yet. Start with the commercial registration.
 لم تُضف موظفين بعد	No employees added yet
+لم نجد بصمات في الملف	No punches found in the file
 لم يؤدِّ الامتحان	Exam not sat
 لم يبدأ	Not started
 لم يبدأ الإهلاك	Depreciation not started
@@ -5250,6 +5295,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لمراجعته لاحقاً	to review later
 لمصروف لا يخص موردا مسجلا	For an expense not tied to a registered supplier
 لمصروف لا يخص موردا مسجلا. لفاتورة مورد استخدم «سند صرف». ضريبة المدخلات تُسجّل من فاتورة مشتريات.	For an expense not tied to a registered supplier. For a supplier bill use «Payment voucher». Input VAT is recorded from a purchase bill.
+لمن	For
 لن تظهر كلمة المرور مجددا	The password will not be shown again
 لن تظهر كلمة المرور مجدداً	The password will not be shown again
 لن يظهر رمز	No
@@ -5385,6 +5431,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مثل	such as
 مثل قيود وزوهو بوكس وأودو	such as Qoyod, Zoho Books and Odoo
 مثل كرتون	e.g. carton
+مثل ملف	such as the file
 مثل: إيجار المكتب لشهر نوفمبر	e.g. office rent for November
 مثل: إيجار شهري، عقد صيانة	e.g. monthly rent, maintenance contract
 مثل: جهاز عرض	e.g. Projector
@@ -5717,6 +5764,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 من أجر الساعة الأساسي	of the basic hourly wage
 من أجر يوم	of a day's wage
 من أجرك	of your wage
+من أجهزة	from
 من أكملها	people who completed them
 من الأجر	of the wage
 من الأساسي	of basic
@@ -5733,6 +5781,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 من المنشآت التي انتهت تجربتها أو اشتركت	of companies whose trial ended or who subscribed
 من المنشآت اللي انتهت تجربتها أو اشتركت	of companies whose trial ended or who subscribed
 من انتهاء العلاقة	of the end of employment
+من برنامج الجهاز أو ذاكرة	From the device software or a
 من بوابة فاتورة	from the Fatoora portal
 من بيانات الاشتراك وآخر دخول فقط	From subscription data and last sign-in only
 من بيانات وعد نفسها	from Waad's own data
@@ -5824,6 +5873,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 موظف مبيعات أو مشتريات أو تسويق أو مشاريع	A sales, purchasing, marketing or projects employee
 موظف واحد	one employee
 موظفا	employees
+موظفون	Employees
 موظفون بلا تأمين طبي أو وثيقة تقترب من نهايتها	Employees without medical insurance or with a policy ending soon
 موظفون بلا تغطية سارية	Employees without active cover
 موظفون بلا عقد ساري	Employees without an active contract
@@ -5861,6 +5911,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نتيجتك	Your result
 نجران	Najran
 نحفظ الأرقام والتواريخ فقط بدون صور المستندات	we keep numbers and dates only, no scans
+نحو	about
 نرجو تأكيد حضورك بالرد على هذه الرسالة	Please confirm your attendance by replying to this message
 نزّل القالب	Download the template
 نزّل القالب واملأ سطرا لكل اسم	Download the template and fill one row per name
@@ -5998,6 +6049,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 هامش صافي الربح	Net profit margin
 هجري	Hijri
 هدف	goal
+هدف جديد	New objective
+هدف واضح وثلاث إلى خمس نتائج قابلة للقياس لكل فترة	A clear objective and three to five measurable results per period
 هذا أنا	This is me
 هذا إيصال استلام وليس فاتورة ضريبية	This is a receipt of payment, not a tax invoice
 هذا الأسبوع	This week
@@ -6053,6 +6106,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 هوية وطنية	national ID
 هيونداي	Hyundai
 و	and
+وآخر بصمة انصراف	and the last is the check-out
 وأتحمّل إبلاغهم بذلك	and I will inform them of this
 وأتعهد بالمحافظة عليها وإعادتها عند الطلب أو عند انتهاء خدمتي	and undertake to keep it safe and return it on request or when my service ends
 وأرفق ملف	and attach the file
@@ -6061,9 +6115,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وأعلم بحقي في التظلم خلال	and I know my right to appeal within
 وأعلم بحقي في التظلم خلال 30 يوما (م72).	and I know my right to appeal within 30 days (Art. 72).
 وأعلى	maximum
+وأعلى للمدراء	higher for managers
 وأنه لا توجد لي أي مطالبات أخرى لدى المنشأة	and that I have no other claims on the company
 وأهم الأرقام	and the key figures
 وإجماليها	totalling
+وإذا أمّنت المنشأة السكن فيُخفض البدل بقدره	If the company provides accommodation, the allowance is reduced accordingly
 وإذا فيه رسالة خطأ اكتبها	and if there is an error message, write it
 وإذا كان مطابقا له لا يتغير شيء	and if it matches nothing changes
 وإذا كان مطابقاً له لا يتغير شيء	and if it matches nothing changes
@@ -6241,6 +6297,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وقت الانصراف في المستقبل	The check-out time is in the future
 وقت الانصراف قبل وقت الحضور	Check-out is before check-in
 وقت البداية والنهاية متساويان	The start and end times are the same
+وقت البصمة	Punch time
 وقت التوقيع	Signed at
 وقت الحضور	Check-in time
 وقت الحضور غير صحيح	Invalid check-in time
@@ -6295,6 +6352,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ويجوز شهر إضافي بدون أجر	plus an optional unpaid month
 ويحق لك العدول عنها خلال	You may withdraw it within
 ويراها مالك المنشأة في إعداداته	and the company owner sees it in settings
+ويرى الجميع تقدم أهداف المنشأة والأقسام	and everyone sees the progress of company and department objectives
 ويسقط الأجر إذا ثبت عدم أداء الامتحان	and pay is lost if the exam was not sat
 ويصل المالك إيميل فوري بأن بياناته صُدّرت	and the owner gets an instant e-mail that his data was exported
 ويظهر ذلك في حساب نهاية الخدمة	and this shows in the end-of-service calculation
@@ -6315,6 +6373,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ويمكنك مسحها لاحقاً بضغطة	and you can clear it later with one click
 ويوقّع من جواله	and signs from his phone
 ويُبت في التظلم خلال	and the grievance is decided within
+ويُحسب التأخير والإضافي تلقائيا	and lateness and overtime are calculated automatically
 ويُحفظ العقد الحالي في السجل	and the current contract is kept in the history
 ويُخرج ملف حماية الأجور	with the wage protection file
 ويُخصم المخزون وتُقيد تكلفة المبيعات	stock is reduced and cost of sales is posted
@@ -6507,6 +6566,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يوم التأسيس	Founding Day
 يوم التعويض	Compensation day
 يوم بأجر جزئي	days with partial pay
+يوم في المرة	days at a time
 يوم متبقي	days left
 يوم من العطلة في يوم الراحة الأسبوعية	holiday day(s) on the weekly rest day
 يوم واحد	1 day
@@ -6589,6 +6649,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يُحذف الحقل من النماذج. القيم المسجلة سابقا تبقى في السجلات ولا تظهر.	The field is removed from the forms. Values already recorded stay in the records and are not shown.
 يُحذف المستند ومرفقاته	The document and its attachments are deleted
 يُحذف المستند ومرفقاته.	The document and its attachments are deleted.
+يُحذف الهدف ونتائجه الرئيسية	The objective and its key results will be deleted
 يُحذف سجل	This deletes the record of
 يُحسب الراتب والتأمينات	Pay and GOSI are calculated
 يُحفظ التعديل في سجل الرواتب مع السبب	The change is kept in the salary history with its reason

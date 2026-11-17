@@ -756,6 +756,18 @@ with sync_playwright() as pw:
     ok('600.00' in e.inner_text('#trph'), 'business trip form: per diem 300 × 2 days shown before sending')
     modal_ok(e); e.wait_for_timeout(500); ok(sql("select amount::text || ':' || days from requests where kind = 'trip' order by created_at desc limit 1") == '600.00:2', 'business trip request sent with its per diem')
 
+    # ---------- OKRs and fingerprint devices (0118) ----------
+    go(o, '#/okrs'); o.wait_for_selector('#okn'); o.click('#okn'); o.wait_for_selector('#dlg input[name=t]')
+    o.fill('#dlg input[name=t]', 'زيادة المبيعات'); o.locator('#okk tr').first.locator('[data-k=t]').fill('عدد العملاء الجدد'); o.locator('#okk tr').first.locator('[data-k=g]').fill('20'); modal_ok(o); o.wait_for_timeout(500)
+    ok(sql("select count(*) from okr_objectives o join okr_key_results k on k.objective_id = o.id where o.title = 'زيادة المبيعات'") == '1', 'OKRs: the company adds an objective with a key result')
+    o.locator('[data-kp]').first.click(); o.wait_for_selector('#dlg input[name=v]'); o.fill('#dlg input[name=v]', '5'); modal_ok(o); o.wait_for_timeout(500)
+    ok('25%' in o.inner_text('#page'), 'OKRs: progress 5 of 20 shows 25%')
+    yday = (datetime.date.today() - datetime.timedelta(days=1)).isoformat(); devf = os.path.join(tempfile.gettempdir(), 'attlog.csv')
+    open(devf, 'w', encoding='utf-8').write('AC-No.,Name,Date/Time,State\n5000,x,%s 08:03,C/In\n5000,x,%s 12:30,C/Out\n5000,x,%s 17:01,C/Out\n7777,y,%s 08:00,C/In\n' % (yday, yday, yday, yday))
+    go(o, '#/att/device'); o.wait_for_selector('#devi'); o.click('#devi'); o.set_input_files('#devf', devf); o.wait_for_selector('#devgo'); ok('4' in o.inner_text('#devp'), 'fingerprint device: the punch log is read and summarised before importing')
+    o.click('#devgo'); o.wait_for_selector('text=استُورد'); ok('7777' in o.inner_text('#devp'), 'fingerprint device: an unknown device number is reported')
+    ok(sql("select to_char(check_in at time zone 'Asia/Riyadh','HH24:MI') || '-' || to_char(check_out at time zone 'Asia/Riyadh','HH24:MI') from attendance a join employees e on e.id = a.employee_id where e.emp_no = '5000' and a.day = '%s'" % yday) == '08:03-17:01', 'fingerprint device: first punch = check-in, last = check-out'); o.click('#mx')
+
     # ---------- inventory: warehouses, transfers, counts, expiry, reorder ----------
     ok(all(o.locator('#nav a[href="' + h + '"]').count() == 1 for h in ['#/items', '#/warehouses', '#/transfers', '#/counts', '#/expiry', '#/reorder']), 'inventory menu: items, warehouses, transfers, counts, expiry, reorder')
     go(o, '#/sales/new'); o.wait_for_selector('#df'); ok(o.locator('#df select[name=warehouse]').count() == 0, 'single warehouse: no warehouse picker on documents')
@@ -1310,7 +1322,7 @@ with sync_playwright() as pw:
     o.locator('[data-aw]').first.click(); o.wait_for_selector('#dlg[open]'); o.click('#mok'); o.wait_for_url(re.compile(r'#/porders/')); o.wait_for_timeout(500)
     ok(sql("select p.name||'|'||o.total from purchase_orders o join parties p on p.id=o.party_id join rfqs r on r.po_id=o.id where r.title='توريد طابعات للفرع'") == 'مورد العروض الثاني|310.50', 'awarding the cheapest offer creates its purchase order')
     go(o, '#/items'); o.locator('#page tbody tr', has_text='طابعة ليزر').click(); o.wait_for_selector('#iua')
-    o.fill('#iun', 'كرتون'); o.fill('#iuf', '6'); o.fill('#iub', '6281234500006'); o.click('#iua'); o.wait_for_timeout(500); ok('كرتون' in o.inner_text('#iul'), 'extra unit added to the item'); o.click('#mx')
+    o.fill('#iun', 'كرتون'); o.fill('#iuf', '6'); o.fill('#iub', '6281234500006'); o.click('#iua'); o.wait_for_function("() => (document.querySelector('#iul') || {}).innerText.includes('كرتون')", timeout=5000); ok('كرتون' in o.inner_text('#iul'), 'extra unit added to the item'); o.click('#mx')
     go(o, '#/sales/new'); o.wait_for_selector('#dbc'); o.fill('#dbc', '6281234500006'); o.press('#dbc', 'Enter'); o.wait_for_timeout(300)
     ok(o.inner_text('#tt') == '1,725.00', 'scanning a carton barcode adds 6 pieces (1,725.00)')
     go(o, '#/counts'); o.wait_for_selector('#nc'); o.click('#nc'); modal_ok(o); o.wait_for_selector('#cscan')

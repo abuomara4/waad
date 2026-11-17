@@ -66,12 +66,14 @@ function bindClock(page) {
 VIEWS['#/att'] = async (page, arg) => {
   if (!isHR() && !has('manager', 'finance') && !hrCan('hr_att')) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
   const [tab, sub] = String(arg || 'today').split('/');
-  const tabs = [['today', 'اليوم'], ['month', 'الكشف الشهري']].concat(isHR() ? [['settings', 'الإعدادات']] : []);
+  const tabs = [['today', 'اليوم'], ['month', 'الكشف الشهري']].concat(isHR() ? [['device', 'جهاز البصمة'], ['settings', 'الإعدادات']] : []);
   page.innerHTML = `<div class="head"><div><h1>الحضور والانصراف</h1><div class="muted">${attOn() ? 'مفعّل منذ <span class="num">' + fdate(S.company.att_start) + '</span>' : 'غير مفعّل'}</div></div></div>
     <div class="tabs" style="max-width:420px">${tabs.map(([k, t]) => `<button type="button" class="${k === tab ? 'on' : ''}" data-tab="${k}">${t}</button>`).join('')}</div><div id="atb"></div>`;
   $$('[data-tab]', page).forEach(b => b.onclick = () => location.hash = '#/att/' + b.dataset.tab);
   const box = $('#atb', page);
   if (tab === 'settings' && isHR()) return attSettings(box);
+  if (tab === 'device' && isHR()) { box.innerHTML = `<div class="card"><h2>${esc(tr('الحضور من جهاز البصمة'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('إذا كانت منشأتك تستخدم جهاز بصمة (مثل ZKTeco)، صدّر سجل البصمات منه واستورده هنا، فيدخل في الكشف الشهري والرواتب مثل الحضور من الجوال.'))}</p>
+      <button class="btn pri" id="devi">${esc(tr('استيراد سجل البصمات'))}</button></div>`; $('#devi', box).onclick = () => devImport(); return; }
   if (!attOn()) { box.innerHTML = `<div class="note">تسجيل الحضور غير مفعّل بعد.${isHR() ? ' أضف موقع العمل والوردية من «الإعدادات» ثم فعّله.' : ''}</div>`; return; }
   if (tab === 'month') return attMonth(box, sub);
   return attToday(box);

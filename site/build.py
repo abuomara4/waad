@@ -45,6 +45,9 @@ import sys; sys.path.insert(0, D)
 import knowledge
 KN = {out: body for _, out, _, _, body in knowledge.pages()}
 PAGES += [(p, out, t, d) for p, out, t, d, _ in knowledge.pages()]
+import industries   # «وعد حسب القطاع»
+KN.update({out: body for _, out, _, _, body in industries.pages()})
+PAGES += [(p, out, t, d) for p, out, t, d, _ in industries.pages()]
 
 for page, out, title, desc in PAGES:
     body = KN[out] if out in KN else guide_body(out) if page == 'guide' else open(os.path.join(D, 'pages', page + '.html'), encoding='utf-8').read()

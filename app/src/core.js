@@ -611,7 +611,7 @@ function navItems() {
   if (typeof GUIDE !== 'undefined') it.push({ h: '#/guide', t: 'دليل الاستخدام' });
   if (isHR() || isFin() || has('manager')) it.push({ h: '#/analytics', t: 'التحليلات' });
   if (S.emp) { g('خدماتي'); if (S.company && S.company.att_enabled && !(S.myEmp && S.myEmp.att_exempt)) it.push({ h: '#/attendance', t: 'حضوري' });
-    it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/sign', t: 'توقيعاتي', pill: NAVC.sign }, { h: '#/payslips', t: 'قسائم الراتب' }, { h: '#/reviews', t: 'تقييم الأداء' }, { h: '#/surveys', t: 'الاستبيانات' }, { h: '#/profile', t: 'ملفي' });
+    it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/sign', t: 'توقيعاتي', pill: NAVC.sign }, { h: '#/payslips', t: 'قسائم الراتب' }, { h: '#/reviews', t: 'تقييم الأداء' }, ...(isHR() ? [] : [{ h: '#/okrs', t: 'أهدافي (OKRs)' }]), { h: '#/surveys', t: 'الاستبيانات' }, { h: '#/profile', t: 'ملفي' });
     if (S.hasPetty) it.push({ h: '#/mypetty', t: 'عهدتي النقدية' });
     if (!isHR()) it.push({ h: '#/policies', t: 'السياسات واللوائح' });
     const ov = (S.company && S.company.org_visibility) || 'all';
@@ -622,7 +622,7 @@ function navItems() {
   if (has('manager') && !(isHR() || has('finance'))) it.push({ h: '#/clearance', t: 'إخلاء الطرف' });
   if (isHR() || has('finance')) {
     g('الموارد البشرية');
-    if (isHR()) it.push({ h: '#/hrdash', t: 'لوحة الموارد البشرية' }, { h: '#/compliance', t: 'الامتثال' }, { h: '#/onboarding', t: 'التهيئة والترحيب' }, { h: '#/announcements', t: 'الإعلانات الداخلية' }, { h: '#/permissions', t: 'الصلاحيات' });
+    if (isHR()) it.push({ h: '#/hrdash', t: 'لوحة الموارد البشرية' }, { h: '#/compliance', t: 'الامتثال' }, { h: '#/onboarding', t: 'التهيئة والترحيب' }, { h: '#/announcements', t: 'الإعلانات الداخلية' }, { h: '#/permissions', t: 'الصلاحيات' }, { h: '#/okrs', t: 'الأهداف (OKRs)' });
     if (isHR() && !S.emp) it.push({ h: '#/surveys', t: 'الاستبيانات' });
     if (isHR() || has('finance')) it.push({ h: '#/workforce', t: 'خطة القوى العاملة' });
     if (isHR()) it.push({ h: '#/employees', t: 'الموظفون' }, { h: '#/docs', t: 'المستندات والعقود', pill: NAVC.docs });
