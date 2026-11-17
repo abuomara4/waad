@@ -33,7 +33,9 @@ RELEASES = [
   ('لوحة الإنفاق وتصدير القيود لأنظمة المحاسبة الأخرى', 'Spend overview and journal export for other accounting systems'),
   ('الأهداف والنتائج الرئيسية (OKRs) للمنشأة والأقسام والموظفين', 'Objectives and key results (OKRs) for the company, departments and employees'),
   ('استيراد الحضور من أجهزة البصمة', 'Attendance import from fingerprint devices'),
-  ('صفحات «وعد حسب القطاع» في الموقع', '«Waad by sector» pages on the website')]),
+  ('صفحات «وعد حسب القطاع» في الموقع', '«Waad by sector» pages on the website'),
+  ('إدارة الأسطول: سجل الوقود والصيانة وموعد الصيانة القادمة', 'Fleet: fuel and maintenance log and the next service'),
+  ('ملف رواتب بصيغة بنكك (مثل «تبادل» الراجحي)', 'A salary file in your bank\'s own layout (such as Al Rajhi Tabadul)')]),
  ('16 نوفمبر 2026', '16 November 2026', [
   ('أقسام افتراضية لكل منشأة جديدة (تسعة أقسام بالعربي والإنجليزي)', 'Default departments for every new company (nine, Arabic and English)'),
   ('المرفقات عند إنشاء المستندات والعقود والعهد، وقائمة عهد جاهزة بالعربي والإنجليزي', 'Attachments when creating documents, contracts and custody, and a ready bilingual custody list'),

@@ -28,6 +28,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 آخر يوم عمل	Last working day
 آراء الزملاء لا تظهر بأسمائهم	peers' opinions are not shown with their names
 آلات	machines
+آيبان	IBAN
 أبها	Abha
 أثاث	furniture
 أثاث مكتبي	Office furniture
@@ -354,9 +355,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أو رفع أجور السعوديين المحتسبين جزئياً	or raise the wages of Saudis counted partially
 أو سنة معادة	or a repeated year
 أو صورة	or an image
+أو عند العداد	or at odometer
 أو غير سعوديين بلا إقامة أو رخصة عمل مسجلة	or non-Saudis with no iqama or work permit recorded
 أو قيدا يدويا	or a manual entry
 أو قيداً يدوياً	or a manual entry
+أو كل	or every
 أو لمن وصلته دعوة بالبريد من الإدارة	or for someone invited by email by management
 أو ما يرفع الرصيد إلى ضعف الحد	or what brings stock to twice the level
 أو مبلغ ثابت يضاف للأساسي	Or a fixed amount added to basic
@@ -485,6 +488,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إجازة وفاة الزوج	Husband's death leave
 إجازة وفاة قريب من الدرجة الأولى	Bereavement leave — first-degree relative
 إجراء غير معروف	Unknown action
+إجمالي	Total
 إجمالي الأساسي والبدلات	basic plus allowances
 إجمالي الإنفاق	Total spend
 إجمالي الراتب	Total salary
@@ -584,6 +588,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إصدار غير معروف	Unknown version
 إصدار فاتورة	Issue invoice
 إصدار فاتورة ضريبية من الأمر	Issue a tax invoice from the order
+إصلاح	Repair
 إضافة	Add
 إضافة أيام التعويض	Add compensation days
 إضافة إلى الشاشة الرئيسية	Add to Home Screen
@@ -791,6 +796,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اتفاق الطرفين	Mutual agreement
 اجتماع	Meeting
 اجعله الافتراضي	Make default
+اجمالي	Total
 احتفظ بأصول الفواتير لتسليمها للمالية	keep the original invoices to hand over to finance
 احتفظ بهذا الرمز	Keep this code
 احذف المستخدم بدلا منها	remove the user instead
@@ -864,6 +870,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اختصار	Shortcut
 اختصار: Ctrl+K أو ⌘K · الأسهم للتنقل · Enter للفتح	Shortcut: Ctrl+K or ⌘K · arrows to move · Enter to open
 اختيار الملف	Choose file
+اختيار نموذج البنك	Choose the bank's sample file
 اختيار يدوي	Manual selection
 اختياري	optional
 اخر	other
@@ -889,6 +896,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ارفع الملف	Upload the file
 ارفع الملف وراجع المعاينة	Upload the file and review the preview
 ارفع شعار المنشأة	Upload the company logo
+ارفعه هنا مرة واحدة	Upload it here once
+اساسي	Basic
 استئذان	Permission
 استبعاد أصل ثابت	Fixed asset disposal
 استبعده من التأمينات	remove from GOSI
@@ -916,6 +925,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 استقالة العامل	Resignation by the employee
 استقالة العاملة للزواج أو الولادة	Resignation by a female employee for marriage or childbirth
 استقبال زائرين في غير أمور عمل المنشأة في أماكن العمل دون إذن من الإدارة	Receiving visitors on non-work matters at the workplace without management permission
+استقطاع	Deduction
 استلام	Receive
 استلام إشعار	Receipt of notice
 استلام البضاعة	Goods receipts
@@ -947,12 +957,14 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 استُورد	Imported
 اسحب الجدول جانبا لعرض باقي الأعمدة	Swipe the table sideways to see the other columns
 اسحب الجدول جانباً لعرض باقي الأعمدة	Swipe the table sideways to see the other columns
+اسم	Name
 اسم البائع	Seller name
 اسم الباقة	Plan name
 اسم الباقة مستخدم مسبقا	That plan name is already used
 اسم الباقة مستخدم مسبقاً	That plan name is already used
 اسم البدل	Allowance name
 اسم البدل بالإنجليزية	Allowance name in English
+اسم البنك	Bank name
 اسم التابع	Dependant's name
 اسم الجهة	Organisation name
 اسم الحساب	Account name
@@ -981,6 +993,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اسم المورد	Supplier name
 اسم المورد وختمه	Supplier name and stamp
 اسم الموظف	Employee name
+اسم الموظف بالإنجليزي	Employee name in English
 اسم الموقع	Site name
 اسم الوردية	Shift name
 اسم جهة الطوارئ	Emergency contact name
@@ -1033,6 +1046,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اطلب عروضاً من أكثر من مورد	Ask several suppliers for offers
 اطلب من الموارد البشرية إعادة تعيينها	ask HR to reset it
 اطلب من الموارد البشرية ربطه	Ask HR to link it
+اطلب من بنكك	Ask your bank
 اطلبها من مالك المنصة	ask the platform owner for it
 اطّلع	Acknowledged
 اطّلع الموظف في	The employee acknowledged on
@@ -1862,6 +1876,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الصنف موقوف	The item is inactive
 الصورة كبيرة جدا	The image is too large
 الصورة كبيرة جداً	The image is too large
+الصيانة القادمة	Next service
+الصيانة القادمة بتاريخ	Next service on
+الصيانة كل	Service every
 الصيغة	Format
 الضريبة	VAT
 الضريبة تُسترد فقط إذا كانت الفاتورة ضريبية وفيها الرقم الضريبي للمورد	VAT is reclaimable only on a tax invoice showing the supplier VAT number
@@ -1891,6 +1908,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 العجز أكبر من الرصيد المتوفر	The shortage exceeds the available stock
 العجز أكبر من الرصيد المتوفر في المستودع	The shortage exceeds the warehouse balance
 العجز الكلي	Total disability
+العداد	Odometer
 العدد	Count
 العدد نهاية الشهر	Headcount at month end
 العدول عن الاستقالة	Withdraw resignation
@@ -2062,6 +2080,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الكمية المسلّمة	Qty delivered
 الكمية المقترحة	Suggested qty
 الكمية لا تكون سالبة	Quantity cannot be negative
+اللترات	Liters
 اللغة	Language
 اللوحة	plate
 اللوحة لفريق وعد فقط	The admin site is for the Waad team only
@@ -2667,6 +2686,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بعد المراجعة يعتمده المدير العام أو المدير المالي	After review, the General Manager or Finance Manager approves it
 بعد هذا الطلب	After this request
 بعدها كل دخول يطلب رمز من التطبيق	After that every sign-in asks for a code from the app
+بعدها يصدر ملف البنك من كل مسير بنفس الترتيب	then every payroll exports the bank file in the same order
 بعضها يكتمل تلقائيا من بياناته	some complete automatically from their data
 بقالة الحي	Neighborhood Grocery
 بقدر الوقت المتأخر	for the time late
@@ -2701,6 +2721,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بندا في الطلب	lines per request
 بنداً في الطلب	lines per request
 بنغلاديشي	Bangladeshi
+بنك	Bank
 بنك البلاد	Bank Albilad
 بنك الجزيرة	Bank AlJazira
 بنك الرياض	Riyad Bank
@@ -2712,6 +2733,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بيئة المحاكاة	Simulation environment
 بيئة المحاكاة (تجريبي)	Simulation (test)
 بيئة المطوّرين	Developer sandbox
+بيان	Description
 بيان السطر	Line description
 بيانات إخلاء الطرف	Clearance data
 بيانات الاشتراك فقط	Subscription data only
@@ -2850,6 +2872,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تاريخ نهاية العقد قبل بدايته	The contract ends before it starts
 تالفة	damaged
 تايلندي	Thai
+تبادل	Tabadul
 تبدأ إجازة العدة من تاريخ الوفاة	Iddah leave starts on the date of death
 تبدأ الإجازة من تاريخ الواقعة أو بعده	The leave starts on or after the event date
 تبدأ من تاريخ الوفاة ولا تقل عن	Starts on the date of death and is not less than
@@ -3085,6 +3108,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تعديل عقد	contract amendment
 تعديل عهدة	Edit item
 تعديل فاتورة متكررة	Edit recurring invoice
+تعديل قالب البنك	Edit the bank template
 تعديل مركز تكلفة	Edit cost center
 تعديل مستخدم	Edit user
 تعديل مستند	Edit document
@@ -3602,6 +3626,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حفظ السند	Save voucher
 حفظ الشيك	Save cheque
 حفظ الصلاحيات	Save permissions
+حفظ القالب	Save template
 حفظ المحضر	Save minutes
 حفظ المخالفة	Close the case
 حفظ الموازنة	Save budget
@@ -3672,6 +3697,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 خسارة	Loss
 خسرنا الفرصة	Opportunity lost
 خسرناها	Lost
+خصم	Deduction
 خصوم	Liability
 خط الطول	Longitude
 خط العرض	Latitude
@@ -3772,6 +3798,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 راج كومار	Raj Kumar
 راجع إجراءات الغياب وإبلاغ الجهات	Follow the absence procedures and notify the authorities
 راجع الحالات الخاصة مع مختص	review special cases with a specialist
+راجع الملف قبل رفعه في بوابة البنك	Review the file before uploading it to the bank portal
 راجع الموارد البشرية	contact HR
 راجع في الدليل ما يخص هذه الأسئلة ثم أعد الاختبار	Review these questions in the guide, then retake the quiz
 راجع في الدليل ما يخص هذه الأسئلة ثم أعد الاختبار:	Review these questions in the guide, then retake the quiz:
@@ -3870,6 +3897,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 رقم الجوال غير صحيح	Invalid mobile number
 رقم الحجز	Booking no.
 رقم الحجز أو التذكرة	Booking or ticket number
+رقم الحساب	Account number
 رقم الحساب يبدأ بالرقم	The account number must start with
 رقم الشهادة	Certificate no.
 رقم الشيك	Cheque no.
@@ -4046,6 +4074,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 سجل المنشآت المحذوفة	Deleted companies log
 سجل الموظف	Employee record
 سجل الموظف مربوط بحساب آخر	The employee record is linked to another account
+سجل الوقود والصيانة	Fuel and maintenance log
 سجل تجاري أو رخصة أو استمارة أو تأمين ينتهي خلال	A commercial registration, licence, vehicle registration or insurance expiring within
 سجل زاتكا لا يتغيّر	The ZATCA record cannot be changed
 سجل زاتكا لا يُحذف	The ZATCA record cannot be deleted
@@ -4340,6 +4369,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 صومالي	Somali
 صوّرها بصيغة	take it as
 صيانة	maintenance
+صيانة دورية	Scheduled service
 صيني	Chinese
 صُرف أو بيع	was issued or sold
 صُرف البدل	Allowance paid
@@ -4359,6 +4389,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 طابعة	Printer
 طابعة فواتير	Receipt printer
 طابق حركات البنك في الدفاتر مع كشف الحساب	Match bank lines in the books against the bank statement
+طابق عمود صافي الراتب وعمود الآيبان أو رقم الحساب على الأقل	Map at least the net salary column and the IBAN or account column
 طباعة	Print
 طباعة إشعار التأجيل	Print deferral notice
 طباعة الإشعار	Print notice
@@ -4527,8 +4558,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عملاء	Customers
 عملاء محتملون	Leads
 عملاء محتملون من الحملات	Leads from campaigns
+عملة	Currency
 عملة جديدة	New currency
 عمود الاسم غير موجود	The name column is missing
+عمود البنك	Bank column
 عمود رمز الصنف غير موجود	The item code column is missing
 عميل	customer
 عميل أو مورد	Customer or supplier
@@ -4735,6 +4768,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 في الملف	in the file
 في النظام	System qty
 في رمضان	In Ramadan
+في مصرف الراجحي	at Al Rajhi Bank
 في ملف الموظف	in the employee record
 في نافذة الطباعة	in the print window
 في نافذة الطباعة اختر الحجم	In the print dialog choose paper size
@@ -4763,6 +4797,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قارن مع القالب المنزّل من حسابك في مدد قبل الرفع	compare with the template downloaded from your Mudad account before uploading
 قارنها	compare them
 قالب سريع	Quick template
+قالب ملف البنك غير صحيح	The bank file template is not valid
 قبض	Receipt
 قبل	before
 قبل الحفظ	before saving
@@ -4780,6 +4815,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قدّم الآن	Apply now
 قدّم الطلب قبل	Submit the request
 قدّم تسوية بما صرفته من العهدة مع أرقام الفواتير	Submit a settlement of what you spent from the fund with the invoice numbers
+قراءة العداد	Odometer reading
 قرار التظلم	Grievance decision
 قرار الحذف	Deletion decision
 قرار توقيع جزاء تأديبي	Disciplinary penalty decision
@@ -5017,6 +5053,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد فواتير واردة	No incoming invoices
 لا توجد قسائم معتمدة بعد	No approved payslips yet
 لا توجد قيود	No entries
+لا توجد قيود بعد	No entries yet
 لا توجد قيود في هذه الفترة	No entries in this period
 لا توجد متابعات	No follow-ups
 لا توجد مخالفات مسجلة	No violations recorded
@@ -5169,6 +5206,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لاسترداد الضريبة أدخل الرقم الضريبي للمورد	To reclaim VAT enter the supplier VAT number
 لبناني	Lebanese
 لتحدد أدوار الشخص	to set the person's roles
+لتر	L
 لترسل فواتيرك لزاتكا تلقائيا كما تشترط المرحلة الثانية	to send your invoices to ZATCA automatically, as Phase 2 requires
 لترسل فواتيرك لزاتكا تلقائياً كما تشترط المرحلة الثانية	to send your invoices to ZATCA automatically, as Phase 2 requires
 لتسجيل تصحيحات داخل السنة أعد فتح الفترة أيضا	to post corrections inside the year reopen the period too
@@ -5432,6 +5470,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مثل قيود وزوهو بوكس وأودو	such as Qoyod, Zoho Books and Odoo
 مثل كرتون	e.g. carton
 مثل ملف	such as the file
+مثل منصة	such as the
 مثل: إيجار المكتب لشهر نوفمبر	e.g. office rent for November
 مثل: إيجار شهري، عقد صيانة	e.g. monthly rent, maintenance contract
 مثل: جهاز عرض	e.g. Projector
@@ -5626,6 +5665,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مشروع جديد	New project
 مشكلة	Problem
 مصاريف الرحلة الفعلية	The actual trip costs
+مصاريف السنة	This year's costs
 مصرف الإنماء	Alinma Bank
 مصرف الراجحي	Al Rajhi Bank
 مصروف	Paid
@@ -5750,6 +5790,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ملف JSON كامل	Full JSON file
 ملف JSON كامل (مع المرفقات)	Full JSON file (with attachments)
 ملف إضافي	Additional file
+ملف البنك	Bank file
 ملف الفاتورة	Invoice file
 ملف الموظف	Employee file
 ملف بسطر لكل طرف قيد	A file with one row per entry line
@@ -5766,6 +5807,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 من أجرك	of your wage
 من أجهزة	from
 من أكملها	people who completed them
+من الآيبان	from the IBAN
 من الأجر	of the wage
 من الأساسي	of basic
 من الأمر تُصدر إشعارات التسليم ثم الفاتورة الضريبية	From the order issue delivery notes, then the tax invoice
@@ -5806,6 +5848,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 من مستودع	From warehouse
 من منصة صحة	from the Seha platform
 من نظام العمل	of the Labor Law
+من وعد	From Waad
 من وين جاؤوا	Where they came from
 من وين عرفت عن وعد	How did you hear about Waad
 من وين عرفوا عن وعد	How they heard about Waad
@@ -5994,6 +6037,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نماذج جاهزة تُعبّأ تلقائياً من بيانات الموظف أو العميل أو المورد	Ready-made forms that fill in automatically from the employee, customer or supplier record
 نماذج جاهزة تُعبّأ تلقائياً من بيانات الموظف أو العميل أو المورد، وتُطبع بترويسة منشأتك وبرقم مسلسل	Ready-made forms that fill in automatically from the employee, customer or supplier record, printed on your letterhead with a serial number
 نموذج جديد	New form
+نموذج ملف رفع الرواتب	the salary upload sample file
 نموذج منشأتك	Your company's form
 نهاري	light
 نهاية البدل قبل بدايته	The allowance ends before it starts
@@ -6171,6 +6215,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 والمدير العام لا يعتمد طلبه بنفسه	and the general manager does not approve his own request
 والمدير المباشر برقمه الوظيفي	and the direct manager by employee number
 والمدير المباشر يُكتب برقمه الوظيفي	and the direct manager is written as their employee number
+والمسؤولية في صحة البيانات على المنشأة	and the company is responsible for the data being correct
 والمقياس	and scale
 والموردين	and suppliers
 والوجهة	and destination
@@ -6270,7 +6315,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وصلتك تأشيرة الخروج والعودة	Your exit/re-entry visa has arrived
 وصلتك تذكرة السفر	Your travel ticket has arrived
 وصلنا طلبك	We got your request
+وطابق كل عمود مع بيانات وعد	and map each column to Waad data
 وظيفة شاغرة جديدة	New job opening
+وظيفي	Employee
 وعادة نهاية السنة السابقة	usually the end of the previous year
 وعد	Waad
 وعد لا يتصل بمنصات مدد أو التأمينات أو قوى أو مقيم	Waad does not connect to Mudad, GOSI, Qiwa or Muqeem
@@ -6341,6 +6388,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ونرد عليك قريبا	and we'll reply soon
 ونرد عليك قريباً	and we'll reply soon
 ونرد عليك هنا وعلى إيميلك	and we'll reply here and by e-mail
+ونزّله من بوابة الشركات	and download it from the corporate portal
 ونسبة الضريبة	and the VAT rate
 ووين	and where
 ويبقى المبلغ في	and the amount stays in

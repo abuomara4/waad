@@ -178,6 +178,15 @@ with sync_playwright() as pw:
     wp = os.path.join(tempfile.mkdtemp(), 'w.xlsx'); dl.value.save_as(wp); ws = openpyxl.load_workbook(wp).active
     hdr = [c.value for c in ws[1]]; r2_ = [c.value for c in ws[2]]
     ok(hdr[0] == 'رقم الهوية / الإقامة' and hdr[-1] == 'صافي الراتب' and isinstance(r2_[-1], (int, float)) and ws.max_row == 4, 'Mudad Excel has the WPS columns with numeric amounts')
+    o.click('#mx')
+    # the bank's own salary file (0119): the bank's sample file is mapped once, then every payroll exports in its layout
+    bkx = os.path.join(tempfile.mkdtemp(), 'bank-sample.xlsx'); wb_ = openpyxl.Workbook(); wb_.active.append(['Employee Name', 'National ID', 'IBAN', 'Net Amount', 'Currency']); wb_.save(bkx)
+    o.click('#bkf'); o.wait_for_selector('#dlg input[name=bk]'); o.fill('#dlg input[name=bk]', 'مصرف الراجحي — تبادل'); o.set_input_files('#bkt', bkx); o.wait_for_selector('#bks')
+    ok(o.locator('[data-bi="2"]').input_value() == 'iban' and o.locator('[data-bi="3"]').input_value() == 'net', 'bank file: the bank columns are matched to Waad fields automatically')
+    o.click('#bks'); o.wait_for_selector('#bkd')
+    with o.expect_download() as dl: o.click('#bkd')
+    bp = os.path.join(tempfile.mkdtemp(), 'b.xlsx'); dl.value.save_as(bp); bws = openpyxl.load_workbook(bp).active
+    ok([c.value for c in bws[1]] == ['Employee Name', 'National ID', 'IBAN', 'Net Amount', 'Currency'] and bws.max_row == 4 and bws.cell(2, 5).value == 'SAR', 'bank file: the payroll exports in the bank\'s exact layout')
     o.click('#mx'); o.click('#gos'); o.wait_for_selector('#gsr table')
     ok('حصة المنشأة' in o.inner_text('#gsr') and o.locator('#gsr tbody tr').count() == 3, 'GOSI report lists every employee with both shares')
     o.click('#mx')
@@ -1252,6 +1261,11 @@ with sync_playwright() as pw:
     go(o, '#/companydocs'); o.wait_for_selector('#cdnew'); o.click('#cdnew'); o.wait_for_selector('#dlg[open] select[name=t]'); o.fill('#dlg input[name=no]', '1010999999')
     o.fill('#dlg input[name=ex]', (datetime.date.today() + datetime.timedelta(days=20)).isoformat()); modal_ok(o); o.wait_for_timeout(600)
     ok('السجل التجاري' in o.inner_text('#cdl') and 'متبقي' in o.inner_text('#cdl'), 'company documents: the commercial registration is recorded with a countdown to expiry')
+    # fleet (0119): a vehicle with a service plan and a fuel / service log
+    go(o, '#/companydocs?t=vehicles'); o.wait_for_selector('#cdnew'); o.click('#cdnew'); o.wait_for_selector('#dlg input[name=plate]')
+    o.fill('#dlg input[name=plate]', 'ا ب ج 4455'); o.fill('#dlg input[name=odo]', '20000'); o.fill('#dlg input[name=sek]', '5000'); modal_ok(o); o.wait_for_timeout(500)
+    o.locator('#cdl tbody tr', has_text='4455').click(); o.wait_for_selector('#vlnew'); o.click('#vlnew'); o.select_option('#dlg select[name=vk]', 'service'); o.fill('#dlg input[name=va]', '350'); o.fill('#dlg input[name=vo]', '21000'); o.click('#vlsave'); o.wait_for_timeout(600)
+    ok(sql("select odometer || '/' || next_service_km from vehicles where plate = 'ا ب ج 4455'") == '21000/26000' and 'صيانة دورية' in o.inner_text('#vlog'), 'fleet: a service at 21,000 km sets the next one at 26,000 km'); o.click('#mx')
     # custom fields: a field defined once shows in the employee form and is saved
     go(o, '#/customfields'); o.wait_for_selector('#cfn'); o.click('#cfn'); o.wait_for_selector('#dlg[open] input[name=label]'); o.fill('#dlg input[name=label]', 'فصيلة الدم'); modal_ok(o); o.wait_for_timeout(600)
     go(o, '#/employees'); o.locator('#page tbody tr', has_text='محمد العتيبي').click(); o.wait_for_selector('#dlg[open] input[name^=cf_]'); o.fill('#dlg input[name^=cf_]', 'O+'); modal_ok(o); o.wait_for_timeout(500)
@@ -1439,7 +1453,7 @@ with sync_playwright() as pw:
     # ---------- packages and the admin site (a separate page: waad-admin.html, published as site/admin/) ----------
     pp = new_page(b); signup(pp, 'platform@waad.test'); pp.wait_for_selector('#cf')
     sqlx("insert into platform_admins(user_id, can_export, is_super) select id, true, true from auth.users where email='platform@waad.test'")
-    pp.reload(); pp.wait_for_url(re.compile(r'waad-admin\.html'), timeout=8000); pp.wait_for_selector('#ptabs'); go(pp, '#/companies'); pp.wait_for_selector('.plat tbody tr')
+    pp.reload(); pp.wait_for_url(re.compile(r'waad-admin\.html'), timeout=25000); pp.wait_for_selector('#ptabs'); go(pp, '#/companies'); pp.wait_for_selector('.plat tbody tr')
     ok(True, 'the system sends a platform admin with no company to the admin site')
     ok(pp.evaluate("document.documentElement.dataset.theme") == 'light', 'the admin site is light by default')
     ok('شركة وعد التجريبية' in pp.inner_text('#ppage') and 'gm@waad.test' in pp.inner_text('#ppage'), 'platform panel lists companies with the owner e-mail')

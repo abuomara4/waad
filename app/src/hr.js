@@ -605,7 +605,7 @@ async function payrollRun(page, id) {
     : step === 'fin' && has('owner', 'finance') ? `<button class="btn pri" id="sg">${esc(tr('اعتماد المالية'))}</button>`
     : step === 'gm' && has('owner') ? `<button class="btn pri" id="ap">${esc(tr('الاعتماد النهائي وترحيل القيد'))}</button>` : '';
   page.innerHTML = `<div class="head"><div><a href="#/payroll" class="small back">المسيرات</a><h1>مسير ${run.month}/${run.year} ${badge(run.status)}</h1><div class="muted">${esc(arCount(lines.length, 'موظف'))} · الصافي <b class="num">${money(sum('net'))}</b></div>${run.att_from ? `<div class="muted small">${esc(tr('فترة الحضور والغياب والإضافي'))}: <span class="num">${fdate(run.att_from)} – ${fdate(run.att_to)}</span></div>` : ''}</div>
-    <div class="row">${draft && isHR() ? '<button class="btn" id="re">إعادة الاحتساب</button>' : ''}${signBtn}${draft && (run.hr_ok_at || run.fin_ok_at) && has('owner', 'admin', 'hr', 'finance') ? `<button class="btn" id="rt">${esc(tr('إرجاع للتعديل'))}</button>` : ''}${run.status === 'approved' && has('owner', 'finance') ? '<button class="btn pri" id="pd">تسجيل الصرف</button>' : ''}<button class="btn" id="prn">${esc(tr('طباعة المسير'))}</button><button class="btn" id="gos">تقرير التأمينات</button>${run.status !== 'draft' ? '<button class="btn" id="wps">ملف حماية الأجور</button>' : ''}</div></div>
+    <div class="row">${draft && isHR() ? '<button class="btn" id="re">إعادة الاحتساب</button>' : ''}${signBtn}${draft && (run.hr_ok_at || run.fin_ok_at) && has('owner', 'admin', 'hr', 'finance') ? `<button class="btn" id="rt">${esc(tr('إرجاع للتعديل'))}</button>` : ''}${run.status === 'approved' && has('owner', 'finance') ? '<button class="btn pri" id="pd">تسجيل الصرف</button>' : ''}<button class="btn" id="prn">${esc(tr('طباعة المسير'))}</button><button class="btn" id="gos">تقرير التأمينات</button>${run.status !== 'draft' ? '<button class="btn" id="wps">ملف حماية الأجور</button>' : ''}${run.status !== 'draft' ? `<button class="btn" id="bkf">${esc(tr('ملف البنك'))}</button>` : ''}</div></div>
     ${paySteps(run)}${draft && run.return_note ? `<div class="note">${esc(tr('أُعيد المسير للتعديل'))}: ${esc(run.return_note)}</div>` : ''}
     ${tbl([{ t: 'الموظف', h: l => esc((em[l.employee_id] || {}).full_name || '') + (l.paid_days != null && l.paid_days < 30 ? ` <span class="badge" title="${esc(tr('جزء من الشهر'))}">${l.paid_days}/30</span>` : '') }, { t: 'الإجمالي', r: 1, h: l => money(l.gross) }, ...(hasArr ? [{ t: 'مستحقات الشهر السابق', r: 1, h: l => n0(l.arrears) ? money(l.arrears) + ` <span class="muted small num">(${l.arrears_days})</span>` : '—' }] : []), { t: 'إضافي', r: 1, h: l => money(l.overtime) }, { t: 'مكافأة', r: 1, h: l => money(l.bonus) },
       { t: 'التأمينات', r: 1, h: l => money(l.gosi) }, { t: 'بدون أجر', r: 1, h: l => money(l.absence) }, { t: 'غياب وتأخير', r: 1, h: l => money(n0(l.att_absence) + n0(l.late_deduction)) }, { t: 'مرضية', r: 1, h: l => money(l.sick_deduction) }, { t: 'غرامات وجزاءات', r: 1, h: l => money(n0(l.deductions) + n0(l.penalty_fine)) }, { t: 'تلفيات', r: 1, h: l => money(l.damages) }, { t: 'سلفة', r: 1, h: l => money(l.advance) }, { t: 'الصافي', r: 1, h: l => '<b>' + money(l.net) + '</b>' }],
@@ -627,6 +627,7 @@ async function payrollRun(page, id) {
   if ($('#ap', page)) $('#ap', page).onclick = async () => { if (!await confirmBox('اعتماد المسير', 'بعد الاعتماد يُرحّل قيد الاستحقاق ولا يمكن تعديل المسير.', 'اعتماد')) return; try { await db.rpc('payroll_approve', { p_run: id }); toast('اعتُمد المسير'); route(); } catch (e) { toast(e.message); } };
   if ($('#pd', page)) $('#pd', page).onclick = () => modal('تسجيل صرف الرواتب', field('من حساب', `<select name="acc">${opt('1120', 'البنك')}${opt('1110', 'الصندوق')}</select>`), { ok: 'تسجيل', onOk: async f => { await db.rpc('payroll_mark_paid', { p_run: id, p_account: f.acc }); toast('سُجل الصرف'); route(); } });
   if ($('#wps', page)) $('#wps', page).onclick = () => wpsFile(run, lines, em);
+  if ($('#bkf', page)) $('#bkf', page).onclick = () => bankFile(run, lines, em);
   $('#gos', page).onclick = () => gosiReport(run, em).catch(er => toast(er.message));
 }
 // Saudi IBAN: SA + 22 digits with a valid ISO 13616 check (mod 97); digits 5–6 are the bank (SARIE codes)
@@ -637,6 +638,44 @@ function ibanOk(v) { const s = String(v || '').replace(/\s/g, '').toUpperCase();
   const r = (s.slice(4) + s.slice(0, 4)).replace(/[A-Z]/g, c => c.charCodeAt(0) - 55); let m = 0; for (const ch of r) m = (m * 10 + +ch) % 97; return m === 1; }
 const lineOther = l => r2(n0(l.transport) + n0(l.allowances) + n0(l.arrears) + n0(l.overtime) + n0(l.bonus));
 const lineDed = l => r2(n0(l.gosi) + n0(l.absence) + n0(l.att_absence) + n0(l.late_deduction) + n0(l.sick_deduction) + n0(l.deductions) + n0(l.penalty_fine) + n0(l.damages) + n0(l.advance));
+// the bank's own salary-upload layout (Al Rajhi «تبادل» and others): the company uploads the bank's sample file once and maps
+// its columns; every payroll then exports in exactly that layout (0119)
+const BANK_F = { '': '— فارغ —', national_id: 'رقم الهوية / الإقامة', name: 'اسم الموظف', name_en: 'اسم الموظف بالإنجليزي', emp_no: 'الرقم الوظيفي', iban: 'الآيبان', account: 'رقم الحساب (من الآيبان)',
+  bank_code: 'رمز البنك', basic: 'الراتب الأساسي', housing: 'بدل السكن', other: 'الدخل الآخر', deductions: 'الاستقطاعات', gross: 'الإجمالي', net: 'صافي الراتب', month: 'الشهر (YYYY-MM)', pay_date: 'تاريخ الصرف', currency: 'العملة (SAR)', remarks: 'البيان' };
+const bankGuess = h => { h = String(h || '').toLowerCase();
+  return /iban|آيبان|ايبان/.test(h) ? 'iban' : /account|حساب/.test(h) ? 'account' : /national|iqama|هوية|إقامة|اقامة|id ?no|civil/.test(h) ? 'national_id' : /bank|بنك|swift/.test(h) ? 'bank_code'
+    : /name|اسم/.test(h) ? (/en|english|إنجليزي/.test(h) ? 'name_en' : 'name') : /basic|أساسي|اساسي/.test(h) ? 'basic' : /hous|سكن/.test(h) ? 'housing' : /other|آخر|اخرى|أخرى|allow/.test(h) ? 'other'
+    : /deduct|استقطاع|خصم/.test(h) ? 'deductions' : /net|صافي|amount|المبلغ/.test(h) ? 'net' : /gross|إجمالي|اجمالي/.test(h) ? 'gross' : /emp|وظيفي|staff/.test(h) ? 'emp_no' : /curr|عملة/.test(h) ? 'currency'
+    : /month|شهر|period/.test(h) ? 'month' : /date|تاريخ/.test(h) ? 'pay_date' : /remark|desc|بيان|ملاحظ/.test(h) ? 'remarks' : ''; };
+async function bankFile(run, lines, em) {
+  const tpl = (S.company || {}).bank_file;
+  const setup = () => { const d = modal(tr('ملف البنك'), `<ol class="small" style="padding-inline-start:18px;margin-top:0"><li>${esc(tr('اطلب من بنكك (مثل منصة «تبادل» في مصرف الراجحي) نموذج ملف رفع الرواتب، ونزّله من بوابة الشركات.'))}</li>
+      <li>${esc(tr('ارفعه هنا مرة واحدة، وطابق كل عمود مع بيانات وعد. بعدها يصدر ملف البنك من كل مسير بنفس الترتيب.'))}</li></ol>
+      ${field('اسم البنك', inp('bk', tpl && tpl.bank || '', 'maxlength="60" placeholder="' + esc(tr('مصرف الراجحي — تبادل')) + '"'))}
+      <label class="btn" style="margin:0">${esc(tr('اختيار نموذج البنك (Excel أو CSV)'))}<input type="file" id="bkt" accept=".xlsx,.csv" hidden></label><div id="bkm" style="margin-top:10px"></div>`, { wide: true });
+    const draw = (headers, map, ext) => { $('#bkm', d).innerHTML = `<div class="tw"><table><thead><tr><th>${esc(tr('عمود البنك'))}</th><th>${esc(tr('من وعد'))}</th></tr></thead><tbody>${headers.map((h, i) => `<tr><td>${esc(h)}</td><td><select data-bi="${i}">${Object.entries(BANK_F).map(([k, t]) => opt(k, tr(t), map[i] || '')).join('')}</select></td></tr>`).join('')}</tbody></table></div>
+        <button type="button" class="btn pri" id="bks" style="margin-top:8px">${esc(tr('حفظ القالب'))}</button>`;
+      $('#bks', d).onclick = async () => { const m = headers.map((h, i) => d.querySelector('[data-bi="' + i + '"]').value);
+        if (!m.includes('net') || !(m.includes('iban') || m.includes('account'))) { toast(tr('طابق عمود صافي الراتب وعمود الآيبان أو رقم الحساب على الأقل')); return; }
+        const t = { bank: d.querySelector('[name=bk]').value.trim(), headers, map: m, ext };
+        try { await db.rpc('bank_file_set', { p_company: S.cid, p_tpl: t }); S.company.bank_file = t; d.close(); toast(tr('تم الحفظ')); bankFile(run, lines, em); } catch (e) { toast(e.message); } }; };
+    if (tpl) draw(tpl.headers, tpl.map, tpl.ext);
+    $('#bkt', d).onchange = async ev => { const file = ev.target.files[0]; if (!file) return; try { const sf = await readSheetFile(file); const headers = sf.hdr.map(h => String(h == null ? '' : h).trim());
+      draw(headers, headers.map(bankGuess), /\.csv$/i.test(file.name) ? 'csv' : 'xlsx'); } catch (e) { toast(e.message); } }; };
+  if (!tpl) return setup();
+  const ym = run.year + '-' + String(run.month).padStart(2, '0');
+  const val = (k, l, e) => { const iban = String(e.iban || '').replace(/\s/g, '').toUpperCase(), bank = SA_BANKS[iban.slice(4, 6)];
+    return { national_id: e.national_id || '', name: e.full_name || '', name_en: e.full_name_en || '', emp_no: e.emp_no || '', iban, account: iban.slice(6).replace(/^0+/, ''), bank_code: bank ? bank[0] : '',
+      basic: r2(l.basic), housing: r2(l.housing), other: lineOther(l), deductions: lineDed(l), gross: r2(n0(l.basic) + n0(l.housing) + lineOther(l)), net: r2(l.net), month: ym, pay_date: run.pay_date || '', currency: 'SAR',
+      remarks: tr('رواتب') + ' ' + ym, '': '' }[k]; };
+  const rows = lines.filter(l => n0(l.net) > 0).map(l => tpl.map.map(k => val(k, l, em[l.employee_id] || {})));
+  const name = 'salaries-' + ym + '-' + (tpl.bank || 'bank').replace(/[^\w\u0600-\u06FF-]+/g, '_');
+  const blob = tpl.ext === 'csv' ? new Blob(['\ufeff' + [tpl.headers, ...rows].map(r => r.map(v => typeof v === 'number' ? v.toFixed(2) : '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' }) : templateXlsx([tpl.headers, ...rows]);
+  const d = modal(tr('ملف البنك'), `<p>${esc(tpl.bank || tr('البنك'))}: <b class="num">${rows.length}</b> ${esc(tr('موظف'))} · ${esc(tr('الإجمالي'))} <b class="num">${money(rows.length ? lines.filter(l => n0(l.net) > 0).reduce((a, l) => a + n0(l.net), 0) : 0)}</b></p>
+    <div class="row"><a class="btn pri" id="bkd" download="${esc(name)}.${tpl.ext === 'csv' ? 'csv' : 'xlsx'}">${esc(tr('تنزيل الملف'))}</a><button type="button" class="btn" id="bkc">${esc(tr('تعديل قالب البنك'))}</button></div>
+    <p class="muted small">${esc(tr('راجع الملف قبل رفعه في بوابة البنك، والمسؤولية في صحة البيانات على المنشأة.'))}</p>`);
+  $('#bkd', d).href = URL.createObjectURL(blob); $('#bkc', d).onclick = () => { d.close(); setup(); };
+}
 function wpsFile(run, lines, em) {
   const en = LANG === 'en';
   const rows = lines.map(l => { const e = em[l.employee_id] || {}, iban = String(e.iban || '').replace(/\s/g, '').toUpperCase(), bank = SA_BANKS[iban.slice(4, 6)];

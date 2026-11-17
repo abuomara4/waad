@@ -3520,6 +3520,21 @@ select t.ok((:'devr'::jsonb->>'days')::int = 1 and :'devr'::jsonb->'unknown' ? '
   and exists(select 1 from public.attendance where employee_id = :'e_emp' and day = current_date - 3 and note = 'استيراد من جهاز البصمة'),
   'fingerprint import: the day is recorded, an unknown device number is reported');
 
+-- fleet upkeep and the bank's salary file (0119)
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+insert into public.vehicles(company_id, plate, odometer, service_every_km, service_every_months) values (:'cid', 'ق ص ر 9911', 40000, 5000, 6) returning id as veh1 \gset
+insert into public.vehicle_logs(company_id, vehicle_id, kind, day, amount, odometer, liters) values (:'cid', :'veh1', 'fuel', current_date - 5, 120, 40500, 50);
+insert into public.vehicle_logs(company_id, vehicle_id, kind, day, amount, odometer) values (:'cid', :'veh1', 'service', current_date - 2, 450, 41000);
+select t.ok((select odometer = 41000 and next_service_km = 46000 and next_service_date = (current_date - 2 + interval '6 months')::date from public.vehicles where id = :'veh1'),
+  'fleet: logs move the odometer, and a service sets the next one (every 5,000 km / 6 months)');
+select t.err($$select public.bank_file_set('$$ || :'cid' || $$', '{"headers":["a","b"],"map":["net"]}')$$, 'غير صحيح', 'bank file: the template must map every column');
+select public.bank_file_set(:'cid', '{"bank":"مصرف الراجحي","headers":["IBAN","Amount"],"map":["iban","net"],"ext":"xlsx"}');
+select t.ok((select bank_file->>'bank' = 'مصرف الراجحي' from public.companies where id = :'cid'), 'bank file: the company keeps its bank''s layout');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$insert into public.vehicle_logs(company_id, vehicle_id, kind, amount) values ('$$ || :'cid' || $$', '$$ || :'veh1' || $$', 'fuel', 10)$$, 'row-level', 'fleet: an employee cannot log vehicle costs');
+reset role;
+
 -- the owner's monthly e-mail also counts applicants, survey answers, new hires missing data and position requests (0110)
 select t.ok((select public.monthly_report(:'cid', current_date) ?& array['applicants','survey_answers','onb_missing','hc_pending']), 'monthly e-mail: applicants, survey answers, onboarding gaps and position requests are reported');
 -- GOSI: the yearly pension step for new-regime contributors falls on 1 July (0109)
