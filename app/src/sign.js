@@ -45,7 +45,7 @@ function signShow(r, emp) {
 
 // the employee: what waits for my signature, and what I signed
 VIEWS['#/sign'] = async page => {
-  if (!S.emp) { page.innerHTML = `<div class="note">${esc(tr('حسابك غير مربوط بسجل موظف.'))}</div>`; return; }
+  if (!S.emp) { page.innerHTML = noEmpNote(); return; }
   const rows = await db.get('signature_requests', { employee_id: 'eq.' + S.emp, status: 'neq.cancelled', order: 'created_at.desc' });
   const pend = rows.filter(r => r.status === 'pending');
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('توقيعاتي'))}</h1><div class="muted">${esc(tr('المستندات التي طلبت منك المنشأة توقيعها إلكترونيا.'))}</div></div></div>

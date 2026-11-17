@@ -417,3 +417,5 @@ tr.pgrp td{padding-top:14px;color:var(--muted,#6b7280);font-size:13px}
 .ptbl{width:100%;border-collapse:collapse;font-size:11px}.ptbl th,.ptbl td{border:1px solid #999;padding:3px 5px;text-align:start}.ptbl td.num{text-align:end}.ptbl thead th{background:#eee}
 .psig{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px;font-size:12px;break-inside:avoid}.psig>div{display:flex;flex-direction:column;gap:6px}.psig .psl{margin-top:18px;border-top:1px dotted #555;padding-top:4px}
 .winv .ptbl{font-size:13px;margin-top:10px}.winv .ptbl tfoot td{background:#f6f6f6}
+.hmore,.hmore-i{display:contents}.hmore-t{display:none}
+@media(max-width:700px){.hmore{display:block;position:relative}.hmore-t{display:inline-flex}.hmore-i{display:none;position:absolute;inset-inline-end:0;top:calc(100% + 4px);z-index:40;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--sh2);padding:6px;flex-direction:column;gap:4px;min-width:230px}.hmore.open .hmore-i{display:flex}.hmore-i .btn{width:100%;justify-content:flex-start}}

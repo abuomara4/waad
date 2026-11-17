@@ -52,7 +52,7 @@ async function leaveBalance() {
 /* ===== my requests ===== */
 const LEAVE_TYPES = async () => cache.lt || (cache.lt = await db.get('leave_types', { order: 'code' }));
 VIEWS['#/requests'] = async page => {
-  if (!S.emp) { page.innerHTML = '<div class="note">حسابك غير مربوط بسجل موظف.</div>'; return; }
+  if (!S.emp) { page.innerHTML = noEmpNote(); return; }
   const [rs, bal, cpr, ecats] = await Promise.all([db.get('requests', { employee_id: 'eq.' + S.emp, order: 'created_at.desc' }), leaveBalance(), db.rpc('my_purchase_allowed', { p_company: S.cid }).catch(() => false),
     db.get('expense_policies', { company_id: 'eq.' + S.cid, select: 'category,per_claim' }).catch(() => [])]);
   S.ecats = ecats;
@@ -268,7 +268,7 @@ async function approvalsTrack(page) {
 
 /* ===== payslips ===== */
 VIEWS['#/payslips'] = async page => {
-  if (!S.emp) { page.innerHTML = '<div class="note">حسابك غير مربوط بسجل موظف.</div>'; return; }
+  if (!S.emp) { page.innerHTML = noEmpNote(); return; }
   const lines = await db.get('payroll_lines', { employee_id: 'eq.' + S.emp });
   const runs = lines.length ? await db.get('payroll_runs', { id: 'in.(' + lines.map(l => l.run_id).join(',') + ')' }) : [];
   const rm = {}; runs.forEach(r => rm[r.id] = r);
@@ -289,7 +289,7 @@ function payslip(l, e) {
 
 /* ===== profile ===== */
 VIEWS['#/profile'] = async page => {
-  const e = S.myEmp; if (!e) { page.innerHTML = '<div class="note">حسابك غير مربوط بسجل موظف.</div>'; return; }
+  const e = S.myEmp; if (!e) { page.innerHTML = noEmpNote(); return; }
   const [em, als, mm] = await Promise.all([employeesMap().catch(() => ({})), db.get('employee_allowances', { employee_id: 'eq.' + e.id }).catch(() => []),
     e.manager_id ? db.rpc('my_manager', { p_company: S.cid }).catch(() => null) : null]);
   const myAl = als.filter(a => allowActive(a));
@@ -350,7 +350,7 @@ VIEWS['#/employees'] = async (page, arg, q) => {
   // one search box over everything: employee number, name (ar/en), job title, department, manager, national id, mobile
   const searchStr = e => [e.emp_no, e.full_name, e.full_name_en, e.job_title, e.job_title_en, dm[e.department_id], e.manager_id && em[e.manager_id] ? em[e.manager_id].full_name : '', e.national_id, e.iqama_no, e.mobile].filter(Boolean).join(' ').toLowerCase();
   page.innerHTML = `<div class="head"><div><h1>الموظفون</h1><div class="muted" id="ecount" data-nt>${esc(arCount(rows.length, 'موظف'))}</div></div><div class="row">
-     <a class="btn" href="#/employees${showEnded ? '' : '?all=1'}">${showEnded ? 'على رأس العمل فقط' : 'إظهار المنتهية خدماتهم'}</a><button class="btn" id="dep">الأقسام</button><button class="btn" id="imx">استيراد من Excel</button><button class="btn" id="upx">تحديث جماعي من Excel</button><button class="btn" id="brs">زيادة جماعية</button><button class="btn pri" id="ne">إضافة موظف</button></div></div>
+     <div class="hmore"><button type="button" class="btn hmore-t" aria-expanded="false">${esc(tr('المزيد'))}</button><div class="hmore-i"><a class="btn" href="#/employees${showEnded ? '' : '?all=1'}">${showEnded ? 'على رأس العمل فقط' : 'إظهار المنتهية خدماتهم'}</a><button class="btn" id="dep">الأقسام</button><button class="btn" id="imx">استيراد من Excel</button><button class="btn" id="upx">تحديث جماعي من Excel</button><button class="btn" id="brs">زيادة جماعية</button></div></div><button class="btn pri" id="ne">إضافة موظف</button></div></div>
    <div class="row" style="margin-bottom:12px;gap:8px;flex-wrap:wrap"><input id="esrch" type="search" aria-label="${esc(tr('بحث في الموظفين'))}" placeholder="بحث: الرقم الوظيفي، الاسم، المسمى، القسم، المدير، الهوية، الجوال…" autocomplete="off" style="flex:1;min-width:220px">
      <select id="efdep" style="width:auto" aria-label="${esc(tr('القسم'))}"><option value="">${esc(tr('كل الأقسام'))}</option><option value="none">${esc(tr('بلا قسم'))}</option>${Object.entries(dm).map(([k, n]) => opt(k, n)).join('')}</select>
      <select id="efnat" style="width:auto" aria-label="${esc(tr('الجنسية'))}"><option value="">${esc(tr('كل الجنسيات'))}</option><option value="sa">${esc(tr('سعودي'))}</option><option value="nsa">${esc(tr('غير سعودي'))}</option></select>

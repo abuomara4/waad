@@ -16,7 +16,7 @@ const attOn = () => !!(S.company && S.company.att_enabled);
 
 /* ---------- employee: my attendance ---------- */
 VIEWS['#/attendance'] = async (page, arg) => {
-  if (!S.emp) { page.innerHTML = '<div class="note">حسابك غير مربوط بسجل موظف.</div>'; return; }
+  if (!S.emp) { page.innerHTML = noEmpNote(); return; }
   const ym = /^\d{4}-\d{2}$/.test(arg || '') ? arg : rToday().slice(0, 7);
   const from = ym + '-01', to = monthEnd(ym) < rToday() ? monthEnd(ym) : rToday();
   const rows = from <= to ? await db.rpc('att_sheet', { p_company: S.cid, p_from: from, p_to: to, p_emp: S.emp }) : [];

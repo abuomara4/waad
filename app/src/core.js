@@ -206,7 +206,7 @@ const AR_PL = { 'يوم': ['يوم واحد', 'يومين', 'أيام', 'يوم�
   'دقيقة': ['دقيقة واحدة', 'دقيقتين', 'دقائق', 'دقيقة', 'minute', 'minutes'], 'موظف': ['موظف واحد', 'موظفين', 'موظفين', 'موظفا', 'employee', 'employees'] };
 const arCount = (n, u) => { const f = AR_PL[u]; n = +n || 0; if (!f) return n + ' ' + tr(u);
   if (LANG === 'en') return n + ' ' + (n === 1 ? f[4] : f[5]);
-  return n === 1 ? f[0] : n === 2 ? f[1] : n >= 3 && n <= 10 ? n + ' ' + f[2] : n + ' ' + f[3]; };
+  return n === 0 ? '0 ' + u : n === 1 ? f[0] : n === 2 ? f[1] : n >= 3 && n <= 10 ? n + ' ' + f[2] : n + ' ' + f[3]; };
 const fdate = d => d ? String(d).slice(0, 10) : '—';
 const ROLES = { owner: 'المالك / المدير العام', admin: 'مدير النظام', hr: 'الموارد البشرية', finance: 'المدير المالي', accountant: 'محاسب', storekeeper: 'أمين مستودع', manager: 'مدير قسم', employee: 'موظف' };
 const STEP = { m: 'المدير المباشر', b: 'مسؤول المشتريات', p: 'الموارد البشرية', h: 'مدير الموارد البشرية', f: 'المالية', g: 'المدير العام' };
@@ -274,6 +274,12 @@ function printBlock(node, title) {
   const cp = node.cloneNode(true); cp.removeAttribute('id'); cp.querySelectorAll('.btn,button,input[type=file],.wa').forEach(x => x.remove()); doc.appendChild(cp);
   printWith(doc, '@page{size:A4 portrait;margin:12mm}');
 }
+// «المزيد» on phones: a page's secondary buttons fold into one menu (desktop shows them inline)
+document.addEventListener('click', ev => { const t = ev.target.closest && ev.target.closest('.hmore-t'), open = document.querySelector('.hmore.open');
+  if (t) { const m = t.parentElement, on = !m.classList.contains('open'); if (open && open !== m) open.classList.remove('open'); m.classList.toggle('open', on); t.setAttribute('aria-expanded', on); return; }
+  if (open) { open.classList.remove('open'); const b = open.querySelector('.hmore-t'); if (b) b.setAttribute('aria-expanded', 'false'); } });
+// a page that needs the signed-in person's employee record: say so, with the way to fix it
+const noEmpNote = () => `<div class="note">${esc(tr('حسابك غير مربوط بسجل موظف.'))} ${isHR() ? `<a href="#/welcome">${esc(tr('اربطه الآن'))}</a>` : esc(tr('اطلب من الموارد البشرية ربطه.'))}</div>`;
 // Waad's own invoice for a subscription payment (0114): a tax invoice with the QR code when Waad has a VAT number, else a plain invoice
 async function waadInvoicePrint(id) {
   const v = await db.rpc('waad_invoice', { p_payment: id }), s = v.seller || {}, b = v.buyer || {}, m = x => money(+x);
