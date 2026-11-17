@@ -43,6 +43,16 @@ const GUIDE = {
     { id: 'pol', go: '#/policies', t: ['السياسات واللوائح', 'Policies'], s: [
       ['اقرأ سياسات منشأتك ولائحة تنظيم العمل من «السياسات واللوائح».', 'Read your company\'s policies and work regulations under «Policies».'],
       ['بعد القراءة اضغط «اطلعت على هذه السياسة» ليُسجَّل اطلاعك.', 'After reading press «I have read this policy» to record it.']] },
+    { id: 'sign', go: '#/sign', t: ['توقيع المستندات', 'Signing documents'], s: [
+      ['عندما تطلب منك الموارد البشرية توقيع عقد أو عهدة، يظهر الرقم بجانب «توقيعاتي».', 'When HR asks you to sign a contract or custody receipt, a number appears next to «My signatures».'],
+      ['افتحه واقرأ النص ثم وقّع بإصبعك.', 'Open it, read the text and sign with your finger.']] },
+    { id: 'surveys', go: '#/surveys', t: ['الاستبيانات والإعلانات', 'Surveys and announcements'], s: [
+      ['إعلانات المنشأة تظهر أعلى صفحتك الرئيسية؛ اضغط «تم الاطلاع» بعد قراءتها.', 'Company announcements appear at the top of your home page; press «Got it» after reading.'],
+      ['إذا وصلك استبيان أجب عليه من «الاستبيانات». الاستبيان المجهول لا يظهر فيه اسمك.', 'If you get a survey, answer it from «Surveys». In an anonymous survey your name never shows.']] },
+    { id: 'notify', t: ['التنبيهات على جوالك', 'Notifications on your phone'], s: [
+      ['من «حسابي» اختر «تفعيل التنبيهات على هذا الجهاز» ووافق على السماح.', 'From «My account» choose «Turn on notifications on this device» and allow them.'],
+      ['يصلك تنبيه عند اعتماد طلبك أو رفضه، وعند صدور قسيمة راتبك، وعند طلب توقيعك.', 'You are notified when a request is approved or rejected, when your payslip is out and when your signature is needed.'],
+      ['في الآيفون ثبّت وعد على الشاشة الرئيسية أولا ثم فعّل التنبيهات من داخله.', 'On iPhone, add Waad to the home screen first, then turn notifications on from inside it.']] },
     { id: 'app', t: ['ثبّت وعد على جوالك', 'Install Waad on your phone'], s: [
       ['من «حسابي» اختر «ثبّت وعد على جوالك»، فيظهر النظام كتطبيق على شاشتك.', 'From «My account» choose «Install Waad on your phone»; it appears as an app on your screen.'],
       ['في آيفون: من سفاري اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية».', 'On iPhone: in Safari press Share, then «Add to Home Screen».']] }] },
@@ -54,6 +64,12 @@ const GUIDE = {
     { id: 'team', go: '#/att', t: ['حضور فريقك وإجازاتهم', 'Your team\'s attendance and leave'], s: [
       ['«حضور الفريق» يعرض الحاضر والمتأخر والغائب كل يوم.', '«Team attendance» shows who is present, late or absent each day.'],
       ['«تقويم الإجازات» يعرض من في إجازة، لتنظيم العمل قبل اعتماد طلب جديد.', '«Leave calendar» shows who is on leave, so you can plan before approving a new request.']] },
+    { id: 'fb360', go: '#/reviews', t: ['تقييم 360 وآراء الزملاء', '360 feedback'], s: [
+      ['من نافذة تقييم الموظف اضغط «طلب تقييم 360 من الزملاء» واختر الزملاء.', 'From an employee\'s review press «Request 360 feedback from colleagues» and pick colleagues.'],
+      ['يظهر لك متوسط التقييم الذاتي وآراء الزملاء بدون أسماء، من رأيين فأكثر.', 'You see the self-rating and colleagues\' averages without names, from two answers.']] },
+    { id: 'hc', go: '#/workforce', t: ['طلب وظيفة جديدة لفريقك', 'Requesting a new position for your team'], s: [
+      ['من «خطة القوى العاملة» اضغط «طلب وظيفة» واكتب المسمى والعدد والتكلفة الشهرية.', 'In «Workforce plan» press «Position request» and enter the title, headcount and monthly cost.'],
+      ['تعتمدها الموارد البشرية ثم المالية، وبعدها تصبح وظيفة شاغرة.', 'HR then finance approve it, and it becomes a job opening.']] },
     { id: 'rev', go: '#/reviews', t: ['تقييم أداء فريقك', 'Reviewing your team'], s: [
       ['عند فتح دورة تقييم، تظهر لك مراجعة لكل موظف في فريقك.', 'When a review cycle opens, you get a review for each member of your team.'],
       ['اكتب الأهداف بأوزان مجموعها 100% وقيّم كل هدف، ثم أرسل التقييم للموارد البشرية.', 'Write the goals with weights totalling 100% and score each one, then send it to HR.']] }] },
@@ -62,6 +78,21 @@ const GUIDE = {
       ['من «الموظفون» افتح سجل الموظف واضغط «إنشاء دخول للموظف».', 'In «Employees» open the employee\'s record and press «Create employee login».'],
       ['يظهر رمز المنشأة والرقم الوظيفي وكلمة مرور مؤقتة، وأرسلها للموظف بزر الواتساب.', 'The company code, employee number and a temporary password appear; send them with the WhatsApp button.'],
       ['المدراء والمحاسبون يُدعَون بالبريد من «المستخدمون والدعوات».', 'Managers and accountants are invited by e-mail from «Users and invitations».']] },
+    { id: 'cmpl', go: '#/compliance', t: ['تابع الامتثال من مكان واحد', 'Follow compliance in one place'], s: [
+      ['افتح «الامتثال» أسبوعيا: البطاقات الحمراء عاجلة، والصفراء تحتاج متابعة.', 'Open «Compliance» weekly: red cards are urgent, amber need follow-up.'],
+      ['اضغط أي بطاقة لتنتقل للصفحة التي تعالجها، مثل الوثائق أو المسير.', 'Click a card to go to the page that fixes it, like documents or payroll.']] },
+    { id: 'onb', go: '#/onboarding', t: ['استقبال الموظف الجديد', 'Welcoming a new employee'], s: [
+      ['من «التهيئة والترحيب» افتح الموظف الجديد وأكمل البنود الناقصة.', 'In «Onboarding» open the new employee and complete the missing items.'],
+      ['أضف بنود منشأتك الخاصة مرة واحدة فتظهر لكل موظف جديد.', 'Add your own steps once and they show for every new hire.']] },
+    { id: 'ann', go: '#/announcements', t: ['الإعلانات والاستبيانات', 'Announcements and surveys'], s: [
+      ['انشر إعلانا من «الإعلانات الداخلية» بدل مجموعات الواتساب، وتابع من اطّلع.', 'Post from «Company announcements» instead of WhatsApp groups, and see who read it.'],
+      ['أنشئ استبيان رضا الموظفين (eNPS) من «الاستبيانات» مرة كل ربع سنة.', 'Run an eNPS survey from «Surveys» once a quarter.']] },
+    { id: 'careers', go: '#/recruit', t: ['صفحة الوظائف والمقابلات', 'Careers page and interviews'], s: [
+      ['من «التوظيف» اضغط «صفحة الوظائف» وانسخ الرابط وانشره.', 'In «Recruitment» press «Careers page», copy the link and share it.'],
+      ['فعّل «تظهر في صفحة الوظائف» للوظيفة، فيصل المتقدمون إلى قائمة المرشحين.', 'Turn on «Shows on the careers page» for the opening; applicants arrive in the candidates list.'],
+      ['حدد موعد المقابلة ثم أرسل الدعوة الجاهزة بالواتساب أو البريد.', 'Set the interview time, then send the ready invitation by WhatsApp or e-mail.']] },
+    { id: 'exp', go: '#/expensepolicy', t: ['سياسات المصروفات', 'Expense policies'], s: [
+      ['حدد فئات المصروفات وحد كل فئة، واختر المنع أو التنبيه عند التجاوز.', 'Set expense categories and their limits, and choose to block or warn when exceeded.']] },
     { id: 'print', t: ['اطبع دليل الموظف', 'Print the employee guide'], s: [
       ['اضغط «اطبع دليل الموظف» أعلى هذه الصفحة: صفحة واحدة فيها رابط النظام ورمز منشأتك وأهم الخدمات.', 'Press «Print the employee guide» at the top of this page: one page with the system link, your company code and the main services.'],
       ['احفظها PDF وأرسلها لموظفيك يوم الإطلاق، أو علّقها في لوحة الإعلانات.', 'Save it as PDF and send it to your employees on launch day, or pin it on the notice board.']] },

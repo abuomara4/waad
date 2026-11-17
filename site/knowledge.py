@@ -3,6 +3,8 @@
   jobs.html (job descriptions by department) · glossary.html (company glossary by department) · updates.html (what's new)
 Edit the content in site/kb/, never the built pages. Legal figures are cited and checked against the official Labor Law."""
 from html import escape as e
+import json
+BASE = 'https://abuomara4.github.io/waad/site/'
 from kb.articles import ARTICLES, CATS
 from kb.policies import POLICIES
 from kb.jobs import DEPTS
@@ -47,14 +49,25 @@ def blog():
     return (hero('الأدلة والمقالات', 'Guides and articles', 'أدلة عملية للقطاع الخاص من التعيين حتى نهاية الخدمة، ومعها الضريبة والفوترة والتشغيل، بمواد نظام العمل', 'Practical private-sector guides from hiring to exit, plus tax, invoicing and operations, citing the Labor Law', (HUB[0],) + HUB[1:])
             + '<section><div class="wrap">%s%s%s</div></section>%s' % (SEARCH, groups, NOTE, SEARCH_JS))
 
+def ld(obj):
+    return '<script type="application/ld+json">%s</script>' % json.dumps(obj, ensure_ascii=False).replace('</', '<\\/')
+
+def crumbs(*items):
+    return {'@type': 'BreadcrumbList', 'itemListElement': [{'@type': 'ListItem', 'position': i + 1, 'name': n, 'item': BASE + u} for i, (n, u) in enumerate(items)]}
+
 def article(a):
     cat = next(c for c in CATS if c[0] == a['cat'])
+    schema = ld({'@context': 'https://schema.org', '@graph': [
+        {'@type': 'Article', 'headline': a['ar'], 'alternativeHeadline': a['en'], 'description': a['sar'], 'inLanguage': ['ar', 'en'],
+         'articleSection': cat[1], 'url': BASE + 'blog-%s.html' % a['slug'], 'citation': a['refs'],
+         'publisher': {'@type': 'Organization', 'name': 'وعد Waad', 'url': BASE}, 'author': {'@type': 'Organization', 'name': 'وعد Waad'}},
+        crumbs(('مركز وعد للمعرفة', 'knowledge.html'), ('الأدلة والمقالات', 'blog.html'), (a['ar'], 'blog-%s.html' % a['slug']))]})
     body = ''.join('<h2>%s</h2><p>%s</p>' % (bi(h1, h2), bi(p1, p2)) for h1, h2, p1, p2 in a['body'])
     rel = [x for x in ARTICLES if x['cat'] == a['cat'] and x is not a] + [x for x in ARTICLES if x['cat'] != a['cat']]
     more = ''.join('<li><a href="blog-%s.html">%s</a></li>' % (x['slug'], bi(x['ar'], x['en'])) for x in rel[:5])
     return (hero(a['ar'], a['en'], a['sar'], a['sen'], ('blog.html', 'الأدلة والمقالات', 'Guides and articles'))
             + '<section><div class="wrap kn-art"><article class="card"><div class="kn-cat">%s</div>%s<p class="kn-ref"><b>%s</b> %s</p>%s</article>%s<div class="card"><h3>%s</h3><ul class="kn-list">%s</ul></div></div></section>' % (
-                bi(cat[1], cat[2]), body, bi('المرجع:', 'Reference:'), e(a['refs']), NOTE, CTA, bi('أدلة ذات صلة', 'Related guides'), more))
+                bi(cat[1], cat[2]), body, bi('المرجع:', 'Reference:'), e(a['refs']), NOTE, CTA, bi('أدلة ذات صلة', 'Related guides'), more) + schema)
 
 def policies():
     items = ''.join('<a class="card kn-tile" data-kn-item href="policy-%s.html"><h3>%s</h3><p>%s</p></a>' % (p['slug'], bi(p['ar'], p['en']), bi(*p['purpose'])) for p in POLICIES)
@@ -67,7 +80,10 @@ def policy(p):
     body = (sec('الغرض', 'Purpose', '<p>%s</p>' % bi(*p['purpose'])) + sec('النطاق', 'Scope', '<p>%s</p>' % bi(*p['scope']))
             + sec('الأحكام', 'Provisions', ol(p['prov'])) + sec('الإجراءات', 'Procedures', ol(p['proc'])) + sec('المسؤوليات', 'Responsibilities', ol(p['resp']))
             + sec('الاعتماد والمراجعة', 'Approval and review', '<p>%s</p>' % bi('تُعتمد هذه السياسة من الإدارة العليا، وتُراجع سنويا أو عند تعديل الأنظمة، وتُربط بلائحة تنظيم العمل المعتمدة في المنشأة.', 'Approved by senior management, reviewed yearly or when the law changes, and linked to the company\'s approved work regulations.')))
-    return (hero(p['ar'], p['en'], 'نموذج سياسة قابل للتعديل', 'An adaptable policy template', ('policies.html', 'مكتبة السياسات', 'Policy library'))
+    schema = ld({'@context': 'https://schema.org', '@graph': [{'@type': 'Article', 'headline': p['ar'], 'alternativeHeadline': p['en'], 'description': p['purpose'][0], 'inLanguage': ['ar', 'en'],
+        'url': BASE + 'policy-%s.html' % p['slug'], 'publisher': {'@type': 'Organization', 'name': 'وعد Waad', 'url': BASE}},
+        crumbs(('مركز وعد للمعرفة', 'knowledge.html'), ('مكتبة السياسات', 'policies.html'), (p['ar'], 'policy-%s.html' % p['slug']))]})
+    return schema + (hero(p['ar'], p['en'], 'نموذج سياسة قابل للتعديل', 'An adaptable policy template', ('policies.html', 'مكتبة السياسات', 'Policy library'))
             + '<section><div class="wrap kn-art"><article class="card kn-policy"><div class="kn-tools"><button class="btn line" type="button" onclick="window.print()">%s</button></div>%s<p class="kn-ref"><b>%s</b> %s</p>%s</article>%s</div></section>' % (
                 bi('طباعة أو حفظ PDF', 'Print or save as PDF'), body, bi('المرجع:', 'Reference:'), e(p['refs']), NOTE, CTA))
 
@@ -86,7 +102,9 @@ def glossary():
     for k, ar, en, terms in GROUPS:
         rows = ''.join('<div class="kn-g" data-kn-item><h3>%s <span>%s</span></h3><p>%s</p></div>' % (e(a), e(b), bi(c, d)) for a, b, c, d in terms)
         groups += '<div class="card" data-kn-group><h2 class="kn-h">%s</h2>%s</div>' % (bi(ar, en), rows)
-    return (hero('قاموس المنشأة', 'Company glossary', 'معاني المصطلحات التي تحتاجها في الموارد البشرية والامتثال والمالية والمبيعات والمشتريات والمخزون والمشاريع', 'The terms you need across HR, compliance, finance, sales, purchasing, inventory and projects', (HUB[0],) + HUB[1:])
+    terms = [{'@type': 'DefinedTerm', 'name': a, 'alternateName': b, 'description': c} for _, _, _, ts in GROUPS for a, b, c, d in ts]
+    schema = ld({'@context': 'https://schema.org', '@type': 'DefinedTermSet', 'name': 'قاموس المنشأة — وعد', 'url': BASE + 'glossary.html', 'hasDefinedTerm': terms})
+    return schema + (hero('قاموس المنشأة', 'Company glossary', 'معاني المصطلحات التي تحتاجها في الموارد البشرية والامتثال والمالية والمبيعات والمشتريات والمخزون والمشاريع', 'The terms you need across HR, compliance, finance, sales, purchasing, inventory and projects', (HUB[0],) + HUB[1:])
             + '<section><div class="wrap kn-art">%s%s%s</div></section>%s' % (SEARCH, groups, NOTE, SEARCH_JS))
 
 def updates():

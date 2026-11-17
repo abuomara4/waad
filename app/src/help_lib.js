@@ -77,6 +77,50 @@ const HELP = {
     ['أكمل الرقم الضريبي والسجل التجاري والعنوان الوطني؛ تظهر في الفواتير والخطابات.', 'Fill in the VAT number, CR and national address; they appear on invoices and letters.'],
     ['ارفع الشعار، واضبط صلاحيات المحاسب وأمين المستودع، والملخص الشهري بالإيميل.', 'Upload your logo, set the accountant\'s and storekeeper\'s permissions and the monthly e-mail summary.'],
     ['«الربط مع فاتورة»: الصق رمز OTP من بوابة فاتورة لترسل فواتيرك لزاتكا تلقائيا (المرحلة الثانية).', '«Link with Fatoora»: paste the OTP from the Fatoora portal to send your invoices to ZATCA automatically (Phase 2).']] },
+  '#/compliance': { t: ['الامتثال', 'Compliance'], s: [
+    ['تجمع ما يلزم منشأتك نظاما في بطاقات: حماية الأجور، والتأمينات، والوثائق، والعقود وفترات التجربة، والآيبان، ونطاقات، ومستندات المنشأة، والتأمين الطبي.', 'Gathers what your company must do by law in cards: wage protection, GOSI, documents, contracts and probation, IBANs, Nitaqat, company documents and medical insurance.'],
+    ['الأحمر عاجل، والأصفر يحتاج متابعة. اضغط البطاقة لتفتح الصفحة التي تعالجها.', 'Red is urgent and amber needs follow-up. Click a card to open the page that fixes it.'],
+    ['وعد لا يتصل بمنصات مدد أو التأمينات أو قوى؛ يجهّز الملفات والتنبيهات وأنت ترفعها.', 'Waad does not connect to Mudad, GOSI or Qiwa; it prepares the files and alerts and you upload them.']] },
+  '#/onboarding': { t: ['التهيئة والترحيب', 'Onboarding'], s: [
+    ['قائمة مهام لكل موظف باشر خلال آخر 120 يوما، مع نسبة الإنجاز.', 'A checklist for each employee who started in the last 120 days, with progress.'],
+    ['بنود مثل العقد والآيبان والإقامة والتأمين الطبي تكتمل تلقائيا عند إدخالها، والباقي كالتسجيل في التأمينات وتوثيق العقد في قوى تعلّمه أنت.', 'Items such as the contract, IBAN, iqama and medical insurance complete themselves when entered; you tick the rest, like GOSI registration and documenting the contract in Qiwa.'],
+    ['أضف بنود منشأتك الخاصة من «بنود المنشأة الخاصة».', 'Add your own steps from «Company\'s own steps».']] },
+  '#/announcements': { t: ['الإعلانات الداخلية', 'Company announcements'], s: [
+    ['انشر إعلانا لكل الموظفين أو لقسم واحد، فيظهر في الصفحة الرئيسية لكل منهم ويصل على أجهزتهم.', 'Post to all staff or one department; it shows on each home page and reaches their devices.'],
+    ['ثبّت المهم أعلى الرئيسية، وحدد تاريخا يختفي بعده إن أردت.', 'Pin the important ones to the top of home, and set a date to hide them if you like.'],
+    ['عمود «اطّلع عليه» يبين كم موظفا ضغط «تم الاطلاع».', 'The «Read by» column shows how many pressed «Got it».']] },
+  '#/surveys': { t: ['الاستبيانات', 'Surveys'], s: [
+    ['الموظف يرى هنا الاستبيانات التي تنتظر رأيه، ويجيب مرة واحدة.', 'Employees see the surveys waiting for them here and answer once.'],
+    ['الموارد البشرية تنشئ استبيانا من قالب جاهز: رضا الموظفين (eNPS)، أو الانضمام، أو المغادرة، أو أسئلة خاصة.', 'HR creates a survey from a template: eNPS, onboarding, exit, or custom questions.'],
+    ['الاستبيان المجهول لا يحفظ اسم من أجاب، ولا تظهر نتائجه قبل 3 إجابات.', 'An anonymous survey keeps no names and shows no results before 3 answers.']] },
+  '#/workforce': { t: ['خطة القوى العاملة', 'Workforce plan'], s: [
+    ['مدير القسم يطلب وظيفة بعددها وتكلفتها الشهرية وشهر بدايتها.', 'A department manager requests a position with headcount, monthly cost and start month.'],
+    ['تعتمدها الموارد البشرية ثم المالية (أو المالك إن لم يوجد مسؤول مالي).', 'HR approves it, then finance (or the owner when there is no finance user).'],
+    ['بعد الاعتماد تفتحها الموارد البشرية وظيفة شاغرة في «التوظيف» بضغطة.', 'Once approved, HR turns it into a job opening in «Recruitment» with one click.']] },
+  '#/expensepolicy': { t: ['سياسات المصروفات', 'Expense policies'], s: [
+    ['أضف فئات المصروفات (وقود، ضيافة، تنقلات…) مع حد للمطالبة الواحدة وحد شهري للموظف.', 'Add expense categories (fuel, hospitality, transport…) with a per-claim limit and a monthly limit per employee.'],
+    ['اختر لكل فئة: منع المطالبة إذا تجاوزت الحد، أو تنبيه المعتمد فقط.', 'For each category choose: block claims over the limit, or just warn the approver.'],
+    ['يرى المعتمد تنبيها إذا تكررت المطالبة بنفس المبلغ أو أُرفق الإيصال نفسه في مطالبة أخرى.', 'The approver is warned of a repeated amount or the same receipt on another claim.']] },
+  '#/sign': { t: ['توقيعاتي', 'My signatures'], s: [
+    ['المستندات التي تنتظر توقيعك: العقد، والعهدة، والجزاء، والمخالصة.', 'Documents waiting for your signature: contract, custody, penalty and settlement.'],
+    ['اقرأ النص ثم وقّع بإصبعك أو بالفأرة، فيُحفظ التوقيع مع وقته.', 'Read the text, then sign with your finger or mouse; the signature is saved with its time.']] },
+  '#/companydocs': { t: ['مستندات المنشأة والسيارات', 'Company documents and vehicles'], s: [
+    ['سجّل السجل التجاري والرخص والشهادات والسيارات بتواريخ انتهائها، وأرفق صورها.', 'Record the CR, licences, certificates and vehicles with their expiry dates and attach copies.'],
+    ['تظهر التنبيهات في الجرس وصفحة الامتثال قبل الانتهاء بثلاثين يوما.', 'Alerts appear in the bell and on the compliance page 30 days before expiry.']] },
+  '#/recurring': { t: ['الفواتير المتكررة', 'Recurring invoices'], s: [
+    ['فاتورة تتكرر لعميل كل شهر أو أكثر، كالإيجار أو الصيانة.', 'An invoice that repeats for a customer every month or more, like rent or maintenance.'],
+    ['عند موعدها تصدرها بضغطة وتُرحّل كأي فاتورة.', 'When due, issue it with one click and it posts like any invoice.']] },
+  '#/customfields': { t: ['الحقول المخصصة', 'Custom fields'], s: [
+    ['أضف حقولا خاصة بمنشأتك لملف الموظف أو بطاقة العميل والمورد أو الصنف.', 'Add your own fields to the employee file, the customer/supplier card or the item.'],
+    ['تظهر الحقول في النماذج وتُحفظ مع السجل.', 'They appear in the forms and are saved with the record.']] },
+  '#/reviews': { t: ['تقييم الأداء', 'Performance reviews'], s: [
+    ['تفتح الموارد البشرية دورة تقييم، فيقيّم كل مدير فريقه على أهداف بأوزان مجموعها 100%.', 'HR opens a review cycle; each manager rates the team on goals weighted to 100%.'],
+    ['من نافذة التقييم اطلب «تقييم 360» ليقيّم الموظف نفسه ويقيّمه زملاء تختارهم، وتظهر المتوسطات بدون أسماء.', 'From the review, request «360 feedback» so the employee rates themselves and chosen colleagues give views; averages show without names.'],
+    ['إذا طُلب رأيك في تقييم 360 تجده أعلى هذه الصفحة.', 'If your opinion is requested for 360 feedback, it is at the top of this page.']] },
+  '#/recruit': { t: ['التوظيف', 'Recruitment'], s: [
+    ['أضف الوظيفة الشاغرة، وفعّل «تظهر في صفحة الوظائف» لتقبل التقديم عليها من الرابط العام.', 'Add the opening and turn on «Shows on the careers page» to accept applications through the public link.'],
+    ['من «صفحة الوظائف» انسخ رابط منشأتك وانشره، فيصل المتقدمون بسيرهم الذاتية إلى قائمة المرشحين.', 'Copy your company\'s link from «Careers page» and share it; applicants arrive with their CVs in the candidates list.'],
+    ['حدد موعد المقابلة ورابطها أو مكانها، ثم أرسل «رسالة دعوة المقابلة» بالواتساب أو البريد.', 'Set the interview time and link or place, then send the «interview invitation» by WhatsApp or e-mail.']] },
   '#/support': { t: ['الدعم الفني', 'Support'], s: [
     ['اكتب سؤالك أو المشكلة، ويصلك رد فريق وعد هنا وعلى بريدك.', 'Write your question or problem; the Waad team replies here and by e-mail.']] },
 };

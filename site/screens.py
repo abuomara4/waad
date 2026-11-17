@@ -45,7 +45,11 @@ with sync_playwright() as p:
       const by = Object.fromEntries(all.map(i => [i.code, i]));
       return db.rpc('post_sales_invoice_sn', { p_company: c, p_doc: { party: cust.find(p => p.vat_no).id, lines: [['PRD-01', 3], ['SRV-01', 2]].map(([k, q]) => ({ item: by[k].id, qty: q, price: by[k].sale_price })) } }); }""")
     mx(f"update zatca_docs set status = 'cleared', sent_at = now() where doc_id = '{zinv}'")
-    shots = [('hr', '#/hrdash'), ('finance', '#/reports'), ('marketing', '#/marketing'), ('purch', '#/purchases'), ('stock', '#/items'), ('project', '#/projects/' + (res['projects'] or [''])[0]), ('forms', '#/forms'), ('invoice', '#/sales/' + zinv)]
+    # a company announcement and a survey, so the home page and the compliance page look like a company in use
+    o.evaluate("""async () => { const c = S.cid;
+      await db.ins('company_announcements', { company_id: c, title: 'دوام رمضان', body: 'يبدأ الدوام الساعة العاشرة صباحا ولمدة ست ساعات طوال شهر رمضان.', pinned: true });
+      await db.ins('surveys', { company_id: c, title: 'رضا الموظفين', kind: 'enps', questions: [{ t: 'ما مدى احتمال أن توصي بمنشأتنا كمكان عمل لصديق؟', type: 'enps' }, { t: 'ما أهم سبب لتقييمك؟', type: 'text' }] }); }""")
+    shots = [('compliance', '#/compliance'), ('hr', '#/hrdash'), ('finance', '#/reports'), ('marketing', '#/marketing'), ('purch', '#/purchases'), ('stock', '#/items'), ('project', '#/projects/' + (res['projects'] or [''])[0]), ('forms', '#/forms'), ('invoice', '#/sales/' + zinv)]
     for lang in ('ar', 'en'):
         o.evaluate("l => localStorage.setItem('waad.lang', JSON.stringify(l))", lang); o.reload(); o.wait_for_selector('#nav')
         for name, route in shots:

@@ -262,8 +262,12 @@ def monthly_body(name, d):
     if d['staff'] or d['joined'] or d['left']:
         L.append('• الموظفون على رأس العمل: %d%s' % (d['staff'], (' (انضم %d، غادر %d)' % (d['joined'], d['left'])) if d['joined'] or d['left'] else ''))
         E.append('Staff: %d%s' % (d['staff'], (' (%d joined, %d left)' % (d['joined'], d['left'])) if d['joined'] or d['left'] else ''))
-    if d['expiring']: L.append('• مستندات موظفين تنتهي خلال 30 يوماً: %d' % d['expiring']); E.append('Employee documents expiring within 30 days: %d' % d['expiring'])
+    if d['expiring']: L.append('• مستندات موظفين تنتهي خلال 30 يوما: %d' % d['expiring']); E.append('Employee documents expiring within 30 days: %d' % d['expiring'])
     if d['pending']: L.append('• طلبات بانتظار الاعتماد: %d' % d['pending']); E.append('Requests waiting for approval: %d' % d['pending'])
+    if d.get('applicants'): L.append('• متقدمون جدد من صفحة الوظائف: %d' % d['applicants']); E.append('New applicants from the careers page: %d' % d['applicants'])
+    if d.get('survey_answers'): L.append('• إجابات الاستبيانات: %d' % d['survey_answers']); E.append('Survey answers: %d' % d['survey_answers'])
+    if d.get('onb_missing'): L.append('• موظفون جدد تنقصهم بيانات (عقد أو آيبان أو إقامة): %d — راجع «التهيئة والترحيب»' % d['onb_missing']); E.append('New hires missing a contract, IBAN or iqama: %d' % d['onb_missing'])
+    if d.get('hc_pending'): L.append('• طلبات وظائف بانتظار الاعتماد في خطة القوى العاملة: %d' % d['hc_pending']); E.append('Position requests waiting for approval: %d' % d['hc_pending'])
     if d['zatca_bad']: L.append('• زاتكا: مستندات مرفوضة أو لم تُرسل (عددها %d) — راجعها في المبيعات' % d['zatca_bad']); E.append('ZATCA: %d document(s) rejected or not sent' % d['zatca_bad'])
     if not L: return None   # nothing happened: no e-mail
     return ('السلام عليكم،\n\nملخص شهر %s لمنشأة «%s» من نظام وعد:\n\n%s\n\nللتفاصيل: %sapp/\n'

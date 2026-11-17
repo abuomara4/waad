@@ -146,7 +146,7 @@ select t.ok(exists(select 1 from public.journal_entries where source = 'advance'
 
 -- ================= GOSI & END OF SERVICE =================
 select t.eq(public.gosi_rate(false,'2026-10-31'), 9.75, 'GOSI employee rate, old regime');
-select t.eq(public.gosi_rate(true,'2025-07-02'), 9.75, 'GOSI new regime before first step (2025-07-02)');
+select t.eq(public.gosi_rate(true,'2025-06-30'), 9.75, 'GOSI new regime before first step (2025-06-30; steps fall on 1 July)');
 select t.eq(public.gosi_rate(true,'2026-06-30'), 10.25, 'GOSI new regime Jan–Jun 2026 = 9.5% + 0.75%');
 select t.eq(public.gosi_rate(true,'2026-10-31'), 10.75, 'GOSI new regime after 3 July 2026 = 10% + 0.75%');
 select t.eq(public.gosi_rate(true,'2030-01-01'), 11.75, 'GOSI new regime capped at 11% + 0.75% from July 2028');
@@ -3321,6 +3321,13 @@ reset role;
 select t.ok((select positions = 2 and status = 'open' from public.job_openings where id = :'hpo') and (select status from public.headcount_plans where id = :'hp') = 'hired',
   'workforce plan: an approved plan becomes a job opening');
 delete from public.headcount_plans where id = :'hp'; delete from public.job_openings where id = :'hpo';
+
+-- the owner's monthly e-mail also counts applicants, survey answers, new hires missing data and position requests (0110)
+select t.ok((select public.monthly_report(:'cid', current_date) ?& array['applicants','survey_answers','onb_missing','hc_pending']), 'monthly e-mail: applicants, survey answers, onboarding gaps and position requests are reported');
+-- GOSI: the yearly pension step for new-regime contributors falls on 1 July (0109)
+select t.ok(public.gosi_annuity(true, '2025-06-30') = 9 and public.gosi_annuity(true, '2025-07-01') = 9.5 and public.gosi_annuity(true, '2026-07-01') = 10
+  and public.gosi_annuity(true, '2028-07-01') = 11 and public.gosi_annuity(false, '2028-07-01') = 9, 'GOSI: the new-regime pension rate steps up 0.5 every 1 July to 11% in 2028; the old regime stays 9%');
+select t.ok(public.gosi_employee(true, 8000, 2000, true, '2026-08-01') = 1075 and public.gosi_employer(true, 8000, 2000, true, '2026-08-01') = 1275, 'GOSI: in 2026 a new-regime Saudi pays 10.75% and the employer 12.75%');
 
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

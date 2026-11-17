@@ -2,7 +2,8 @@
 
 <section>
   <div class="wrap">
-    <div class="grid g2 tools">
+    <nav class="tchips" role="tablist" aria-label="calculators"><button type="button" role="tab" data-tool="teos"><span class="ar">نهاية الخدمة</span><span class="en">End of service</span></button><button type="button" role="tab" data-tool="tnet"><span class="ar">صافي الراتب</span><span class="en">Net salary</span></button><button type="button" role="tab" data-tool="tgosi"><span class="ar">التأمينات وتكلفة الموظف</span><span class="en">GOSI and employee cost</span></button><button type="button" role="tab" data-tool="tot"><span class="ar">العمل الإضافي</span><span class="en">Overtime</span></button><button type="button" role="tab" data-tool="tleave"><span class="ar">رصيد الإجازة</span><span class="en">Leave balance</span></button><button type="button" role="tab" data-tool="tsick"><span class="ar">الإجازة المرضية</span><span class="en">Sick leave</span></button><button type="button" role="tab" data-tool="tnot"><span class="ar">الإشعار والتعويض</span><span class="en">Notice and compensation</span></button><button type="button" role="tab" data-tool="tprob"><span class="ar">فترة التجربة</span><span class="en">Probation</span></button><button type="button" role="tab" data-tool="tvat"><span class="ar">ضريبة القيمة المضافة</span><span class="en">VAT</span></button><button type="button" role="tab" data-tool="tnit"><span class="ar">نطاقات</span><span class="en">Nitaqat</span></button></nav>
+    <div class="tools tone">
       <form class="card tool" id="teos" onsubmit="return false">
         <h3><span class="ar">مكافأة نهاية الخدمة</span><span class="en">End-of-service award</span></h3>
         <p class="small"><span class="ar">المواد 84 و85 و87 و80</span><span class="en">Articles 84, 85, 87 and 80</span></p>
@@ -111,7 +112,7 @@
   var iso = function (d) { return d.toISOString().slice(0, 10); }, todayIso = iso(new Date());
   // GOSI pension share: 9%; for those first registered from July 2024 it rises 0.5 each July 2025–2028 (same as Waad)
   var annuity = function (first) { var isNew = first && new Date(first) >= new Date('2024-07-03'), now = new Date();
-    return !isNew ? 9 : 9 + 0.5 * ['2025-07-03', '2026-07-03', '2027-07-03', '2028-07-03'].filter(function (d) { return now >= new Date(d); }).length; };
+    return !isNew ? 9 : 9 + 0.5 * ['2025-07-01', '2026-07-01', '2027-07-01', '2028-07-01'].filter(function (d) { return now >= new Date(d); }).length; };
   var gosi = function (b, h, sa, first) { var base = Math.min(Math.max(b + h, 1500), 45000), an = annuity(first);
     return { base: base, emp: sa ? base * (an + 0.75) / 100 : 0, er: base * (sa ? an + 0.75 + 2 : 2) / 100, er_rate: sa ? an + 2.75 : 2, emp_rate: sa ? an + 0.75 : 0 }; };
   var calc = {
@@ -152,6 +153,14 @@
       out(f, row('نسبة التوطين المحتسبة', 'Counted ratio', p.toFixed(1) + '%') + row('لبلوغ النسبة المطلوبة: سعوديون إضافيون بأجر 4,000 فأكثر', 'To reach it: extra Saudis paid 4,000+', add)); }
   };
   var all = function () { Object.keys(calc).forEach(function (id) { calc[id]($(id)); }); };
+  // one calculator at a time: the chips pick it, and the address (tools.html#tot) opens it directly
+  var show = function (id) { if (!calc[id]) id = 'teos';
+    Object.keys(calc).forEach(function (k) { $(k).hidden = k !== id; });
+    document.querySelectorAll('[data-tool]').forEach(function (b) { b.setAttribute('aria-selected', b.dataset.tool === id ? 'true' : 'false'); });
+    calc[id]($(id)); };
+  document.querySelectorAll('[data-tool]').forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.tool); if (history.replaceState) history.replaceState(null, '', '#' + b.dataset.tool); }); });
+  window.addEventListener('hashchange', function () { show(location.hash.slice(1)); });
+  show(location.hash.slice(1));
   Object.keys(calc).forEach(function (id) { var f = $(id), fn = function () { calc[id](f); }; f.addEventListener('input', fn); f.addEventListener('change', fn); });
   all();
   var lg = document.getElementById('lg'); if (lg) lg.addEventListener('click', function () { setTimeout(all, 0); });
