@@ -623,6 +623,7 @@ function navItems() {
   if (isHR() || has('finance')) {
     g('الموارد البشرية');
     if (isHR()) it.push({ h: '#/hrdash', t: 'لوحة الموارد البشرية' }, { h: '#/compliance', t: 'الامتثال' }, { h: '#/onboarding', t: 'التهيئة والترحيب' }, { h: '#/announcements', t: 'الإعلانات الداخلية' }, { h: '#/permissions', t: 'الصلاحيات' }, { h: '#/okrs', t: 'الأهداف (OKRs)' });
+    if (isHR()) it.push({ h: '#/companydocs?t=vehicles', t: 'الأسطول والسيارات' });   // and with HR (drivers, documents)
     if (isHR() && !S.emp) it.push({ h: '#/surveys', t: 'الاستبيانات' });
     if (isHR() || has('finance')) it.push({ h: '#/workforce', t: 'خطة القوى العاملة' });
     if (isHR()) it.push({ h: '#/employees', t: 'الموظفون' }, { h: '#/docs', t: 'المستندات والعقود', pill: NAVC.docs });
@@ -681,6 +682,7 @@ function navItems() {
     if (can('coa') || can('reports')) it.push({ h: '#/costcenters', t: 'مراكز التكلفة' }, { h: '#/budgets', t: 'الموازنات' });
     if (can('sales') || can('purch')) it.push({ h: '#/cheques', t: 'الشيكات' });
     if (can('je')) it.push({ h: '#/petty', t: 'العُهد النقدية' });
+    if (has('owner', 'admin', 'finance')) it.push({ h: '#/companydocs?t=vehicles', t: 'الأسطول والسيارات' });   // fleet costs live with finance too (0119)
     if (can('coa') || can('sales') || can('purch')) it.push({ h: '#/currencies', t: 'العملات' });
     if (has('owner', 'admin', 'finance')) it.push({ h: '#/periods', t: 'إقفال الفترات والسنة' }, { h: '#/opening', t: 'الأرصدة الافتتاحية' });
   }

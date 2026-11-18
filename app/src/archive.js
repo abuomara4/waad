@@ -84,14 +84,14 @@ async function vehicleLog(box, c, em) {
   const draw = async () => { const ls = await db.get('vehicle_logs', { vehicle_id: 'eq.' + c.id, order: 'day.desc,created_at.desc', limit: 50 }).catch(() => []);
     box.innerHTML = `<div class="row" style="justify-content:space-between;align-items:center"><label>${esc(tr('سجل الوقود والصيانة'))}</label><button type="button" class="btn sm" id="vlnew">+ ${esc(tr('تسجيل'))}</button></div>` +
       (ls.length ? tbl([{ t: 'التاريخ', h: l => fdate(l.day) }, { t: 'النوع', h: l => esc(tr(VLOG_K[l.kind])) }, { t: 'المبلغ', r: 1, h: l => money(l.amount) }, { t: 'العداد', r: 1, h: l => l.odometer ? `<span class="num">${l.odometer}</span>` : '—' },
-        { t: 'ملاحظة', h: l => esc(l.note || '') + (l.liters ? ` <span class="num small">${l.liters} ${esc(tr('لتر'))}</span>` : '') }], ls) : `<p class="muted small">${esc(tr('لا توجد قيود بعد.'))}</p>`);
+        { t: 'ملاحظة', h: l => esc(l.note || '') + (l.liters ? ` <span class="num small">${l.liters} ${esc(tr('لتر'))}</span>` : '') + (l.entry_id ? ` <span class="badge ok">${esc(tr('مُرحّل'))}</span>` : '') }], ls) : `<p class="muted small">${esc(tr('لا توجد قيود بعد.'))}</p>`);
     $('#vlnew', box).onclick = () => { const f = document.createElement('div');
       f.innerHTML = `<div class="fg" style="margin-top:8px">${field('النوع', `<select name="vk">${Object.entries(VLOG_K).map(([k, t]) => opt(k, tr(t))).join('')}</select>`)}${field('التاريخ', `<input type="date" name="vd" value="${today()}" max="${today()}">`)}
-        ${field('المبلغ', inp('va', '', 'type="number" min="0" step="0.01"'))}${field('العداد (كم)', inp('vo', '', 'type="number" min="0"'))}${field('اللترات', inp('vlt', '', 'type="number" min="0" step="0.01"'))}${field('ملاحظة', inp('vn', '', 'maxlength="300"'))}
+        ${field('المبلغ', inp('va', '', 'type="number" min="0" step="0.01"'))}${field('العداد (كم)', inp('vo', '', 'type="number" min="0"'))}${field('اللترات', inp('vlt', '', 'type="number" min="0" step="0.01"'))}${field('دُفع من', `<select name="vpf">${opt('1120', tr('البنك'))}${opt('1110', tr('الصندوق'))}</select>`)}${field('ملاحظة', inp('vn', '', 'maxlength="300"'))}
         <div class="wide"><button type="button" class="btn pri sm" id="vlsave">${esc(tr('حفظ'))}</button></div></div>`;
       box.appendChild(f); $('#vlnew', box).hidden = true;
       $('#vlsave', box).onclick = async () => { const g = n => f.querySelector('[name=' + n + ']').value;
-        try { await db.ins('vehicle_logs', { company_id: S.cid, vehicle_id: c.id, kind: g('vk'), day: g('vd'), amount: +g('va') || 0, odometer: g('vo') === '' ? null : +g('vo'), liters: g('vlt') === '' ? null : +g('vlt'), driver_id: c.driver_id || null, note: blank(g('vn')) });
+        try { await db.ins('vehicle_logs', { company_id: S.cid, vehicle_id: c.id, kind: g('vk'), day: g('vd'), amount: +g('va') || 0, odometer: g('vo') === '' ? null : +g('vo'), liters: g('vlt') === '' ? null : +g('vlt'), driver_id: c.driver_id || null, note: blank(g('vn')), paid_from: g('vpf') });
           toast(tr('تم الحفظ')); draw(); } catch (e) { toast(e.message); } }; }; };
   await draw();
 }

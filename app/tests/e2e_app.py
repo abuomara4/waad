@@ -73,7 +73,7 @@ with sync_playwright() as pw:
     o.fill('#dlg input[name=hire_date]', '2018-01-01'); o.fill('#dlg input[name=basic]', '25000'); o.fill('#dlg input[name=housing]', '6250'); o.fill('#dlg input[name=national_id]', '1021098767')
     o.fill('#dlg input[name=iban]', 'SA0380000000608010167519'); modal_ok(o)
     o.wait_for_selector('#nav a[href="#/requests"]'); ok(True, 'owner linked to own employee record → self-service menu appears')
-    ok(sql("select count(*) from accounts") == '33', 'chart of accounts seeded (incl. business travel 5230)')
+    ok(sql("select count(*) from accounts") == '34', 'chart of accounts seeded (incl. business travel 5230 and vehicles 5240)')
 
     def add_emp(no, name, basic, mgr=None, gender='m', hire='2023-03-01', nid=None):
         go(o, '#/employees'); o.click('#ne')
@@ -1262,10 +1262,12 @@ with sync_playwright() as pw:
     o.fill('#dlg input[name=ex]', (datetime.date.today() + datetime.timedelta(days=20)).isoformat()); modal_ok(o); o.wait_for_timeout(600)
     ok('السجل التجاري' in o.inner_text('#cdl') and 'متبقي' in o.inner_text('#cdl'), 'company documents: the commercial registration is recorded with a countdown to expiry')
     # fleet (0119): a vehicle with a service plan and a fuel / service log
+    ok(o.locator('#nav a[href="#/companydocs?t=vehicles"]').count() >= 1, 'fleet: in the HR and finance menus')
     go(o, '#/companydocs?t=vehicles'); o.wait_for_selector('#cdnew'); o.click('#cdnew'); o.wait_for_selector('#dlg input[name=plate]')
     o.fill('#dlg input[name=plate]', 'ا ب ج 4455'); o.fill('#dlg input[name=odo]', '20000'); o.fill('#dlg input[name=sek]', '5000'); modal_ok(o); o.wait_for_timeout(500)
     o.locator('#cdl tbody tr', has_text='4455').click(); o.wait_for_selector('#vlnew'); o.click('#vlnew'); o.select_option('#dlg select[name=vk]', 'service'); o.fill('#dlg input[name=va]', '350'); o.fill('#dlg input[name=vo]', '21000'); o.click('#vlsave'); o.wait_for_timeout(600)
     ok(sql("select odometer || '/' || next_service_km from vehicles where plate = 'ا ب ج 4455'") == '21000/26000' and 'صيانة دورية' in o.inner_text('#vlog'), 'fleet: a service at 21,000 km sets the next one at 26,000 km'); o.click('#mx')
+    ok(sql("select count(*) from journal_lines l join vehicle_logs v on v.entry_id = l.entry_id join vehicles c on c.id = v.vehicle_id where c.plate = 'ا ب ج 4455' and l.account_code = '5240' and l.debit = 350") == '1', 'fleet: the service cost is posted to vehicle expenses')
     # custom fields: a field defined once shows in the employee form and is saved
     go(o, '#/customfields'); o.wait_for_selector('#cfn'); o.click('#cfn'); o.wait_for_selector('#dlg[open] input[name=label]'); o.fill('#dlg input[name=label]', 'فصيلة الدم'); modal_ok(o); o.wait_for_timeout(600)
     go(o, '#/employees'); o.locator('#page tbody tr', has_text='محمد العتيبي').click(); o.wait_for_selector('#dlg[open] input[name^=cf_]'); o.fill('#dlg input[name^=cf_]', 'O+'); modal_ok(o); o.wait_for_timeout(500)

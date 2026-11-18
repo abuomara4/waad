@@ -801,6 +801,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 احتفظ بهذا الرمز	Keep this code
 احذف المستخدم بدلا منها	remove the user instead
 احذف المستخدم بدلاً منها	remove the user instead
+احذفه وسجّله من جديد	delete it and log it again
 احسب	Calculate
 احفظ الرد كرد جاهز	Save as a ready reply
 احفظ الرمز أولا	Save the code first
@@ -1222,6 +1223,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الأساسي	Basic
 الأسباب	Grounds
 الأسبوع	Week
+الأسطول والسيارات	Fleet and vehicles
 الأسعار والكميات أرقام فقط	Prices and quantities must be numbers
 الأسهم للتنقل	arrows to move
 الأصل	Asset
@@ -2291,6 +2293,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المصروف	Paid
 المصروف الفعلي	Actual spend
 المصروف حتى الآن	Spent so far
+المصروف مُرحّل في الحسابات	The cost is posted in the accounts
 المصروفات	Expenses
 المصروفات حسب الحساب	Expenses by account
 المصروفات حسب الشهر والحساب ومركز التكلفة والمورد والقسم	expenses by month, account, cost center, supplier and department
@@ -3556,6 +3559,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حذف الوردية	Delete shift
 حذف بيانات المنشأة	Deleting the company's data
 حذف سجل الموظف	Delete the employee record
+حذف مصروف مُرحّل للمالك ومدير النظام والمدير المالي فقط	Only the owner, system admin or finance manager may delete a posted cost
 حذف من الفريق	Remove from the team
 حذف نهائي	Delete permanently
 حرفا أو رقما	letters or digits
@@ -4540,6 +4544,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عقود جديدة	New contracts
 عكس	Reverse
 عكس القيد	Reverse entry
+عكس مصروف سيارة محذوف	Reversal of a deleted vehicle cost
 علاوة سنوية	annual increment
 على أن يسبقه إنذار كتابي بعد الغياب مدة عشرة أيام	preceded by a written warning after ten days of absence
 على أن يسبقه إنذار كتابي بعد الغياب مدة عشرين يوما	preceded by a written warning after twenty days of absence
@@ -5673,6 +5678,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مصروفات	Expense
 مصروفات أخرى	Other expenses
 مصروفات إدارية وعمومية	General and administrative expenses
+مصروفات السيارات	Vehicle expenses
+مصروفات السيارات (وقود وصيانة)	Vehicle expenses (fuel and maintenance)
 مصروفات الفرع	branch expenses
 مصروفات تشغيلية	Operating expenses
 مصروفات مدفوعة مقدما	Prepaid expenses
@@ -5944,6 +5951,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مين عملاؤك	Who your customers are
 مُباعة	Sold
 مُدخلة بتاريخ	Entered as of
+مُرحّل	Posted
 مُستلمة	Returned
 مُسحت البيانات التجريبية	Sample data cleared
 نأمل تجهيز متطلبات التجديد والتواصل مع الموارد البشرية	Please prepare the renewal requirements and contact HR
@@ -6352,6 +6360,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وقد اكتُشفت بتاريخ	and discovered on
 وقع	Fell
 وقود	fuel
+وقود وصيانة	fuel and maintenance
 وقّع بإصبعك أو بالفأرة داخل المربع	Sign with your finger or the mouse inside the box
 وكل خطوة تنتهي تتعلّم تلقائيا	each step is ticked by itself once done
 وكل خطوة تنتهي تتعلّم تلقائياً	each step is ticked by itself once done

@@ -46,7 +46,7 @@ insert into auth.users(id, email) values
 -- ================= TENANCY =================
 select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
 select public.create_company('شركة وعد للتجربة', '300000000000003', '1010000000') as cid \gset
-select t.ok((select count(*) from public.accounts where company_id = :'cid') = 33, 'chart of accounts seeded (33 accounts, incl. business travel 5230)');
+select t.ok((select count(*) from public.accounts where company_id = :'cid') = 34, 'chart of accounts seeded (34 accounts, incl. business travel 5230 and vehicles 5240)');
 select t.ok(public.my_role(:'cid') = 'owner', 'creator is owner');
 select t.err($$select public.create_company('منشأة ثانية لنفس الحساب')$$, 'منشأة واحدة', 'one account = one company: the owner cannot create a second company');
 select t.ok((select count(*) from public.departments where company_id = :'cid') = 9 and exists(select 1 from public.departments where company_id = :'cid' and name = 'المخزون' and name_en = 'Inventory'),
@@ -3534,6 +3534,17 @@ reset role;
 select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
 select t.err($$insert into public.vehicle_logs(company_id, vehicle_id, kind, amount) values ('$$ || :'cid' || $$', '$$ || :'veh1' || $$', 'fuel', 10)$$, 'row-level', 'fleet: an employee cannot log vehicle costs');
 reset role;
+-- vehicle costs in the books (0120)
+select (select entry_id from public.vehicle_logs where vehicle_id = :'veh1' and kind = 'fuel') as vfe \gset
+select t.ok(exists(select 1 from public.journal_lines where entry_id = :'vfe' and account_code = '5240' and debit = 120)
+  and exists(select 1 from public.journal_lines where entry_id = :'vfe' and account_code = '1120' and credit = 120), 'vehicle costs: fuel is posted Dr 5240 / Cr bank');
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.err($$delete from public.vehicle_logs where entry_id = '$$ || :'vfe' || $$'$$, 'للمالك', 'vehicle costs: HR cannot delete a posted cost');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+delete from public.vehicle_logs where entry_id = :'vfe';
+reset role;
+select t.ok(exists(select 1 from public.journal_entries where reverses = :'vfe'), 'vehicle costs: deleting a posted cost reverses its entry');
 
 -- the owner's monthly e-mail also counts applicants, survey answers, new hires missing data and position requests (0110)
 select t.ok((select public.monthly_report(:'cid', current_date) ?& array['applicants','survey_answers','onb_missing','hc_pending']), 'monthly e-mail: applicants, survey answers, onboarding gaps and position requests are reported');
