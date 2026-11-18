@@ -178,15 +178,41 @@ async function careersLinkDialog() {
   $('#ccp', m).onclick = () => { navigator.clipboard && navigator.clipboard.writeText(url); toast(tr('نُسخ الرابط')); };
   $('#cnew', m).onclick = async () => { await db.rpc('careers_link_get', { p_company: S.cid, p_new: true }); $('#dlg').close(); careersLinkDialog(); };
 }
-// the interview invitation, ready to send
-function interviewInvite(c, o) {
-  if (!c.interview_at) return toast(tr('حدد موعد المقابلة أولا'));
-  const dt = new Date(c.interview_at), d = dt.toLocaleDateString(LANG === 'en' ? 'en-GB' : 'ar-SA-u-ca-gregory', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }), t = dt.toLocaleTimeString(LANG === 'en' ? 'en-GB' : 'ar-SA', { hour: '2-digit', minute: '2-digit' });
-  const where = c.interview_link ? tr('رابط المقابلة') + ': ' + c.interview_link : c.interview_place ? tr('المكان') + ': ' + c.interview_place : '';
-  const msg = `${tr('السلام عليكم')} ${c.full_name}${tr('،')}\n${tr('يسرّنا دعوتك لمقابلة وظيفة')} «${o.title}» ${tr('في')} ${S.company.name}.\n${tr('الموعد')}: ${d} ${tr('الساعة')} ${t}\n${where}\n${tr('نرجو تأكيد حضورك بالرد على هذه الرسالة.')}`;
-  const m = modal(tr('دعوة المقابلة'), `<textarea id="ivm" rows="8" style="width:100%">${esc(msg)}</textarea><div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap">
-    <button type="button" class="btn" id="ivc">${esc(tr('نسخ'))}</button>${c.phone ? waBtn(c.phone, msg, tr('إرسال واتساب'), 'btn wa') : ''}
-    ${c.email ? `<a class="btn" href="mailto:${esc(c.email)}?subject=${encodeURIComponent(tr('دعوة مقابلة') + ' — ' + o.title)}&body=${encodeURIComponent(msg)}">${esc(tr('إرسال بالبريد'))}</a>` : ''}</div>`, { ok: 'تم' });
+/* a message to a candidate: goes to the number and e-mail on his record; subject and text follow the message type, the interview type and the language */
+const CAND_MSG = { interview: 'دعوة مقابلة', offer: 'عرض وظيفي', docs: 'طلب مستندات', regret: 'اعتذار', general: 'رسالة عامة' };
+function candidateText(c, o, k, lang, x) {
+  const T = s => lang === 'en' ? trTo(s) : s, en = lang === 'en', name = (en && c.full_name_en) || c.full_name, job = (en && o.title_en) || o.title, co = (en && S.company.name_en) || S.company.name, loc = en ? 'en-GB' : 'ar-SA-u-ca-gregory';
+  const hi = `${T('السلام عليكم')} ${name}${en ? ',' : '،'}\n`, bye = `\n\n${T('مع التحية')}\n${T('الموارد البشرية')} — ${co}`, day = v => new Date(v).toLocaleDateString(loc, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  if (k === 'interview') {
+    const ty = c.interview_type, label = T({ onsite: 'مقابلة شخصية', remote: 'مقابلة عن بعد', phone: 'مقابلة هاتفية' }[ty] || 'مقابلة'), dt = c.interview_at ? new Date(c.interview_at) : null, L = [];
+    L.push(dt ? `${T('الموعد')}: ${day(dt)} ${T('الساعة')} ${dt.toLocaleTimeString(en ? 'en-GB' : 'ar-SA', { hour: '2-digit', minute: '2-digit' })}` : T('سنؤكد لك موعد المقابلة قريبا.'));
+    if (ty === 'onsite') { L.push(c.interview_place ? `${T('المكان')}: ${c.interview_place}` : T('سنرسل لك عنوان المقابلة.'), T('نرجو إحضار الهوية ونسخة من السيرة الذاتية.')); }
+    else if (ty === 'remote') { L.push(c.interview_link ? `${T('رابط المقابلة')}: ${c.interview_link}` : T('سنرسل لك رابط المقابلة.'), T('نرجو الدخول قبل الموعد بخمس دقائق والتأكد من الكاميرا والصوت.')); }
+    else if (ty === 'phone') { L.push(`${T('سنتصل بك على الرقم')}: ${c.phone || ''}`, T('نرجو أن تكون في مكان هادئ وقت المكالمة.')); }
+    else { if (c.interview_link) L.push(`${T('رابط المقابلة')}: ${c.interview_link}`); if (c.interview_place) L.push(`${T('المكان')}: ${c.interview_place}`); }
+    return { s: `${T('دعوة')} ${label} — ${job} — ${co}`, b: `${hi}${T('يسرّنا دعوتك إلى')} ${label} ${T('لوظيفة')} «${job}» ${T('في')} ${co}.\n${L.join('\n')}\n${T('نرجو تأكيد حضورك بالرد على هذه الرسالة.')}${bye}` };
+  }
+  if (k === 'offer') { const L = [x.salary ? `${T('الراتب الشهري')}: ${money(x.salary)} ${T('ريال')}` : '', x.start ? `${T('تاريخ المباشرة')}: ${day(x.start)}` : '', x.until ? `${T('نرجو الرد قبل')}: ${day(x.until)}` : ''].filter(Boolean);
+    return { s: `${T('عرض وظيفي')} — ${job} — ${co}`, b: `${hi}${T('يسرّنا أن نقدم لك عرضا وظيفيا لوظيفة')} «${job}» ${T('في')} ${co}.${L.length ? '\n' + L.join('\n') : ''}\n${T('يخضع العرض لاستكمال المتطلبات وتوقيع العقد. نرجو إبلاغنا بقرارك بالرد على هذه الرسالة.')}${bye}` }; }
+  if (k === 'docs') return { s: `${T('طلب مستندات')} — ${job} — ${co}`, b: `${hi}${T('لاستكمال طلبك لوظيفة')} «${job}»${en ? ',' : '،'} ${T('نرجو تزويدنا بنسخة من الهوية والمؤهلات وشهادات الخبرة.')}${bye}` };
+  if (k === 'regret') return { s: `${T('بشأن طلبك لوظيفة')} ${job} — ${co}`, b: `${hi}${T('نشكرك على اهتمامك بوظيفة')} «${job}» ${T('في')} ${co}. ${T('بعد دراسة الطلبات قررنا عدم المضي في طلبك حاليا، ونتمنى لك التوفيق.')}${bye}` };
+  return { s: `${job} — ${co}`, b: `${hi}\n${bye}` };
+}
+function candidateMessage(c, o) {
+  const def = c.stage === 'offer' ? 'offer' : c.stage === 'rejected' ? 'regret' : c.stage === 'interview' || c.interview_at ? 'interview' : c.stage === 'screening' ? 'docs' : 'general', wa = waPhone(c.phone);
+  const m = modal(tr('مراسلة المرشح') + ' — ' + c.full_name, `<p class="small" style="margin-top:0">${esc(tr('إلى'))}: <span class="num" dir="ltr">${esc(c.phone || '—')}</span> · <span dir="ltr">${esc(c.email || '—')}</span></p>
+    <div class="fg">${field('نوع الرسالة', `<select id="cmk">${Object.keys(CAND_MSG).map(k => opt(k, tr(CAND_MSG[k]), def)).join('')}</select>`)}${field('لغة الرسالة', `<select id="cml">${opt('ar', 'العربية', LANG)}${opt('en', 'English', LANG)}</select>`)}
+      <div class="wide fg" id="cmo" style="margin:0">${field('الراتب المعروض', '<input id="cms" type="number" min="0" step="0.01">')}${field('تاريخ المباشرة', '<input id="cmd" type="date">')}${field('آخر موعد للرد', '<input id="cmu" type="date">')}</div>
+      ${field('عنوان البريد', '<input id="cmt" maxlength="200">', 'wide')}${field('نص الرسالة', '<textarea id="ivm" rows="9"></textarea>', 'wide')}</div><div id="cmn"></div>
+    <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap"><a class="btn wa" id="cww" target="_blank" rel="noopener">${esc(tr('إرسال واتساب'))}</a><a class="btn" id="cmg" target="_blank" rel="noopener">Gmail</a><a class="btn" id="cmo365" target="_blank" rel="noopener">Outlook</a><a class="btn" id="cma">${esc(tr('تطبيق البريد'))}</a><button type="button" class="btn" id="ivc">${esc(tr('نسخ'))}</button></div>`, { ok: 'تم', wide: true });
+  const links = () => { const s = $('#cmt', m).value, b = $('#ivm', m).value, q = encodeURIComponent, to = c.email || '';
+    $('#cww', m).href = 'https://wa.me/' + wa + '?text=' + q(b); $('#cww', m).hidden = !wa;
+    $('#cmg', m).href = `https://mail.google.com/mail/?view=cm&fs=1&to=${q(to)}&su=${q(s)}&body=${q(b)}`; $('#cmo365', m).href = `https://outlook.office.com/mail/deeplink/compose?to=${q(to)}&subject=${q(s)}&body=${q(b)}`; $('#cma', m).href = `mailto:${q(to)}?subject=${q(s)}&body=${q(b)}`;
+    ['#cmg', '#cmo365', '#cma'].forEach(x => $(x, m).hidden = !to); };
+  const fill = () => { const k = $('#cmk', m).value, t = candidateText(c, o, k, $('#cml', m).value, { salary: +$('#cms', m).value || 0, start: $('#cmd', m).value, until: $('#cmu', m).value }); $('#cmo', m).hidden = k !== 'offer'; $('#cmt', m).value = t.s; $('#ivm', m).value = t.b;
+    const miss = []; if (!wa) miss.push(tr('لا يوجد رقم جوال صالح للمرشح')); if (!c.email) miss.push(tr('لا يوجد بريد للمرشح')); if (k === 'interview' && !c.interview_at) miss.push(tr('لم يُحدد موعد المقابلة')); if (k === 'interview' && !c.interview_type) miss.push(tr('لم يُحدد نوع المقابلة')); if (k === 'interview' && c.interview_type === 'remote' && !c.interview_link) miss.push(tr('لا يوجد رابط للمقابلة')); if (k === 'interview' && c.interview_type === 'onsite' && !c.interview_place) miss.push(tr('لا يوجد مكان للمقابلة'));
+    $('#cmn', m).innerHTML = miss.length ? `<div class="note warn small">${miss.map(esc).join(' · ')}</div>` : ''; links(); };
+  ['#cmk', '#cml', '#cms', '#cmd', '#cmu'].forEach(x => $(x, m).addEventListener('change', fill)); $('#cmt', m).oninput = links; $('#ivm', m).oninput = links; fill();
   $('#ivc', m).onclick = () => { navigator.clipboard && navigator.clipboard.writeText($('#ivm', m).value); toast(tr('نُسخ')); };
 }
 

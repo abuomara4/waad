@@ -1152,6 +1152,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اطّلع وأرسل ردك الكتابي	review it and send your written reply
 اطّلعت	Acknowledged
 اطّلعت على التقييم	I have read the review
+اعتذار	Regret
 اعتماد	Approve
 اعتماد أمر تغيير	Change order approval
 اعتماد الاستشاري	Consultant approval
@@ -1852,7 +1853,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الراتب	Salary
 الراتب الأساسي	Basic salary
 الراتب الأساسي رقم مطلوب	Basic salary is a required number
+الراتب الشهري	Monthly salary
 الراتب المتوقع	Expected salary
+الراتب المعروض	Offered salary
 الراتب والبدلات	Pay and allowances
 الراتب والبدلات والتأمينات	salary, allowances and GOSI
 الراحة	Break
@@ -2901,6 +2904,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بريدة	Buraydah
 بريطاني	British
 بسعر كل عضو في الفريق أو سعر ساعة المشروع	at each team member's rate or the project's hourly rate
+بشأن طلبك لوظيفة	Regarding your application for
 بصمات	Punches
 بضاعة مستلمة لم تصل فاتورتها	Goods received not invoiced
 بطاقة	Card
@@ -2919,6 +2923,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بعد الحفظ يظهر رمز دعوة	After saving, an invitation code appears
 بعد الربط لا تُلغى فواتير المبيعات	After linking, sales invoices cannot be voided
 بعد المراجعة يعتمده المدير العام أو المدير المالي	After review, the General Manager or Finance Manager approves it
+بعد دراسة الطلبات قررنا عدم المضي في طلبك حاليا	After reviewing the applications, we have decided not to proceed with yours at this time
 بعد هذا	after this
 بعد هذا الطلب	After this request
 بعدها كل دخول يطلب رمز من التطبيق	After that every sign-in asks for a code from the app
@@ -4059,6 +4064,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 درجة الهدف	Score of goal
 درجة تذكرة السفر	Travel ticket class
 درجة جديدة	New grade
+دعوة	Invitation to
 دعوة المقابلة	Interview invitation
 دعوة للانضمام إلى	Invitation to join
 دعوة مستخدم	Invite user
@@ -4174,6 +4180,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ردّك يظهر لهم في النظام ويوصلهم على الإيميل	Your reply shows in their system and reaches them by e-mail
 رسائل نصية	SMS
 رسالة دعوة المقابلة	Interview invitation message
+رسالة عامة	General message
 رسالة قصيرة تظهر أعلى النظام لكل المستخدمين في كل المنشآت	A short message shown at the top of the system to every user in every company
 رسالة واحدة تصل لكل الموظفين في الصفحة الرئيسية وعلى أجهزتهم	One message that reaches every employee on the home page and on their devices
 رسوم أو عمولة أو فائدة	fees, commission or interest
@@ -4535,6 +4542,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 سلّم رواتب بحد أدنى وأعلى للراتب الأساسي لكل درجة	A pay scale with a minimum and maximum basic salary for each grade
 سلّمها	Delivered by
 سماعة رأس	Headset
+سنؤكد لك موعد المقابلة قريبا	We will confirm the interview time soon
 سناب شات	Snapchat
 سنة	years
 سنة الصنع	Year
@@ -4542,6 +4550,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 سنة دراسية معادة	Repeated academic year
 سنة غير معادة	First attempt (not a repeated year)
 سنة غير معادة أو سنة معادة	first attempt or repeated year
+سنتصل بك على الرقم	We will call you on
 سند استلام بضاعة	Goods received note
 سند تحويل مخزون	Stock transfer note
 سند صرف	Payment voucher
@@ -4549,6 +4558,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 سند قبض	Receipt voucher
 سند قبض على عدة فواتير	Receipt over several invoices
 سندات القبض والصرف	Receipts and payments
+سنرسل لك رابط المقابلة	We will send you the interview link
+سنرسل لك عنوان المقابلة	We will send you the interview address
 سنضيف موظفين وأقساما وعملاء وحملات تسويقية ومشاريع تجريبية لتجربة النظام	We'll add sample employees, departments, customers, campaigns and projects to try the system
 سنضيف موظفين وأقساماً وعملاء وحملات تسويقية ومشاريع تجريبية لتجربة النظام	We'll add sample employees, departments, customers, campaigns and projects to try the system
 سنوات	years
@@ -4802,6 +4813,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 طلب عرض سعر	Request for quotation
 طلب عروض جديد	New request for quotations
 طلب لم يُقبل	Request not accepted
+طلب مستندات	Document request
 طلب معتمد	approved request
 طلب نسيان البصمة خلال	A forgotten-fingerprint request is within
 طلب وظيفة	Position request
@@ -4987,6 +4999,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عند موعدها تصدرها بضغطة	when due, issue it with one click
 عند نقل الموظف	When moving the employee
 عنوان البرنامج	Programme title
+عنوان البريد	E-mail subject
 عنوان الدورة	Course title
 عنوان الدورة بالإنجليزية	Course title in English
 عنوان العميل	Customer address
@@ -5611,6 +5624,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يوجد استلام بضاعة	No goods receipts
 لا يوجد بريد إلكتروني للمالك	No owner e-mail
 لا يوجد بريد إلكتروني مسجّل للعميل	No e-mail recorded for the customer
+لا يوجد بريد للمرشح	The candidate has no e-mail
 لا يوجد تسجيل حضور في هذا اليوم	There is no attendance record on this day
 لا يوجد تطبيق مصادقة مربوط	No authenticator app is linked
 لا يوجد تظلم قائم	There is no pending grievance
@@ -5619,6 +5633,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يوجد جوال صحيح في سجل الموظف	No valid mobile in the employee record
 لا يوجد حساب بنك في دليل الحسابات	There is no bank account in the chart of accounts
 لا يوجد حساب دخول لهذا الموظف	This employee has no sign-in account
+لا يوجد رابط للمقابلة	No interview link
+لا يوجد رقم جوال صالح للمرشح	The candidate has no valid mobile number
 لا يوجد رقم ضريبي مسجّل	No VAT number registered
 لا يوجد سجل	No history
 لا يوجد شرح لهذه الصفحة بعد	No guide for this page yet
@@ -5639,6 +5655,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يوجد مرشحون بعد	No candidates yet
 لا يوجد مستخدم مالية	no finance user
 لا يوجد مستخدم موارد بشرية	no HR user
+لا يوجد مكان للمقابلة	No interview location
 لا يوجد موظفون	No employees
 لا يوجد موظفون جدد خلال آخر	No new employees in the last
 لا يوجد موظفون جدد خلال آخر 120 يوما	No new employees in the last 120 days
@@ -5680,6 +5697,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لابتوب	laptop
 لازمة لملف حماية الأجور	needed for the wage protection file
 لاسترداد الضريبة أدخل الرقم الضريبي للمورد	To reclaim VAT enter the supplier VAT number
+لاستكمال طلبك لوظيفة	To complete your application for
 لبناني	Lebanese
 لتحدد أدوار الشخص	to set the person's roles
 لتر	L
@@ -5712,6 +5730,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لعميل له رقم ضريبي	for a customer with a VAT number
 لغة الخطاب	Letter language
 لغة الخطاب غير معروفة	Unknown letter language
+لغة الرسالة	Message language
 لغة النموذج	Form language
 لغير السعودي	For non-Saudis
 لـ	for
@@ -5808,6 +5827,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لم يكتمل التفعيل	It could not be turned on
 لم يُؤكَّد البريد بعد	Email not confirmed yet
 لم يُجهَّز مسير رواتب	No payroll prepared for
+لم يُحدد موعد المقابلة	The interview time is not set
+لم يُحدد نوع المقابلة	The interview type is not set
 لم يُرسل	Not sent
 لم يُسجَّل تحقيق	No investigation recorded
 لم يُسجَّل متدربون	No trainees enrolled
@@ -5838,6 +5859,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لوحة المالية	Finance dashboard
 لوحة الموارد البشرية	HR dashboard
 لوحة مفاتيح وفأرة	Keyboard and mouse
+لوظيفة	for the position of
 لوعد موثوق	a promise you can trust
 لون المنتج	product colour
 ليبي	Libyan
@@ -6083,6 +6105,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مرات الحدوث	Occurrences
 مراجعة قبل الترحيل	Review before posting
 مراسلة	Message
+مراسلة المرشح	Message the candidate
 مراسلة عبر	Message via
 مراكز التكلفة	Cost centers
 مربوطة	Linked
@@ -6242,6 +6265,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مطلوب في الفاتورة الضريبية للعميل المسجل في ضريبة القيمة المضافة	Required on the tax invoice for a VAT-registered customer
 مع إنذار بالفصل وفق المادة	with a dismissal warning under Article
 مع اسمه	with its name
+مع التحية	Kind regards
 مع الرقم الضريبي تصبح كل فاتورة فاتورة ضريبية	With a VAT number every invoice becomes a tax invoice
 مع المرفقات	with attachments
 مع تنبيه قبل الانتهاء	with an alert before expiry
@@ -6286,6 +6310,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مقابل فاتورة	Against invoice
 مقابلة	Interview
 مقابلة حضورية	In-person meeting
+مقابلة شخصية	an in-person interview
+مقابلة عن بعد	a remote interview
+مقابلة هاتفية	a phone interview
 مقارنة الأقسام	Department comparison
 مقارنة العروض	Offer comparison
 مقارنة مع	compared with
@@ -6516,7 +6543,13 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نجران	Najran
 نحفظ الأرقام والتواريخ فقط بدون صور المستندات	we keep numbers and dates only, no scans
 نحو	about
+نرجو أن تكون في مكان هادئ وقت المكالمة	Please be somewhere quiet at the time of the call
+نرجو إبلاغنا بقرارك بالرد على هذه الرسالة	Please let us know your decision by replying to this message
+نرجو إحضار الهوية ونسخة من السيرة الذاتية	Please bring your ID and a copy of your CV
+نرجو الدخول قبل الموعد بخمس دقائق والتأكد من الكاميرا والصوت	Please join five minutes early and check your camera and sound
+نرجو الرد قبل	Please reply by
 نرجو تأكيد حضورك بالرد على هذه الرسالة	Please confirm your attendance by replying to this message
+نرجو تزويدنا بنسخة من الهوية والمؤهلات وشهادات الخبرة	please send us a copy of your ID, qualifications and experience certificates
 نزّل القالب	Download the template
 نزّل القالب واملأ سطرا لكل اسم	Download the template and fill one row per name
 نزّل القالب واملأ سطرا لكل صنف	Download the template and fill one row per item
@@ -6573,8 +6606,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نشر	Publish
 نشط	Active
 نشطة	Active
+نشكرك على اهتمامك بوظيفة	Thank you for your interest in the position of
 نص	Text
 نص الإعلان	Announcement text
+نص الرسالة	Message text
 نص اللائحة	Regulation text
 نص النموذج بالعربي	Form text in Arabic
 نص النموذج بالعربية	Form text in Arabic
@@ -6636,6 +6671,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نوع الإشعار غير صالح	Invalid note type
 نوع التأشيرة	Visa type
 نوع الخطاب غير معروف	Unknown letter type
+نوع الرسالة	Message type
 نوع السند غير صالح	Invalid voucher type
 نوع الشيك غير صالح	Invalid cheque type
 نوع الصنف لا يتغير بعد إنشائه	An item's type cannot change after it is created
@@ -6989,6 +7025,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ومنه الدفعة المقدمة المستردة	including the recovered down payment
 وموقع العمل باسمه	and the work site by its name
 ونبّهنا المالك قبلها بالإيميل	and we e-mailed the owner before that
+ونتمنى لك التوفيق	and we wish you every success
 ونرد عليك قريبا	and we'll reply soon
 ونرد عليك قريباً	and we'll reply soon
 ونرد عليك هنا وعلى إيميلك	and we'll reply here and by e-mail
@@ -7102,6 +7139,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يختفي بعد	Hide after
 يختفي بعد (اختياري)	Hide after (optional)
 يختفي من عند كل الموظفين	It disappears for all employees
+يخضع العرض لاستكمال المتطلبات وتوقيع العقد	The offer is subject to completing the requirements and signing the contract
 يدخل البدل مسير الشهر إذا كان ساريا في آخر يوم منه	An allowance enters a month's payroll if active on its last day
 يدخل البدل مسير الشهر إذا كان سارياً في آخر يوم منه	An allowance enters a month's payroll if active on its last day
 يدخل بالرقم الوظيفي	Signs in with employee number
@@ -7123,6 +7161,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يسجل ما يُفتح من شاشات النظام وعمليات التصدير	Records what is opened from system screens and data exports
 يسجّل بنفس البريد ثم يُدخل الرمز	They sign up with the same email, then enter the code
 يسجّل حضوره فيه فقط	checks in there only
+يسرّنا أن نقدم لك عرضا وظيفيا لوظيفة	We are pleased to offer you the position of
+يسرّنا دعوتك إلى	We are pleased to invite you to
 يسرّنا دعوتك لمقابلة وظيفة	We are pleased to invite you to an interview for
 يسقط الأجر إذا ثبت عدم أداء الامتحان	Pay is lost if the exam was not sat
 يسقط الأجر عن إجازة الاختبارات إذا ثبت أن العامل لم يؤدِّ الامتحان	exam leave pay is lost if the worker did not sit the exam

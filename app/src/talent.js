@@ -170,18 +170,21 @@ function candidateForm(c, o, deps) {
       <label class="btn sm" style="margin-top:6px">${esc(tr('إرفاق ملف'))}<input type="file" id="cvf" accept=".pdf,.doc,.docx,image/*" hidden></label> <span class="small muted">${esc(tr('PDF أو Word أو صورة — حتى 3 ميجابايت'))}</span><div id="cverr"></div></div>` : ''}
     ${c && !['hired', 'rejected'].includes(c.stage) ? '<div class="wide"><button type="button" class="btn pri" id="hire">تعيين وإنشاء سجل موظف</button></div>' : ''}
     ${locked ? '<div class="wide note">عُيّن هذا المرشح وأُنشئ سجله في «الموظفون».</div>' : ''}</div>`, {
-    wide: true, onOk: async f => {
+    wide: true, onOk: async f => { await save(f); toast('تم الحفظ'); route(); } });
+  // saves what is on the form and returns the candidate as it now stands
+  const save = async f => {
       if (f.full_name.length < 3) throw new Error('أدخل الاسم الكامل');
       if (f.national_id && !/^[12]\d{9}$/.test(f.national_id)) throw new Error('رقم الهوية/الإقامة 10 أرقام يبدأ بـ 1 أو 2');
       const row = { full_name: f.full_name, full_name_en: blank((f.full_name_en || '').trim()), phone: blank(f.phone), email: blank(f.email), national_id: blank(f.national_id), is_saudi: f.is_saudi === 'true', gender: f.gender, expected_salary: f.sal === '' ? null : +f.sal, interview_at: f.iv ? new Date(f.iv).toISOString() : null, interview_type: blank(f.itype), rating: f.rating ? +f.rating : null, notes: blank(f.notes) };
       if (f.ivlink && !/^https:\/\//.test(f.ivlink.trim())) throw new Error('رابط الاجتماع يبدأ بـ https://');
       Object.assign(row, { interview_link: blank((f.ivlink || '').trim()), interview_place: blank((f.ivplace || '').trim()) });
       if (!locked) row.stage = f.stage;
-      if (c) await db.upd('candidates', { id: 'eq.' + c.id }, row); else await db.ins('candidates', Object.assign(row, { company_id: S.cid, opening_id: o.id }));
-      toast('تم الحفظ'); route();
-    } });
+      if (c) { await db.upd('candidates', { id: 'eq.' + c.id }, row); return Object.assign({}, c, row); }
+      const [n] = await db.ins('candidates', Object.assign(row, { company_id: S.cid, opening_id: o.id })); return n;
+  };
   if ($('#hire', d)) $('#hire', d).onclick = () => hireForm(c, o, deps);
-  if (c && c.interview_at) { const ib = document.createElement('button'); ib.type = 'button'; ib.className = 'btn'; ib.textContent = tr('رسالة دعوة المقابلة'); $('.df', d).insertBefore(ib, $('#mok', d)); ib.onclick = () => interviewInvite(c, o); }
+  if (!locked) { const ib = document.createElement('button'); ib.type = 'button'; ib.className = 'btn'; ib.id = 'cmsg'; ib.textContent = tr('مراسلة المرشح'); $('.df', d).insertBefore(ib, $('#mok', d));
+    ib.onclick = () => busy(ib, async () => { try { candidateMessage(await save(formData($('#mform', d))), o); $('#dlg').addEventListener('close', () => route(), { once: true }); } catch (e) { showErr($('#merr', d), e); } }); }
   if (c) candFiles(c, d);
 }
 async function candFiles(c, d) {

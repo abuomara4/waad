@@ -548,7 +548,13 @@ function resetStaffPassword(e) {
   });
 }
 /* ===== WhatsApp: opens the chat with the message typed; the user presses send (nothing is sent automatically) ===== */
-function waPhone(p) { let d = String(p || '').replace(/\D/g, ''); if (/^05\d{8}$/.test(d)) d = '966' + d.slice(1); else if (/^5\d{8}$/.test(d)) d = '966' + d; else if (/^00966/.test(d)) d = d.slice(2); return /^9665\d{8}$/.test(d) ? d : ''; }
+function waPhone(p) {   // Saudi numbers in any usual form, and international numbers with their country code; Arabic digits are accepted
+  const s = String(p || '').replace(/[٠-٩]/g, c => c.charCodeAt(0) - 0x660).replace(/[۰-۹]/g, c => c.charCodeAt(0) - 0x6F0).trim();
+  let d = s.replace(/\D/g, ''); if (/^00/.test(d)) d = d.slice(2);
+  if (/^05\d{8}$/.test(d)) d = '966' + d.slice(1); else if (/^5\d{8}$/.test(d)) d = '966' + d;
+  if (/^9665\d{8}$/.test(d)) return d;
+  return !/^966/.test(d) && (/^(\+|00)/.test(s) ? /^[1-9]\d{7,14}$/ : /^[1-9]\d{10,14}$/).test(d) ? d : '';
+}
 const waUrl = (phone, text) => 'https://wa.me/' + waPhone(phone) + '?text=' + encodeURIComponent(text);
 const waBtn = (phone, text, label = 'إرسال واتساب', cls = 'btn wa') => `<a class="${cls}" target="_blank" rel="noopener" href="${esc(waUrl(phone, text))}">${esc(label)}</a>`;
 function credentialsBox(e, pw, warnConfirm) {

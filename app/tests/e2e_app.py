@@ -139,7 +139,7 @@ with sync_playwright() as pw:
     ok(m.locator('#nav a[href="#/employees"]').count() == 0, 'manager has no HR menu')
 
     # owner (GM) acts on the advance at its 'g' step only after m/p/f; check owner sees nothing at step p
-    go(o, '#/approvals'); o.wait_for_timeout(400); ok(o.locator('tbody tr', has_text='إجازة').count() == 1, 'no HR user in the company yet → the leave waiting for HR reaches the owner (0085)')
+    go(o, '#/approvals'); o.wait_for_selector('tbody tr:has-text("إجازة")', timeout=10000); ok(o.locator('tbody tr', has_text='إجازة').count() == 1, 'no HR user in the company yet → the leave waiting for HR reaches the owner (0085)')
     go(o, '#/approvals?t=all'); o.wait_for_selector('.rpath'); t = o.inner_text('#page'); row = o.locator('tbody tr', has_text='إجازة').first.inner_text()
     ok('متابعة كل الطلبات' in t and 'المالك' in row and 'لا يوجد مستخدم موارد بشرية' in row and o.locator('tbody tr', has_text='إجازة').first.locator('.rstep.now').inner_text().strip() == 'الموارد البشرية' and '✓' in row,
        'track all requests: the owner sees where the leave is (HR step, manager step done) and who has it')
@@ -1235,6 +1235,11 @@ with sync_playwright() as pw:
     ok('أخصائي مبيعات' in cp.inner_text('.portal'), 'careers page: the public link lists the published opening')
     cp.click('[data-apply]'); cp.wait_for_selector('#dlg[open] input[name=name]'); cp.fill('#dlg input[name=name]', 'نورة الشهري'); cp.fill('#dlg input[name=phone]', '0551112233'); cp.click('#mok'); cp.wait_for_timeout(1200)
     ok(sql("select count(*) from candidates where full_name = 'نورة الشهري' and source = 'careers' and stage = 'applied'") == '1', 'careers page: the application lands in the candidates list'); cc.close()
+    cand = sql("select id||'|'||opening_id from candidates where full_name = 'نورة الشهري'").split('|'); sqlx("update candidates set phone='٠٥٥١٢٣٠٠٠٠', email='noura@test.sa', stage='interview', interview_type='remote', interview_at=now()+interval '2 days', interview_link='https://meet.google.com/abc' where id='" + cand[0] + "'")
+    go(o, '#/recruit/' + cand[1]); o.wait_for_selector('#page tbody tr'); o.locator('#page tbody tr', has_text='نورة الشهري').click(); o.wait_for_selector('#cmsg'); o.click('#cmsg'); o.wait_for_selector('#cww')
+    wh, gm, sj = o.get_attribute('#cww', 'href'), urllib.parse.unquote(o.get_attribute('#cmg', 'href')), o.input_value('#cmt')
+    ok(wh.startswith('https://wa.me/966551230000?text=') and 'to=noura@test.sa' in gm and 'مقابلة عن بعد' in sj and 'meet.google.com/abc' in o.input_value('#ivm'), 'candidate message: WhatsApp and e-mail go to the candidate, with the subject and link of a remote interview')
+    o.select_option('#cmk', 'offer'); o.fill('#cms', '9000'); o.dispatch_event('#cms', 'change'); ok('عرض وظيفي' in o.input_value('#cmt') and '9,000.00' in o.input_value('#ivm'), 'candidate message: a job offer has its own subject and salary'); o.click('#mx'); o.wait_for_timeout(300)
     # conditional approval: the GM step only above an amount
     go(o, '#/workflows'); o.wait_for_selector('[data-glim=advance]'); o.fill('[data-glim=advance]', '1000'); o.click('[data-gsave=advance]'); o.wait_for_timeout(800)
     ok(sql("select g_above::int from workflows w join companies c on c.id = w.company_id where c.name = 'شركة وعد التجريبية' and w.kind = 'advance'") == '1000', 'approval paths: the GM approves advances only above 1,000')
