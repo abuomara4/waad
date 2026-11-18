@@ -539,7 +539,10 @@ with sync_playwright() as pw:
     o.wait_for_selector('[data-dsh]'); o.select_option(f'[data-dsh="{did}"]', s2); o.wait_for_timeout(700)
     ok(sql(f"select shift_id from departments where id='{did}'") == s2, 'HR assigns a shift to a department')
     sqlx(f"update departments set shift_id = null where id='{did}'")
-    go(o, '#/employees'); o.locator('tbody tr', has_text='محمد العتيبي').click(); o.wait_for_selector('#dlg select[name=shift_id]'); ok(o.locator('#dlg select[name=is_muslim]').count() == 1, 'employee file records the religion for Ramadan hours'); o.click('#mx')
+    go(o, '#/employees'); o.locator('tbody tr', has_text='محمد العتيبي').click(); o.wait_for_selector('#dlg select[name=shift_id]'); ok(o.locator('#dlg select[name=is_muslim]').count() == 1, 'employee file records the religion for Ramadan hours')
+    o.select_option('#dlg select[name=att_any_place]', 'true'); modal_ok(o); o.wait_for_timeout(300)
+    ok(sql("select count(*) from employees where att_any_place") == '1', 'HR allows one employee to check in from any place')
+    sqlx("update employees set att_any_place = false")
     go(o, '#/payroll'); o.locator('tbody tr').first.click(); o.wait_for_selector('#page thead'); ok('غياب وتأخير' in o.inner_text('#page thead'), 'payroll shows attendance deductions column')
     # monthly limits: permit hours and forgotten fingerprint
     go(o, '#/att/settings'); o.wait_for_selector('#asf'); o.fill('#asf input[name=plim]', '3'); o.fill('#asf input[name=flim]', '2'); o.click('#ass'); o.wait_for_timeout(800)

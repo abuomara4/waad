@@ -3,6 +3,7 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('19 نوفمبر 2026', '19 November 2026', [
+  ('تسجيل الحضور من أي مكان لموظفين تحددهم الموارد البشرية، مع بقاء التحقق من الموقع لغيرهم', 'Check-in from any place for employees chosen by HR, while the location check stays on for everyone else'),
   ('طلب إجازة سنوية خارجية ببلد الوجهة، وحساب أيام الإجازة المرضية حسب المادة 117 قبل الإرسال', 'Annual leave abroad with its destination, and sick days split under Article 117 before sending'),
   ('منع تكرار رقم الإجازة المرضية، وتسجيل نتيجة تحقق الموارد البشرية من منصة صحة', 'A sick-leave number cannot be reused, and HR records the result of its check on the Seha platform'),
  ]),

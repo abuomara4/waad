@@ -679,6 +679,15 @@ select t.err($$select public.clock('$$ || :'cid' || $$', 24.80, 46.70, 20)$$, '�
 select t.err($$select public.clock('$$ || :'cid' || $$', 24.7137, 46.6754, 500)$$, 'دقة', 'check-in with a poor GPS fix is refused');
 select t.ok((public.clock(:'cid', 24.7137, 46.6754, 20))->>'action' = 'in', 'check-in inside the site geofence');
 select t.err($$select public.clock('$$ || :'cid' || $$', 24.7137, 46.6754, 20)$$, 'قبل لحظات', 'a double tap does not check out');
+update public.employees set att_any_place = true where id = :'e_emp';
+select t.err($$select public.clock('$$ || :'cid' || $$')$$, 'خدمة الموقع', 'an employee cannot exempt himself from the location check');
+reset role;
+update public.employees set att_any_place = true where id = :'e_emp';
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.clock('$$ || :'cid' || $$')$$, 'قبل لحظات', 'an employee allowed by HR passes the location check without a location');
+reset role;
+update public.employees set att_any_place = false where id = :'e_emp';
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
 select t.err($$insert into public.attendance(company_id, employee_id, day, check_in) values ('$$ || :'cid' || $$', '$$ || :'e_emp' || $$', '2026-09-01', now())$$, '42501|permission|row-level', 'employees cannot write attendance directly');
 select t.err($$select public.att_set('$$ || :'cid' || $$', '$$ || :'e_emp' || $$', '2026-09-15', '08:00', '16:00', 'تعديل ذاتي')$$, '42501|غير مصرح', 'employees cannot correct their own attendance');
 reset role;

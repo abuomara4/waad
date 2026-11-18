@@ -25,7 +25,8 @@ const HELP = {
     ['كل ما ينتظر قرارك: طلبات الموظفين، طلبات الشراء، والمسيرات.', 'Everything waiting for your decision: employee requests, purchase requests and payroll runs.'],
     ['افتح الطلب، راجع التفاصيل، ثم اعتمد أو ارفض مع ذكر السبب.', 'Open it, check the details, then approve or reject with a reason.']] },
   '#/att': { t: ['الحضور والانصراف', 'Attendance'], s: [
-    ['يسجّل الموظف حضوره من جواله، ويظهر هنا الحاضر والمتأخر والغائب لكل يوم.', 'Employees check in from their phone; this page shows who is present, late or absent each day.'],
+    ['يسجّل الموظف حضوره من جواله أو من الموقع دون جهاز بصمة، ويظهر هنا الحاضر والمتأخر والغائب لكل يوم.', 'Employees check in from their phone or the website with no fingerprint device; this page shows who is present, late or absent each day.'],
+    ['لموظفي المكاتب أو العمل عن بعد: اختر في ملف الموظف «من أي مكان بدون تحديد الموقع»، ويبقى التحقق من الموقع لغيرهم.', 'For desk or remote staff: choose «From any place, without location» in the employee file; the location check stays on for everyone else.'],
     ['حدّد الورديات وموقع العمل من الإعدادات، والغياب والتأخير يُحسبان في المسير.', 'Set shifts and the work location in settings; absence and lateness flow into payroll.']] },
   '#/docs': { t: ['المستندات والعقود', 'Documents & contracts'], s: [
     ['احفظ الإقامات والهويات والجوازات والعقود مع تواريخ انتهائها.', 'Keep iqamas, IDs, passports and contracts with their expiry dates.'],
