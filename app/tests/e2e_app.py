@@ -800,6 +800,24 @@ with sync_playwright() as pw:
     ok(sql("select status || ':' || (entry_id is not null) from journal_drafts where memo = 'تسوية مصروف'") == 'posted:true', 'journal drafts: sent for approval, approved and posted')
     go(o, '#/monthclose'); o.wait_for_selector('#mcm'); ok(o.locator('#page .card .row').count() >= 6, 'month-end close: the checklist shows every step')
 
+    # ---------- finance phase two (0122) ----------
+    go(o, '#/zakat'); o.wait_for_selector('#zgo'); o.fill('#zform input[name=equity]', '1000000'); o.fill('#zform input[name=liabilities]', '0'); o.fill('#zform input[name=deducted]', '0')
+    o.fill('#zform input[name=profit_book]', '0'); o.fill('#zform input[name=profit_adj]', '0'); o.fill('#zform input[name=days]', '354'); o.click('#zgo'); o.wait_for_selector('#zres table')
+    ok('25,000' in o.inner_text('#zres') or '25000' in o.inner_text('#zres').replace(',', ''), 'zakat: an equity of 1,000,000 over a Hijri year gives 25,000 (2.5%)')
+    o.click('#zpost'); o.wait_for_selector('#dlg input[name=a]'); modal_ok(o); o.wait_for_timeout(500)
+    ok(sql("select count(*) from journal_entries where source = 'zakat'") == '1', 'zakat: the provision is booked (Dr zakat expense / Cr zakat provision)')
+    go(o, '#/facilities'); o.wait_for_selector('#fnn'); o.click('#fnn'); o.wait_for_selector('#dlg input[name=bank]'); o.fill('#dlg input[name=bank]', 'بنك الرياض')
+    o.fill('#dlg input[name=amount]', '12000'); o.fill('#dlg input[name=rate]', '6'); o.fill('#dlg input[name=months]', '12'); o.dispatch_event('#dlg input[name=months]', 'change'); o.wait_for_selector('#lsch p')
+    ok('12,393.58' in o.inner_text('#lsch') or '12393.58' in o.inner_text('#lsch').replace(',', ''), 'loans: the form previews the total repayment (equal instalments)'); modal_ok(o); o.wait_for_timeout(600)
+    ok(sql("select count(*) from facility_instalments") == '12', 'loans: twelve instalments scheduled')
+    o.locator('#fl tbody tr').first.click(); o.wait_for_selector('[data-pay]'); o.click('[data-pay]'); o.wait_for_selector('#dlg input[name=d]'); modal_ok(o); o.wait_for_timeout(600)
+    ok(sql("select count(*) from facility_instalments where paid_on is not null") == '1', 'loans: the first instalment is paid and posted')
+    o.click('#fnl'); o.wait_for_selector('#dlg input[name=beneficiary]'); o.fill('#dlg input[name=bank]', 'البنك الأهلي'); o.fill('#dlg input[name=beneficiary]', 'أمانة المنطقة')
+    o.fill('#dlg input[name=amount]', '50000'); o.fill('#dlg input[name=expiry]', (datetime.date.today() + datetime.timedelta(days=20)).isoformat()); modal_ok(o); o.wait_for_timeout(600)
+    ok('أمانة المنطقة' in o.inner_text('.note.warn'), 'guarantees: one expiring within 30 days shows an alert')
+    go(o, '#/reports?r=vat'); o.wait_for_selector('[data-vb]'); o.locator('[data-vb]').first.click(); o.wait_for_selector('#dlg table')
+    ok(o.locator('#dlg tbody tr').count() >= 1, 'VAT return: a figure opens the invoices behind it'); o.click('#mx')
+
     # ---------- inventory: warehouses, transfers, counts, expiry, reorder ----------
     ok(all(o.locator('#nav a[href="' + h + '"]').count() == 1 for h in ['#/items', '#/warehouses', '#/transfers', '#/counts', '#/expiry', '#/reorder']), 'inventory menu: items, warehouses, transfers, counts, expiry, reorder')
     go(o, '#/sales/new'); o.wait_for_selector('#df'); ok(o.locator('#df select[name=warehouse]').count() == 0, 'single warehouse: no warehouse picker on documents')

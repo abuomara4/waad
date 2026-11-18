@@ -2,6 +2,13 @@
 Add a new block at the top with each release. (date ar, date en, [(item ar, item en)])"""
 
 RELEASES = [
+ ('18 نوفمبر 2026', '18 November 2026', [
+  ('الزكاة التقديرية من دفاتر المنشأة وفق اللائحة التنفيذية لجباية الزكاة، وقيد مخصص الزكاة', 'A zakat estimate from the books under the Implementing Regulation for Zakat Collection, and the zakat provision entry'),
+  ('القروض بجدول أقساط (أصل وربح) وقيد كل قسط عند سداده', 'Loans with an instalment schedule (principal and profit) and an entry for each instalment paid'),
+  ('خطابات الضمان بغطائها النقدي وتمديدها والإفراج عنها، وتنبيه قبل انتهائها', 'Letters of guarantee with their cash margin, extension and release, and an alert before expiry'),
+  ('إقرار ضريبة القيمة المضافة: اضغط أي رقم لترى فواتيره', 'VAT return: click any figure to see its invoices'),
+  ('التحقق من الموازنة في أوامر الشراء والقيود اليدوية، مع خيار منع التجاوز', 'Budget check on purchase orders and manual journals, with an option to block overruns'),
+  ('تكاليف السيارات (الوقود والصيانة) تُقيَّد في الحسابات مباشرة', 'Vehicle costs (fuel and maintenance) are posted to the books at once')]),
  ('17 نوفمبر 2026', '17 November 2026', [
   ('مركز وعد للمعرفة: مقالات موثقة بمواد نظام العمل، ومكتبة سياسات مفصلة، ودليل الوظائف لكل الإدارات، وقاموس المنشأة، وحاسبات مجانية أكثر', 'Waad Knowledge Centre: articles cited to the Labor Law, a detailed policy library, job descriptions for every department, a company glossary and more free calculators'),
   ('الإعلانات الداخلية للموظفين في الصفحة الرئيسية وعلى أجهزتهم، مع معرفة من اطّلع', 'Company announcements on the home page and devices, with read receipts'),

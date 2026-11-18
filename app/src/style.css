@@ -86,6 +86,7 @@ input[type=checkbox]{width:auto;min-height:0}
 .btn.full{width:100%;justify-content:center}
 .err{background:var(--badbg);color:var(--bad);border-radius:8px;padding:8px 12px;margin:10px 0;font-size:14px}
 .note{background:var(--soft);border-radius:8px;padding:10px 12px;font-size:14px;margin:10px 0}
+.note.warn{background:rgba(217,119,6,.10);border-inline-start:3px solid var(--warn,#d97706)}
 .code{font-family:ui-monospace,Menlo,monospace;font-size:18px;letter-spacing:3px;background:var(--soft2);border-radius:6px;padding:2px 8px;direction:ltr;display:inline-block}
 dialog{border:0;border-radius:14px;padding:0;width:min(620px,calc(100vw - 32px));background:var(--surface);color:var(--ink);box-shadow:var(--sh2)}
 dialog::backdrop{background:rgba(15,23,42,.45)}

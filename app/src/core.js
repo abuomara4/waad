@@ -686,6 +686,8 @@ function navItems() {
     if (can('coa') || can('sales') || can('purch')) it.push({ h: '#/currencies', t: 'العملات' });
     if (can('je')) it.push({ h: '#/bankmatch', t: 'مطابقة كشف البنك' }, { h: '#/prepaid', t: 'المصروفات المقدمة' });
     if (can('reports')) it.push({ h: '#/monthclose', t: 'إقفال الشهر' });
+    if (can('je') || can('reports')) it.push({ h: '#/facilities', t: 'القروض وخطابات الضمان' });
+    if (can('reports')) it.push({ h: '#/zakat', t: 'الزكاة التقديرية' });
     if (has('owner', 'admin', 'finance')) it.push({ h: '#/periods', t: 'إقفال الفترات والسنة' }, { h: '#/opening', t: 'الأرصدة الافتتاحية' });
   }
   if (has('owner', 'admin', 'finance', 'hr') || can('proj')) { g('المشاريع'); it.push({ h: '#/projects', t: 'المشاريع وجداول الوقت' }); }

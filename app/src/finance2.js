@@ -119,6 +119,7 @@ function jdView(j, acc) {
     ${j.status === 'pending' && can('jepost') && (!mine || has('owner')) ? field('ملاحظة (إلزامية عند الرفض)', '<textarea name="rn" rows="2"></textarea>') + `<div class="row" style="gap:6px;margin-top:8px"><button type="button" class="btn pri" id="jdok">${esc(tr('اعتماد وترحيل'))}</button><button type="button" class="btn danger" id="jdno">${esc(tr('رفض'))}</button></div>` : ''}
     ${j.status === 'pending' && mine && !has('owner') ? `<p class="muted small">${esc(tr('ينتظر اعتماد شخص آخر لديه صلاحية ترحيل القيود.'))}</p>` : ''}
     <div class="row" style="gap:6px;margin-top:8px">${['draft', 'rejected', 'pending'].includes(j.status) ? `<button type="button" class="btn" id="jded">${esc(tr('تعديل'))}</button>` : ''}<button type="button" class="btn danger sm" id="jddel">${esc(tr(j.status === 'recurring' ? 'إيقاف التكرار' : 'حذف'))}</button></div>`);
+  if (['pending', 'draft'].includes(j.status)) db.rpc('jd_budget', { p_id: j.id }).then(o => { const w = budgetWarn(o); if (w) $('.db', d).insertAdjacentHTML('afterbegin', w); }).catch(() => {});
   const dec = ok => async () => { try { await db.rpc('jd_approve', { p_id: j.id, p_ok: ok, p_note: (d.querySelector('[name=rn]') || {}).value || '' }); d.close(); toast(ok ? tr('رُحّل القيد') : tr('رُفضت')); route(); } catch (e) { showErr($('#merr', d), e); } };
   if ($('#jdok', d)) { $('#jdok', d).onclick = dec(true); $('#jdno', d).onclick = dec(false); }
   if ($('#jded', d)) $('#jded', d).onclick = () => { d.close(); jdForm(j, acc); };
@@ -145,7 +146,8 @@ function jdImport(acc) {
 
 /* ---------- «إقفال الشهر» ---------- */
 const MC_K = { drafts: ['قيود بانتظار الاعتماد أو مسودات', '#/journal'], bank: ['مطابقة حسابات البنك مع الكشف', '#/bankmatch'], depreciation: ['ترحيل إهلاك الأصول للشهر', '#/assets'],
-  prepaid: ['ترحيل أقساط المصروفات المقدمة', '#/prepaid'], payroll: ['اعتماد مسير رواتب الشهر', '#/payroll'], zatca: ['إرسال كل الفواتير لزاتكا بنجاح', '#/sales'] };
+  prepaid: ['ترحيل أقساط المصروفات المقدمة', '#/prepaid'], payroll: ['اعتماد مسير رواتب الشهر', '#/payroll'], zatca: ['إرسال كل الفواتير لزاتكا بنجاح', '#/sales'],
+  loans: ['سداد أقساط القروض المستحقة', '#/facilities'] };
 VIEWS['#/monthclose'] = async (page, arg, q) => {
   if (!can('reports')) { page.innerHTML = `<div class="note">${esc(tr('هذه الصفحة للمالية.'))}</div>`; return; }
   const def = new Date(Date.now() - 20 * 864e5).toISOString().slice(0, 7), month = q.get('m') || def;

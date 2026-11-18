@@ -3591,7 +3591,7 @@ select set_config('request.jwt.claim.sub', :'u_fin', false); set role authentica
 select public.jd_approve(:'jd2', true, null);
 select public.jd_run_due(:'cid');
 select t.ok((select count(*) = 3 from public.journal_entries where source_id = :'jd2'), 'journal drafts: a monthly entry posts every month up to today');
-select t.ok(jsonb_array_length(public.month_close_status(:'cid', current_date)->'checks') = 6, 'month-end close: six checks');
+select t.ok(jsonb_array_length(public.month_close_status(:'cid', current_date)->'checks') = 7, 'month-end close: seven checks');
 reset role;
 select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
 select t.err($$select public.month_close_status('$$ || :'cid' || $$', current_date)$$, '42501|غير مصرح|صلاحية', 'month-end close: not for employees');
@@ -3603,6 +3603,57 @@ select t.ok((select public.monthly_report(:'cid', current_date) ?& array['applic
 select t.ok(public.gosi_annuity(true, '2025-06-30') = 9 and public.gosi_annuity(true, '2025-07-01') = 9.5 and public.gosi_annuity(true, '2026-07-01') = 10
   and public.gosi_annuity(true, '2028-07-01') = 11 and public.gosi_annuity(false, '2028-07-01') = 9, 'GOSI: the new-regime pension rate steps up 0.5 every 1 July to 11% in 2028; the old regime stays 9%');
 select t.ok(public.gosi_employee(true, 8000, 2000, true, '2026-08-01') = 1075 and public.gosi_employer(true, 8000, 2000, true, '2026-08-01') = 1275, 'GOSI: in 2026 a new-regime Saudi pays 10.75% and the employer 12.75%');
+
+-- finance phase two (0122): zakat, loans, letters of guarantee, VAT drill-down, budget on orders and journals
+select t.ok((public.zakat_calc('{"equity":1000000,"liabilities":200000,"deducted":300000,"assets":1500000,"profit_book":100000,"profit_adj":120000,"days":354}')->>'zakat')::numeric = 23000,
+  'zakat: base = equity + liabilities within the deducted assets + profit difference − deductions (920,000) × 2.5% for a Hijri year (Art. 15, 23, 26)');
+select t.ok((public.zakat_calc('{"equity":1000000,"liabilities":500000,"deducted":300000,"assets":1500000,"profit_book":0,"days":354}')->>'liab_added')::numeric = 300000,
+  'zakat: liabilities are added only up to the deducted assets (Art. 23/2)');
+select t.ok((public.zakat_calc('{"equity":100000,"deducted":500000,"assets":600000,"profit_book":50000,"days":354}')->>'base')::numeric = 50000,
+  'zakat: a base below the adjusted net profit follows Art. 27/2 (the lower of undeducted assets + difference and the adjusted profit)');
+select t.ok((public.zakat_calc('{"equity":100000,"days":365}')->>'rate')::numeric = round(0.025 / 354 * 365, 8)
+  and (public.zakat_calc('{"equity":-5000,"profit_book":-100,"days":354}')->>'zakat')::numeric = 0, 'zakat: a Gregorian year by actual days (2.5% ÷ 354 × 365); a negative base without profit = nothing');
+select t.ok((select sum(principal) = 12000 and min(balance) = 0 and count(*) = 12 from public.loan_schedule(12000, 6, 12, 'annuity', '2026-01-01'))
+  and (select sum(profit) = 291.67 and sum(principal) = 10000 from public.loan_schedule(10000, 5, 7, 'flat', '2026-01-31')), 'loans: the schedule repays the whole amount (equal instalments or flat profit)');
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select (public.zakat_inputs(:'cid', make_date(extract(year from current_date)::int, 1, 1), make_date(extract(year from current_date)::int, 12, 31))) as zin \gset
+select t.ok(:'zin'::jsonb ?& array['equity','liabilities','deducted','assets','profit_book'] and (:'zin'::jsonb->>'days')::int in (365, 366), 'zakat: the inputs come from the books');
+select public.zakat_post(:'cid', current_date, 1234.5, null) as zje \gset
+select public.loan_create(:'cid', '{"bank":"بنك الرياض","ref":"L-1","amount":12000,"rate":6,"months":12,"method":"annuity","start":"2026-01-01"}') as ln1 \gset
+select t.err($$select public.loan_pay((select id from public.facility_instalments where facility_id = '$$ || :'ln1' || $$' and n = 2), current_date, null)$$, 'السابقة', 'loans: instalments are paid in order');
+select public.loan_pay((select id from public.facility_instalments where facility_id = :'ln1' and n = 1), current_date, null) as lp1 \gset
+select t.err($$select public.loan_pay((select id from public.facility_instalments where facility_id = '$$ || :'ln1' || $$' and n = 1), current_date, null)$$, 'مدفوع', 'loans: an instalment is paid once');
+select public.lg_create(:'cid', jsonb_build_object('bank', 'البنك الأهلي', 'beneficiary', 'أمانة الرياض', 'type', 'performance', 'amount', 50000, 'margin_pct', 10, 'fee', 250,
+  'start', current_date - 30, 'expiry', current_date + 20)) as lg1 \gset
+select t.ok((public.facility_alerts(:'cid')->'guarantees'->0->>'days')::int = 20 and jsonb_array_length(public.facility_alerts(:'cid')->'instalments') = 1,
+  'guarantees: one expiring within 30 days and the next loan instalment show as alerts');
+select t.err($$select public.lg_action('$$ || :'lg1' || $$', jsonb_build_object('do', 'extend', 'expiry', current_date + 5))$$, 'الجديد', 'guarantees: an extension moves the expiry forward');
+select public.lg_action(:'lg1', '{"do":"release"}');
+select t.ok((select count(*) = 1 from jsonb_array_elements(public.month_close_status(:'cid', current_date)->'checks') c where c->>'k' = 'loans' and not (c->>'ok')::boolean),
+  'month-end close: unpaid loan instalments due by the month end are flagged');
+select sum(vat) as dvat from public.vat_docs(:'cid', current_date - 400, current_date, 'sales') \gset
+select output_vat as svat from public.vat_summary(:'cid', current_date - 400, current_date) \gset
+select t.ok(:'dvat'::numeric = :'svat'::numeric, 'VAT return drill-down: the documents behind output VAT add up to the return figure');
+select sum(vat) as pvat from public.vat_docs(:'cid', current_date - 400, current_date, 'purch') \gset
+select input_vat as ivat from public.vat_summary(:'cid', current_date - 400, current_date) \gset
+select t.ok(:'pvat'::numeric = :'ivat'::numeric, 'VAT return drill-down: the documents behind input VAT add up to the return figure');
+-- budget: 5230 has a 1,200 yearly budget; blocking on
+select public.budget_block_set(:'cid', true);
+select t.err($$select public.po_save('$$ || :'cid' || $$', '{"party":"$$ || :'s1' || $$","lines":[{"account":"5230","qty":1,"price":5000}]}')$$, 'الموازنة', 'budgets: a purchase order over the budget is refused when blocking is on');
+select public.jd_save(:'cid', null, jsonb_build_object('date', current_date, 'memo', 'تذاكر سفر', 'lines', jsonb_build_array(jsonb_build_object('a', '5230', 'd', 5000), jsonb_build_object('a', '1120', 'c', 5000))), true) as jd3 \gset
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok(jsonb_array_length(public.jd_budget(:'jd3')) = 1, 'budgets: a journal draft over the budget is flagged');
+select t.err($$select public.jd_approve('$$ || :'jd3' || $$', true, null)$$, 'الموازنة', 'budgets: a journal over the budget is not approved when blocking is on');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.zakat_inputs('$$ || :'cid' || $$', current_date - 365, current_date)$$, '42501|غير مصرح|صلاحية', 'zakat: not for employees');
+select t.err($$select public.vat_docs('$$ || :'cid' || $$', current_date - 365, current_date, 'sales')$$, '42501|غير مصرح|صلاحية', 'VAT drill-down: not for employees');
+select t.ok((select count(*) = 0 from public.bank_facilities), 'loans and guarantees: employees see none');
+reset role;
+select t.ok((select status = 'released' and margin = 5000 and release_entry is not null from public.bank_facilities where id = :'lg1')
+  and exists(select 1 from public.journal_lines where entry_id = :'zje' and account_code = '2350' and credit = 1234.5)
+  and exists(select 1 from public.journal_lines where entry_id = :'lp1' and account_code = '5800' and debit = 60), 'books: zakat provision, loan profit (5800) and the guarantee margin released');
 
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

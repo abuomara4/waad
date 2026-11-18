@@ -83,6 +83,7 @@ html = f'''<!doctype html>
 {r('spend.js')}
 {r('okr.js')}
 {r('finance2.js')}
+{r('finance3.js')}
 applyLang();
 boot();
 </script>
