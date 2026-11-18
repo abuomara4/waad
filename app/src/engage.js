@@ -13,8 +13,10 @@ VIEWS['#/announcements'] = async page => {
       <button class="btn pri" id="annn">${esc(tr('+ إعلان'))}</button></div>
     ${tbl([{ t: 'الإعلان', h: a => `<b data-nt>${esc(a.title)}</b>${a.pinned ? ` <span class="badge info">${esc(tr('مثبّت'))}</span>` : ''}<div class="small muted" data-nt>${esc(a.body.slice(0, 90))}${a.body.length > 90 ? '…' : ''}</div>` },
       { t: 'إلى', h: a => esc(a.department_id ? (dn[a.department_id] || '—') : tr('كل الموظفين')) }, { t: 'التاريخ', h: a => fdate(a.created_at) },
-      { t: 'اطّلع عليه', r: 1, h: a => `<span class="num">${rc(a.id)}</span> / <span class="num">${mem.length}</span>` }], rows, { empty: 'لا توجد إعلانات بعد', onRow: true })}`;
+      { t: 'اطّلع عليه', r: 1, h: a => `<span class="num">${rc(a.id)}</span> / <span class="num">${mem.length}</span>` },
+      { t: 'إرسال', h: a => `<button type="button" class="btn sm" data-ans="${esc(a.id)}">${esc(tr('بريد وواتساب'))}</button>` }], rows, { empty: 'لا توجد إعلانات بعد', onRow: true })}`;
   bindRows(page, rows, a => form(a)); $('#annn', page).onclick = () => form(null);
+  $$('[data-ans]', page).forEach(b => b.onclick = ev => { ev.stopPropagation(); annSend(rows.find(a => a.id === b.dataset.ans)); });
   function form(a) {
     const v = a || { pinned: false };
     const m = modal(a ? tr('تعديل الإعلان') : tr('إعلان جديد'), `<div class="fg">${field('العنوان', inp('title', v.title, 'required maxlength="150"'), 'wide')}
@@ -26,8 +28,9 @@ VIEWS['#/announcements'] = async page => {
       ok: a ? 'حفظ' : 'نشر', onOk: async f => {
         if ((f.title || '').trim().length < 2 || !(f.body || '').trim()) throw new Error('اكتب العنوان والنص');
         const row = { title: f.title.trim(), body: f.body.trim(), department_id: blank(f.dep), expires_on: blank(f.exp), pinned: !!f.pin };
-        if (a) await db.upd('company_announcements', { id: 'eq.' + a.id }, row); else await db.ins('company_announcements', Object.assign(row, { company_id: S.cid }));
-        toast(tr(a ? 'تم الحفظ' : 'نُشر الإعلان')); route(); } });
+        let made = null;
+        if (a) await db.upd('company_announcements', { id: 'eq.' + a.id }, row); else made = (await db.ins('company_announcements', Object.assign(row, { company_id: S.cid })))[0];
+        toast(tr(a ? 'تم الحفظ' : 'نُشر الإعلان')); route(); if (made) setTimeout(() => annSend(made), 0); } });
     if ($('#annd', m)) $('#annd', m).onclick = async () => { if (!await confirmBox(tr('حذف الإعلان'), tr('يختفي من عند كل الموظفين.'), tr('حذف'))) return; await db.del('company_announcements', { id: 'eq.' + a.id }); route(); };
   }
 };
@@ -214,6 +217,58 @@ function candidateMessage(c, o) {
     $('#cmn', m).innerHTML = miss.length ? `<div class="note warn small">${miss.map(esc).join(' · ')}</div>` : ''; links(); };
   ['#cmk', '#cml', '#cms', '#cmd', '#cmu'].forEach(x => $(x, m).addEventListener('change', fill)); $('#cmt', m).oninput = links; $('#ivm', m).oninput = links; fill();
   $('#ivc', m).onclick = () => { navigator.clipboard && navigator.clipboard.writeText($('#ivm', m).value); toast(tr('نُسخ')); };
+}
+
+/* ----- an announcement by e-mail and WhatsApp: the messages open ready in HR's own mailbox and WhatsApp, and HR presses send (Waad itself sends nothing) ----- */
+const ANN_URL_MAX = { gmail: 7000, outlook: 7000, mail: 1900 }, ANN_BATCH = 50, ANN_WA_MAX = 900;
+function annMailUrl(kind, from, bcc, subject, body) {
+  const q = encodeURIComponent, b = bcc.join(',');
+  if (kind === 'gmail') return `https://mail.google.com/mail/?${from ? 'authuser=' + q(from) + '&' : ''}view=cm&fs=1&to=${q(from)}&bcc=${q(b)}&su=${q(subject)}&body=${q(body)}`;
+  if (kind === 'outlook') return `https://outlook.office.com/mail/deeplink/compose?to=${q(from)}&bcc=${q(b)}&subject=${q(subject)}&body=${q(body)}`;
+  return `mailto:${q(from)}?bcc=${q(b)}&subject=${q(subject)}&body=${q(body)}`;
+}
+// recipients split so that no link grows past what the mail service accepts; a text too long for a link is left out and pasted from the clipboard
+function annMailBatches(kind, from, mails, subject, body) {
+  const max = ANN_URL_MAX[kind], withBody = annMailUrl(kind, from, [], subject, body).length + 600 <= max, text = withBody ? body : '', out = []; let cur = [];
+  mails.forEach(m => { if (cur.length && (cur.length >= ANN_BATCH || annMailUrl(kind, from, cur.concat(m), subject, text).length > max)) { out.push(cur); cur = []; } cur.push(m); });
+  if (cur.length) out.push(cur);
+  return { withBody, links: out.map(l => ({ n: l.length, url: annMailUrl(kind, from, l, subject, text) })) };
+}
+function annWaText(a, co, more, link) {
+  const b = a.body.length > ANN_WA_MAX ? a.body.slice(0, ANN_WA_MAX).trimEnd() + '…\n\n' + more + '\n' + link : a.body;
+  return `*${a.title}*\n\n${b}\n\n${co}`;
+}
+async function annSend(a) {
+  const all = await db.get('employees', { company_id: 'eq.' + S.cid, select: 'id,full_name,phone,email,department_id,end_date', order: 'emp_no' }).catch(() => []);
+  const staff = all.filter(e => (!e.end_date || e.end_date >= today()) && (!a.department_id || e.department_id === a.department_id));
+  const okMail = e => /^[^\s@,;<>"]+@[^\s@,;<>"]+\.[^\s@,;<>"]+$/.test((e.email || '').trim());
+  const mails = [...new Set(staff.filter(okMail).map(e => e.email.trim().toLowerCase()))], wa = staff.filter(e => waPhone(e.phone));
+  const noMail = staff.filter(e => !okMail(e)), noWa = staff.filter(e => !waPhone(e.phone)), co = S.company.name;
+  const subject = co + ' — ' + a.title, body = a.body + '\n\n' + co, waText = annWaText(a, co, tr('بقية الإعلان في نظام وعد'), location.origin + location.pathname + '#/home');
+  const key = 'waad.anns.' + a.id; let sent = []; try { sent = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) {}
+  const keep = () => { try { localStorage.setItem(key, JSON.stringify(sent)); } catch (e) {} };
+  let from = ''; try { from = localStorage.getItem('waad.annfrom') || ''; } catch (e) {}
+  const names = l => l.map(e => esc(e.full_name)).join('، ');
+  const m = modal(tr('إرسال الإعلان') + ' — ' + a.title, `<div class="note small" style="margin-top:0">${esc(tr('تُفتح الرسالة جاهزة من بريدك وواتساب جهازك، وتضغط أنت «إرسال». وعد لا يرسل باسمك.'))}</div>
+    <p class="small"><b class="num">${staff.length}</b> ${esc(tr('موظف'))} · <b class="num">${mails.length}</b> ${esc(tr('لهم بريد'))} · <b class="num">${wa.length}</b> ${esc(tr('لهم جوال صالح'))}</p>
+    <h3 style="margin:14px 0 6px">${esc(tr('البريد الإلكتروني'))}</h3>
+    <div class="fg">${field('بريد المنشأة أو الموارد البشرية', `<input id="asf" type="email" dir="ltr" maxlength="150" value="${esc(from)}">`)}${field('الإرسال عبر', `<select id="asp"><option value="gmail">Gmail</option><option value="outlook">Outlook</option><option value="mail">${esc(tr('تطبيق البريد'))}</option></select>`)}</div>
+    <div class="small muted" style="margin:6px 0">${esc(tr('عناوين الموظفين في «نسخة مخفية» فلا يرى أحد بريد غيره.'))}</div><div id="asn"></div><div class="row" id="asb" style="gap:8px;flex-wrap:wrap"></div>
+    ${noMail.length ? `<div class="small muted" style="margin-top:6px">${esc(tr('بدون بريد صالح'))}: ${names(noMail)}</div>` : ''}
+    <h3 style="margin:18px 0 6px">${esc(tr('واتساب'))}</h3><div class="small muted" style="margin-bottom:6px">${esc(tr('يُرسل من الرقم المفتوح في واتساب على هذا الجهاز؛ افتح فيه رقم المنشأة. كل موظف برسالة مستقلة.'))}</div>
+    ${wa.length ? `<a class="btn wa" id="awn" target="_blank" rel="noopener"></a><div class="tw" style="max-height:240px;overflow:auto;margin-top:8px"><table><tbody>${wa.map(e => `<tr data-w="${esc(e.id)}"><td>${esc(e.full_name)}</td><td class="num" dir="ltr">${esc(e.phone)}</td><td><a class="btn sm" target="_blank" rel="noopener" data-wa="${esc(e.id)}" href="${esc(waUrl(e.phone, waText))}"></a></td></tr>`).join('')}</tbody></table></div>` : `<div class="note warn small">${esc(tr('لا يوجد موظف له جوال صالح'))}</div>`}
+    ${noWa.length ? `<div class="small muted" style="margin-top:6px">${esc(tr('بدون جوال صالح'))}: ${names(noWa)}</div>` : ''}`);
+  const copy = () => { try { navigator.clipboard && navigator.clipboard.writeText(body).catch(() => {}); } catch (e) {} };
+  const drawMail = () => { const f = $('#asf', m).value.trim(), valid = !f || okMail({ email: f }), r = annMailBatches($('#asp', m).value, valid ? f : '', mails, subject, body);
+    $('#asn', m).innerHTML = !mails.length ? `<div class="note warn small">${esc(tr('لا يوجد موظف له بريد صالح'))}</div>` : r.withBody ? '' : `<div class="note warn small">${esc(tr('النص أطول من أن يوضع في الرابط: يُنسخ عند الضغط، فالصقه في الرسالة.'))}</div>`;
+    $('#asb', m).innerHTML = r.links.map((l, i) => `<a class="btn" ${$('#asp', m).value === 'mail' ? '' : 'target="_blank" rel="noopener"'} href="${esc(l.url)}" data-mb>${esc(r.links.length > 1 ? tr('الدفعة') + ' ' + (i + 1) : tr('فتح الرسالة'))} (<span class="num">${l.n}</span>)</a>`).join('');
+    $$('[data-mb]', m).forEach(b => b.addEventListener('click', () => { if (!r.withBody) { copy(); toast(tr('نُسخ النص')); } b.classList.add('pri'); })); };
+  $('#asf', m).oninput = () => { try { localStorage.setItem('waad.annfrom', $('#asf', m).value.trim()); } catch (e) {} drawMail(); }; $('#asp', m).onchange = drawMail; drawMail();
+  const drawWa = () => { if (!wa.length) return; $$('[data-wa]', m).forEach(b => b.textContent = tr(sent.includes(b.dataset.wa) ? 'أُرسل ✓' : 'إرسال'));
+    const left = wa.filter(e => !sent.includes(e.id)), n = $('#awn', m), next = left[0];
+    n.hidden = !next; if (next) { n.href = waUrl(next.phone, waText); n.dataset.e = next.id; n.textContent = tr('إرسال للتالي') + ': ' + next.full_name + ' (' + (wa.length - left.length + 1) + ' / ' + wa.length + ')'; } };
+  const mark = id => { if (!sent.includes(id)) { sent.push(id); keep(); } setTimeout(drawWa, 0); };
+  if (wa.length) { $('#awn', m).addEventListener('click', ev => mark(ev.currentTarget.dataset.e)); $$('[data-wa]', m).forEach(b => b.addEventListener('click', () => mark(b.dataset.wa))); drawWa(); }
 }
 
 /* ----- expense policies ----- */

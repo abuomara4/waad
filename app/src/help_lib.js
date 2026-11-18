@@ -105,6 +105,7 @@ const HELP = {
   '#/announcements': { t: ['الإعلانات الداخلية', 'Company announcements'], s: [
     ['انشر إعلانا لكل الموظفين أو لقسم واحد، فيظهر في الصفحة الرئيسية لكل منهم ويصل على أجهزتهم.', 'Post to all staff or one department; it shows on each home page and reaches their devices.'],
     ['ثبّت المهم أعلى الرئيسية، وحدد تاريخا يختفي بعده إن أردت.', 'Pin the important ones to the top of home, and set a date to hide them if you like.'],
+    ['بعد النشر، أو من زر «بريد وواتساب»، تُفتح الرسالة جاهزة من بريدك وواتساب جهازك للموظفين المعنيين، وتضغط أنت «إرسال».', 'After posting, or from «E-mail & WhatsApp», the message opens ready in your own mailbox and WhatsApp for the staff concerned, and you press send.'],
     ['عمود «اطّلع عليه» يبين كم موظفا ضغط «تم الاطلاع».', 'The «Read by» column shows how many pressed «Got it».']] },
   '#/surveys': { t: ['الاستبيانات', 'Surveys'], s: [
     ['الموظف يرى هنا الاستبيانات التي تنتظر رأيه، ويجيب مرة واحدة.', 'Employees see the surveys waiting for them here and answer once.'],

@@ -603,6 +603,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إرجاع المسير للتعديل	Return the payroll for correction
 إرجاع للتعديل	Return for correction
 إرسال	Send
+إرسال الإعلان	Send the announcement
 إرسال التسوية	Send settlement
 إرسال الرمز لبريدي	Email the code to me
 إرسال الطلب	Send request
@@ -611,6 +612,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إرسال طلب التوقيع	Send the signature request
 إرسال كل الفواتير لزاتكا بنجاح	All invoices sent to ZATCA successfully
 إرسال للاعتماد	Send for approval
+إرسال للتالي	Send to next
 إرسال للعميل	Send to customer
 إرسال للعميل للاعتماد	Send to the customer for approval
 إرسال واتساب	Send on WhatsApp
@@ -1201,6 +1203,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 افتح رسالة التأكيد في بريدك ثم سجّل الدخول	Open the confirmation email, then sign in
 افتح سجله من	open their record from
 افتح طلبك	open your request
+افتح فيه رقم المنشأة	sign in there with the company number
 افتح قائمة المتصفح	Open the browser menu
 افتح قائمة المتصفح (⋮ أعلى الشاشة).	Open the browser menu (⋮ at the top).
 افتح ملف الموظف	open the employee file
@@ -1411,6 +1414,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الإدارة العامة	General Administration
 الإدارة بالبريد	Management by email
 الإدارة والمالية	Admin & Finance
+الإرسال عبر	Send through
 الإشعار	Notice
 الإشعار المدين يكون على فاتورة مبيعات قائمة	A debit note must be on a posted sales invoice
 الإشعار غير موجود	Note not found
@@ -2636,6 +2640,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 النسخ الاحتياطية المشفّرة تُمسح تلقائيا خلال	encrypted backups are erased automatically within
 النشاط	Activity
 النص	Text
+النص أطول من أن يوضع في الرابط	The text is too long for a link
 النص الأصلي	Original text
 النص الذي سيوقّع عليه	The text to be signed
 النص بالإنجليزي	Text in English
@@ -2878,8 +2883,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بدون المرفقات	without attachments
 بدون انصراف	No check-out
 بدون باقة	No plan
+بدون بريد صالح	No valid e-mail
 بدون ترويسة	without letterhead
 بدون جوال	no mobile
+بدون جوال صالح	No valid mobile
 بدون حد	No limit
 بدون حساب	No account
 بدون راتب	without salary
@@ -2901,6 +2908,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 برنامج البريد برسالة جاهزة إلى	your mail app with a ready message to
 برنامج جديد	New programme
 بريد	E-mail
+بريد المنشأة أو الموارد البشرية	Company or HR e-mail
+بريد وواتساب	E-mail & WhatsApp
 بريدة	Buraydah
 بريطاني	British
 بسعر كل عضو في الفريق أو سعر ساعة المشروع	at each team member's rate or the project's hourly rate
@@ -2931,6 +2940,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بعضها يكتمل تلقائيا من بياناته	some complete automatically from their data
 بقالة الحي	Neighborhood Grocery
 بقدر الوقت المتأخر	for the time late
+بقية الإعلان في نظام وعد	Read the rest in Waad
 بقيد إقفال	with a closing entry
 بكالوريوس	Bachelor's
 بلا آيبان	without IBAN
@@ -3633,6 +3643,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تُعتمد قبل تسليمها للعميل	cleared before it is given to the customer
 تُعدَّل من صفحة الموظف	change them from the employee page
 تُعكس فقط	they are only reversed
+تُفتح الرسالة جاهزة من بريدك وواتساب جهازك	The message opens ready in your own mailbox and your device's WhatsApp
 تُفعّل	enable
 تُفوتر مباشرة	they are billed directly
 تُقدَّم بعد العودة كمطالبة مصروفات	are claimed after returning as an expense claim
@@ -4988,6 +4999,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عن بُعد	Remote
 عن كل منشأة	for each company
 عناصر الوعاء	Base items
+عناوين الموظفين في	Employee addresses go in
 عند	at
 عند أول دفعة للمنشأة المدعوة يُضاف للمنشأة الداعية	On the invited company's first payment the inviting company gets
 عند الإيقاف يكفي البريد وكلمة المرور للدخول إلى حسابك	When turned off, e-mail and password alone sign in to your account
@@ -5102,9 +5114,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فاتورة واردة	Incoming invoice
 فارغ	is empty
 فاطمة الشهري	Fatimah Al-Shahri
+فالصقه في الرسالة	so paste it into the message
 فالمنضم بعد الإقفال يتأخر أول راتب له	so a joiner after the cutoff gets the first wage later
 فبعض البنوك تطلب ترتيب أعمدة مختلفا	as some banks require a different column order
 فبعض البنوك تطلب ترتيب أعمدة مختلفاً	as some banks require a different column order
+فتح الرسالة	Open the message
 فتح الشخص لبياناته هو لا يُسجل	A person opening their own data is not logged
 فتح المسير	Open the payroll
 فتح الموقع	Open the website
@@ -5161,6 +5175,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فقط المالك يحذف مالكاً	Only an owner can remove an owner
 فقط المالك يغيّر صلاحية المالك	Only an owner can change an owner's role
 فقط المالك يمنح صلاحية المالك	Only an owner can grant the owner role
+فلا يرى أحد بريد غيره	so nobody sees anyone else's address
 فلا يُخصم	so nothing is deducted
 فلا يُخفَّض إلا بموافقة العامل الكتابية	so it is reduced only with the worker's written consent
 فلبيني	Filipino
@@ -5364,6 +5379,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كل فاتورة مبيعات وإشعار دائن أو مدين يُرسل تلقائياً بعد ترحيله	Every sales invoice, credit note and debit note is sent automatically once posted
 كل ما يُقيَّد على مركز تكلفة المشروع	Everything booked on the project's cost center
 كل مسحة تزيد المعدود	each scan adds to the count
+كل موظف برسالة مستقلة	each employee gets a separate message
 كل وردية تستخدم وقت رمضان المحدد لها	Each shift uses its own Ramadan time
 كلمة المرور	Password
 كلمة المرور الجديدة	New password
@@ -5656,6 +5672,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يوجد مستخدم مالية	no finance user
 لا يوجد مستخدم موارد بشرية	no HR user
 لا يوجد مكان للمقابلة	No interview location
+لا يوجد موظف له بريد صالح	No employee has a valid e-mail
+لا يوجد موظف له جوال صالح	No employee has a valid mobile number
 لا يوجد موظفون	No employees
 لا يوجد موظفون جدد خلال آخر	No new employees in the last
 لا يوجد موظفون جدد خلال آخر 120 يوما	No new employees in the last 120 days
@@ -5850,6 +5868,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لن يُسمح بأي قيد أو حركة مخزون بتاريخ حتى	No entry or stock movement will be allowed dated up to
 له دخول	Has sign-in
 لهذه المخالفة خلال	for this violation within
+لهم بريد	with e-mail
+لهم جوال صالح	with a valid mobile
 لوحة إدارة المنصة	Platform admin
 لوحة إدارة وعد	Waad admin
 لوحة الإدارة	Admin
@@ -6597,6 +6617,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نسخة كاملة من بيانات المنشأة لتسلّمها لمالكها عند طلبه. يُسجَّل كل تصدير مع سببه، ويصل المالك إيميل فوري بأن بياناته صُدّرت.	A full copy of the company's data to hand to its owner when he asks. Every export is logged with its reason, and the owner gets an instant e-mail that his data was exported.
 نسخة كاملة من كل بيانات منشأتك لحفظها لديك أو نقلها	A complete copy of all your company's data to keep or move elsewhere
 نسخة كاملة من كل بيانات منشأتك لحفظها لديك أو نقلها. للمالك فقط، ويُسجَّل كل تصدير في سجل التدقيق.	A complete copy of all your company's data to keep or move elsewhere. Owner only; every export is recorded in the audit log.
+نسخة مخفية	BCC
 نسي تسجيل الانصراف	forgot to check out
 نسيان البصمة هذا الشهر	Forgotten fingerprints this month
 نسيان بصمة	Forgotten fingerprint
@@ -6692,6 +6713,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نُسب إليك ارتكاب المخالفة الآتية	You are charged with the following violation
 نُسخ	Copied
 نُسخ الرابط	Link copied
+نُسخ النص	Text copied
 نُسخ رابط الاعتماد	Approval link copied
 نُسخت	Copied
 نُشر الإعلان	Announcement published
@@ -6858,6 +6880,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وتبقى ملتزماً بأداء عملك خلالها	and you remain bound to perform your work during it
 وتتحول المعتمدة إلى وظيفة شاغرة	and the approved ones become job openings
 وتصل نتيجتك لمالك المنشأة والموارد البشرية	your result goes to the company owner and HR
+وتضغط أنت	and you press
 وتكرار الفتح خلال	and opening again within
 وتمر على مديره ثم المالية ثم المدير العام	go to their manager, then finance, then the GM
 وتنتهي العلاقة بانتهائها	and employment ends when it ends
@@ -6953,6 +6976,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وعادة نهاية السنة السابقة	usually the end of the previous year
 وعد	Waad
 وعد لا يتصل بمنصات مدد أو التأمينات أو قوى أو مقيم	Waad does not connect to Mudad, GOSI, Qiwa or Muqeem
+وعد لا يرسل باسمك	Waad does not send on your behalf
 وعدد المسافرين	number of travellers
 وعدّل السعر حسب عرض المورد	and adjust the price to the supplier's offer
 وعقد غير السعودي محدد المدة	and a non-Saudi contract is fixed-term
@@ -7370,6 +7394,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يُرحَّل قيد لكل مشروع بتكلفة الساعات المعتمدة حتى التاريخ	One entry per project is posted with the approved hours' cost up to the date
 يُرحّل كمستند مستقل على نفس العميل ويُضاف لرصيده	Posted as its own document for the same customer and added to their balance
 يُرسل الطلب للاعتماد بدون مبلغ	the request goes for approval without an amount
+يُرسل من الرقم المفتوح في واتساب على هذا الجهاز	It is sent from the number signed in to WhatsApp on this device
 يُستخدم لمن ليست له درجة أو لدرجة بلا بدل	Used for employees without a grade or with a grade that has no per diem
 يُستكمل عند الاستقالة أو انتهاء الخدمة	Completed on resignation or end of service
 يُستلم في مستودع	Receive into warehouse
@@ -7406,6 +7431,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يُقدَّم للعامل مكتوبا	given to the worker in writing
 يُقدَّم للعامل مكتوباً	given to the worker in writing
 يُقيد إهلاك شهر	Posts depreciation for month
+يُنسخ عند الضغط	it is copied when you press
 يُنشأ الطرف إن لم يكن موجودا	the party is created if it does not exist
 يُنشأ الطرف إن لم يكن موجوداً	the party is created if it does not exist
 يُنشأ تقييم لكل موظف على رأس العمل	A review is created for every active employee

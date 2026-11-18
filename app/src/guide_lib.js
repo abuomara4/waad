@@ -110,6 +110,7 @@ const GUIDE = {
       ['أضف بنود منشأتك الخاصة مرة واحدة فتظهر لكل موظف جديد.', 'Add your own steps once and they show for every new hire.']] },
     { id: 'ann', go: '#/announcements', t: ['الإعلانات والاستبيانات', 'Announcements and surveys'], s: [
       ['انشر إعلانا من «الإعلانات الداخلية» بدل مجموعات الواتساب، وتابع من اطّلع.', 'Post from «Company announcements» instead of WhatsApp groups, and see who read it.'],
+      ['لإيصاله خارج النظام اضغط «بريد وواتساب»: اكتب بريد المنشأة، وافتح رقم المنشأة في واتساب جهازك، ثم أرسل.', 'To reach staff outside the system press «E-mail & WhatsApp»: enter the company e-mail, open the company number in WhatsApp on your device, then send.'],
       ['أنشئ استبيان رضا الموظفين (eNPS) من «الاستبيانات» مرة كل ربع سنة.', 'Run an eNPS survey from «Surveys» once a quarter.']] },
     { id: 'careers', go: '#/recruit', t: ['صفحة الوظائف والمقابلات', 'Careers page and interviews'], s: [
       ['من «التوظيف» اضغط «صفحة الوظائف» وانسخ الرابط وانشره.', 'In «Recruitment» press «Careers page», copy the link and share it.'],
