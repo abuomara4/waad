@@ -2,6 +2,10 @@
 Add a new block at the top with each release. (date ar, date en, [(item ar, item en)])"""
 
 RELEASES = [
+ ('19 نوفمبر 2026', '19 November 2026', [
+  ('طلب إجازة سنوية خارجية ببلد الوجهة، وحساب أيام الإجازة المرضية حسب المادة 117 قبل الإرسال', 'Annual leave abroad with its destination, and sick days split under Article 117 before sending'),
+  ('منع تكرار رقم الإجازة المرضية، وتسجيل نتيجة تحقق الموارد البشرية من منصة صحة', 'A sick-leave number cannot be reused, and HR records the result of its check on the Seha platform'),
+ ]),
  ('18 نوفمبر 2026', '18 November 2026', [
   ('الإعلانات الداخلية تصل أيضا بالبريد وواتساب: رسالة جاهزة من بريد المنشأة ورقمها للموظفين المعنيين', 'Company announcements can also go by e-mail and WhatsApp: a ready message from the company mailbox and number to the staff concerned'),
   ('مراسلة المرشحين: واتساب وبريد جاهزان للمرشح نفسه، بعنوان ونص حسب المقابلة ونوعها أو العرض الوظيفي', 'Messaging candidates: WhatsApp and e-mail ready for that candidate, with subject and text by interview type or job offer'),

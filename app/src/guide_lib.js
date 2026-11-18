@@ -27,6 +27,7 @@ const GUIDE = {
       ['اضغط «إرسال»، فيذهب الطلب إلى مديرك المباشر ثم الموارد البشرية حسب مسار منشأتك.', 'Press «Send»; it goes to your direct manager and then HR, following your company\'s route.']] },
     { id: 'other', go: '#/requests', t: ['طلبات أخرى', 'Other requests'], s: [
       ['من «طلب جديد» نفسه يمكنك طلب: استئذان، سلفة، تعريف بالراتب، مطالبة مصروفات، تحديث بيانات، تذكرة سفر، تأشيرة خروج وعودة، أو استقالة.', 'The same «New request» covers: a permission, an advance, a salary certificate, an expense claim, a data update, a travel ticket, an exit/re-entry visa, or a resignation.'],
+      ['في الإجازة المرضية يبين لك النموذج قبل الإرسال كم يوما بأجر كامل وبثلاثة أرباع الأجر وبدون أجر (م117). وللسفر اختر «إجازة سنوية خارجية» واكتب بلد الوجهة.', 'For sick leave the form shows, before you send, how many days are at full pay, three-quarter pay and unpaid (Art. 117). For travel choose «Annual leave abroad» and enter the destination.'],
       ['بعض أنواع الإجازة تطلب مرفقا (مثل التقرير الطبي للإجازة المرضية)، ويوضح لك النموذج ذلك.', 'Some leave types need an attachment (like a medical report for sick leave); the form tells you.']] },
     { id: 'track', img: 'requests', go: '#/requests', t: ['متابعة طلبك أو إلغاؤه', 'Following or cancelling a request'], s: [
       ['في «طلباتي» ترى حالة كل طلب: بانتظار (وعند من)، معتمد، أو مرفوض مع السبب.', 'In «My requests» you see each request\'s status: waiting (and with whom), approved, or rejected with the reason.'],

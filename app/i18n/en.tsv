@@ -110,6 +110,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أدخل رقم المستند أو تاريخ انتهائه	Enter the document number or its expiry date
 أدخل رقما صحيحا	Enter a valid number
 أدخل رقماً صحيحاً	Enter a valid number
+أدخل رمز الخدمة ورقم الهوية في صفحة الاستعلام الرسمية	Enter the service code and ID number on the official inquiry page
 أدخل رمز الدعوة	Enter the invitation code
 أدخل رمز المنشأة كما وصلك	Enter the company code exactly as you received it
 أدخل رمز منشأتك مرة واحدة	Enter your company code once
@@ -524,6 +525,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إجازة حج	Hajj leave
 إجازة زواج	Marriage leave
 إجازة سنوية	Annual leave
+إجازة سنوية خارجية	Annual leave abroad
 إجازة عدة	Iddah leave
 إجازة مرضية	Sick leave
 إجازة مرضية صادرة من منصة صحة أو المنشأة الصحية	sick leave issued via Seha or the health facility
@@ -1253,6 +1255,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اكتب الوقت الذي نسيت بصمته	Enter the time you forgot to punch
 اكتب بريدك أولا	Type your email first
 اكتب بريدك أولاً	Type your email first
+اكتب بلد الوجهة	Enter the destination country
 اكتب بيان القيد	Write the entry description
 اكتب بيانات العقد الساري فقط	fill in the current contract only
 اكتب جوال المالك بالشكل	Write the owner mobile as
@@ -1401,6 +1404,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الإجازة التعويضية بدل أجر العمل الإضافي تكون بموافقة العامل	Compensatory leave instead of overtime pay requires the worker's consent
 الإجازة التي فيها تذكرة تمر على المالية تلقائيا	A leave with a ticket goes through finance automatically
 الإجازة التي فيها تذكرة تمر على المالية تلقائياً	A leave with a ticket goes through finance automatically
+الإجازة المرضية	Sick leave
 الإجراء	Action
 الإجمالي	Total
 الإجمالي التقديري	Estimated total
@@ -2432,6 +2436,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المستخدم	used
 المستخدم غير موجود	User not found
 المستخدم غير موجود في المنشأة	User is not in this company
+المستخدم في سنتك المرضية	Used in your sick-leave year
 المستخدم ليس من المنشأة	This user is not in the company
 المستخدم والمحجوز	Used and reserved
 المستخدمون	Users
@@ -2830,6 +2835,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بتواريخ استحقاقها	with their due dates
 بتوقيت الرياض	Riyadh time
 بتوقيعك تقرّ بالاطلاع على المستند أعلاه والموافقة عليه	By signing you confirm you have read and agree to the document above
+بثلاثة أرباع الأجر	at three-quarter pay
 بحث	Search
 بحث بالاسم	Search by name
 بحث بالاسم أو البريد أو الباقة	Search by name, e-mail or plan
@@ -2844,6 +2850,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بدء التسوية	Start reconciliation
 بدء الدورة	Start cycle
 بدأ إهلاك الأصل	Asset depreciation has started
+بدأت في	started on
 بداية أول عقد	First contract start
 بداية أول عقد بعد بداية هذا العقد	The first contract start is after this contract's start
 بداية التغطية	Cover start
@@ -2957,6 +2964,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بلا مهمة	No task
 بلاتيني	Platinum
 بلد الجنسية	Nationality (country)
+بلد الوجهة	Destination country
 بلوغ سن التقاعد	Retirement age
 بما فيها قيد التنفيذ	including those in progress
 بما لا يقل عن ساعة ونصف عن كل ساعة	at least one and a half hours per hour
@@ -3204,6 +3212,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تحقق مرة ثانية	Check again
 تحقق من الأسعار	check the prices
 تحقق من الإنترنت	check your internet connection
+تحقق من التواريخ	Check the dates
 تحقق من الرقم الضريبي	check the VAT number
 تحقق من الكميات والأسعار	Check the quantities and prices
 تحقق من بنود أمر التغيير	Check the change order items
@@ -3621,6 +3630,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تُحذف هذه التسوية المفتوحة وتعود حركاتها غير مطابقة	This open reconciliation is removed and its lines become uncleared again
 تُحسب المدة من تاريخ الإشعار	the period counts from the notice date
 تُحسب من التفاصيل	they are computed from the details
+تُحسب من رصيد إجازتك السنوية مثل الإجازة الداخلية	It is taken from your annual leave balance like leave inside the Kingdom
 تُحسب من ساعات العمل الإضافي التي اخترت التعويض عنها بإجازة بدل الأجر	earned from overtime hours you chose to take as leave instead of pay
 تُحسب نهايتها تلقائيا	end calculated automatically
 تُحسب نهايتها تلقائياً	end calculated automatically
@@ -3679,6 +3689,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ثم حدّد ما يراه	then choose what they can see
 ثم رقمه الوظيفي وكلمة مرور مؤقتة	then their employee number and a temporary password
 ثم سجّل التحقيق وسماع دفاعه قبل توقيع أي جزاء	then record the investigation and the worker's defence before imposing any penalty
+ثم سجّل النتيجة هنا	then record the result here
 ثم ضع العلامة	then tick the box
 ثم عد هنا	then come back here
 ثم عيّنها للموظفين	then assign them to employees
@@ -4241,6 +4252,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 رقم إشعار تسليم المورد	Supplier delivery note No.
 رقم الآيبان	IBAN
 رقم الإجازة المرضية	Sick leave number
+رقم الإجازة المرضية مستخدم في طلب آخر	This sick-leave number is already used on another request
 رقم الإقامة	iqama number
 رقم الاقامة	iqama number
 رقم التأشيرة	Visa number
@@ -4615,6 +4627,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 سُجّلت المخالفة	Violation recorded
 سُجّلت عمليات بعد الأرصدة الافتتاحية	Transactions were recorded after the opening balances
 سُجّلت فاتورة الشراء	Purchase bill recorded
+سُجّلت نتيجة التحقق	Check result recorded
 سُجّلت هذه التذكرة من قبل أو أُلغيت	This ticket was already recorded or cancelled
 سُلّمت التذكرة	Ticket delivered
 شاشة كمبيوتر	Computer monitor
@@ -5072,6 +5085,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 غير مصرح لك بمنح دور	You are not allowed to grant the role
 غير مصرح لك بمنح صلاحية	You may not grant the role
 غير مصرح لك بهذا البند	You may not sign this step
+غير مطابقة	Does not match
+غير مطابقة في منصة صحة	Does not match on Seha
 غير معرّفة	is not defined
 غير معيّن	Not appointed
 غير مفعّل	Not enabled
@@ -5118,6 +5133,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فالمنضم بعد الإقفال يتأخر أول راتب له	so a joiner after the cutoff gets the first wage later
 فبعض البنوك تطلب ترتيب أعمدة مختلفا	as some banks require a different column order
 فبعض البنوك تطلب ترتيب أعمدة مختلفاً	as some banks require a different column order
+فتح الاستعلام في منصة صحة	Open the Seha inquiry
 فتح الرسالة	Open the message
 فتح الشخص لبياناته هو لا يُسجل	A person opening their own data is not logged
 فتح المسير	Open the payroll
@@ -5613,11 +5629,13 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يمكن إلغاء فاتورة عليها سداد	An invoice with payments cannot be voided
 لا يمكن اختيار أحد أفراد فريقه مديرا له حتى لا يصير التسلسل دائريا	Someone from their own team cannot be chosen as their manager, so the reporting line does not loop
 لا يمكن اختيار أحد أفراد فريقه مديراً له حتى لا يصير التسلسل دائرياً	Someone from their own team cannot be chosen as their manager, so the reporting line does not loop
+لا يمكن اعتماد إجازة مرضية نتيجة التحقق منها غير مطابقة	A sick leave whose check did not match cannot be approved
 لا يمكن الإلغاء	cannot be voided
 لا يمكن التراجع عن هذا الحذف	This deletion cannot be undone
 لا يمكن التراجع عن هذا الحذف. تأكد أن المالك نزّل نسخة من بياناته قبل الحذف.	This deletion cannot be undone. Make sure the owner downloaded a copy of their data before deleting.
 لا يمكن الحذف لارتباطه بسجلات أخرى	Cannot delete because it is linked to other records
 لا يمكن تحديث الحقل	This field cannot be updated
+لا يمكن تسجيل التحقق لهذا الطلب	The check cannot be recorded for this request
 لا يمكن تسجيل حضور ليوم لم يأتِ بعد	Attendance cannot be recorded for a future day
 لا يمكن تعديل الإضافي	overtime can no longer be changed
 لا يمكن تعديله أو حذفه	It cannot be edited or deleted
@@ -5844,6 +5862,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لم يكتمل التحقق	Verification was not completed
 لم يكتمل التفعيل	It could not be turned on
 لم يُؤكَّد البريد بعد	Email not confirmed yet
+لم يُتحقق منها بعد	Not checked yet
 لم يُجهَّز مسير رواتب	No payroll prepared for
 لم يُحدد موعد المقابلة	The interview time is not set
 لم يُحدد نوع المقابلة	The interview type is not set
@@ -6265,8 +6284,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مصنع الديار	Al-Diyar Factory
 مصنفة حسب الحساب المقابل	classified by the counter-account
 مطابقات مقترحة	Suggested matches
+مطابقة	Matches
 مطابقة ثلاثية	Three-way match
 مطابقة حسابات البنك مع الكشف	Bank accounts matched with the statement
+مطابقة في منصة صحة	Matches on Seha
 مطابقة كشف البنك	Bank statement matching
 مطاعم وأغذية	Restaurants & food
 مطالبات المصروفات	Expense claims
@@ -6613,6 +6634,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نسخ الرمز والرابط	Copy code and link
 نسخ رابط العميل	Copy the customer link
 نسخ رسالة جاهزة	Copy ready message
+نسخ رقم الهوية	Copy ID number
+نسخ رمز الخدمة	Copy service code
 نسخة كاملة من بيانات المنشأة لتسلّمها لمالكها عند طلبه	A full copy of the company's data to hand to its owner when he asks
 نسخة كاملة من بيانات المنشأة لتسلّمها لمالكها عند طلبه. يُسجَّل كل تصدير مع سببه، ويصل المالك إيميل فوري بأن بياناته صُدّرت.	A full copy of the company's data to hand to its owner when he asks. Every export is logged with its reason, and the owner gets an instant e-mail that his data was exported.
 نسخة كاملة من كل بيانات منشأتك لحفظها لديك أو نقلها	A complete copy of all your company's data to keep or move elsewhere
@@ -6746,6 +6769,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 هذا الربع	This quarter
 هذا الشهر	This month
 هذا الطرف موقوف	This party is inactive
+هذا الطلب	This request
 هذا الطلب يصرف مبلغا فلا بد أن يمر على المالية	This request pays money, so it must pass finance
 هذا الطلب يصرف مبلغاً فلا بد أن يمر على المالية	This request pays money, so it must pass finance
 هذا القسم غير مشمول في باقة منشأتك	This module is not included in your company's plan
@@ -7094,6 +7118,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ويُحسب التأخير والإضافي تلقائيا	and lateness and overtime are calculated automatically
 ويُحفظ العقد الحالي في السجل	and the current contract is kept in the history
 ويُخرج ملف حماية الأجور	with the wage protection file
+ويُخصم الفرق في مسير الراتب بعد الاعتماد	and the difference is deducted in payroll after approval
 ويُخصم المخزون وتُقيد تكلفة المبيعات	stock is reduced and cost of sales is posted
 ويُرسل إلى زاتكا مرتبطا بالفاتورة الأصلية	and is sent to ZATCA linked to the original invoice
 ويُرسل إلى زاتكا مرتبطاً بالفاتورة الأصلية	and is sent to ZATCA linked to the original invoice

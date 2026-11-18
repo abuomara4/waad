@@ -128,7 +128,22 @@ select public.submit_request(:'cid', 'leave', 'sick', current_date + 200, curren
 select t.err($$select public.submit_request('$$ || :'cid' || $$', 'leave', 'sick', current_date + 300, current_date + 340)$$, '120', 'sick leave over 120 days in the sick-year rejected');
 select public.submit_request(:'cid', 'leave', 'sick', current_date + 570, current_date + 600, null, '{"doc_ref":"PSL26000002","files":[{"name":"r.pdf","mime":"application/pdf","data":"JVBERi0xLjQK"}]}', 'سنة مرضية جديدة');
 select t.ok(true, 'new sick-year starts 12 months after first sick day');
+select t.ok((select used_days || '/' || full_days || '/' || part_days || '/' || unpaid_days from public.sick_preview(public.my_employee(:'cid'), current_date + 290, current_date + 295)) = '90/0/0/6', 'sick preview: days after the first 90 of the sick-year are unpaid (Art. 117)');
+select t.err($$select public.submit_request('$$ || :'cid' || $$', 'leave', 'sick', current_date + 700, current_date + 701, null, '{"doc_ref":"psl26000001","files":[{"name":"r.pdf","mime":"application/pdf","data":"JVBERi0xLjQK"}]}')$$, 'مستخدم', 'a sick-leave number cannot be used on a second request');
+select t.err($$select public.submit_request('$$ || :'cid' || $$', 'leave', 'annual', current_date + 400, current_date + 401, null, '{"abroad":true}')$$, 'الوجهة', 'annual leave abroad needs a destination');
+select public.submit_request(:'cid', 'leave', 'sick', current_date + 702, current_date + 702, null, '{"doc_ref":"PSL26000003","seha":{"status":"ok"},"files":[{"name":"r.pdf","mime":"application/pdf","data":"JVBERi0xLjQK"}]}') as sk3 \gset
+select t.ok((select not payload ? 'seha' from public.requests where id = :'sk3'), 'an employee cannot send a ready-made Seha result');
+select t.err($$select public.sick_verify('$$ || :'sk3' || $$', true)$$, 'مصرح', 'an employee cannot record the Seha result');
 reset role;
+select t.ok((select full_days || '/' || part_days || '/' || unpaid_days || '/' || over_days from public.sick_split(25, 70)) = '5/60/5/0' and (select full_days || '/' || part_days || '/' || unpaid_days || '/' || over_days from public.sick_split(110, 15)) = '0/0/10/5', 'sick split follows 30 full, 60 at three quarters, 30 unpaid');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.sick_verify(:'sk3', false);
+reset role;
+select t.ok((select payload#>>'{seha,status}' from public.requests where id = :'sk3') = 'bad' and (select count(*) from public.request_actions where request_id = :'sk3' and action = 'verified') = 1, 'HR records the Seha result in the request trail');
+select t.err($$update public.requests set status = 'approved' where id = '$$ || :'sk3' || $$'$$, 'غير مطابقة', 'a sick leave marked as not matching cannot be approved');
+update public.requests set payload = payload || '{"doc_ref":"PSL26000004"}' where id = :'sk3';
+select t.ok((select not payload ? 'seha' from public.requests where id = :'sk3'), 'changing the number clears the earlier result');
+update public.requests set status = 'cancelled' where id = :'sk3';
 
 -- advance: approved advance posts to the ledger
 select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
