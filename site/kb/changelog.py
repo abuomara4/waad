@@ -3,6 +3,9 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('18 نوفمبر 2026', '18 November 2026', [
+  ('مدير المشروع يدير مشاريعه بنفسه، وجدول أسبوعي لتسجيل الساعات، واختيار المرحلة في تكاليف المشروع', 'Project managers run their own projects, a weekly timesheet, and a milestone on project costs'),
+  ('أوامر التغيير تعدّل كميات البنود القائمة، والإشعار الدائن يصحّح المستخلص تلقائيا', 'Change orders can adjust existing items, and a credit note corrects its claim automatically'),
+  ('تنبيهات للساعات المنتظرة وأقساط القروض وخطابات الضمان في النظام وعلى الجوال', 'Alerts for hours to approve, loan instalments and guarantees, in the system and on the phone'),
   ('المقاولات: جدول كميات العقد والمستخلصات الجارية والختامية، مع الدفعة المقدمة واستردادها ومحتجز ضمان حسن التنفيذ، والضريبة حسب دليل الهيئة لقطاع المقاولات', 'Contracting: the contract bill of quantities and interim and final claims, with the down payment and its recovery and performance retention, VAT per ZATCA\'s contracting-sector guideline'),
   ('أوامر التغيير يعتمدها العميل برابط خاص، فتتحدث قيمة العقد ومدته وبنوده مع حفظ النسخ السابقة', 'Change orders approved by the customer through a private link, updating the contract value, duration and items with earlier versions kept'),
   ('ربط خطابات الضمان بالمشروع، وسجل مخاطر المشروع، وإشغال الفريق أسبوعا بأسبوع، ومؤشرات القيمة المكتسبة', 'Letters of guarantee linked to projects, a project risk register, weekly team allocation and earned-value indices'),

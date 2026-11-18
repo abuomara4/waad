@@ -70,7 +70,20 @@ const HELP = {
   '#/journal': { t: ['القيود اليومية', 'Journal'], s: [
     ['أغلب القيود تُنشأ تلقائيا من الفواتير والسندات والمسير؛ هنا تراها، وتضيف قيدا يدويا عند الحاجة.', 'Most entries are posted by invoices, vouchers and payroll; see them here and add a manual entry when needed.']] },
   '#/projects': { t: ['المشاريع', 'Projects'], s: [
-    ['أنشئ المشروع ومهامه، وسجّل ساعات العمل؛ تظهر التكلفة التقديرية والهامش.', 'Create the project and its tasks and log hours; estimated cost and margin appear.']] },
+    ['أنشئ المشروع بقيمة عقده وموازنته ومديره؛ يُنشأ له مركز تكلفة تلقائيا.', 'Create the project with its contract value, budget and manager; it gets a cost center automatically.'],
+    ['التبويبات: المراحل والمهام، والجدول الزمني، والساعات، والفريق، وأوامر التغيير، والمخاطر، والمستخلصات لعقود المقاولات.', 'Tabs: milestones and tasks, timeline, hours, team, change orders, risks, and claims for contracting jobs.'],
+    ['الربحية تأتي من القيود على مركز تكلفة المشروع، والهامش المتوقع = قيمة العقد − التكلفة ÷ نسبة الإنجاز.', 'Profitability comes from entries on the project\'s cost center; expected margin = contract value − cost ÷ % complete.']] },
+  '#/mytime': { t: ['ساعات عملي', 'My hours'], s: [
+    ['سجّل ساعاتك ليوم أو لأسبوع كامل، وتذهب لمدير المشروع للاعتماد.', 'Log your hours for a day or a whole week; they go to the project manager for approval.'],
+    ['إذا كنت مدير مشروع تظهر هنا ساعات فريقك بانتظار اعتمادك.', 'If you manage a project, your team\'s hours waiting for approval appear here.']] },
+  '#/resources': { t: ['إشغال الفريق', 'Team allocation'], s: [
+    ['يعرض نسبة تفرغ كل موظف على المشاريع الجارية أسبوعا بأسبوع، من نسب «الفريق» في كل مشروع. الأحمر يعني أكثر من 100%.', 'Shows each employee\'s allocation on active projects week by week, from each project\'s «Team» tab. Red means over 100%.']] },
+  '#/zakat': { t: ['الزكاة التقديرية', 'Zakat estimate'], s: [
+    ['الأرقام من دفاترك ويمكن تعديلها، وكل خانة مكتوب بجانبها مادتها في اللائحة.', 'The figures come from your books and can be changed; each one shows its article in the regulation.'],
+    ['النتيجة استرشادية؛ راجعها مع محاسبك، والإقرار الرسمي في بوابة الهيئة.', 'The result is a guide; review it with your accountant. The official return is filed on the ZATCA portal.']] },
+  '#/facilities': { t: ['القروض وخطابات الضمان', 'Loans and guarantees'], s: [
+    ['سجّل القرض فيظهر جدول أقساطه، وكل قسط يُقيَّد عند سداده بأصله وربحه.', 'Record a loan to get its schedule; each instalment is posted when paid, split into principal and profit.'],
+    ['خطاب الضمان يُسجَّل بغطائه وعمولته، ويمكن ربطه بمشروع، وتمديده أو الإفراج عنه.', 'A guarantee is recorded with its margin and fee, can be linked to a project, and can be extended or released.']] },
   '#/users': { t: ['المستخدمون والدعوات', 'Users & invitations'], s: [
     ['ادعُ المدراء والمحاسبين بأدوارهم؛ كل دور يرى ما يخصه فقط.', 'Invite managers and accountants with their roles; each role sees only what it needs.'],
     ['الموظف العادي يُعطى الدخول من سجله في «الموظفون».', 'An ordinary employee gets access from their record in «Employees».']] },

@@ -53,10 +53,17 @@ const GUIDE = {
       ['من «حسابي» اختر «تفعيل التنبيهات على هذا الجهاز» ووافق على السماح.', 'From «My account» choose «Turn on notifications on this device» and allow them.'],
       ['يصلك تنبيه عند اعتماد طلبك أو رفضه، وعند صدور قسيمة راتبك، وعند طلب توقيعك.', 'You are notified when a request is approved or rejected, when your payslip is out and when your signature is needed.'],
       ['في الآيفون ثبّت وعد على الشاشة الرئيسية أولا ثم فعّل التنبيهات من داخله.', 'On iPhone, add Waad to the home screen first, then turn notifications on from inside it.']] },
+    { id: 'mytime', go: '#/mytime', when: () => !!S.myTime, t: ['تسجيل ساعات عملك على المشاريع', 'Logging your project hours'], s: [
+      ['افتح «ساعات عملي» وسجّل ساعات يوم، أو افتح «جدول الأسبوع» لتعبئة الأسبوع كله مرة واحدة.', 'Open «My hours» and log a day, or open «Week sheet» to fill the whole week at once.'],
+      ['تذهب الساعات لمدير المشروع للاعتماد، ويمكنك سحبها قبل اعتمادها. إذا رُفضت يظهر لك السبب.', 'The hours go to the project manager for approval, and you can withdraw them before that. If rejected, you see the reason.']] },
     { id: 'app', t: ['ثبّت وعد على جوالك', 'Install Waad on your phone'], s: [
       ['من «حسابي» اختر «ثبّت وعد على جوالك»، فيظهر النظام كتطبيق على شاشتك.', 'From «My account» choose «Install Waad on your phone»; it appears as an app on your screen.'],
       ['في آيفون: من سفاري اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية».', 'On iPhone: in Safari press Share, then «Add to Home Screen».']] }] },
   mgr: { t: ['للمدير المباشر', 'For direct managers'], items: [
+    { id: 'pm', go: '#/projects', when: () => !!S.myPM, t: ['إدارة مشروعك', 'Running your project'], s: [
+      ['إذا كنت مدير مشروع تجده في «المشاريع»، وترى مشاريعك أنت فقط.', 'If you manage a project you find it under «Projects»; you see only your own projects.'],
+      ['نظّم المراحل والمهام والفريق والمخاطر، وتابع الإنجاز والربحية.', 'Organise milestones, tasks, the team and risks, and follow progress and profitability.'],
+      ['اعتمد ساعات فريقك من «ساعات عملي». لا تظهر لك تكلفة ساعات كل موظف حفاظا على سرية الرواتب.', 'Approve your team\'s hours from «My hours». Each person\'s hourly cost is hidden to keep pay private.']] },
     { id: 'appr', img: 'approvals', go: '#/approvals', t: ['اعتماد طلبات فريقك', 'Approving your team\'s requests'], s: [
       ['الرقم بجانب «الاعتمادات» هو عدد الطلبات التي تنتظرك.', 'The number next to «Approvals» is how many requests wait for you.'],
       ['افتح الطلب وراجع التفاصيل ورصيد الموظف.', 'Open the request and check the details and the employee\'s balance.'],
@@ -74,6 +81,19 @@ const GUIDE = {
       ['عند فتح دورة تقييم، تظهر لك مراجعة لكل موظف في فريقك.', 'When a review cycle opens, you get a review for each member of your team.'],
       ['اكتب الأهداف بأوزان مجموعها 100% وقيّم كل هدف، ثم أرسل التقييم للموارد البشرية.', 'Write the goals with weights totalling 100% and score each one, then send it to HR.']] }] },
   admin: { t: ['لإدارة المنشأة', 'For the company\'s admins'], items: [
+    { id: 'projects', go: '#/projects', t: ['المشاريع وربحيتها', 'Projects and their profitability'], s: [
+      ['أنشئ المشروع بقيمة عقده وموازنة تكلفته ومديره؛ يُنشأ له مركز تكلفة برقمه تلقائيا.', 'Create the project with its contract value, cost budget and manager; it gets a cost center with its number automatically.'],
+      ['قسّمه إلى مراحل بأوزان مجموعها 100%، وأضف المهام، وتابعها في لوحة المهام والجدول الزمني.', 'Split it into milestones whose weights total 100%, add tasks, and follow them on the board and the timeline.'],
+      ['اختر المشروع والمرحلة في أوامر الشراء والعهد وصرف المواد، واختر المشروع في الفواتير، لتظهر تكلفته الفعلية.', 'Choose the project and milestone on purchase orders, petty cash and material issues, and the project on invoices, to see its real cost.'],
+      ['الساعات المعتمدة تُفوتر للعميل، وتكلفتها تُرحّل للمشروع من تبويب «ساعات العمل».', 'Approved hours are invoiced to the customer and their cost is posted to the project from the «Hours» tab.']] },
+    { id: 'claims', go: '#/projects', t: ['المستخلصات وأوامر التغيير', 'Progress claims and change orders'], s: [
+      ['اختر نوع العقد «مستخلصات»، وأدخل نسبة المحتجز واسترداد الدفعة المقدمة كما في عقدك، ثم بنود العقد.', 'Choose the «Claims» contract type, enter the retention and advance recovery rates from your contract, then the contract items.'],
+      ['سجّل الدفعة المقدمة، ثم في كل مستخلص أدخل الكمية المنفذة حتى تاريخه واعتمده لتصدر فاتورته الضريبية.', 'Record the down payment, then in each claim enter the quantity done to date and approve it to issue its tax invoice.'],
+      ['محتجز الضمان يبقى ضمن رصيد الفاتورة؛ عند تحصيله سجّل سند القبض ثم «استُلم المحتجز».', 'Retention stays in the invoice balance; when collected, record the receipt, then «Retention received».'],
+      ['أمر التغيير يُرسل للعميل برابط خاص، وعند اعتماده تتحدث قيمة العقد ومدته وبنوده مع حفظ النسخة السابقة.', 'A change order goes to the customer by a private link; on approval the contract value, duration and items update and the old version is kept.']] },
+    { id: 'zakatfac', go: '#/zakat', t: ['الزكاة والقروض وخطابات الضمان', 'Zakat, loans and guarantees'], s: [
+      ['«الزكاة التقديرية» تحسب تقديرا من دفاترك وفق اللائحة، ويمكنك تعديل أي رقم. الإقرار الرسمي يُقدَّم في بوابة الهيئة.', '«Zakat estimate» works out a guide figure from your books under the regulation, and any number can be changed. The official return is filed on the ZATCA portal.'],
+      ['«القروض وخطابات الضمان» تعرض جدول الأقساط، وغطاء كل خطاب، وتنبهك قبل الاستحقاق والانتهاء.', '«Loans and guarantees» shows the instalment schedule and each guarantee\'s margin, and alerts you before due and expiry dates.']] },
     { id: 'access', img: 'mklogin', go: '#/employees', t: ['أعطِ موظفيك الدخول', 'Give your employees access'], s: [
       ['من «الموظفون» افتح سجل الموظف واضغط «إنشاء دخول للموظف».', 'In «Employees» open the employee\'s record and press «Create employee login».'],
       ['يظهر رمز المنشأة والرقم الوظيفي وكلمة مرور مؤقتة، وأرسلها للموظف بزر الواتساب.', 'The company code, employee number and a temporary password appear; send them with the WhatsApp button.'],

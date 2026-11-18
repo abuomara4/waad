@@ -495,7 +495,8 @@ async function loadContext(pre) {
   if (!(c.perms || []).length) fp.forEach(p => S.perms.add(p.perm));   // personal permissions, when set, replace the role's defaults
   S.myEmp = me[0] || null;
   S.hasPetty = pf.length > 0; S.hasTeam = team.length > 0;
-  S.myTime = !!(S.emp && (!S.sub || (S.sub.modules || []).includes('proj')) && (await db.rpc('my_time_projects', { p_company: S.cid }).catch(() => [])).length);   // «ساعات عملي» (0123)
+  const myPrj = S.emp && (!S.sub || (S.sub.modules || []).includes('proj')) ? await db.rpc('my_time_projects', { p_company: S.cid }).catch(() => []) : [];
+  S.myTime = myPrj.length > 0; S.myPM = myPrj.some(p => p.manager);   // «ساعات عملي» and the manager of a project (0123, 0125)
   S.zatcaOn = false;
   if (isFin()) db.get('zatca_settings', { company_id: 'eq.' + S.cid, select: 'enabled' }).then(r => { S.zatcaOn = !!(r[0] && r[0].enabled); if (S.zatcaOn) zatcaKick(); }).catch(() => {});
   return true;
@@ -613,7 +614,7 @@ function navItems() {
   if (typeof GUIDE !== 'undefined') it.push({ h: '#/guide', t: 'دليل الاستخدام' });
   if (isHR() || isFin() || has('manager')) it.push({ h: '#/analytics', t: 'التحليلات' });
   if (S.emp) { g('خدماتي'); if (S.company && S.company.att_enabled && !(S.myEmp && S.myEmp.att_exempt)) it.push({ h: '#/attendance', t: 'حضوري' });
-    it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/sign', t: 'توقيعاتي', pill: NAVC.sign }, { h: '#/payslips', t: 'قسائم الراتب' }, ...(S.myTime ? [{ h: '#/mytime', t: 'ساعات عملي' }] : []), { h: '#/reviews', t: 'تقييم الأداء' }, ...(isHR() ? [] : [{ h: '#/okrs', t: 'أهدافي (OKRs)' }]), { h: '#/surveys', t: 'الاستبيانات' }, { h: '#/profile', t: 'ملفي' });
+    it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/sign', t: 'توقيعاتي', pill: NAVC.sign }, { h: '#/payslips', t: 'قسائم الراتب' }, ...(S.myTime ? [{ h: '#/mytime', t: 'ساعات عملي', pill: NAVC.time }] : []), { h: '#/reviews', t: 'تقييم الأداء' }, ...(isHR() ? [] : [{ h: '#/okrs', t: 'أهدافي (OKRs)' }]), { h: '#/surveys', t: 'الاستبيانات' }, { h: '#/profile', t: 'ملفي' });
     if (S.hasPetty) it.push({ h: '#/mypetty', t: 'عهدتي النقدية' });
     if (!isHR()) it.push({ h: '#/policies', t: 'السياسات واللوائح' });
     const ov = (S.company && S.company.org_visibility) || 'all';
@@ -692,7 +693,7 @@ function navItems() {
     if (can('reports')) it.push({ h: '#/zakat', t: 'الزكاة التقديرية' });
     if (has('owner', 'admin', 'finance')) it.push({ h: '#/periods', t: 'إقفال الفترات والسنة' }, { h: '#/opening', t: 'الأرصدة الافتتاحية' });
   }
-  if (has('owner', 'admin', 'finance', 'hr') || can('proj')) { g('المشاريع'); it.push({ h: '#/projects', t: 'المشاريع وجداول الوقت' }); }
+  if (has('owner', 'admin', 'finance', 'hr') || can('proj') || S.myPM) { g('المشاريع'); it.push({ h: '#/projects', t: 'المشاريع وجداول الوقت' }); if (!S.myPM || has('owner', 'admin', 'finance', 'hr') || can('proj')) it.push({ h: '#/resources', t: 'إشغال الفريق' }); }
   if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); it.push({ h: '#/companydocs', t: 'مستندات المنشأة والسيارات' }); if (has('owner', 'admin')) it.push({ h: '#/customfields', t: 'الحقول المخصصة' }); if (has('owner', 'admin', 'hr')) it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); }
   return it;
 }
@@ -833,6 +834,7 @@ async function loadNotifs() {
     (tt || []).forEach(t => add(t.mode === 'cash' ? 'صُرف لك بدل تذكرة السفر' : 'وصلتك تذكرة السفر — افتح طلبك', '#/requests', { at: t.delivered_at, ok: true }));
     (vv || []).forEach(v => add('وصلتك تأشيرة الخروج والعودة — افتح طلبك', '#/requests', { at: v.delivered_at, ok: true })); }
   if (typeof finNotifs === 'function') await finNotifs(add, safe);
+  if (typeof projNotifs === 'function') await projNotifs(add, safe);
   if (myReqs) { const since = Date.now() - 30 * 864e5; myReqs.filter(r => r.decided_at && new Date(r.decided_at) > since).forEach(r => add((r.status === 'approved' ? 'اعتُمد ' : 'رُفض ') + 'طلبك: ' + (KIND[r.kind] || r.kind), '#/requests', { at: r.decided_at, ok: r.status === 'approved' })); }
   return out;
 }

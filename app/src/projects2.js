@@ -9,13 +9,14 @@ const CO_ST = { draft: ['مسودة', ''], sent: ['أُرسل للعميل', 'wa
 async function projectClaimsTab(body, p) {
   const [boq, claims, ct] = await Promise.all([db.get('project_boq', Object.assign(C(), { project_id: 'eq.' + p.id, order: 'sort,created_at' })),
     db.get('project_claims', Object.assign(C(), { project_id: 'eq.' + p.id, order: 'date,created_at' })), db.rpc('project_contract', { p_project: p.id })]);
-  const approved = claims.filter(c => c.status === 'approved'), lastQty = {};
+  const claimLive = c => c.status === 'approved' && (n0(c.net) <= 0 || n0(c.credited) < n0(c.net) - 0.004);
+  const approved = claims.filter(claimLive), lastQty = {};
   approved.filter(c => c.kind !== 'advance').forEach(c => (c.lines || []).forEach(l => { lastQty[l.boq] = Math.max(n0(lastQty[l.boq]), n0(l.qty)); }));
   const hasFinal = approved.some(c => c.kind === 'final');
   const kpi = (t, v) => `<div class="card kpi"><div class="muted small">${esc(tr(t))}</div><div class="v num">${v}</div></div>`;
   body.innerHTML = `<div class="grid" style="margin-bottom:14px">${kpi('قيمة البنود', money(ct.boq_total))}${kpi('المنفذ المعتمد', money(ct.certified))}
       ${kpi('الدفعة المقدمة', money(ct.advance))}${kpi('المسترد منها', money(ct.recovered))}${kpi('محتجز الضمان لدى العميل', money(ct.retention))}</div>
-    <div class="card" id="boqc"><div class="row" style="justify-content:space-between;align-items:center"><h2>${esc(tr('بنود العقد (جدول الكميات)'))}</h2><button class="btn sm pri" id="nboq">${esc(tr('بند جديد'))}</button></div>
+    <div class="card" id="boqc"><div class="row" style="justify-content:space-between;align-items:center"><h2>${esc(tr('بنود العقد (جدول الكميات)'))}</h2>${prjOffice() ? `<button class="btn sm pri" id="nboq">${esc(tr('بند جديد'))}</button>` : ''}</div>
       ${tbl([{ t: 'الرمز', h: b => `<span class="num">${esc(b.code || '')}</span>` }, { t: 'البند', h: b => esc(b.description) + (b.co_id ? ` <span class="badge info small">${esc(tr('أمر تغيير'))}</span>` : '') }, { t: 'الوحدة', h: b => esc(b.unit || '') },
         { t: 'الكمية', r: 1, h: b => qtyTxt(b.qty) }, { t: 'السعر', r: 1, h: b => money(b.rate) }, { t: 'القيمة', r: 1, h: b => money(r2(n0(b.qty) * n0(b.rate))) },
         { t: 'المنفذ', r: 1, h: b => `${qtyTxt(lastQty[b.id] || 0)} <span class="small muted">${n0(b.qty) ? Math.round(100 * n0(lastQty[b.id]) / n0(b.qty)) : 0}%</span>` }], boq,
@@ -25,7 +26,7 @@ async function projectClaimsTab(body, p) {
       ${tbl([{ t: 'الرقم', h: c => `<span class="num">${esc(c.no)}</span>` }, { t: 'النوع', h: c => esc(tr(CLAIM_KIND[c.kind])) }, { t: 'التاريخ', h: c => fdate(c.date) },
         { t: 'أعمال الفترة', r: 1, h: c => money(c.this_gross) }, { t: 'استرداد الدفعة', r: 1, h: c => n0(c.advance_recovery) ? money(c.advance_recovery) : '' },
         { t: 'قيمة الفاتورة', r: 1, h: c => money(c.net) }, { t: 'الضريبة', r: 1, h: c => money(c.vat) }, { t: 'المحتجز', r: 1, h: c => n0(c.retention) ? money(c.retention) + (c.retention_released_on ? ` <span class="badge ok">${esc(tr('استُلم'))}</span>` : '') : '' },
-        { t: 'المطلوب سداده', r: 1, h: c => `<b>${money(c.payable)}</b>` }, { t: 'الحالة', h: c => c.status === 'approved' ? `<span class="badge ok">${esc(tr('معتمد'))}</span>` : `<span class="badge">${esc(tr('مسودة'))}</span>` }],
+        { t: 'المطلوب سداده', r: 1, h: c => `<b>${money(c.payable)}</b>` }, { t: 'الحالة', h: c => c.status !== 'approved' ? `<span class="badge">${esc(tr('مسودة'))}</span>` : !claimLive(c) ? `<span class="badge bad">${esc(tr('أُلغي بإشعار دائن'))}</span>` : `<span class="badge ok">${esc(tr('معتمد'))}</span>` + (n0(c.credited) ? ` <span class="badge wait">${esc(tr('عليه إشعار دائن'))} <span class="num">${money(c.credited)}</span></span>` : '') }],
         claims, { empty: 'لا توجد مستخلصات', onRow: true })}
       <p class="small muted">${esc(tr('حسب دليل هيئة الزكاة والضريبة والجمارك لقطاع المقاولات: الدفعة المقدمة تصدر لها فاتورة ضريبية عند استلامها، وكل مستخلص يُفوتر الأعمال المنفذة حتى تاريخه مخصوما منها ما فُوتر سابقا (ومنه الدفعة المقدمة المستردة)، ومحتجز الضمان جزء من قيمة الفاتورة تُحسب عليه الضريبة ولا تصدر فاتورة عند استرداده. نسب الاحتجاز والاسترداد من عقد المشروع.'))}</p></div>`;
   const boqForm = b => { const d = modal(b ? tr('تعديل البند') : tr('بند جديد'), `<div class="fg">${field('الرمز', inp('code', b && b.code, 'maxlength="30"'))}${field('الوحدة', inp('unit', b && b.unit, 'maxlength="30"'))}
@@ -34,8 +35,7 @@ async function projectClaimsTab(body, p) {
     onOk: async f => { const row = { code: blank(f.code), unit: blank(f.unit), description: f.description, qty: +f.qty, rate: +f.rate };
       if (b) await db.upd('project_boq', { id: 'eq.' + b.id }, row); else await db.ins('project_boq', Object.assign(row, { company_id: S.cid, project_id: p.id, sort: boq.length })); toast(tr('تم الحفظ')); route(); } });
     if (b) $('#bdel', d).onclick = async () => { try { await db.del('project_boq', { id: 'eq.' + b.id }); d.close(); route(); } catch (e) { showErr($('#merr', d), e); } }; };
-  $('#nboq', body).onclick = () => boqForm(null);
-  bindRows($('#boqc', body), boq, b => boqForm(b));
+  if ($('#nboq', body)) { $('#nboq', body).onclick = () => boqForm(null); bindRows($('#boqc', body), boq, b => boqForm(b)); }
   const claimForm = (c, kind) => {
     const k = c ? c.kind : kind, cur = {}; (c ? c.lines : []).forEach(l => cur[l.boq] = l.qty);
     const d = modal((c ? tr('تعديل') + ' ' + c.no : tr(CLAIM_KIND[k])), `<div class="fg">${k === 'advance' ? '' : field('النوع', `<select name="kind">${opt('interim', tr('مستخلص جارٍ'), k)}${opt('final', tr('مستخلص ختامي'), k)}</select>`)}
@@ -56,7 +56,7 @@ async function projectClaimsTab(body, p) {
         ${row('قيمة الفاتورة قبل الضريبة', money(c.net), 1)}${row('ضريبة القيمة المضافة 15%', money(c.vat))}${row('إجمالي الفاتورة', money(n0(c.net) + n0(c.vat)))}
         ${n0(c.retention) ? row('محتجز ضمان حسن التنفيذ', '−' + money(c.retention)) : ''}${row('المطلوب سداده الآن', money(c.payable), 1)}</tbody></table></div>
       <div class="row" style="gap:6px;margin-top:10px;flex-wrap:wrap">${c.status === 'draft' && can('sales') ? `<button type="button" class="btn pri" id="cap">${esc(tr('اعتماد وإصدار الفاتورة'))}</button><button type="button" class="btn" id="ced">${esc(tr('تعديل'))}</button><button type="button" class="btn danger" id="cdl">${esc(tr('حذف'))}</button>` : ''}
-        ${c.invoice_id ? `<a class="btn" href="#/sales/${c.invoice_id}">${esc(tr('الفاتورة'))}</a>` : ''}${c.status === 'approved' && n0(c.retention) && !c.retention_released_on && can('sales') ? `<button type="button" class="btn" id="crr">${esc(tr('استُلم المحتجز'))}</button>` : ''}
+        ${c.invoice_id ? `<a class="btn" href="#/sales/${c.invoice_id}">${esc(tr('الفاتورة'))}</a>` : ''}${claimLive(c) && n0(c.retention) && !c.retention_released_on && can('sales') ? `<button type="button" class="btn" id="crr">${esc(tr('استُلم المحتجز'))}</button>` : ''}
         <button type="button" class="btn" id="cpr">${esc(tr('طباعة المستخلص'))}</button></div>`, { wide: true });
     if ($('#cap', d)) $('#cap', d).onclick = () => busy($('#cap', d), async () => { try { const iid = await db.rpc('claim_approve', { p_id: c.id }); d.close(); toast(tr('اعتُمد المستخلص وصدرت فاتورته')); if (typeof zatcaKick === 'function') zatcaKick(); route(); } catch (e) { showErr($('#merr', d), e); } });
     if ($('#ced', d)) $('#ced', d).onclick = () => { d.close(); claimForm(c); };
@@ -73,34 +73,50 @@ async function projectClaimsTab(body, p) {
 }
 
 /* ---------- «أوامر التغيير» ---------- */
+const coQty = x => x.boq ? `<span class="muted">${qtyTxt(x.old_qty)} ←</span> ${qtyTxt(x.qty)}` : qtyTxt(x.qty), coRate = x => x.boq && n0(x.old_rate) !== n0(x.rate) ? `<span class="muted">${money(x.old_rate)} ←</span> ${money(x.rate)}` : money(x.rate);
 async function projectChangesTab(body, p) {
-  const [cos, vers] = await Promise.all([db.get('project_change_orders', Object.assign(C(), { project_id: 'eq.' + p.id, order: 'created_at' })), db.get('project_versions', Object.assign(C(), { project_id: 'eq.' + p.id, order: 'at' }))]);
+  const [cos, vers, boq] = await Promise.all([db.get('project_change_orders', Object.assign(C(), { project_id: 'eq.' + p.id, order: 'created_at' })), db.get('project_versions', Object.assign(C(), { project_id: 'eq.' + p.id, order: 'at' })),
+    db.get('project_boq', Object.assign(C(), { project_id: 'eq.' + p.id, order: 'sort,created_at' }))]);
   body.innerHTML = `<div class="card"><div class="row" style="justify-content:space-between;align-items:center"><h2>${esc(tr('أوامر التغيير'))}</h2><button class="btn sm pri" id="nco">${esc(tr('أمر تغيير جديد'))}</button></div>
       ${tbl([{ t: 'الرقم', h: o => `<span class="num">${esc(o.no)}</span>` }, { t: 'العنوان', h: o => esc(o.title) }, { t: 'التاريخ', h: o => fdate(o.date) }, { t: 'أثر القيمة', r: 1, h: o => `<span class="num ${n0(o.value_delta) < 0 ? 'bad' : ''}">${money(o.value_delta)}</span>` },
         { t: 'أثر المدة', r: 1, h: o => `<span class="num">${o.days_delta} ${esc(tr('يوما'))}</span>` }, { t: 'الحالة', h: o => `<span class="badge ${CO_ST[o.status][1]}">${esc(tr(CO_ST[o.status][0]))}</span>${o.decided_by_name ? `<div class="small muted">${esc(o.decided_by_name)}</div>` : ''}` }],
         cos, { empty: 'لا توجد أوامر تغيير', onRow: true })}</div>
     ${vers.length ? `<div class="card"><h2>${esc(tr('سجل نسخ العقد'))}</h2>${tbl([{ t: 'قبل أمر التغيير', h: v => esc((cos.find(o => o.id === v.co_id) || {}).no || '') }, { t: 'التاريخ', h: v => fdate(v.at) },
         { t: 'قيمة العقد', r: 1, h: v => money(v.contract_value) }, { t: 'التسليم', h: v => fdate(v.due_date) }, { t: 'موازنة التكلفة', r: 1, h: v => money(v.cost_budget) }, { t: 'قيمة البنود', r: 1, h: v => money(v.boq_total) }], vers)}</div>` : ''}`;
-  const coForm = o => { const items = o ? o.items.slice() : [];
+  const coForm = o => { const items = o ? o.items.filter(x => !x.boq) : [], edits = o ? o.items.filter(x => x.boq) : [];
     const d = modal(o ? tr('تعديل') + ' ' + o.no : tr('أمر تغيير جديد'), `<div class="fg">${field('العنوان', inp('title', o && o.title, 'required maxlength="200"'), 'wide')}${field('السبب والوصف', `<textarea name="reason" rows="2" maxlength="1000">${esc(o && o.reason || '')}</textarea>`, 'wide')}
         ${field('أثره على قيمة العقد (+ أو −)', inp('value', o ? o.value_delta : '', 'type="number" step="0.01"'))}${field('أثره على المدة بالأيام (+ أو −)', inp('days', o ? o.days_delta : 0, 'type="number" step="1"'))}
         ${field('أثره على موازنة التكلفة', inp('cost', o ? o.cost_delta : '', 'type="number" step="0.01"'))}</div>
       <p class="small">${esc(tr('بنود جديدة تُضاف للعقد عند الاعتماد (اختياري):'))}</p><div class="tw"><table class="lines"><thead><tr><th>${esc(tr('الرمز'))}</th><th>${esc(tr('البند'))}</th><th>${esc(tr('الوحدة'))}</th><th>${esc(tr('الكمية'))}</th><th>${esc(tr('السعر'))}</th></tr></thead><tbody id="coi"></tbody></table></div>
-      <button type="button" class="btn sm" id="coa" style="margin-top:6px">+ ${esc(tr('بند'))}</button>`, { wide: true, onOk: async f => {
-        const its = $$('#coi tr', d).map(r => ({ code: $('[data-c=code]', r).value, description: $('[data-c=description]', r).value, unit: $('[data-c=unit]', r).value, qty: +$('[data-c=qty]', r).value || 0, rate: +$('[data-c=rate]', r).value || 0 })).filter(x => x.description.trim());
+      <button type="button" class="btn sm" id="coa" style="margin-top:6px">+ ${esc(tr('بند'))}</button>
+      ${boq.length ? `<p class="small" style="margin-top:12px">${esc(tr('تعديل كمية أو سعر بند قائم (لا تقل الكمية عن المنفذ، ولا يتغير سعر بند طُولب به):'))}</p><div class="tw"><table class="lines"><thead><tr><th>${esc(tr('البند'))}</th><th>${esc(tr('الكمية الجديدة'))}</th><th>${esc(tr('السعر الجديد'))}</th></tr></thead><tbody id="coe"></tbody></table></div>
+        <button type="button" class="btn sm" id="coea" style="margin-top:6px">+ ${esc(tr('تعديل بند'))}</button>` : ''}
+      <p class="small" id="covh"></p>`, { wide: true, onOk: async f => {
+        const its = $$('#coi tr', d).map(r => ({ code: $('[data-c=code]', r).value, description: $('[data-c=description]', r).value, unit: $('[data-c=unit]', r).value, qty: +$('[data-c=qty]', r).value || 0, rate: +$('[data-c=rate]', r).value || 0 })).filter(x => x.description.trim()).concat(editRows());
         await db.rpc('co_save', { p_project: p.id, p_doc: { id: o ? o.id : null, title: f.title, reason: f.reason, value: +f.value || 0, days: +f.days || 0, cost: +f.cost || 0, items: its } }); toast(tr('تم الحفظ')); route(); } });
     const add = x => $('#coi', d).insertAdjacentHTML('beforeend', `<tr><td><input data-c="code" value="${esc(x.code || '')}" style="width:70px"></td><td><input data-c="description" value="${esc(x.description || '')}" style="min-width:180px"></td><td><input data-c="unit" value="${esc(x.unit || '')}" style="width:70px"></td>
       <td><input data-c="qty" type="number" step="0.001" min="0" value="${esc(x.qty == null ? '' : x.qty)}" style="width:90px"></td><td><input data-c="rate" type="number" step="0.01" min="0" value="${esc(x.rate == null ? '' : x.rate)}" style="width:100px"></td></tr>`);
-    items.forEach(add); $('#coa', d).onclick = () => add({}); };
+    const editRows = () => $$('#coe tr', d).map(r => ({ boq: $('[data-e=boq]', r).value, qty: +$('[data-e=qty]', r).value || 0, rate: +$('[data-e=rate]', r).value || 0 })).filter(x => x.boq);
+    const addE = x => { $('#coe', d).insertAdjacentHTML('beforeend', `<tr><td><select data-e="boq" style="min-width:180px" aria-label="${esc(tr('البند'))}"><option value="">—</option>${boq.map(b => opt(b.id, (b.code ? b.code + ' — ' : '') + b.description, x.boq)).join('')}</select></td>
+      <td><input data-e="qty" type="number" step="0.001" min="0" value="${esc(x.qty == null ? '' : x.qty)}" style="width:100px" aria-label="${esc(tr('الكمية الجديدة'))}"></td><td><input data-e="rate" type="number" step="0.01" min="0" value="${esc(x.rate == null ? '' : x.rate)}" style="width:100px" aria-label="${esc(tr('السعر الجديد'))}"></td></tr>`); };
+    // the effect of the items on the contract, offered as the change's value
+    let hintV = null;
+    const hint = () => { let v = 0; $$('#coi tr', d).forEach(r => v += n0($('[data-c=qty]', r).value) * n0($('[data-c=rate]', r).value));
+      editRows().forEach(x => { const b = boq.find(y => y.id === x.boq); if (b) v += x.qty * x.rate - n0(b.qty) * n0(b.rate); }); v = r2(v); if (v === hintV) return; hintV = v;   // redrawing on the blur of a field would swallow the click on the button
+      $('#covh', d).innerHTML = v ? `${esc(tr('أثر البنود على قيمة العقد'))}: <b class="num">${money(v)}</b> <button type="button" class="btn sm" id="covu">${esc(tr('استخدمه'))}</button>` : '';
+      if ($('#covu', d)) $('#covu', d).onclick = () => { $('[name=value]', d).value = v; }; };
+    items.forEach(add); $('#coa', d).onclick = () => add({});
+    if ($('#coe', d)) { edits.forEach(addE); $('#coea', d).onclick = () => addE({}); $('#coe', d).addEventListener('change', e => { if (e.target.dataset.e !== 'boq') return; const b = boq.find(y => y.id === e.target.value), r = e.target.closest('tr'); if (b) { $('[data-e=qty]', r).value = +b.qty; $('[data-e=rate]', r).value = +b.rate; } }); }
+    d.addEventListener('input', hint); d.addEventListener('change', hint); hint(); };
   $('#nco', body).onclick = () => coForm(null);
   bindRows(body.querySelector('.card'), cos, o => {
     const url = o.token ? location.origin + location.pathname + '#/co/' + o.token : '';
     const d = modal(o.no + ' — ' + o.title, `<p>${esc(o.reason || '')}</p><p>${esc(tr('أثر القيمة'))} <b class="num">${money(o.value_delta)}</b> · ${esc(tr('أثر المدة'))} <b class="num">${o.days_delta}</b> ${esc(tr('يوما'))} · ${esc(tr('أثر التكلفة'))} <span class="num">${money(o.cost_delta)}</span></p>
-      ${o.items.length ? tbl([{ t: 'البند', h: x => esc(x.description) }, { t: 'الكمية', r: 1, h: x => qtyTxt(x.qty) }, { t: 'السعر', r: 1, h: x => money(x.rate) }], o.items) : ''}
+      ${o.items.length ? tbl([{ t: 'البند', h: x => esc(x.description) }, { t: 'الكمية', r: 1, h: coQty }, { t: 'السعر', r: 1, h: coRate }], o.items) : ''}
       <p><span class="badge ${CO_ST[o.status][1]}">${esc(tr(CO_ST[o.status][0]))}</span> ${o.decided_by_name ? esc(o.decided_by_name) + ' · ' + fdate(o.decided_at) : ''} ${o.decision_note ? '· ' + esc(o.decision_note) : ''}</p>
       ${url ? `<input readonly dir="ltr" value="${esc(url)}" id="cou">` : ''}
       ${['draft', 'sent', 'rejected'].includes(o.status) ? `<div class="row" style="gap:6px;margin-top:10px;flex-wrap:wrap"><button type="button" class="btn pri" id="cos">${esc(tr(o.token ? 'نسخ رابط العميل' : 'إرسال للعميل للاعتماد'))}</button>
-        ${o.status !== 'rejected' ? `<button type="button" class="btn" id="coin">${esc(tr('تسجيل قرار العميل'))}</button>` : ''}<button type="button" class="btn" id="coe">${esc(tr('تعديل'))}</button></div>` : ''}`, { wide: true });
+        ${o.status !== 'rejected' && prjOffice() ? `<button type="button" class="btn" id="coin">${esc(tr('تسجيل قرار العميل'))}</button>` : ''}<button type="button" class="btn" id="coe">${esc(tr('تعديل'))}</button></div>` : ''}`, { wide: true });
     if ($('#cos', d)) $('#cos', d).onclick = async () => { try { const t = o.token || await db.rpc('co_send', { p_id: o.id }); const u = location.origin + location.pathname + '#/co/' + t;
       try { await navigator.clipboard.writeText(u); } catch (e) {} toast(tr('نُسخ رابط الاعتماد — أرسله للعميل')); d.close(); route(); } catch (e) { showErr($('#merr', d), e); } };
     if ($('#coe', d)) $('#coe', d).onclick = () => { d.close(); coForm(o); };
@@ -120,7 +136,7 @@ async function coPublicView(token) {
   box.innerHTML = `<div class="phead"><div><h1>${esc(o.company)}</h1><div class="small muted">${esc(tr('اعتماد أمر تغيير'))} · ${esc(o.project)} <span class="num">${esc(o.project_no)}</span></div></div><div class="sp"></div><button class="btn sm" id="plg">${LANG === 'en' ? 'العربية' : 'English'}</button></div>
     <div class="card"><h2>${esc(o.no)} — ${esc(o.title)}</h2><p>${esc(o.reason || '')}</p>
       <p>${esc(tr('أثره على قيمة العقد'))}: <b class="num">${money(o.value)}</b> · ${esc(tr('أثره على المدة'))}: <b class="num">${o.days}</b> ${esc(tr('يوما'))}</p>
-      ${(o.items || []).length ? tbl([{ t: 'البند', h: x => esc(x.description) }, { t: 'الوحدة', h: x => esc(x.unit || '') }, { t: 'الكمية', r: 1, h: x => qtyTxt(x.qty) }, { t: 'السعر', r: 1, h: x => money(x.rate) }, { t: 'القيمة', r: 1, h: x => money(r2(n0(x.qty) * n0(x.rate))) }], o.items) : ''}
+      ${(o.items || []).length ? tbl([{ t: 'البند', h: x => esc(x.description) }, { t: 'الوحدة', h: x => esc(x.unit || '') }, { t: 'الكمية', r: 1, h: coQty }, { t: 'السعر', r: 1, h: coRate }, { t: 'القيمة', r: 1, h: x => money(r2(n0(x.qty) * n0(x.rate))) }], o.items) : ''}
       ${o.status === 'sent' ? `<form id="cof" class="fg" style="margin-top:12px" novalidate>${field('اسمك وصفتك', inp('n', '', 'required maxlength="120"'))}${field('ملاحظة (اختياري)', inp('note', '', 'maxlength="500"'))}</form><div id="coerr"></div>
         <div class="row" style="gap:8px;margin-top:10px"><button class="btn pri" id="coy">${esc(tr('أعتمد أمر التغيير'))}</button><button class="btn danger" id="con">${esc(tr('أرفض'))}</button></div>`
         : `<p><span class="badge ${CO_ST[o.status][1]}">${esc(tr(CO_ST[o.status][0]))}</span> ${esc(o.decided_by || '')} ${o.decided_at ? fdate(o.decided_at) : ''}</p>`}</div>
@@ -164,3 +180,21 @@ VIEWS['#/resources'] = async page => {
       ${emps.map(e => `<tr><td>${esc((LANG === 'en' && e.full_name_en) || e.full_name)}</td>${weeks.map(w => { const c = cell(e.id, w); return `<td class="num" style="text-align:center;${col(c ? c.alloc : 0)}" title="${c ? esc(c.projects.map(x => x.no + ' ' + x.name + ' ' + x.alloc + '%').join(' · ')) : ''}">${c ? c.alloc + '%' : ''}</td>`; }).join('')}</tr>`).join('')}</tbody></table></div>`
       : `<div class="note">${esc(tr('حدّد نسبة تفرغ أعضاء الفريق في كل مشروع (تبويب «الفريق») ليظهر الإشغال هنا.'))}</div>`}`;
 };
+
+/* ---------- the bell: hours to approve, rejected hours, instalments and guarantees ---------- */
+async function projNotifs(add, safe) {
+  if (!modOn('proj') && !isFin()) return;
+  if (modOn('proj') && (S.emp || prjOffice())) { const p = await safe(db.rpc('timesheets_pending', { p_company: S.cid })); NAVC.time = (p || []).length;
+    if (NAVC.time) add(NAVC.time + ' تسجيل ساعات عمل بانتظار اعتمادك', '#/mytime', { hot: 1 });
+    if (S.emp) { const since = new Date(Date.now() - 7 * 864e5).toISOString(), r = await safe(db.get('timesheets', { employee_id: 'eq.' + S.emp, status: 'eq.rejected', reviewed_at: 'gte.' + since, select: 'id,reviewed_at' })); (r || []).forEach(x => add('رُفضت ساعات عمل لك — راجع السبب', '#/mytime', { at: x.reviewed_at })); } }
+  if (can('je') || can('reports')) { const a = await safe(db.rpc('facility_alerts', { p_company: S.cid })); if (!a) return;
+    if (a.instalments.length) add(a.instalments.length + ' أقساط قروض مستحقة أو قريبة', '#/facilities', { hot: 1 });
+    if (a.guarantees.length) add(a.guarantees.length + ' خطابات ضمان تنتهي خلال 30 يوما', '#/facilities', { hot: 1 }); }
+}
+/* «المرحلة» appears once a project with milestones is chosen in the cost-center picker */
+function bindMsPick(root, cur) {
+  const sel = $('[name=cost_center]', root), box = $('#msw', root); if (!sel || !box) return;
+  const fill = async () => { if (!sel.value) { box.innerHTML = ''; return; } const ms = await db.rpc('cc_milestones', { p_company: S.cid, p_cc: sel.value }).catch(() => []);
+    box.innerHTML = ms.length ? field('المرحلة', `<select name="milestone"><option value="">—</option>${ms.map(m => opt(m.id, m.name, cur)).join('')}</select>`) : ''; };
+  sel.addEventListener('change', fill); fill();
+}

@@ -3784,5 +3784,62 @@ select t.err($$select public.claim_save('$$ || :'cp' || $$', '{"kind":"advance",
 select t.ok((select count(*) = 0 from public.project_claims), 'claims: employees see none');
 reset role;
 
+-- completion batch (0125): the project manager's access, change orders on existing items, claims follow credit notes, milestones on costs, a week of hours, alerts
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.ok((select count(*) = 1 from public.projects) and (select count(*) = 1 from public.project_pnl(:'cid')), 'project manager: sees only the project he manages, with its profitability');
+select t.ok((select count(*) > 0 and bool_and(employee_id is not null) from public.project_hours(:'prj')) and (select count(*) = 0 from public.timesheets where project_id = :'prj' and employee_id <> :'e_mgr'),
+  'project manager: gets the hours through a view without their cost (no wages)');
+insert into public.project_tasks(company_id, project_id, title) values (:'cid', :'prj', 'مراجعة مدير المشروع');
+select t.ok(exists(select 1 from public.project_tasks where title = 'مراجعة مدير المشروع') and exists(select 1 from public.project_people(:'cid')), 'project manager: manages the tasks of his project and sees the names');
+select t.err($$insert into public.projects(company_id, name) values ('$$ || :'cid' || $$', 'مشروع آخر')$$, 'row-level|policy', 'project manager: does not create projects');
+select t.err($$select public.project_contract('$$ || :'cp' || $$')$$, '42501|مصرح', 'project manager: no access to a project he does not manage');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select * from public.project_people('$$ || :'cid' || $$')$$, '42501|مصرح', 'employees do not list project people');
+select t.ok(public.timesheet_submit_many(:'cid', jsonb_build_array(jsonb_build_object('project', :'prj', 'date', current_date - 4, 'hours', 3), jsonb_build_object('project', :'prj', 'date', current_date - 3, 'hours', 2))) = 2, 'timesheets: a week of hours is sent at once');
+select t.err($$select public.timesheet_submit_many('$$ || :'cid' || $$', jsonb_build_array(jsonb_build_object('project', '$$ || :'prj' || $$', 'date', current_date + 1, 'hours', 1)))$$, 'المستقبل', 'timesheets: no hours in the future');
+reset role;
+-- claims follow credit notes and voids; change orders on existing items
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+insert into public.projects(company_id, name, party_id, billing, contract_value, advance_recovery_pct, retention_pct, start_date) values (:'cid', 'ترميم مكتب', :'c1', 'claims', 2000, 50, 10, current_date - 20) returning id as p3 \gset
+insert into public.project_boq(company_id, project_id, description, qty, rate) values (:'cid', :'p3', 'دهان', 100, 10) returning id as b3 \gset
+select public.claim_save(:'p3', '{"kind":"advance","advance":200}') as a3 \gset
+select public.claim_approve(:'a3') as a3inv \gset
+select public.claim_save(:'p3', jsonb_build_object('kind', 'interim', 'lines', jsonb_build_array(jsonb_build_object('boq', :'b3', 'qty', 40)))) as c3 \gset
+select public.claim_approve(:'c3') as c3inv \gset
+select id as c3line from public.sales_invoice_lines where invoice_id = :'c3inv' limit 1 \gset
+select t.err($$select public.co_save('$$ || :'p3' || $$', jsonb_build_object('title', 'تقليص الدهان', 'items', jsonb_build_array(jsonb_build_object('boq', '$$ || :'b3' || $$', 'qty', 30, 'rate', 10))))$$, 'المنفذ', 'change orders: an item is not cut below what was claimed');
+select t.err($$select public.co_save('$$ || :'p3' || $$', jsonb_build_object('title', 'تغيير السعر', 'items', jsonb_build_array(jsonb_build_object('boq', '$$ || :'b3' || $$', 'qty', 100, 'rate', 12))))$$, 'لا يتغير', 'change orders: a claimed item keeps its rate');
+select public.co_save(:'p3', jsonb_build_object('title', 'تقليص الدهان', 'value', -500, 'items', jsonb_build_array(jsonb_build_object('boq', :'b3', 'qty', 50, 'rate', 10)))) as co3 \gset
+select public.co_decide_internal(:'co3', true, 'م. فهد', null);
+select t.ok((select qty = 50 from public.project_boq where id = :'b3') and (select contract_value = 1500 from public.projects where id = :'p3'), 'change orders: an existing item''s quantity is reduced and the contract follows');
+select public.post_credit_note_cc(:'cid', jsonb_build_object('kind', 'sales', 'doc', :'c3inv', 'reason', 'خطأ في الكمية', 'lines', jsonb_build_array(jsonb_build_object('line', :'c3line', 'qty', 1))));
+select t.ok((public.project_contract(:'p3')->>'certified')::numeric = 0 and (public.project_contract(:'p3')->>'recovered')::numeric = 0 and (public.project_contract(:'p3')->>'retention')::numeric = 0,
+  'claims: a full credit note takes the work, the advance recovery and the retention back');
+select public.claim_save(:'p3', jsonb_build_object('kind', 'interim', 'lines', jsonb_build_array(jsonb_build_object('boq', :'b3', 'qty', 40)))) as c4 \gset
+select public.claim_approve(:'c4') as c4inv \gset
+select t.ok((select previous_gross = 0 and this_gross = 400 and advance_recovery = 200 from public.project_claims where id = :'c4'), 'claims: the credited work can be claimed again');
+select id as a3line from public.sales_invoice_lines where invoice_id = :'a3inv' limit 1 \gset
+select t.err($$select public.post_credit_note_cc('$$ || :'cid' || $$', jsonb_build_object('kind', 'sales', 'doc', '$$ || :'a3inv' || $$', 'reason', 'إلغاء الدفعة', 'lines', jsonb_build_array(jsonb_build_object('line', $$ || :'a3line' || $$, 'qty', 1))))$$, 'استُرد', 'claims: a recovered down payment cannot be credited');
+select public.void_sales_invoice(:'c4inv', 'إلغاء للتجربة');
+select t.ok((public.project_contract(:'p3')->>'certified')::numeric = 0 and (select coalesce(sum(l.credit - l.debit), 0) from public.journal_lines l join public.journal_entries e on e.id = l.entry_id where l.account_code = '2170' and e.source_id = :'p3') = 200,
+  'claims: voiding the invoice undoes the claim and the down payment is open again');
+-- a milestone on costs
+select public.po_save_wh(:'cid', jsonb_build_object('party', :'s1', 'cost_center', (select cost_center_id from public.projects where id = :'prj'), 'milestone', :'ms2', 'lines', jsonb_build_array(jsonb_build_object('account', '5400', 'qty', 1, 'price', 150)))) as mpo \gset
+select public.po_bill(:'mpo', '{}'::jsonb) as mbill \gset
+select t.ok((public.project_milestone_costs(:'prj')->>:'ms2')::numeric = 150, 'milestones: the purchase order''s cost lands on its milestone');
+select t.err($$select public.po_save_wh('$$ || :'cid' || $$', jsonb_build_object('party', '$$ || :'s1' || $$', 'cost_center', (select cost_center_id from public.projects where id = '$$ || :'p3' || $$'), 'milestone', '$$ || :'ms2' || $$', 'lines', jsonb_build_array(jsonb_build_object('account', '5400', 'qty', 1, 'price', 1))))$$, 'لا تتبع', 'milestones: must belong to the chosen project');
+select public.void_purchase_bill(:'mbill', 'إلغاء للتجربة');
+select t.ok(coalesce((public.project_milestone_costs(:'prj')->>:'ms2')::numeric, 0) = 0, 'milestones: reversing the bill takes its cost off the milestone');
+reset role;
+-- phone alerts
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated; select public.push_subscribe('https://push.example/m2', 'k', 'a'); reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated; select public.push_subscribe('https://push.example/f2', 'k', 'a'); reset role;
+select pg_sleep(0.01);
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated; select public.timesheet_submit(:'cid', jsonb_build_object('project', :'prj', 'date', current_date - 5, 'hours', 1)); reset role;
+select t.ok(exists(select 1 from public.push_due() where user_id = :'u_mgr' and key like 'ts:' || :'prj' || '%') and exists(select 1 from public.push_due() where user_id = :'u_fin' and key like 'inst:%'),
+  'alerts: the project manager hears about hours to approve, finance about a loan instalment');
+delete from public.push_subscriptions; delete from public.push_sent;
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

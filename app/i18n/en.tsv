@@ -33,6 +33,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أبها	Abha
 أثاث	furniture
 أثاث مكتبي	Office furniture
+أثر البنود على قيمة العقد	Items' effect on the contract value
 أثر التكلفة	Cost impact
 أثر القيمة	Value impact
 أثر المدة	Time impact
@@ -113,6 +114,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أدخل رمز المنشأة كما وصلك	Enter the company code exactly as you received it
 أدخل رمز منشأتك مرة واحدة	Enter your company code once
 أدخل ساعات العمل الإضافي	Enter the overtime hours
+أدخل ساعات يوم واحد على الأقل	Enter hours for at least one day
 أدخل سعر صرف أكبر من صفر	Enter an exchange rate above zero
 أدخل سعر كل بند في عرض المورد	Enter a price for every line of the supplier's offer
 أدخل عنوان الدورة	Enter the course title
@@ -218,6 +220,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أضف العملات التي تبيع أو تشتري بها	add the currencies you sell or buy in
 أضف الفريق ليسجّلوا ساعاتهم من	add the team so they log their hours from
 أضف الموظفين	Add employees
+أضف بندا جديدا بالسعر الجديد	add a new item at the new rate
 أضف بندا واحدا على الأقل	Add at least one line
 أضف بنداً واحداً على الأقل	Add at least one line
 أضف بنود العقد أولا	Add the contract items first
@@ -296,6 +299,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أقررت	Acknowledged
 أقساط	installments
 أقساط على الأقل	installments at minimum
+أقساط قروض مستحقة أو قريبة	loan instalments due or coming up
 أقساط متساوية	equal instalments
 أقسام اللوحة	Admin sections
 أقسام بلا رئيس	Departments without a head
@@ -492,6 +496,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أُلغي الرابط	The link was revoked
 أُلغي الرابط؛ يمكنك إنشاء رابط جديد لاحقا	The link was revoked; you can make a new one later
 أُلغي الطلب	Request cancelled
+أُلغي بإشعار دائن	Cancelled by credit note
 أُلغي بالتظلم	Cancelled on grievance
 أُلغيت	Ended
 أُلغيت الفاتورة	Invoice voided
@@ -629,6 +634,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إشعار تسليم المورد	Supplier delivery note
 إشعار جزاء	Penalty notice
 إشعار دائن	Credit note
+إشعار على دفعة مقدمة	Credit note on down payment
 إشعار مدين	Debit note
 إشعار مدين على الفاتورة	Debit note on invoice
 إشعارات التسليم	Delivery notes
@@ -989,6 +995,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 استخدم كلمة المرور التي أعطتك إياها الموارد البشرية	use the password HR gave you
 استخدم كلمة المرور التي زودتك بها الموارد البشرية	use the password HR gave you
 استخدم موقعي الحالي	Use my current location
+استخدمه	Use it
 استخدمها للعمل الإضافي الذي لم يُسجَّل في الحضور	Use this for overtime not recorded in attendance
 استرداد الدفعة	Advance recovery
 استرداد الدفعة المقدمة	Down payment recovery
@@ -1032,6 +1039,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 استيراد من جهاز البصمة	Import from the fingerprint device
 استُبعد أصل بعد هذا الإهلاك	An asset was disposed after this depreciation
 استُبعد في	Disposed on
+استُرد جزء من الدفعة المقدمة في المستخلصات	Part of the down payment was recovered in claims
 استُلم	Received
 استُلم المحتجز	Retention received
 استُلم في	Received in
@@ -1325,6 +1333,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الأساسي	Basic
 الأسباب	Grounds
 الأسبوع	Week
+الأسبوع التالي	Next week
+الأسبوع السابق	Previous week
 الأسطول والسيارات	Fleet and vehicles
 الأسعار والكميات أرقام فقط	Prices and quantities must be numbers
 الأسهم للتنقل	arrows to move
@@ -1536,6 +1546,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 البريد الشخصي	Personal email
 البقاء في أماكن العمل أو العودة إليها بعد انتهاء مواعيد العمل دون إذن مسبق	Staying at or returning to the workplace after working hours without prior permission
 البند	Line
+البند غير موجود في هذا المشروع	The item is not in this project
 البند مُطالَب به في مستخلص معتمد	The item is in an approved claim
 البنك	Bank
 البنك الأهلي السعودي	Saudi National Bank
@@ -1940,6 +1951,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 السعر التقديري لا يكون سالبا	Estimated price cannot be negative
 السعر التقديري لا يكون سالباً	Estimated price cannot be negative
 السعر الثابت	Fixed price
+السعر الجديد	New rate
 السعر قبل الضريبة	Price before VAT
 السعودي	Saudi
 السعودي بأجر	A Saudi with a wage of
@@ -2235,6 +2247,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الكمية	Quantity
 الكمية أكبر من الرصيد المتوفر في المستودع	The quantity is more than the warehouse balance
 الكمية أكبر من صفر	Quantity must be greater than zero
+الكمية الجديدة	New quantity
 الكمية القابلة للفوترة	billable quantity
 الكمية المتوفرة من	Available quantity of
 الكمية المستلمة	Qty received
@@ -2297,6 +2310,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المبيّنة في الجدول	listed in the table
 المتابعات	Follow-ups
 المتاح	Available
+المتاح للإشعار	available for credit
 المتاح للتعزيز	available to top up
 المتبقي	Remaining
 المتبقي لك	you have left
@@ -2371,6 +2385,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المرحلة	Stage
 المرحلة الثانية	Phase 2
 المرحلة غير موجودة في هذا المشروع	The milestone is not in this project
+المرحلة لا تتبع هذا المشروع	The milestone is not part of this project
 المرشح	Candidate
 المرشح عُيّن ولا يمكن تغيير مرحلته	The candidate was hired; the stage can no longer change
 المرشح غير موجود	Candidate not found
@@ -2952,6 +2967,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بيانات تجريبية	Sample data
 بيانات دخول	Sign-in details for
 بيانات دخولك لنظام وعد	Your Waad sign-in details
+بيانات غير صحيحة	Invalid data
 بيانات فواتير وعد	Waad invoice details
 بيع أو استبعاد	Sell or dispose
 بيع أو استبعاد أصل	Sell or dispose of asset
@@ -3234,6 +3250,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تسجيل دفعة	Record payment
 تسجيل ساعات	Log hours
 تسجيل ساعات عمل	Log work hours
+تسجيل ساعات عمل بانتظار اعتمادك	hour entries waiting for your approval
 تسجيل صرف	Record payment
 تسجيل صرف التذكرة	Record ticket payment
 تسجيل صرف الرواتب	Record salary payment
@@ -3343,6 +3360,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تعديل عهدة	Edit item
 تعديل فاتورة متكررة	Edit recurring invoice
 تعديل قالب البنك	Edit the bank template
+تعديل كمية أو سعر بند قائم	Change the quantity or rate of an existing item
 تعديل مركز تكلفة	Edit cost center
 تعديل مستخدم	Edit user
 تعديل مستند	Edit document
@@ -3647,6 +3665,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 جاهز للاستيراد	ready to import
 جدة	Jeddah
 جدول أقساط كل قرض	Each loan's instalment schedule
+جدول الأسبوع	Week sheet
 جدول الاختبارات المعتمد من الجهة التعليمية	Exam timetable approved by the educational institution
 جدول الكميات	bill of quantities
 جدول المخالفات والجزاءات	Violations and penalties table
@@ -3981,6 +4000,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 خطاب ضمان ينتهي قريبا	Guarantee expiring soon
 خطابات الضمان	Letters of guarantee
 خطابات الضمان للمشروع	Project letters of guarantee
+خطابات ضمان تنتهي خلال	letters of guarantee expiring within
 خطاباتي	My letters
 خطة التدريب السنوية	Annual training plan
 خطة القوى العاملة	Workforce plan
@@ -4084,6 +4104,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 راج كومار	Raj Kumar
 راجع إجراءات الغياب وإبلاغ الجهات	Follow the absence procedures and notify the authorities
 راجع الحالات الخاصة مع مختص	review special cases with a specialist
+راجع السبب	see the reason
 راجع الملف قبل رفعه في بوابة البنك	Review the file before uploading it to the bank portal
 راجع الموارد البشرية	contact HR
 راجع في الدليل ما يخص هذه الأسئلة ثم أعد الاختبار	Review these questions in the guide, then retake the quiz
@@ -4286,6 +4307,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 رُفض التظلم	Grievance rejected
 رُفض طلبك	Your request was rejected
 رُفضت	Rejected
+رُفضت ساعات عمل لك	Your work hours were rejected
 رُوجعت هذه الفاتورة مسبقا	This invoice was already reviewed
 زاتكا	ZATCA
 زاتكا تقبل الفاتورة بدونه لكن مع ملاحظة	ZATCA accepts the invoice without it, but with a warning
@@ -4330,6 +4352,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ساعات تعويضية	compensatory hours
 ساعات تعويضية تنتهي خلال	Compensatory hours expiring within
 ساعات عمل	Work hours
+ساعات عمل بانتظار اعتمادك	Work hours waiting for your approval
 ساعات عمل على المشاريع	Project work hours
 ساعات عملي	My hours
 ساعات في رمضان للمسلمين	hours in Ramadan for Muslims
@@ -4432,6 +4455,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 سطر لكل حساب أو عميل أو مورد أو صنف	one line per account, customer, supplier or item
 سطر لكل خيار	one per line
 سعر الأمر	Order price
+سعر البند	The rate of item
 سعر البيع	Sale price
 سعر الساعة	Hourly rate
 سعر الساعة للعميل	Customer hourly rate
@@ -4881,6 +4905,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عقود جديدة	New contracts
 عكس	Reverse
 عكس آلي	Automatic reversal
+عكس استرداد دفعة مقدمة	Down payment recovery reversed
 عكس القيد	Reverse entry
 عكس تلقائي في تاريخ	Reverse automatically on
 عكس مصروف سيارة محذوف	Reversal of a deleted vehicle cost
@@ -4897,6 +4922,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 على مركز تكلفة المشروع	on the project's cost center
 على هذا الاستلام	against this receipt
 على ورق المنشأة الرسمي	On the company's printed letterhead
+عليه إشعار دائن	Has a credit note
 عماني	Omani
 عمل إضافي	Overtime
 عمل إضافي قريب من	Overtime close to
@@ -4918,6 +4944,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عميلا	a customer
 عميلاً	a customer
 عن المنشأة	About the company
+عن المنفذ	below the quantity done
 عن بُعد	Remote
 عن كل منشأة	for each company
 عناصر الوعاء	Base items
@@ -5191,6 +5218,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قسط السلفة لا يتجاوز	An advance installment cannot exceed
 قسط سلفة	Advance installment
 قسط قرض	Loan instalment
+قسط قرض مستحق قريبا	Loan instalment due soon
 قسط قريب	Instalment due soon
 قسط متأخر	Overdue instalment
 قسم المالية غير مفعّل	The finance module is not enabled
@@ -5344,7 +5372,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا تغييرات تحتاج تحديثا في التأمينات حسب آخر مسير	No changes to update in GOSI according to the last payroll
 لا تقدر تحذف حسابك	You cannot remove your own account
 لا تقل الإجازة التعويضية عن ساعة ونصف عن كل ساعة عمل إضافي	Compensatory leave is at least one and a half hours per overtime hour
+لا تقل الكمية عن المنفذ	the quantity cannot go below what was done
 لا تقل عن	not less than
+لا تقل كمية البند	The quantity of item
 لا تكتب أرصدة العملاء	Do not enter the balances of customers
 لا تكفي	is not enough
 لا تملك صلاحية التقارير	You don't have permission for reports
@@ -5496,6 +5526,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا وثائق منتهية أو قريبة الانتهاء	No expired or soon-to-expire documents
 لا وعاء	No base
 لا يتغير	Unchanged
+لا يتغير بعد المطالبة به	cannot change after it was claimed
 لا يتغير تتبع الأرقام التسلسلية بعد وجود حركة مخزون للصنف	Serial tracking cannot change once the item has stock movements
 لا يتغير رقم الحملة أو منشأتها	Campaign number and company cannot change
 لا يتغير رقم الفرصة أو منشأتها	An opportunity's number and company cannot change
@@ -5589,6 +5620,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يُحذف إذا كانت عليه أي حركات	It is not deleted if anything is recorded for him
 لا يُحذف حتى يبقى في السجل	it is not deleted so it stays on record
 لا يُحذف شيء إلا بقرارك	nothing is deleted without your decision
+لا يُحذف ولا تقل كميته عن المنفذ	it cannot be deleted or cut below the quantity done
 لا يُحذف ولا تُخفض كميته أو سعره	it cannot be deleted or have its quantity or rate cut
 لا يُحوَّل إلا عرض مفتوح أو مقبول	Only an open or accepted quotation can be converted
 لا يُشدَّد الجزاء عند تكرار المخالفة إذا مضى	A repeat is not punished more heavily if
@@ -6096,6 +6128,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مستندات وعقود منتهية أو تنتهي خلال	Documents and contracts expired or expiring within
 مستنداتي وعقدي	My documents and contract
 مستودع جديد	New warehouse
+مسجل سابقا	Already logged
 مسجّل	Enrolled
 مسجّل مسبقا	already exists
 مسجّل مسبقاً	already exists
@@ -6879,6 +6912,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ولا تُفوتر بضاعة لم تُستلم	goods not received cannot be billed
 ولا مقابل الإشعار إن لم يُراعَ	or pay in lieu of notice if notice was not given
 ولا يتجاوز أجر	and may not exceed
+ولا يتغير سعر بند طُولب به	and a claimed item keeps its rate
+ولا يتغير سعره	and its rate cannot change
 ولا يتكرر لأي منشأة أخرى	and no other company has it
 ولا يجوز أن تتضمن ما يسيء إلى سمعة العامل	and must not contain anything harmful to the worker's reputation
 ولا يشمل الأنشطة التمويلية والتأمين والصناديق التي لها أحكام خاصة	and does not cover finance, insurance and funds, which have their own rules

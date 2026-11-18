@@ -17,6 +17,8 @@ SECTORS = [
    [('تنبيهات انتهاء الإقامات والجوازات والعقود ووثائق المنشأة والسيارات', 'Expiry alerts for iqamas, passports, contracts, company documents and vehicles'),
     ('الحضور من جوال العامل بالموقع الجغرافي، وجدول الورديات', 'Attendance from the worker’s phone by location, and shift rosters'),
     ('المشاريع وجداول الوقت وتكلفة كل مشروع، ومراكز التكلفة', 'Projects, timesheets and the cost of each project, with cost centers'),
+    ('جدول الكميات والمستخلصات ومحتجز الضمان والدفعة المقدمة وأوامر التغيير', 'Bills of quantities, progress claims, retention, down payments and change orders'),
+    ('خطابات الضمان بغطائها وتنبيهات انتهائها، مرتبطة بالمشروع', 'Letters of guarantee with their margin and expiry alerts, linked to the project'),
     ('العُهد بتوقيع إلكتروني، والعهد النقدية لكل موقع', 'Custody signed electronically, and petty cash per site'),
     ('العمل الإضافي حسب المادة 107، ولائحة المخالفات والجزاءات', 'Overtime per Art. 107, and the work rules for penalties'),
     ('نطاقات وحماية الأجور والتأمينات الاجتماعية في صفحة الامتثال', 'Nitaqat, wage protection and GOSI on the compliance page'),

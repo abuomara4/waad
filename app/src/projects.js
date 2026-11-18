@@ -6,6 +6,8 @@ const PRJ_STATUS = { active: 'جارٍ', on_hold: 'متوقف مؤقتا', done:
 const PRJ_BILLING = { fixed: 'مقطوعية (سعر ثابت)', hourly: 'زمن ومواد (بالساعة)', claims: 'مستخلصات (مقاولات)', internal: 'داخلي (غير مفوتر)' };
 const TASK_STATUS = { todo: 'لم تبدأ', doing: 'جارية', done: 'منجزة' };
 const TS_STATUS = { submitted: ['بانتظار الاعتماد', 'wait'], approved: ['معتمدة', 'ok'], rejected: ['مرفوضة', 'bad'] };
+const prjOffice = () => has('owner', 'admin', 'finance', 'hr') || can('proj');   // runs all projects; otherwise a manager of his own projects (0125)
+const prjPeople = async () => { if (prjOffice()) return employeesMap(true); const m = {}; (await db.rpc('project_people', { p_company: S.cid })).forEach(e => m[e.id] = e); return m; };
 const prjBadge = s => `<span class="badge ${s === 'active' ? 'ok' : s === 'cancelled' ? 'bad' : s === 'on_hold' ? 'wait' : 'info'}">${esc(tr(PRJ_STATUS[s] || s))}</span>`;
 const taskBadge = s => `<span class="badge ${s === 'done' ? 'ok' : s === 'doing' ? 'info' : 'wait'}">${esc(tr(TASK_STATUS[s] || s))}</span>`;
 const prjPct = v => v == null ? '—' : `<span class="num">${(+v).toFixed(0)}%</span>`;
@@ -21,14 +23,14 @@ const prjFlags = (r, p) => { const f = [], a = n0(r.progress && r.progress.actua
   return f.join(' '); };
 
 VIEWS['#/projects'] = async (page, arg) => {
-  if (!has('owner', 'admin', 'finance', 'hr') && !can('proj')) { page.innerHTML = '<div class="err">غير مصرح</div>'; return; }
+  if (!prjOffice() && !S.myPM) { page.innerHTML = '<div class="err">غير مصرح</div>'; return; }
   if (arg) return projectView(page, arg);
-  const [projs, pnl, em] = await Promise.all([db.get('projects', Object.assign(C(), { order: 'created_at.desc', limit: 500 })), db.rpc('project_pnl', { p_company: S.cid }).catch(() => []), employeesMap(true)]);
+  const [projs, pnl, em] = await Promise.all([db.get('projects', Object.assign(C(), { order: 'created_at.desc', limit: 500 })), db.rpc('project_pnl', { p_company: S.cid }).catch(() => []), prjPeople()]);
   const rm = {}; pnl.forEach(r => rm[r.project_id] = r);
   const act = projs.filter(p => p.status === 'active'), sum = k => act.reduce((a, p) => a + n0((rm[p.id] || {})[k]), 0);
   const nm = e => e ? ((LANG === 'en' && e.full_name_en) || e.full_name) : '—';
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('المشاريع'))}</h1><div class="muted small">${esc(tr('ملف كل مشروع ومراحله ومهامه وساعات فريقه وتكلفته وربحيته من الدفاتر'))}</div></div>
-      <div class="row"><a class="btn" href="#/resources">${esc(tr('إشغال الفريق'))}</a><a class="btn" href="#/mytime">${esc(tr('ساعات عملي'))}</a><button class="btn pri" id="nprj">${esc(tr('مشروع جديد'))}</button></div></div>
+      <div class="row">${prjOffice() ? `<a class="btn" href="#/resources">${esc(tr('إشغال الفريق'))}</a>` : ''}<a class="btn" href="#/mytime">${esc(tr('ساعات عملي'))}</a>${prjOffice() ? `<button class="btn pri" id="nprj">${esc(tr('مشروع جديد'))}</button>` : ''}</div></div>
     <div class="grid" style="margin-bottom:14px">
       <div class="card kpi"><div class="muted small">${esc(tr('مشاريع جارية'))}</div><div class="v num">${act.length} <span class="small muted">/ ${projs.length}</span></div></div>
       <div class="card kpi"><div class="muted small">${esc(tr('قيمة العقود الجارية'))}</div><div class="v num">${money(sum('contract'))}</div></div>
@@ -40,7 +42,7 @@ VIEWS['#/projects'] = async (page, arg) => {
       { t: 'العقد', r: 1, h: p => money((rm[p.id] || {}).contract) }, { t: 'التكلفة', r: 1, h: p => money(n0((rm[p.id] || {}).cost) + n0((rm[p.id] || {}).unposted_labor)) },
       { t: 'الهامش المتوقع', r: 1, h: p => { const m = (rm[p.id] || {}).margin; return m == null ? '—' : `<span class="num ${n0(m) < 0 ? 'bad' : ''}">${money(m)}</span>`; } }],
       projs, { empty: 'لا توجد مشاريع بعد — ابدأ بمشروع جديد', onRow: true })}`;
-  $('#nprj', page).onclick = () => projectForm(null);
+  if ($('#nprj', page)) $('#nprj', page).onclick = () => projectForm(null);
   bindRows(page, projs, p => location.hash = '#/projects/' + p.id);
 };
 
@@ -78,10 +80,10 @@ async function projectView(page, id) {
   const [[p], tasks, ts, ms, mem, em, parties, pnl, pend] = await Promise.all([
     db.get('projects', Object.assign(C(), { id: 'eq.' + id })),
     db.get('project_tasks', Object.assign(C(), { project_id: 'eq.' + id, order: 'created_at' })),
-    db.get('timesheets', Object.assign(C(), { project_id: 'eq.' + id, order: 'work_date.desc' })),
+    prjOffice() ? db.get('timesheets', Object.assign(C(), { project_id: 'eq.' + id, order: 'work_date.desc' })) : db.rpc('project_hours', { p_project: id }),
     db.get('project_milestones', Object.assign(C(), { project_id: 'eq.' + id, order: 'sort,start_date,created_at' })),
     db.get('project_members', Object.assign(C(), { project_id: 'eq.' + id })),
-    employeesMap(true), db.get('parties', Object.assign(C(), { kind: 'eq.customer', select: 'id,name' })).catch(() => []),
+    prjPeople(), db.get('parties', Object.assign(C(), { kind: 'eq.customer', select: 'id,name' })).catch(() => []),
     db.rpc('project_pnl', { p_company: S.cid }).catch(() => []), db.rpc('timesheets_pending', { p_company: S.cid }).catch(() => [])]);
   if (!p) { page.innerHTML = `<div class="note">${esc(tr('المشروع غير موجود'))}</div>`; return; }
   const r = pnl.find(x => x.project_id === id) || {}, pg = r.progress || {};
@@ -94,10 +96,10 @@ async function projectView(page, id) {
   const cost = n0(r.cost) + n0(r.unposted_labor);
   page.innerHTML = `<div class="head"><div><a href="#/projects" class="small back">${esc(tr('المشاريع'))}</a><h1>${esc(p.name)} <span class="muted num small">${esc(p.no)}</span></h1>
       <div class="muted small">${prjBadge(p.status)} ${prjFlags(r, p)} · ${esc(tr(PRJ_BILLING[p.billing] || p.billing))}${p.party_id ? ' · ' + esc(pm[p.party_id] || '') : ''}${p.manager_id ? ' · ' + esc(tr('مدير المشروع')) + ': ' + esc(nm(em[p.manager_id])) : ''}${p.location ? ' · ' + esc(p.location) : ''}${p.due_date ? ' · ' + esc(tr('التسليم')) + ' ' + fdate(p.due_date) : ''}</div></div>
-      <div class="row"><button class="btn" id="pedit">${esc(tr('تعديل'))}</button></div></div>
+      <div class="row">${prjOffice() ? `<button class="btn" id="pedit">${esc(tr('تعديل'))}</button>` : ''}</div></div>
     <div class="seg" style="margin-bottom:12px">${TABS.map(([k, t]) => `<a class="${tab === k ? 'on' : ''}" href="#/projects/${id}?t=${k}">${esc(tr(t))}${k === 'hours' && pend.some(x => x.project_id === id) ? ` <span class="badge wait num">${pend.filter(x => x.project_id === id).length}</span>` : ''}</a>`).join('')}</div>
     <div id="pbody"></div>`;
-  $('#pedit', page).onclick = () => projectForm(p);
+  if ($('#pedit', page)) $('#pedit', page).onclick = () => projectForm(p);
   const body = $('#pbody', page);
 
   if (tab === 'over') {
@@ -113,9 +115,9 @@ async function projectView(page, id) {
     if ($('#pmat', body)) $('#pmat', body).onclick = async () => {
       const [items, whf] = await Promise.all([db.get('items', Object.assign(C(), { type: 'eq.stock', order: 'code' })), whField(null, 'يُصرف من مستودع')]);
       modal(tr('صرف مواد للمشروع'), `<div class="fg">${field('الصنف', `<select name="item">${items.map(i => opt(i.id, i.code + ' — ' + i.name)).join('')}</select>`)}${field('الكمية', inp('qty', '', 'type="number" step="0.001" min="0.001" required'))}
-          ${whf}${field('التاريخ', `<input type="date" name="date" value="${today()}" max="${today()}">`)}${field('ملاحظة', inp('note', '', 'maxlength="150"'), 'wide')}</div>
+          ${whf}${field('التاريخ', `<input type="date" name="date" value="${today()}" max="${today()}">`)}${ms.length ? field('المرحلة', `<select name="milestone"><option value="">—</option>${ms.map(m => opt(m.id, m.name)).join('')}</select>`) : ''}${field('ملاحظة', inp('note', '', 'maxlength="150"'), 'wide')}</div>
           <p class="muted small">${esc(tr('قيد: من ح/ مواد مصروفة على المشاريع (5120) على مركز تكلفة المشروع، إلى ح/ المخزون — بمتوسط التكلفة.'))}</p>`,
-        { ok: 'صرف', onOk: async f => { await db.rpc('stock_issue_project', { p_project: id, p_doc: { item: f.item, qty: +f.qty, warehouse: blank(f.warehouse), date: f.date, note: f.note } }); toast(tr('تم الترحيل')); route(); } });
+        { ok: 'صرف', onOk: async f => { await db.rpc('stock_issue_project', { p_project: id, p_doc: { item: f.item, qty: +f.qty, warehouse: blank(f.warehouse), date: f.date, note: f.note, milestone: blank(f.milestone) } }); toast(tr('تم الترحيل')); route(); } });
     };
     db.rpc('project_contract', { p_project: id }).then(ct => { const g = (ct && ct.guarantees) || []; if (!g.length) return;
       body.insertAdjacentHTML('beforeend', `<div class="card"><h2>${esc(tr('خطابات الضمان للمشروع'))}</h2>${tbl([{ t: 'البنك', h: x => esc(x.bank) + (x.ref ? ` <span class="num small muted">${esc(x.ref)}</span>` : '') }, { t: 'المبلغ', r: 1, h: x => money(x.amount) },
@@ -127,10 +129,10 @@ async function projectView(page, id) {
   if (tab === 'changes') return projectChangesTab(body, p);
   if (tab === 'risks') return projectRisksTab(body, p, em);
   if (tab === 'plan') {
-    const col = s => tasks.filter(t => t.status === s);
+    const col = s => tasks.filter(t => t.status === s), msCost = await db.rpc('project_milestone_costs', { p_project: id }).catch(() => ({}));
     body.innerHTML = `<div class="card"><div class="row" style="justify-content:space-between;align-items:center"><h2>${esc(tr('المراحل'))}</h2><button class="btn sm pri" id="nms">${esc(tr('مرحلة جديدة'))}</button></div>
         ${tbl([{ t: 'المرحلة', h: m => `<b>${esc(m.name)}</b>` }, { t: 'الوزن', r: 1, h: m => prjPct(m.weight) }, { t: 'من', h: m => fdate(m.start_date) }, { t: 'إلى', h: m => fdate(m.end_date) },
-          { t: 'الإنجاز', r: 1, h: m => { const ts2 = tasks.filter(t => t.milestone_id === m.id); return ts2.length ? `${prjPct(100 * ts2.filter(t => t.status === 'done').length / ts2.length)} <span class="small muted">(${ts2.filter(t => t.status === 'done').length}/${ts2.length})</span>` : prjPct(m.progress); } }],
+          { t: 'الإنجاز', r: 1, h: m => { const ts2 = tasks.filter(t => t.milestone_id === m.id); return ts2.length ? `${prjPct(100 * ts2.filter(t => t.status === 'done').length / ts2.length)} <span class="small muted">(${ts2.filter(t => t.status === 'done').length}/${ts2.length})</span>` : prjPct(m.progress); } }, { t: 'التكلفة', r: 1, h: m => msCost[m.id] ? money(msCost[m.id]) : '' }],
           ms, { empty: 'لا توجد مراحل — قسّم المشروع إلى مراحل بأوزان مجموعها 100%', onRow: true })}</div>
       <div class="card"><div class="row" style="justify-content:space-between;align-items:center"><h2>${esc(tr('المهام'))}</h2><button class="btn sm pri" id="ntask">${esc(tr('مهمة جديدة'))}</button></div>
         <div class="kanban" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">${Object.keys(TASK_STATUS).map(s => `<div class="kcol" data-col="${s}" style="background:var(--soft);border-radius:10px;padding:8px;min-height:120px">
@@ -188,20 +190,20 @@ async function projectView(page, id) {
     const mine = pend.filter(x => x.project_id === id);
     const logged = ts.filter(x => x.status !== 'rejected').reduce((a, x) => a + n0(x.hours), 0), billable = ts.filter(x => x.status === 'approved' && x.billable).reduce((a, x) => a + n0(x.hours), 0);
     const toBill = ts.filter(x => x.status === 'approved' && x.billable && !x.invoice_id).reduce((a, x) => a + n0(x.hours), 0);
-    body.innerHTML = `<div class="grid" style="margin-bottom:14px">${kpi('الساعات المسجلة', r2(logged))}${kpi('ساعات معتمدة قابلة للفوترة', r2(billable))}${kpi('لم تُفوتر بعد', r2(toBill))}${kpi('تكلفة الساعات', money(ts.reduce((a, x) => a + n0(x.cost), 0) + n0(r.unposted_labor)))}</div>
+    body.innerHTML = `<div class="grid" style="margin-bottom:14px">${kpi('الساعات المسجلة', r2(logged))}${kpi('ساعات معتمدة قابلة للفوترة', r2(billable))}${kpi('لم تُفوتر بعد', r2(toBill))}${prjOffice() ? kpi('تكلفة الساعات', money(ts.reduce((a, x) => a + n0(x.cost), 0) + n0(r.unposted_labor))) : ''}</div>
       ${mine.length ? `<div class="card"><h2>${esc(tr('بانتظار اعتمادك'))} <span class="badge wait num">${mine.length}</span></h2>${tsPendingTable(mine)}</div>` : ''}
       <div class="card"><div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px"><h2>${esc(tr('ساعات العمل'))}</h2><div class="row" style="gap:6px;flex-wrap:wrap">
           ${p.billing === 'hourly' && can('sales') && toBill > 0 ? `<button class="btn sm" id="pinv">${esc(tr('فوترة الساعات المعتمدة'))}</button>` : ''}
           ${can('jepost') && n0(r.unposted_labor) > 0 ? `<button class="btn sm" id="plab">${esc(tr('ترحيل تكلفة الساعات'))}</button>` : ''}
-          <button class="btn sm pri" id="nts">${esc(tr('تسجيل ساعات'))}</button></div></div>
+          ${prjOffice() ? `<button class="btn sm pri" id="nts">${esc(tr('تسجيل ساعات'))}</button>` : ''}</div></div>
         ${tbl([{ t: 'التاريخ', h: x => fdate(x.work_date) }, { t: 'الموظف', h: x => esc(nm(em[x.employee_id])) }, { t: 'المهمة', h: x => esc((tasks.find(t => t.id === x.task_id) || {}).title || '—') },
           { t: 'الساعات', r: 1, h: x => `<span class="num">${r2(x.hours)}</span>` }, { t: 'مفوترة', h: x => x.billable ? (x.invoice_id ? `<a class="badge ok" href="#/sales/${x.invoice_id}">${esc(tr('فُوترت'))}</a>` : `<span class="badge info">${esc(tr('قابلة'))}</span>`) : `<span class="badge">${esc(tr('داخلية'))}</span>` },
           { t: 'الحالة', h: x => `<span class="badge ${TS_STATUS[x.status][1]}">${esc(tr(TS_STATUS[x.status][0]))}</span>${x.reject_note ? `<div class="small bad">${esc(x.reject_note)}</div>` : ''}` },
           { t: 'التكلفة', r: 1, h: x => x.cost != null ? money(x.cost) : '' },
-          { t: '', h: x => !x.invoice_id && !x.cost_entry ? `<button class="btn sm danger" data-del="${x.id}">${esc(tr('حذف'))}</button>` : '' }], ts, { empty: 'لا توجد ساعات مسجلة' })}
+          { t: '', h: x => prjOffice() && !x.invoice_id && !x.cost_entry ? `<button class="btn sm danger" data-del="${x.id}">${esc(tr('حذف'))}</button>` : '' }], ts, { empty: 'لا توجد ساعات مسجلة' })}
         <p class="small muted">${esc(tr('تكلفة الساعة = (الأجر الشهري مع البدلات + حصة المنشأة في التأمينات الاجتماعية) ÷ 240 ساعة (30 يوما × 8 ساعات). الترحيل ينقل هذه التكلفة من الرواتب إلى مركز تكلفة المشروع دون تغيير إجمالي المصروف.'))}</p></div>`;
     bindTsPending(body);
-    $('#nts', body).onclick = () => modal(tr('تسجيل ساعات عمل'), `<div class="fg">
+    if ($('#nts', body)) $('#nts', body).onclick = () => modal(tr('تسجيل ساعات عمل'), `<div class="fg">
       ${field('الموظف', `<select name="employee_id" required>${liveEmps.map(e => opt(e.id, nm(e) + ' (' + e.emp_no + ')')).join('')}</select>`)}
       ${field('المهمة (اختياري)', `<select name="task_id"><option value="">${esc(tr('— بلا مهمة —'))}</option>${tasks.map(t => opt(t.id, t.title)).join('')}</select>`)}
       ${field('التاريخ', inp('work_date', today(), 'type="date" required max="' + today() + '"'))}
@@ -223,7 +225,7 @@ async function projectView(page, id) {
   if (tab === 'team') {
     body.innerHTML = `<div class="card"><div class="row" style="justify-content:space-between;align-items:center"><h2>${esc(tr('فريق المشروع'))}</h2><button class="btn sm pri" id="nmem">${esc(tr('إضافة عضو'))}</button></div>
       ${tbl([{ t: 'الموظف', h: m => esc(nm(em[m.employee_id])) }, { t: 'الدور', h: m => esc(m.role || '') }, { t: 'سعر الساعة للعميل', r: 1, h: m => m.rate != null ? money(m.rate) : `<span class="muted small">${esc(tr('سعر المشروع'))}</span>` },
-        { t: 'نسبة التفرغ', r: 1, h: m => prjPct(m.alloc) }, { t: 'تكلفة الساعة', r: 1, h: m => money(empHourEst(em[m.employee_id])) }], mem, { empty: 'لا يوجد أعضاء — أضف الفريق ليسجّلوا ساعاتهم من «ساعات عملي»', onRow: true })}
+        { t: 'نسبة التفرغ', r: 1, h: m => prjPct(m.alloc) }, ...(prjOffice() ? [{ t: 'تكلفة الساعة', r: 1, h: m => money(empHourEst(em[m.employee_id])) }] : [])], mem, { empty: 'لا يوجد أعضاء — أضف الفريق ليسجّلوا ساعاتهم من «ساعات عملي»', onRow: true })}
       <p class="small muted">${esc(tr('أعضاء الفريق ومدير المشروع ومن كُلّف بمهمة يسجّلون ساعاتهم بأنفسهم، ويعتمدها مدير المشروع. تكلفة الساعة هنا تقديرية من الأجر الحالي.'))}</p></div>`;
     const memForm = m => { const d = modal(m ? tr('تعديل العضو') : tr('إضافة عضو'), `<div class="fg">${m ? '' : field('الموظف', `<select name="employee_id">${liveEmps.filter(e => !mem.some(x => x.employee_id === e.id)).map(e => opt(e.id, nm(e) + ' (' + e.emp_no + ')')).join('')}</select>`)}
         ${field('الدور في المشروع', inp('role', m && m.role, 'maxlength="80"'))}${field('سعر الساعة للعميل (اختياري)', inp('rate', m && m.rate, 'type="number" min="0" step="0.01"'))}${field('نسبة التفرغ %', inp('alloc', m && m.alloc, 'type="number" min="1" max="100"'))}</div>
@@ -261,21 +263,22 @@ function bindTsPending(root) {
 
 /* ---------- «ساعات عملي»: the employee logs his own hours; the project manager approves his team's ---------- */
 VIEWS['#/mytime'] = async page => {
-  if (!S.emp) { page.innerHTML = `<div class="note">${esc(tr('هذه الصفحة للموظفين المرتبطين بملف موظف.'))}</div>`; return; }
-  const [projs, mine, pend] = await Promise.all([db.rpc('my_time_projects', { p_company: S.cid }), db.get('timesheets', Object.assign(C(), { employee_id: 'eq.' + S.emp, order: 'work_date.desc', limit: 200 })).catch(() => []),
+  if (!S.emp && !prjOffice()) { page.innerHTML = `<div class="note">${esc(tr('هذه الصفحة للموظفين المرتبطين بملف موظف.'))}</div>`; return; }
+  const [projs, mine, pend] = await Promise.all([db.rpc('my_time_projects', { p_company: S.cid }), S.emp ? db.get('timesheets', Object.assign(C(), { employee_id: 'eq.' + S.emp, order: 'work_date.desc', limit: 200 })).catch(() => []) : [],
     db.rpc('timesheets_pending', { p_company: S.cid }).catch(() => [])]);
   const pm = {}; projs.forEach(p => pm[p.id] = p);
   const wk = new Date(Date.now() - 6 * 864e5).toISOString().slice(0, 10), week = mine.filter(x => x.work_date >= wk && x.status !== 'rejected').reduce((a, x) => a + n0(x.hours), 0);
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('ساعات عملي'))}</h1><div class="muted small">${esc(tr('سجّل ساعات عملك على مشاريعك، ويعتمدها مدير المشروع.'))}</div></div>
-      ${projs.length ? `<div class="row"><button class="btn pri" id="mtn">${esc(tr('تسجيل ساعات'))}</button></div>` : ''}</div>
+      ${projs.length ? `<div class="row"><button class="btn" id="mtw">${esc(tr('جدول الأسبوع'))}</button><button class="btn pri" id="mtn">${esc(tr('تسجيل ساعات'))}</button></div>` : ''}</div>
     ${pend.length ? `<div class="card"><h2>${esc(tr('بانتظار اعتمادك'))} <span class="badge wait num">${pend.length}</span></h2>${tsPendingTable(pend)}</div>` : ''}
-    ${projs.length ? '' : `<div class="note">${esc(tr('لست ضمن فريق أي مشروع جارٍ. يضيفك مدير المشروع أو يكلّفك بمهمة.'))}</div>`}
+    ${projs.length || !S.emp ? '' : `<div class="note">${esc(tr('لست ضمن فريق أي مشروع جارٍ. يضيفك مدير المشروع أو يكلّفك بمهمة.'))}</div>`}
     <div class="grid" style="margin-bottom:14px"><div class="card kpi"><div class="muted small">${esc(tr('ساعاتك آخر 7 أيام'))}</div><div class="v num">${r2(week)}</div></div>
       <div class="card kpi"><div class="muted small">${esc(tr('بانتظار الاعتماد'))}</div><div class="v num">${mine.filter(x => x.status === 'submitted').length}</div></div></div>
     ${tbl([{ t: 'التاريخ', h: x => fdate(x.work_date) }, { t: 'المشروع', h: x => esc((pm[x.project_id] || {}).name || '') }, { t: 'الساعات', r: 1, h: x => `<span class="num">${r2(x.hours)}</span>` },
       { t: 'ملاحظة', h: x => esc(x.note || '') }, { t: 'الحالة', h: x => `<span class="badge ${TS_STATUS[x.status][1]}">${esc(tr(TS_STATUS[x.status][0]))}</span>${x.reject_note ? `<div class="small bad">${esc(x.reject_note)}</div>` : ''}` },
       { t: '', h: x => x.status !== 'approved' ? `<button class="btn sm" data-wd="${x.id}">${esc(tr('سحب'))}</button>` : '' }], mine, { empty: 'لم تسجّل ساعات بعد' })}`;
   bindTsPending(page);
+  if ($('#mtw', page)) $('#mtw', page).onclick = () => timeWeek(projs, mine);
   $$('[data-wd]', page).forEach(b => b.onclick = async () => { try { await db.rpc('timesheet_withdraw', { p_id: b.dataset.wd }); route(); } catch (e) { toast(e.message); } });
   if ($('#mtn', page)) $('#mtn', page).onclick = () => { const d = modal(tr('تسجيل ساعات'), `<div class="fg">${field('المشروع', `<select name="p">${projs.map(p => opt(p.id, p.no + ' — ' + p.name)).join('')}</select>`)}
       ${field('المهمة (اختياري)', '<select name="t"></select>')}${field('التاريخ', `<input type="date" name="d" value="${today()}" max="${today()}">`)}${field('عدد الساعات', inp('h', '', 'type="number" step="0.25" min="0.25" max="24" required'))}
@@ -284,3 +287,28 @@ VIEWS['#/mytime'] = async page => {
     const fill = () => { const p = pm[$('[name=p]', d).value]; $('[name=t]', d).innerHTML = `<option value="">—</option>` + ((p && p.tasks) || []).map(t => opt(t.id, t.title)).join(''); };
     $('[name=p]', d).onchange = fill; fill(); };
 };
+
+/* the week on one screen: a row per project / task, a box per day; everything is sent for approval together */
+function timeWeek(projs, mine) {
+  const iso = d => new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10), now = new Date(today() + 'T12:00:00');
+  let start = new Date(now); start.setDate(now.getDate() - now.getDay());   // the week starts on Sunday
+  const pm = {}; projs.forEach(p => pm[p.id] = p);
+  const days = () => [...Array(7)].map((_, i) => { const d = new Date(start); d.setDate(start.getDate() + i); return iso(d); });
+  const taskOpts = pid => `<option value="">—</option>` + (((pm[pid] || {}).tasks) || []).map(t => opt(t.id, t.title)).join('');
+  const row = () => `<tr><td style="min-width:150px"><select data-w="p" aria-label="${esc(tr('المشروع'))}">${projs.map(p => opt(p.id, p.no + ' — ' + p.name)).join('')}</select><select data-w="t" aria-label="${esc(tr('المهمة'))}" style="margin-top:4px">${taskOpts(projs[0].id)}</select></td>
+    ${days().map(d => `<td><input type="number" data-d="${d}" min="0" max="24" step="0.25" style="width:62px" aria-label="${esc(d)}" ${d > today() ? 'disabled' : ''}></td>`).join('')}</tr>`;
+  const d = modal(tr('جدول الأسبوع'), `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px"><button type="button" class="btn sm" id="wkp">‹ ${esc(tr('الأسبوع السابق'))}</button><b class="num" id="wkt"></b><button type="button" class="btn sm" id="wkn">${esc(tr('الأسبوع التالي'))} ›</button></div>
+    <div class="tw"><table class="lines"><thead id="wkh"></thead><tbody id="wkb"></tbody><tfoot id="wkf"></tfoot></table></div><button type="button" class="btn sm" id="wka" style="margin-top:6px">+ ${esc(tr('سطر'))}</button>`, { wide: true, ok: 'إرسال للاعتماد', onOk: async () => {
+      const rows = []; $$('#wkb tr', d).forEach(r => $$('[data-d]', r).forEach(i => { if (+i.value > 0) rows.push({ project: $('[data-w=p]', r).value, task: $('[data-w=t]', r).value || null, date: i.dataset.d, hours: +i.value }); }));
+      if (!rows.length) throw new Error(tr('أدخل ساعات يوم واحد على الأقل'));
+      await db.rpc('timesheet_submit_many', { p_company: S.cid, p_rows: rows }); toast(tr('أُرسلت للاعتماد')); route(); } });
+  const foot = () => { const ds = days(), sum = x => $$(`#wkb [data-d="${x}"]`, d).reduce((a, i) => a + n0(i.value), 0), old = x => mine.filter(m => m.work_date === x && m.status !== 'rejected').reduce((a, m) => a + n0(m.hours), 0);
+    $('#wkf', d).innerHTML = `<tr><td>${esc(tr('مسجل سابقا'))}</td>${ds.map(x => `<td class="num">${old(x) ? r2(old(x)) : ''}</td>`).join('')}</tr><tr><td><b>${esc(tr('الإجمالي'))}</b></td>${ds.map(x => `<td class="num ${old(x) + sum(x) > 24 ? 'bad' : ''}"><b>${old(x) + sum(x) ? r2(old(x) + sum(x)) : ''}</b></td>`).join('')}</tr>`; };
+  const draw = () => { const ds = days(); $('#wkt', d).textContent = ds[0] + ' — ' + ds[6]; $('#wkn', d).disabled = ds[6] >= today();
+    $('#wkh', d).innerHTML = `<tr><th>${esc(tr('المشروع'))}</th>${ds.map(x => `<th class="num small">${esc(x.slice(5))}</th>`).join('')}</tr>`; $('#wkb', d).innerHTML = row(); foot(); };
+  $('#wkp', d).onclick = () => { start.setDate(start.getDate() - 7); draw(); }; $('#wkn', d).onclick = () => { start.setDate(start.getDate() + 7); draw(); };
+  $('#wka', d).onclick = () => $('#wkb', d).insertAdjacentHTML('beforeend', row());
+  $('#wkb', d).addEventListener('input', foot);
+  $('#wkb', d).addEventListener('change', e => { if (e.target.dataset.w === 'p') e.target.closest('tr').querySelector('[data-w=t]').innerHTML = taskOpts(e.target.value); });
+  draw();
+}
