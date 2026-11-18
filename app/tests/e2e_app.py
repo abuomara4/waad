@@ -923,7 +923,7 @@ with sync_playwright() as pw:
     ok(sql("select status from fiscal_closings") == 'reopened' and sql("select coalesce(books_closed_through::text,'') from companies where name='شركة وعد التجريبية'") == '', 'owner reopens the year and the books')
 
     # ---------- notifications bell, team leave calendar, leave overlap ----------
-    o.reload(); o.wait_for_selector('#nav'); o.wait_for_timeout(800)
+    o.reload(); o.wait_for_selector('#nav'); o.wait_for_selector('#bcnt', state='visible', timeout=15000)
     ok(not o.locator('#bcnt').is_hidden(), 'bell shows a count for HR')
     um(o, '#bell'); o.wait_for_selector('#bpanel [data-ready]'); bt = o.inner_text('#bpanel')
     ok('مستندات أو عقود' in bt, 'HR bell lists urgent document/contract alerts: ' + bt[:160])
