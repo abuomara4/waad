@@ -58,12 +58,12 @@ async function poForm(page, id, reqId, q) {
   if (!id && q && q.get('items')) { supSel = q.get('sup') || null;   // from «إعادة الطلب»
     lines = q.get('items').split(',').map(x => x.split(':')).filter(x => L.im[x[0]]).map(([it, qt, pr]) => ({ what: 'i:' + it, qty: +qt || 1, price: pr === '' ? '' : +pr })); }
   const back = id ? '#/porders/' + id : reqId ? '#/purchreq' : q && q.get('items') ? '#/reorder' : '#/porders';
-  const whf = await whField(doc && doc.warehouse_id, 'يُستلم في مستودع');
+  const whf = await whField(doc && doc.warehouse_id, 'يُستلم في مستودع'), ccf = await ccField(doc && doc.cost_center_id);
   page.innerHTML = `<div class="head"><div><a href="${back}" class="small back">أوامر الشراء</a><h1>${id ? 'تعديل أمر الشراء <span class="num">' + esc(doc.no) + '</span>' : 'أمر شراء جديد'}</h1>
       ${req ? `<div class="muted small">من طلب شراء ${esc((LANG === 'en' && req.employee_en) || req.employee)} · ${fdate(req.created_at)}${req.note ? ' · ' + esc(req.note) : ''}</div>` : ''}</div></div><form id="pf" class="card" novalidate>
     <div class="fg">${field('المورد', `<select name="party">${L.parties.filter(p => p.active !== false || p.id === supSel).map(p => opt(p.id, p.name, supSel)).join('')}</select>`)}${field('التاريخ', `<input type="date" name="date" value="${doc ? doc.date : today()}" max="${today()}">`)}
       ${field('التوريد المتوقع', `<input type="date" name="expected" value="${doc && doc.expected_date || (req && req.needed_by) || ''}">`)}
-      ${whf}${field('ملاحظات', inp('note', doc && doc.note), 'wide')}${field('الشروط (تظهر في المطبوع)', `<textarea name="terms" rows="2">${esc(doc && doc.terms || '')}</textarea>`, 'wide')}</div>
+      ${whf}${ccf}${field('ملاحظات', inp('note', doc && doc.note), 'wide')}${field('الشروط (تظهر في المطبوع)', `<textarea name="terms" rows="2">${esc(doc && doc.terms || '')}</textarea>`, 'wide')}</div>
     ${req && !id ? '<p class="small" style="color:var(--gold)">اختر لكل بند الصنف أو حساب المصروف، وعدّل السعر حسب عرض المورد.</p>' : ''}
     <div style="height:14px"></div><div class="tw"><table class="lines"><thead><tr><th>صنف أو حساب مصروف</th><th>الوصف</th><th>الكمية</th><th>السعر</th><th>الضريبة</th><th class="r">المبلغ</th><th></th></tr></thead><tbody id="lb"></tbody>
     <tfoot><tr><td colspan="5">الإجمالي قبل الضريبة</td><td class="r num" id="ts">0.00</td><td></td></tr><tr><td colspan="5">ضريبة القيمة المضافة</td><td class="r num" id="tv">0.00</td><td></td></tr><tr><td colspan="5">الإجمالي</td><td class="r num" id="tt">0.00</td><td></td></tr></tfoot></table></div>
@@ -91,7 +91,7 @@ async function poForm(page, id, reqId, q) {
     const ls = lines.filter(l => l.what).map(l => { const o = { qty: +(l.qty == null ? 1 : l.qty), price: +l.price, vat: +(l.vat == null ? 15 : l.vat), desc: blank((l.desc || '').trim()) }; if (l.what.startsWith('i:')) o.item = l.what.slice(2); else o.account = l.what.slice(2); return o; });
     if (!ls.length) return showErr($('#perr', page), 'أضف بندا واحدا على الأقل');
     if (ls.some(l => !(l.qty > 0) || !(l.price >= 0) || isNaN(l.price))) return showErr($('#perr', page), 'تحقق من الكميات والأسعار');
-    const d = { party: f.party, date: f.date, expected: blank(f.expected), note: blank(f.note), terms: blank(f.terms), warehouse: blank(f.warehouse), lines: ls }; if (id) d.id = id; if (reqId) d.request = reqId;
+    const d = { party: f.party, date: f.date, expected: blank(f.expected), note: blank(f.note), terms: blank(f.terms), warehouse: blank(f.warehouse), cost_center: blank(f.cost_center), lines: ls }; if (id) d.id = id; if (reqId) d.request = reqId;
     try { await busy($('#ps', page), async () => { const nid = await db.rpc('po_save_wh', { p_company: S.cid, p_doc: d }); toast('تم الحفظ'); location.hash = '#/porders/' + nid; }); } catch (er) { showErr($('#perr', page), er); }
   };
 }

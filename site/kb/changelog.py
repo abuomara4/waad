@@ -3,6 +3,12 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('18 نوفمبر 2026', '18 November 2026', [
+  ('المشاريع: ملف كامل لكل مشروع (قيمة العقد، موازنة التكلفة، مدير المشروع، الموقع) ومركز تكلفة خاص به تلقائيا', 'Projects: a full file per project (contract value, cost budget, project manager, location) and its own cost center automatically'),
+  ('مراحل المشروع بأوزانها، ولوحة مهام (كانبان)، وجدول زمني (جانت)، والإنجاز الفعلي مقابل المخطط', 'Project milestones with weights, a Kanban task board, a Gantt timeline and actual vs planned progress'),
+  ('«ساعات عملي»: الموظف يسجّل ساعاته على مشاريعه ويعتمدها مدير المشروع', '«My hours»: employees log their hours on their projects and the project manager approves them'),
+  ('فوترة الساعات المعتمدة للعميل بضغطة زر، وتحميل تكلفة الساعات الفعلية (الأجر والتأمينات) على المشروع', 'Invoice approved hours in one click, and charge the actual hours cost (wage and GOSI) to the project'),
+  ('اختيار المشروع في أوامر الشراء والعهد النقدية، وصرف المواد من المخزون على المشروع', 'Choose the project on purchase orders and petty cash, and issue stock materials to a project'),
+  ('ربحية كل مشروع: العقد والمفوتر والمحصّل، والتكلفة الفعلية مقابل الموازنة، والهامش المتوقع', 'Each project\'s profitability: contract, invoiced, collected, actual cost vs budget, and the expected margin'),
   ('الزكاة التقديرية من دفاتر المنشأة وفق اللائحة التنفيذية لجباية الزكاة، وقيد مخصص الزكاة', 'A zakat estimate from the books under the Implementing Regulation for Zakat Collection, and the zakat provision entry'),
   ('القروض بجدول أقساط (أصل وربح) وقيد كل قسط عند سداده', 'Loans with an instalment schedule (principal and profit) and an entry for each instalment paid'),
   ('خطابات الضمان بغطائها النقدي وتمديدها والإفراج عنها، وتنبيه قبل انتهائها', 'Letters of guarantee with their cash margin, extension and release, and an alert before expiry'),

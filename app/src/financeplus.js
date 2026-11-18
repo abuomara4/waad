@@ -4,7 +4,7 @@ async function ccList(force) { if (force || !cache.cc) cache.cc = await db.get('
 const ccName = c => c ? c.code + ' — ' + ((LANG === 'en' && c.name_en) || c.name) : '—';
 /* cost-center picker — shown only once the company has cost centers */
 async function ccField(sel) { const cs = (await ccList()).filter(c => c.active); if (!cs.length) return '';
-  return field('مركز التكلفة', `<select name="cost_center"><option value="">${esc(tr('بدون'))}</option>${cs.map(c => opt(c.id, ccName(c), sel)).join('')}</select>`); }
+  return field('المشروع / مركز التكلفة', `<select name="cost_center"><option value="">${esc(tr('بدون'))}</option>${cs.map(c => opt(c.id, ccName(c), sel)).join('')}</select>`); }
 
 /* ----- period closing ----- */
 VIEWS['#/periods'] = async page => {

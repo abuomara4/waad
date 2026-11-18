@@ -495,6 +495,7 @@ async function loadContext(pre) {
   if (!(c.perms || []).length) fp.forEach(p => S.perms.add(p.perm));   // personal permissions, when set, replace the role's defaults
   S.myEmp = me[0] || null;
   S.hasPetty = pf.length > 0; S.hasTeam = team.length > 0;
+  S.myTime = !!(S.emp && (!S.sub || (S.sub.modules || []).includes('proj')) && (await db.rpc('my_time_projects', { p_company: S.cid }).catch(() => [])).length);   // «ساعات عملي» (0123)
   S.zatcaOn = false;
   if (isFin()) db.get('zatca_settings', { company_id: 'eq.' + S.cid, select: 'enabled' }).then(r => { S.zatcaOn = !!(r[0] && r[0].enabled); if (S.zatcaOn) zatcaKick(); }).catch(() => {});
   return true;
@@ -575,7 +576,7 @@ const MOD_ROUTES = {
   purch: ['purchreq', 'porders', 'receipts', 'purchases', 'rfq'],
   stock: ['items', 'warehouses', 'transfers', 'counts', 'expiry', 'reorder', 'serials'],
   finance: ['expensepolicy', 'payments', 'journal', 'reports', 'coa', 'bankrec', 'cheques', 'petty', 'mypetty', 'currencies', 'opening', 'assets', 'costcenters', 'budgets', 'periods'],
-  proj: ['projects'] };
+  proj: ['projects', 'mytime'] };
 const VIEW_ONLY = { employees: 'hr_emp', docs: 'hr_emp', att: 'hr_att', leavecal: 'hr_att', payroll: 'hr_pay', penalties: 'hr_disc', reviews: 'hr_disc' };
 function viewOnlyPage(path) { const r = String(path || '').split('/')[1]; return !!VIEW_ONLY[r] && !isHR() && !has('owner', 'admin', 'finance') && hrCan(VIEW_ONLY[r]); }
 function routeModule(h) {
@@ -611,7 +612,7 @@ function navItems() {
   if (typeof GUIDE !== 'undefined') it.push({ h: '#/guide', t: 'دليل الاستخدام' });
   if (isHR() || isFin() || has('manager')) it.push({ h: '#/analytics', t: 'التحليلات' });
   if (S.emp) { g('خدماتي'); if (S.company && S.company.att_enabled && !(S.myEmp && S.myEmp.att_exempt)) it.push({ h: '#/attendance', t: 'حضوري' });
-    it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/sign', t: 'توقيعاتي', pill: NAVC.sign }, { h: '#/payslips', t: 'قسائم الراتب' }, { h: '#/reviews', t: 'تقييم الأداء' }, ...(isHR() ? [] : [{ h: '#/okrs', t: 'أهدافي (OKRs)' }]), { h: '#/surveys', t: 'الاستبيانات' }, { h: '#/profile', t: 'ملفي' });
+    it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/sign', t: 'توقيعاتي', pill: NAVC.sign }, { h: '#/payslips', t: 'قسائم الراتب' }, ...(S.myTime ? [{ h: '#/mytime', t: 'ساعات عملي' }] : []), { h: '#/reviews', t: 'تقييم الأداء' }, ...(isHR() ? [] : [{ h: '#/okrs', t: 'أهدافي (OKRs)' }]), { h: '#/surveys', t: 'الاستبيانات' }, { h: '#/profile', t: 'ملفي' });
     if (S.hasPetty) it.push({ h: '#/mypetty', t: 'عهدتي النقدية' });
     if (!isHR()) it.push({ h: '#/policies', t: 'السياسات واللوائح' });
     const ov = (S.company && S.company.org_visibility) || 'all';

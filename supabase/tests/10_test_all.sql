@@ -3655,5 +3655,65 @@ select t.ok((select status = 'released' and margin = 5000 and release_entry is n
   and exists(select 1 from public.journal_lines where entry_id = :'zje' and account_code = '2350' and credit = 1234.5)
   and exists(select 1 from public.journal_lines where entry_id = :'lp1' and account_code = '5800' and debit = 60), 'books: zakat provision, loan profit (5800) and the guarantee margin released');
 
+-- projects, phase one (0123): cost center per project, milestones, timesheet approval, labor cost, hours to invoice, materials, profitability
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+insert into public.projects(company_id, name, party_id, billing, hourly_rate, contract_value, cost_budget, manager_id, start_date, due_date)
+  values (:'cid', 'تطوير بوابة العملاء', :'c1', 'hourly', 300, 90000, 40000, :'e_mgr', current_date - 30, current_date + 60) returning id as prj, no as prjno \gset
+select t.ok((select c.code = :'prjno' from public.projects p join public.cost_centers c on c.id = p.cost_center_id where p.id = :'prj'), 'projects: each new project gets its own cost center with the project number');
+insert into public.project_milestones(company_id, project_id, name, weight, start_date, end_date) values (:'cid', :'prj', 'التحليل', 30, current_date - 30, current_date - 10) returning id as ms1 \gset
+insert into public.project_milestones(company_id, project_id, name, weight, start_date, end_date) values (:'cid', :'prj', 'التطوير', 70, current_date - 10, current_date + 60) returning id as ms2 \gset
+select t.err($$insert into public.project_milestones(company_id, project_id, name, weight) values ('$$ || :'cid' || $$', '$$ || :'prj' || $$', 'زائدة', 5)$$, '100', 'projects: milestone weights cannot pass 100%');
+insert into public.project_tasks(company_id, project_id, milestone_id, title, assignee_id, status) values (:'cid', :'prj', :'ms1', 'جمع المتطلبات', :'e_emp', 'done'), (:'cid', :'prj', :'ms1', 'اعتماد النطاق', :'e_emp', 'done');
+insert into public.project_tasks(company_id, project_id, milestone_id, title, assignee_id) values (:'cid', :'prj', :'ms2', 'واجهة الدخول', :'e_emp') returning id as tk \gset
+reset role;
+select t.ok((public.project_progress(:'prj')->>'actual')::numeric = 30 and (public.project_progress(:'prj')->>'planned')::numeric between 30 and 45,
+  'projects: actual progress = weights × milestones done (30%), planned from the milestone dates');
+-- the employee logs his own hours; the project manager approves; nobody approves his own
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok(jsonb_array_length(public.my_time_projects(:'cid')) = 1, 'timesheets: an employee sees the projects he works on');
+select public.timesheet_submit(:'cid', jsonb_build_object('project', :'prj', 'task', :'tk', 'date', current_date - 1, 'hours', 6, 'note', 'شاشة الدخول')) as ts1 \gset
+select public.timesheet_submit(:'cid', jsonb_build_object('project', :'prj', 'date', current_date - 2, 'hours', 4)) as ts2 \gset
+select t.err($$select public.timesheet_submit('$$ || :'cid' || $$', jsonb_build_object('project', '$$ || :'prj' || $$', 'date', current_date - 1, 'hours', 20))$$, '24', 'timesheets: no more than 24 hours a day');
+select t.ok((select count(*) = 2 from public.timesheets where status = 'submitted'), 'timesheets: the employee sees only his own hours, waiting for approval');
+select t.err($$select public.timesheet_review(array['$$ || :'ts1' || $$']::uuid[], true, null)$$, 'مصرح|بنفسه', 'timesheets: an employee cannot approve hours');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.ok(jsonb_array_length(public.timesheets_pending(:'cid')) = 2, 'timesheets: the project manager sees the hours waiting for him');
+select t.ok(public.timesheet_review(array[:'ts1', :'ts2']::uuid[], true, null) = 2, 'timesheets: the project manager approves');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+-- labor cost: (gross wage + employer GOSI) ÷ 240 × hours, moved onto the project's cost center
+select public.project_labor_post(:'cid', current_date) as lp \gset
+reset role;
+select t.ok((select abs(sum(cost) - 10 * public.emp_hour_cost(:'e_emp', current_date - 1)) < 0.03 from public.timesheets where project_id = :'prj')
+  and exists(select 1 from public.journal_lines l join public.projects p on p.cost_center_id = l.cost_center_id where p.id = :'prj' and l.account_code = '5200' and l.debit > 0),
+  'labor cost: approved hours × (wage + employer GOSI) ÷ 240, booked on the project cost center (Dr 5200 project / Cr 5200)');
+select t.ok(public.emp_hour_cost(:'e_emp', current_date) > (8000 + 2000 + 500) / 240.0, 'labor cost: the hourly cost includes the employer''s GOSI share');
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select public.project_invoice_hours(:'prj', current_date) as pinv \gset
+select t.ok((select subtotal = 3000 and cost_center_id = (select cost_center_id from public.projects where id = :'prj') from public.sales_invoices where id = :'pinv'),
+  'hours to invoice: 10 approved hours × 300 = 3,000 on the project''s cost center');
+select t.err($$select public.project_invoice_hours('$$ || :'prj' || $$', current_date)$$, 'غير مفوترة', 'hours to invoice: hours are invoiced once');
+select t.err($$delete from public.timesheets where id = '$$ || :'ts1' || $$'$$, 'مفوترة', 'timesheets: invoiced hours cannot be deleted');
+-- materials from stock to the project
+reset role;
+select id as sitem from public.items where company_id = :'cid' and type = 'stock' and (select qty from public.stock_state(id)) >= 1 limit 1 \gset
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select public.stock_issue_project(:'prj', jsonb_build_object('item', :'sitem', 'qty', 1, 'note', 'لوحة تحكم')) as sis \gset
+select t.ok(exists(select 1 from public.journal_lines l join public.journal_entries e on e.id = l.entry_id where e.source_id = :'sis' and l.account_code = '5120' and l.debit > 0
+  and l.cost_center_id = (select cost_center_id from public.projects where id = :'prj')), 'materials: issued to the project (Dr 5120 on its cost center / Cr stock)');
+-- a purchase order on the project carries its cost center to the supplier bill
+select public.po_save_wh(:'cid', jsonb_build_object('party', :'s1', 'cost_center', (select cost_center_id from public.projects where id = :'prj'),
+  'lines', jsonb_build_array(jsonb_build_object('account', '5400', 'qty', 1, 'price', 200)))) as ppo \gset
+select public.po_bill(:'ppo', '{}'::jsonb) as pbill \gset
+select t.ok((select cost_center_id = (select cost_center_id from public.projects where id = :'prj') from public.purchase_bills where id = :'pbill'),
+  'purchase orders: the project chosen on the order goes to its supplier bill and entry');
+select t.ok((select revenue = 3000 and cost > 0 and (progress->>'actual')::numeric = 30 and invoiced = 3000 from public.project_pnl(:'cid') where project_id = :'prj'),
+  'profitability: revenue and cost from the books on the project''s cost center, with progress');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select * from public.project_pnl('$$ || :'cid' || $$')$$, '42501|مصرح', 'profitability: not for employees');
+reset role;
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary
