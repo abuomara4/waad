@@ -86,6 +86,7 @@ html = f'''<!doctype html>
 {r('okr.js')}
 {r('finance2.js')}
 {r('finance3.js')}
+{r('bio.js')}
 applyLang();
 boot();
 </script>

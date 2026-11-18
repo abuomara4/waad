@@ -589,6 +589,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إذا حددت مدة أو باقة	If you set a length or a plan
 إذا رُفض التظلم أو لم يُبت فيه خلال	If the grievance is rejected or not decided within
 إذا سجّلت منه ثم اشتركت	if it signs up from it and subscribes
+إذا كان الرقم مرتبطا بحساب دخول	If this number has a sign-in account
 إذا كان الشخص نفسه في مرحلتين متتاليتين يعتمد مرة واحدة	If the same person holds two consecutive steps, one approval covers both
 إذا كان في أي سطر خطأ لا يُحدَّث شيء	If any row has an error nothing is updated
 إذا كان في أي سطر خطأ لا يُستورد شيء	If any row has an error, nothing is imported
@@ -647,6 +648,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إصدار غير معروف	Unknown version
 إصدار فاتورة	Issue invoice
 إصدار فاتورة ضريبية من الأمر	Issue a tax invoice from the order
+إصدار كلمة مؤقتة	Issue a temporary password
 إصلاح	Repair
 إضافة	Add
 إضافة أيام التعويض	Add compensation days
@@ -822,6 +824,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إيقاف التحقق بخطوتين	Turn off two-step verification
 إيقاف التكرار	Stop recurrence
 إيقاف التوزيع	Stop the schedule
+إيقاف الدخول بالبصمة أو الوجه	Turn off fingerprint or face unlock
 إيقاف المنشأة	Suspend company
 إيقاف بدل	Allowance stopped
 إيميل	E-mail
@@ -992,6 +995,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 استخدم	use
 استخدم أمر تغيير	use a change order
 استخدم القالب	use the template
+استخدم بصمتك أو وجهك أو قفل جهازك	Use your fingerprint, face or device lock
 استخدم سند القبض أو الصرف العادي	use the normal receipt or payment voucher
 استخدم كلمة المرور التي أعطتك إياها الموارد البشرية	use the password HR gave you
 استخدم كلمة المرور التي زودتك بها الموارد البشرية	use the password HR gave you
@@ -1200,6 +1204,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 افتح قائمة المتصفح (⋮ أعلى الشاشة).	Open the browser menu (⋮ at the top).
 افتح ملف الموظف	open the employee file
 افتح هذه النافذة وأنت داخل مقر العمل واضغط	Open this window while you are at the workplace and press
+افتح وعد	Open Waad
+افتح وعد ببصمتك أو وجهك على هذا الجهاز	Open Waad with your fingerprint or face on this device
 افتح وعد في متصفح	Open Waad in
 افتح وعد في متصفح Safari.	Open Waad in Safari.
 افتح يوم العمل من صفحة الحضور	open the work day from the attendance page
@@ -1252,6 +1258,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اكتب رقم الحجز أو التذكرة	Enter the booking or ticket number
 اكتب رقم اللوحة	Write the plate number
 اكتب رقم فاتورة المورد	Enter the supplier invoice number
+اكتب رقمك الوظيفي أولا	Enter your employee number first
 اكتب سبب إعادة الفتح	Enter the reason for reopening
 اكتب سبب إعادة فتح السنة	Enter the reason for reopening the year
 اكتب سبب الإشعار	Write the reason for the note
@@ -1803,6 +1810,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الخيارات (سطر لكل خيار)	Options (one per line)
 الدخل الآخر	Other earnings
 الدخول	Sign-in
+الدخول بالبصمة أو الوجه	Fingerprint or face unlock
+الدخول بكلمة المرور	Sign in with password
 الدرجات	Scores
 الدرجات الوظيفية	Job grades
 الدرجة	Score
@@ -2997,6 +3006,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تأكد من إبلاغ العامل كتابةً	Make sure the worker is notified in writing
 تأكد من توافر شروط المادة وإنذار العامل كتابة في حالات الغياب	make sure the Article's conditions are met and the worker was warned in writing for absence
 تأكد من توافر شروط المادة وإنذار العامل كتابةً في حالات الغياب	make sure the Article's conditions are met and the worker was warned in writing for absence
+تأكد من هوية الموظف قبل تسليمه كلمة المرور	Confirm the employee's identity before handing over the password
 تأكد منه مع الموارد البشرية	check it with HR
 تأكيد	Confirm
 تأكيد كلمة المرور	Confirm password
@@ -3135,6 +3145,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تجارب تنتهي قريباً	Trials ending soon
 تجارب شغّالة	Active trials
 تجارة	Trade
+تجاهل	Dismiss
 تجاوز المدير المباشر	Override the direct manager
 تجاوز المدير المباشر:	Direct manager overridden:
 تجاوز المهلة	past the deadline
@@ -3211,6 +3222,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تذاكر بانتظار الصرف	Tickets awaiting payment
 تذاكر سفر الموظفين	Employee travel tickets
 تذاكر سفر مستحقة لم تُستخدم	Unused travel tickets due
+تذكر دخولي	Remember me
+تذكر دخولي على هذا الجهاز	Remember me on this device
 تذكرة أو بدل نقدي	ticket or cash allowance
 تذكرة السفر حسب العقد	Travel ticket per contract
 تذكرة تحجزها المنشأة	Ticket booked by the company
@@ -3745,6 +3758,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حاول بعد ربع ساعة	try again in 15 minutes
 حاول بعد عشر دقائق	try again in ten minutes
 حاول بعد قليل	try again shortly
+حاول مرة أخرى أو ادخل بكلمة المرور	Try again or sign in with your password
 حاولت التصدير كثيرا	Too many exports
 حاولت التصدير كثيرا — انتظر ساعة ثم أعد المحاولة	Too many exports — wait an hour and try again
 حاولت التصدير كثيراً	Too many exports
@@ -4035,6 +4049,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 دخلت بكلمة مرور مؤقتة	You signed in with a temporary password
 دخلت بكلمة مرور مؤقتة من الموارد البشرية	You signed in with a temporary password from HR
 دخول	Sign in
+دخول أسرع	Faster sign-in
 دخول الإدارة بالبريد	Management sign-in by email
 دخول الموظفين	Employee sign-in
 دخول بالبريد	sign in by email
@@ -4791,6 +4806,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 طلب نسيان البصمة خلال	A forgotten-fingerprint request is within
 طلب وظيفة	Position request
 طلبات أو رواتب أو مستندات	requests, payroll or documents
+طلبات إعادة كلمة المرور	Password requests
+طلبات إعادة كلمة مرور من الموظفين	password requests from employees
 طلبات الدعم	Support requests
 طلبات الشراء	Purchase requests
 طلبات الشراء المعتمدة	Approved purchase requests
@@ -5182,6 +5199,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فيه سطر لكل موظف على رأس العمل	one row per active employee
 فيه شرط تجديد تلقائي	Has an automatic renewal clause
 فُعّل التحقق بخطوتين	Two-step verification is on
+فُعّل على هذا الجهاز	Turned on for this device
 فُوتر أكثر من المستلم	Billed more than received
 فُوترت	Invoiced
 فُوترت كمية من	a quantity was billed of
@@ -5378,6 +5396,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا تشاركوا رابطها	do not share its link
 لا تشمل الأرقام الأجر المستحق عن أيام الشهر الأخير	The figures exclude wages due for the days of the final month
 لا تصرف أجر هذه الساعات في المسير	Do not pay these hours in payroll
+لا تصل بصمتك أو صورة وجهك إلى وعد	Your fingerprint or face never reaches Waad
 لا تظهر باسمك	not shown with your name
 لا تظهر هنا بيانات المنشآت نفسها	company records are never shown here
 لا تعويض إذا وافق اليوم الوطني أو يوم التأسيس أحد العيدين	no compensation when National Day or Founding Day falls on one of the Eids
@@ -5785,6 +5804,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لم يغيّر كلمة المرور بعد	Hasn't changed the password yet
 لم يقر بعد	Not acknowledged yet
 لم يكتمل الاعتماد	approval not complete
+لم يكتمل التحقق	Verification was not completed
+لم يكتمل التفعيل	It could not be turned on
 لم يُؤكَّد البريد بعد	Email not confirmed yet
 لم يُجهَّز مسير رواتب	No payroll prepared for
 لم يُرسل	Not sent
@@ -6450,6 +6471,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 موظف مبيعات أو مشتريات	A sales or purchasing employee
 موظف مبيعات أو مشتريات أو تسويق أو مشاريع	A sales, purchasing, marketing or projects employee
 موظف واحد	one employee
+موظف يطلب إعادة كلمة المرور	An employee asks for a new password
 موظفا	employees
 موظفون	Employees
 موظفون بلا تأمين طبي أو وثيقة تقترب من نهايتها	Employees without medical insurance or with a policy ending soon
@@ -6859,6 +6881,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وزارة الموارد البشرية والتنمية الاجتماعية	Ministry of Human Resources and Social Development
 وزن الهدف	Weight of goal
 وسائل التواصل	Social media
+وستزودك بكلمة مرور مؤقتة	and they will give you a temporary password
 وسجّل بالبريد	and sign up with the email
 وسلّم الملف له وحده	and hand the file to him alone
 وسماع دفاعك	and hearing your defence
@@ -6874,6 +6897,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وصل رأيك	your opinion was received
 وصل طلبك	Your application was received
 وصل طلبك إلى المنشأة	Your application reached the company
+وصل طلبك إلى الموارد البشرية في منشأتك	your request has reached your company's HR
 وصلاحيات كل شخص	and each person's permissions
 وصلاحياته الخاصة	and personal permissions
 وصلت المنشأة إلى الحد الأعلى للمستخدمين في باقتها	The company has reached its plan's user limit

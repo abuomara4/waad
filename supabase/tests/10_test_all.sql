@@ -2135,7 +2135,7 @@ select t.err($$select * from public.code_lookups$$, 'permission denied', 'anon c
 select t.err($$select public.riyadh_today()$$, 'permission denied', 'anon cannot call helper functions');
 reset role;
 select t.ok((select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'
-  and has_function_privilege('anon', p.oid, 'execute') and p.proname not in ('company_by_code', 'ping', 'site_hit', 'site_content', 'portal_view', 'careers_view', 'careers_apply', 'co_view', 'co_decide')) = 0, 'anon can call only company_by_code, the health check, the website counter/texts, the customer portal, the careers page and change-order links');
+  and has_function_privilege('anon', p.oid, 'execute') and p.proname not in ('company_by_code', 'ping', 'site_hit', 'site_content', 'portal_view', 'careers_view', 'careers_apply', 'co_view', 'co_decide', 'staff_password_help')) = 0, 'anon can call only company_by_code, the health check, the website counter/texts, the customer portal, the careers page and change-order links');
 select t.ok(has_function_privilege('authenticated', 'public.riyadh_today()', 'execute'), 'signed-in users keep helper functions');
 delete from public.code_lookups;
 select set_config('request.headers', '{"cf-connecting-ip":"203.0.113.7"}', false);
@@ -3920,6 +3920,26 @@ select t.ok((select count(*) = 2 from pg_proc where pronamespace = 'public'::reg
 select set_config('request.jwt.claim.sub', '99999999-9999-9999-9999-999999999999', false); set role authenticated;
 select t.err($$select public.access_note('$$ || :'cid' || $$', 'employee', null, null, null)$$, '42501|مصرح', 'access log: outsiders cannot write to it');
 reset role;
+
+-- employee sign-in help (0129)
+insert into public.employees(company_id, emp_no, full_name, hire_date, basic) values (:'cid', '7701', 'موظف الدخول', '2024-01-01', 4000) returning id as e_pw \gset
+insert into auth.users(id, email) values ('a7700000-0000-4000-8000-000000007701', '7701.' || lower((select code from public.companies where id = :'cid')) || '@staff.waad.app') on conflict do nothing;
+insert into public.members(company_id, user_id, role, employee_id) values (:'cid', 'a7700000-0000-4000-8000-000000007701', 'employee', :'e_pw') on conflict do nothing;
+select code as ccode from public.companies where id = :'cid' \gset
+set role anon;
+select public.staff_password_help(:'ccode', '7701'); select public.staff_password_help(:'ccode', '7701');
+select public.staff_password_help(:'ccode', '99999'); select public.staff_password_help('NOPE', '7701'); select public.staff_password_help('NOPE', '7702');
+select t.err($$select public.staff_password_help('NOPE', '1')$$, 'محاولات كثيرة', 'password help: repeated attempts are limited');
+reset role;
+select t.ok((select count(*) = 1 and min(company_id::text) = :'cid' from public.staff_password_requests), 'password help: one request, to the HR of that company only; an unknown number leaves nothing and gets the same answer');
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((select count(*) = 0 from public.staff_password_requests), 'password help: other employees do not see requests');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.ok((select count(*) = 1 from public.staff_password_requests), 'password help: HR sees the request');
+select public.reset_staff_password(:'cid', :'e_pw', 'TempPass9x');
+reset role;
+select t.ok((select status = 'done' and handled_by = :'u_hr' from public.staff_password_requests), 'password help: issuing a temporary password closes the request');
 
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

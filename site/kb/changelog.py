@@ -3,6 +3,7 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('18 نوفمبر 2026', '18 November 2026', [
+  ('دخول الموظفين: طلب إعادة كلمة المرور يصل لموارد المنشأة، وتذكر الدخول، وفتح النظام بالبصمة أو الوجه', 'Employee sign-in: password help sent to the company\'s HR, remember me, and fingerprint or face unlock'),
   ('سجل الوصول: من فتح ملفات الموظفين والرواتب والمرفقات ومتى، محفوظ مع بيانات المنشأة ولا يُعدّل', 'Access log: who opened employee files, payroll and attachments and when, kept with the company data and unchangeable'),
   ('تسريع قاعدة البيانات مع نمو المنشآت، وسياسة أمان إضافية لصفحات النظام', 'A faster database as companies grow, and an added security policy for system pages'),
   ('تقوية عزل بيانات المنشآت، مع فحص آلي دائم لكل دالة في النظام', 'Stronger separation of company data, with a permanent automatic check of every system function'),

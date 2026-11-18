@@ -350,12 +350,12 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
     btn = 'متابعة';
   } else if (step === 'login') {
     body = `<div class="note" style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>المنشأة: <b>${esc(cname)}</b></span><a href="#" id="chg" class="small">تغيير</a></div>
-      ${field('الرقم الوظيفي', `<input name="emp" required dir="ltr" inputmode="numeric" autocomplete="username">`)}<div style="height:10px"></div>
-      ${field('كلمة المرور', pwInput('password', 'current-password'))}`;
-    foot = `<p class="muted small" style="margin:10px 0 0;text-align:center">أول دخول؟ استخدم كلمة المرور التي زودتك بها الموارد البشرية، وسيُطلب منك تغييرها. نسيتها؟ اطلب من الموارد البشرية إعادة تعيينها.</p>`;
+      ${field('الرقم الوظيفي', `<input name="emp" required dir="ltr" inputmode="numeric" autocomplete="username" value="${esc(LS.get('waad.empno') || '')}">`)}<div style="height:10px"></div>
+      ${field('كلمة المرور', pwInput('password', 'current-password'))}${rememberBox()}`;
+    foot = `<p class="muted small" style="margin:10px 0 0;text-align:center">أول دخول؟ استخدم كلمة المرور التي زودتك بها الموارد البشرية، وسيُطلب منك تغييرها. </p><div style="margin-top:6px;text-align:center"><a href="#" id="sforgot" class="small">نسيت كلمة المرور؟</a></div>`;
   } else {
     body = `${field('البريد الإلكتروني', `<input name="email" type="email" autocomplete="email" required dir="ltr">`)}<div style="height:10px"></div>
-      ${field('كلمة المرور', pwInput('password', tab === 'in' ? 'current-password' : 'new-password'))}
+      ${field('كلمة المرور', pwInput('password', tab === 'in' ? 'current-password' : 'new-password'))}${tab === 'in' ? rememberBox() : ''}
       ${tab === 'up' ? `<div style="height:10px"></div>${field('تأكيد كلمة المرور', pwInput('password2', 'new-password', ''))}
         <label class="row small" style="gap:6px;margin-top:10px;align-items:flex-start"><input type="checkbox" name="agree" style="width:auto;margin-top:3px"> <span>أوافق على <a href="#/terms">شروط الاستخدام</a> و<a href="#/privacy">سياسة الخصوصية</a></span></label>` : ''}`;
     btn = tab === 'up' ? 'إنشاء الحساب' : 'دخول';
@@ -373,7 +373,9 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
   $('#lg').onclick = () => setLang(LANG === 'en' ? 'ar' : 'en');
   $$('[data-go]', app).forEach(a => a.onclick = e => { e.preventDefault(); authView(a.dataset.go); });
   $('#theme').onclick = e => { e.preventDefault(); toggleTheme(); }; applyTheme(curTheme());
-  if ($('#chg')) $('#chg').onclick = e => { e.preventDefault(); LS.set('waad.ccode', null); LS.set('waad.cname', null); authView('staff'); };
+  if ($('#chg')) $('#chg').onclick = e => { e.preventDefault(); LS.set('waad.ccode', null); LS.set('waad.cname', null); LS.set('waad.empno', null); authView('staff'); };
+  if ($('#sforgot')) $('#sforgot').onclick = async e => { e.preventDefault(); const n = $('#af').emp.value.trim(); if (!/^[A-Za-z0-9_-]{1,20}$/.test(n)) return showErr('#aerr', 'اكتب رقمك الوظيفي أولا');
+    try { await db.rpc('staff_password_help', { p_code: ccode, p_emp_no: n }); authView('staff', 'إذا كان الرقم مرتبطا بحساب دخول، وصل طلبك إلى الموارد البشرية في منشأتك، وستزودك بكلمة مرور مؤقتة.'); } catch (er) { showErr('#aerr', er); } };
   if ($('#forgot')) $('#forgot').onclick = async e => { e.preventDefault(); const em = $('#af').email.value.trim(); if (!em) return showErr('#aerr', 'اكتب بريدك أولا'); try { await authApi.recover(em); authView('in', 'أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك (إن كان مسجلا).'); } catch (er) { showErr('#aerr', er); } };
   $('#af').onsubmit = async e => {
     e.preventDefault(); const f = formData(e.target);
@@ -386,7 +388,7 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
     if (step === 'login') {
       if (!/^[A-Za-z0-9_-]{1,20}$/.test(f.emp)) return showErr('#aerr', 'أدخل الرقم الوظيفي (أرقام إنجليزية)');
       if (!f.password) return showErr('#aerr', 'أدخل كلمة المرور');
-      try { await busy($('#ab'), async () => { await authApi.signIn(staffEmail(ccode, f.emp), f.password); LS.set('waad.authtab', 'staff'); return boot(); }); }
+      try { await busy($('#ab'), async () => { await authApi.signIn(staffEmail(ccode, f.emp), f.password); LS.set('waad.authtab', 'staff'); rememberSet(f.remember); LS.set('waad.empno', f.remember ? f.emp : null); return boot(); }); }
       catch (er) { showErr('#aerr', /غير صحيحة/.test(er.message) ? 'الرقم الوظيفي أو كلمة المرور غير صحيحة' : er); }
       return;
     }
@@ -397,7 +399,7 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
     if (tab === 'up') { LS.set('waad.terms', TERMS_VERSION); LS.set('waad.authtab', 'in'); }
     try {
       await busy($('#ab'), async () => {
-        if (tab === 'in') { await authApi.signIn(f.email, f.password); LS.set('waad.authtab', 'in'); return boot(); }
+        if (tab === 'in') { await authApi.signIn(f.email, f.password); LS.set('waad.authtab', 'in'); rememberSet(f.remember); return boot(); }
         const signedIn = await authApi.signUp(f.email, f.password);
         if (signedIn) return boot();
         authView('in', 'أنشأنا حسابك. افتح رسالة التأكيد في بريدك ثم سجّل الدخول.');
@@ -520,7 +522,11 @@ function startTab() {
   if (q.has('start')) { q.delete('start'); history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash); }
   return t;
 }
+/* «تذكر دخولي»: on by default; off = the sign-in ends when the browser closes */
+const rememberBox = () => `<label class="row small" style="gap:6px;margin-top:10px"><input type="checkbox" name="remember" checked style="width:auto"> <span>${esc(tr('تذكر دخولي على هذا الجهاز'))}</span></label>`;
+function rememberSet(on) { LS.set('waad.noremember', on ? null : 1); try { sessionStorage.setItem('waad.live', '1'); sessionStorage.setItem('waad.unlocked', '1'); } catch (e) {} }
 async function boot() {
+  try { if (LS.get('waad.noremember') && S.session && !sessionStorage.getItem('waad.live')) setSession(null); } catch (e) {}
   const link = await authFromLink();
   if (link && link.error) return authView('in', link.error);
   if (link && link.type === 'recovery') return changePasswordView('recovery');
@@ -528,6 +534,7 @@ async function boot() {
   if (typeof careersToken === 'function' && careersToken()) return careersView(careersToken());
   if (typeof coToken === 'function' && coToken()) return coPublicView(coToken());   // a customer approves a change order: no sign-in   // the company's public careers page: no sign-in
   if (!S.session) return legalHash() ? legalView(legalHash()) : authView(startTab());
+  if (!ADMIN && typeof bioGate === 'function' && bioGate()) return;
   try {
     // startup calls that do not depend on each other go out together (each round trip to the server costs ~0.2 s)
     const [mfa, plat, comps] = await Promise.all([db.rpc('mfa_state').catch(() => null), db.rpc('is_platform_admin').catch(() => false), db.rpc('my_companies').catch(e => { if (e.status === 401) throw e; return null; })]);
@@ -714,7 +721,7 @@ function shell() {
           ${S.platform ? '<a class="mi" href="' + ADMIN_URL + '" id="plat" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v6H4zM4 14h7v6H4zM15 14h5v6h-5z"/></svg><span>لوحة إدارة المنصة</span></a>' : ''}
           ${has('owner', 'admin', 'hr', 'finance', 'accountant') ? '<a class="mi" href="#/support" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0v4a2 2 0 0 1-2 2h-2v-6h4M4 13v4a2 2 0 0 0 2 2h2v-6H4"/></svg><span>الدعم الفني</span></a>' : ''}
           ${ADMIN || isStandalone() ? '' : '<button type="button" class="mi" id="inst" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h10v20H7zM11 18h2M12 6v7M9 10l3 3 3-3"/></svg><span>ثبّت وعد على جوالك</span></button>'}
-          ${ADMIN ? '' : '<button type="button" class="mi" id="pushon" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span>تفعيل التنبيهات على هذا الجهاز</span></button>'}
+          ${ADMIN ? '' : '<button type="button" class="mi" id="pushon" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span>تفعيل التنبيهات على هذا الجهاز</span></button><button type="button" class="mi" id="bioon" role="menuitem" hidden><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11v3M7 11a5 5 0 0 1 10 0v2a9 9 0 0 1-1 4M4 10a8 8 0 0 1 16 0M8 16a12 12 0 0 0 1 4"/></svg><span>الدخول بالبصمة أو الوجه</span></button>'}
           <a class="mi" href="#/help" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14M12 17h.01"/></svg><span>مركز المساعدة</span></a>
           <a class="mi" href="#/privacy" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM9 12h7M9 16h7"/></svg><span>الخصوصية والشروط</span></a>
           <button type="button" class="mi out" id="lo" role="menuitem"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/></svg><span>تسجيل الخروج</span></button>
@@ -732,6 +739,7 @@ function shell() {
   if ($('#hb')) $('#hb').onclick = () => { if (typeof helpModal === 'function') helpModal(); };
   if ($('#inst')) $('#inst').onclick = () => { $('#umenu').hidden = true; installApp(); };
   if ($('#pushon')) $('#pushon').onclick = () => { $('#umenu').hidden = true; pushEnable(); };
+  if (typeof bioMenu === 'function') bioMenu();
   $('#um').onclick = ev => { ev.stopPropagation(); const p = $('#bpanel'); if (!p.hidden) { p.hidden = true; return umSet(false); } umSet($('#umenu').hidden); };
   $('#bell').onclick = ev => { ev.stopPropagation(); umSet(false); const p = $('#bpanel'); p.hidden = false; drawBell(true); LS.set(seenKey(), new Date().toISOString()); };
   $('#pw').addEventListener('click', () => umSet(false));
@@ -835,6 +843,7 @@ async function loadNotifs() {
     (vv || []).forEach(v => add('وصلتك تأشيرة الخروج والعودة — افتح طلبك', '#/requests', { at: v.delivered_at, ok: true })); }
   if (typeof finNotifs === 'function') await finNotifs(add, safe);
   if (typeof projNotifs === 'function') await projNotifs(add, safe);
+  if (typeof pwNotifs === 'function') await pwNotifs(add, safe);
   if (myReqs) { const since = Date.now() - 30 * 864e5; myReqs.filter(r => r.decided_at && new Date(r.decided_at) > since).forEach(r => add((r.status === 'approved' ? 'اعتُمد ' : 'رُفض ') + 'طلبك: ' + (KIND[r.kind] || r.kind), '#/requests', { at: r.decided_at, ok: r.status === 'approved' })); }
   return out;
 }

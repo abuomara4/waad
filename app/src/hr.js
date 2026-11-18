@@ -377,6 +377,7 @@ VIEWS['#/employees'] = async (page, arg, q) => {
       { t: 'الدخول', h: e => { const l = cache.logins[e.id]; return !l ? '<span class="badge">بدون حساب</span>' : l.by_number ? '<span class="badge info">بالرقم الوظيفي</span>' + (l.must_change_password ? ' <span class="badge wait" title="' + esc(tr('لم يغيّر كلمة المرور بعد')) + '">' + esc(tr('كلمة مرور مؤقتة')) + '</span>' : '') : '<span class="badge info">بالبريد</span>'; } }, { t: 'الحالة', h: e => e.end_date && e.end_date < today() ? '<span class="badge bad">منتهية</span>' : e.end_date ? '<span class="badge wait">آخر يوم ' + fdate(e.end_date) + '</span>' : (pend[e.id] || e.probation_end) && (pend[e.id] || e.probation_end) >= today() ? '<span class="badge info">تحت التجربة حتى ' + fdate(pend[e.id] || e.probation_end) + '</span>' : '<span class="badge ok">على رأس العمل</span>' }];
   // one search box over everything: employee number, name (ar/en), job title, department, manager, national id, mobile
   const searchStr = e => [e.emp_no, e.full_name, e.full_name_en, e.job_title, e.job_title_en, dm[e.department_id], e.manager_id && em[e.manager_id] ? em[e.manager_id].full_name : '', e.national_id, e.iqama_no, e.mobile].filter(Boolean).join(' ').toLowerCase();
+  if (isHR()) setTimeout(() => staffPwBanner(page, em), 0);
   page.innerHTML = `<div class="head"><div><h1>الموظفون</h1><div class="muted" id="ecount" data-nt>${esc(arCount(rows.length, 'موظف'))}</div></div><div class="row">
      <div class="hmore"><button type="button" class="btn hmore-t" aria-expanded="false">${esc(tr('المزيد'))}</button><div class="hmore-i"><a class="btn" href="#/employees${showEnded ? '' : '?all=1'}">${showEnded ? 'على رأس العمل فقط' : 'إظهار المنتهية خدماتهم'}</a><button class="btn" id="dep">الأقسام</button><button class="btn" id="imx">استيراد من Excel</button><button class="btn" id="upx">تحديث جماعي من Excel</button><button class="btn" id="brs">زيادة جماعية</button></div></div><button class="btn pri" id="ne">إضافة موظف</button></div></div>
    <div class="row" style="margin-bottom:12px;gap:8px;flex-wrap:wrap"><input id="esrch" type="search" aria-label="${esc(tr('بحث في الموظفين'))}" placeholder="بحث: الرقم الوظيفي، الاسم، المسمى، القسم، المدير، الهوية، الجوال…" autocomplete="off" style="flex:1;min-width:220px">
@@ -532,6 +533,14 @@ function createStaffLogin(e) {
       cache.logins = null; route(); setTimeout(() => credentialsBox(e, pw, !res.confirmed && !res.existed), 60);
     }
   });
+}
+/* employees who asked for a new password from the sign-in screen (0129) */
+async function pwNotifs(add, safe) { if (!isHR()) return; const r = await safe(db.get('staff_password_requests', Object.assign(C(), { status: 'eq.open', select: 'id' }))); if (r && r.length) add(r.length + ' طلبات إعادة كلمة مرور من الموظفين', '#/employees', { hot: 1 }); }
+async function staffPwBanner(page, em) {
+  const rows = await db.get('staff_password_requests', Object.assign(C(), { status: 'eq.open', order: 'created_at' })).catch(() => []); if (!rows.length || !$('.head', page)) return;
+  $('.head', page).insertAdjacentHTML('afterend', `<div class="note warn" id="pwreq"><b>${esc(tr('طلبات إعادة كلمة المرور'))}</b>${rows.map(r => { const e = em[r.employee_id] || {}; return `<div class="row" style="justify-content:space-between;align-items:center;gap:8px;margin-top:6px"><span>${esc(e.full_name || '')} <span class="num muted">${esc(e.emp_no || '')}</span></span><span class="row" style="gap:6px"><button class="btn sm pri" data-pwr="${r.employee_id}">${esc(tr('إصدار كلمة مؤقتة'))}</button><button class="btn sm" data-pwd="${r.id}">${esc(tr('تجاهل'))}</button></span></div>`; }).join('')}<p class="small muted" style="margin:8px 0 0">${esc(tr('تأكد من هوية الموظف قبل تسليمه كلمة المرور.'))}</p></div>`);
+  $$('[data-pwr]', page).forEach(b => b.onclick = () => resetStaffPassword(em[b.dataset.pwr]));
+  $$('[data-pwd]', page).forEach(b => b.onclick = async () => { try { await db.rpc('staff_password_dismiss', { p_id: b.dataset.pwd }); route(); } catch (e) { toast(e.message); } });
 }
 function resetStaffPassword(e) {
   modal('إعادة تعيين كلمة المرور — ' + e.full_name, '<p>تتوقف كلمة المرور الحالية وتظهر لك كلمة مؤقتة جديدة، ويُطلب من الموظف تغييرها عند الدخول.</p>', {

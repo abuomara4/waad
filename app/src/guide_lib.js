@@ -9,7 +9,8 @@ const GUIDE = {
       ['افتح رابط النظام من جوالك أو جهازك، واختر «دخول الموظفين».', 'Open the system link on your phone or computer and choose «Employee sign-in».'],
       ['أدخل رمز المنشأة الذي أعطتك إياه الموارد البشرية (مرة واحدة فقط، ويتذكره النظام).', 'Enter the company code HR gave you (only once; the system remembers it).'],
       ['أدخل رقمك الوظيفي وكلمة المرور المؤقتة، ثم اختر كلمة مرور خاصة بك.', 'Enter your employee number and the temporary password, then choose your own password.'],
-      ['نسيت كلمة المرور؟ اطلب من الموارد البشرية إعادة تعيينها.', 'Forgot your password? Ask HR to reset it.']] },
+      ['نسيت كلمة المرور؟ اكتب رقمك الوظيفي واضغط «نسيت كلمة المرور»، فيصل طلبك إلى الموارد البشرية في منشأتك.', 'Forgot your password? Enter your employee number and press «Forgot password»; the request goes to your company\'s HR.'],
+      ['ابقِ «تذكر دخولي» مفعلا على جهازك الخاص فقط، ويمكنك تفعيل الدخول بالبصمة أو الوجه من «حسابي».', 'Keep «Remember me» on only on your own device; you can turn on fingerprint or face unlock from «My account».']] },
     { id: 'home', img: 'home', go: '#/home', t: ['الصفحة الرئيسية والتنبيهات', 'Home page and alerts'], s: [
       ['تعرض الرئيسية رصيد إجازتك وآخر طلباتك وما يحتاج انتباهك.', 'Home shows your leave balance, your latest requests and what needs your attention.'],
       ['من «حسابي» أعلى الشاشة تجد التنبيهات، واللغة، وتغيير كلمة المرور، وتثبيت وعد على جوالك.', 'From «My account» at the top you get alerts, language, password change and installing Waad on your phone.'],
