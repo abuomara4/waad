@@ -8,7 +8,7 @@ VIEWS['#/pos'] = async page => {
   const [items, units, custs] = await Promise.all([db.get('items', { company_id: 'eq.' + S.cid, active: 'eq.true', order: 'name', select: 'id,code,name,name_en,barcode,sale_price,vat_rate,type,track_serial,unit' }),
     db.get('item_units', { company_id: 'eq.' + S.cid, select: 'item_id,name,factor,barcode' }).catch(() => []),
     db.get('parties', { company_id: 'eq.' + S.cid, kind: 'eq.customer', order: 'name', select: 'id,name,vat_no' })]);
-  const sellable = items.filter(i => !i.track_serial);
+  const sellable = items.filter(i => !i.track_serial && !/^PRJ-/.test(i.code || ''));   // project hours / claims items are invoiced from the project
   const cart = [];   // { it, qty, price }
   const find = v => { v = String(v || '').trim(); if (!v) return null;
     const it = sellable.find(i => i.barcode === v || i.code === v); if (it) return { it, f: 1 };

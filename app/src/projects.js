@@ -3,7 +3,7 @@
    timesheets with approval, hours → sales invoice, labor cost from wage + GOSI, materials from stock, profitability. Module: 'proj'. ===== */
 
 const PRJ_STATUS = { active: 'جارٍ', on_hold: 'متوقف مؤقتا', done: 'منتهٍ', cancelled: 'ملغى' };
-const PRJ_BILLING = { fixed: 'مقطوعية (سعر ثابت)', hourly: 'زمن ومواد (بالساعة)', internal: 'داخلي (غير مفوتر)' };
+const PRJ_BILLING = { fixed: 'مقطوعية (سعر ثابت)', hourly: 'زمن ومواد (بالساعة)', claims: 'مستخلصات (مقاولات)', internal: 'داخلي (غير مفوتر)' };
 const TASK_STATUS = { todo: 'لم تبدأ', doing: 'جارية', done: 'منجزة' };
 const TS_STATUS = { submitted: ['بانتظار الاعتماد', 'wait'], approved: ['معتمدة', 'ok'], rejected: ['مرفوضة', 'bad'] };
 const prjBadge = s => `<span class="badge ${s === 'active' ? 'ok' : s === 'cancelled' ? 'bad' : s === 'on_hold' ? 'wait' : 'info'}">${esc(tr(PRJ_STATUS[s] || s))}</span>`;
@@ -28,7 +28,7 @@ VIEWS['#/projects'] = async (page, arg) => {
   const act = projs.filter(p => p.status === 'active'), sum = k => act.reduce((a, p) => a + n0((rm[p.id] || {})[k]), 0);
   const nm = e => e ? ((LANG === 'en' && e.full_name_en) || e.full_name) : '—';
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('المشاريع'))}</h1><div class="muted small">${esc(tr('ملف كل مشروع ومراحله ومهامه وساعات فريقه وتكلفته وربحيته من الدفاتر'))}</div></div>
-      <div class="row"><a class="btn" href="#/mytime">${esc(tr('ساعات عملي'))}</a><button class="btn pri" id="nprj">${esc(tr('مشروع جديد'))}</button></div></div>
+      <div class="row"><a class="btn" href="#/resources">${esc(tr('إشغال الفريق'))}</a><a class="btn" href="#/mytime">${esc(tr('ساعات عملي'))}</a><button class="btn pri" id="nprj">${esc(tr('مشروع جديد'))}</button></div></div>
     <div class="grid" style="margin-bottom:14px">
       <div class="card kpi"><div class="muted small">${esc(tr('مشاريع جارية'))}</div><div class="v num">${act.length} <span class="small muted">/ ${projs.length}</span></div></div>
       <div class="card kpi"><div class="muted small">${esc(tr('قيمة العقود الجارية'))}</div><div class="v num">${money(sum('contract'))}</div></div>
@@ -57,6 +57,9 @@ async function projectForm(p) {
     ${field('موازنة التكلفة', inp('cost_budget', v.cost_budget, 'type="number" step="0.01" min="0"'))}
     ${field('مدير المشروع', `<select name="manager_id"><option value="">—</option>${emps.map(e => opt(e.id, ((LANG === 'en' && e.full_name_en) || e.full_name) + ' (' + e.emp_no + ')', v.manager_id)).join('')}</select>`)}
     ${field('الموقع', inp('location', v.location, 'maxlength="200"'))}
+    ${field('نسبة محتجز الضمان % (للمستخلصات)', inp('retention_pct', v.retention_pct || 0, 'type="number" step="0.01" min="0" max="100"'))}
+    ${field('يُحسب المحتجز على', `<select name="retention_base">${opt('excl', tr('قيمة المستخلص قبل الضريبة'), v.retention_base)}${opt('incl', tr('إجمالي الفاتورة شاملا الضريبة'), v.retention_base)}</select>`)}
+    ${field('نسبة استرداد الدفعة المقدمة من كل مستخلص %', inp('advance_recovery_pct', v.advance_recovery_pct || 0, 'type="number" step="0.01" min="0" max="100"'))}
     ${field('الحالة', `<select name="status">${Object.entries(PRJ_STATUS).map(([k, t]) => opt(k, tr(t), v.status)).join('')}</select>`)}
     ${field('تاريخ البدء', inp('start_date', v.start_date, 'type="date"'))}
     ${field('تاريخ التسليم', inp('due_date', v.due_date, 'type="date"'))}
@@ -64,7 +67,7 @@ async function projectForm(p) {
     <p class="muted small">${esc(tr('يُنشأ للمشروع مركز تكلفة برقمه تلقائيا؛ اختره في فواتير المبيعات والمشتريات وأوامر الشراء والعهد ليُحمَّل عليه.'))}</p>`, {
     wide: true, onOk: async f => {
       const row = { company_id: S.cid, name: f.name, party_id: blank(f.party_id), billing: f.billing, contract_value: blank(f.contract_value), cost_budget: blank(f.cost_budget),
-        hourly_rate: blank(f.hourly_rate), manager_id: blank(f.manager_id), location: blank(f.location), status: f.status, start_date: blank(f.start_date), due_date: blank(f.due_date), note: blank(f.note) };
+        hourly_rate: blank(f.hourly_rate), manager_id: blank(f.manager_id), location: blank(f.location), retention_pct: +f.retention_pct || 0, retention_base: f.retention_base, advance_recovery_pct: +f.advance_recovery_pct || 0, status: f.status, start_date: blank(f.start_date), due_date: blank(f.due_date), note: blank(f.note) };
       if (p) await db.upd('projects', { id: 'eq.' + p.id }, row); else { const [n] = await db.ins('projects', row); cache.cc = null; if (n && n.id) { toast(tr('تم الحفظ')); location.hash = '#/projects/' + n.id; return; } }
       cache.cc = null; toast(tr('تم الحفظ')); route();
     } });
@@ -86,7 +89,7 @@ async function projectView(page, id) {
   const nm = e => e ? ((LANG === 'en' && e.full_name_en) || e.full_name) : '—';
   const msName = mid => (ms.find(m => m.id === mid) || {}).name || '';
   const liveEmps = Object.values(em).filter(e => !e.end_date || e.end_date >= today()).sort((a, b) => String(a.emp_no).localeCompare(String(b.emp_no)));
-  const TABS = [['over', 'نظرة عامة'], ['plan', 'المراحل والمهام'], ['gantt', 'الجدول الزمني'], ['hours', 'ساعات العمل'], ['team', 'الفريق']];
+  const TABS = [['over', 'نظرة عامة'], ...(p.billing === 'claims' ? [['claims', 'البنود والمستخلصات']] : []), ['plan', 'المراحل والمهام'], ['gantt', 'الجدول الزمني'], ['hours', 'ساعات العمل'], ['team', 'الفريق'], ['changes', 'أوامر التغيير'], ['risks', 'المخاطر']];
   const kpi = (t, v, cls = '') => `<div class="card kpi"><div class="muted small">${esc(tr(t))}</div><div class="v num ${cls}">${v}</div></div>`;
   const cost = n0(r.cost) + n0(r.unposted_labor);
   page.innerHTML = `<div class="head"><div><a href="#/projects" class="small back">${esc(tr('المشاريع'))}</a><h1>${esc(p.name)} <span class="muted num small">${esc(p.no)}</span></h1>
@@ -101,6 +104,7 @@ async function projectView(page, id) {
     body.innerHTML = `<div class="grid" style="margin-bottom:14px">${kpi('قيمة العقد', money(r.contract))}${kpi('المفوتر', money(r.invoiced))}${kpi('المحصّل', money(r.collected))}
         ${kpi('موازنة التكلفة', money(r.cost_budget))}${kpi('التكلفة الفعلية', money(cost))}${kpi('التكلفة المتوقعة عند الإنجاز', money(r.eac))}${kpi('الهامش المتوقع', money(r.margin), n0(r.margin) < 0 ? 'bad' : 'ok')}</div>
       <div class="card"><h2>${esc(tr('الإنجاز'))}</h2>${progBar(pg)}<p class="small muted">${esc(tr('الفعلي = أوزان المراحل × إنجاز كل مرحلة (المهام المنجزة أو النسبة المدخلة). المخطط = ما مضى من مدة كل مرحلة حسب تواريخها.'))}</p>
+        ${evmBox(r, cost)}
         ${n0(pg.weights) && n0(pg.weights) !== 100 ? `<p class="small bad">${esc(tr('مجموع أوزان المراحل'))} <span class="num">${n0(pg.weights)}%</span> — ${esc(tr('يُفضّل أن يكون 100%'))}</p>` : ''}</div>
       <div class="card"><h2>${esc(tr('التكلفة من الدفاتر'))}</h2><p class="small">${esc(tr('كل ما يُقيَّد على مركز تكلفة المشروع'))} <span class="num">${esc(p.no)}</span>: ${esc(tr('فواتير الموردين وأوامر الشراء والعهد والمواد المصروفة من المخزون وتكلفة ساعات الفريق.'))}</p>
         <div class="row" style="gap:6px;flex-wrap:wrap">${can('stock') ? `<button class="btn" id="pmat">${esc(tr('صرف مواد من المخزون'))}</button>` : ''}${can('purch') ? `<a class="btn" href="#/porders/new">${esc(tr('أمر شراء'))}</a>` : ''}
@@ -113,9 +117,15 @@ async function projectView(page, id) {
           <p class="muted small">${esc(tr('قيد: من ح/ مواد مصروفة على المشاريع (5120) على مركز تكلفة المشروع، إلى ح/ المخزون — بمتوسط التكلفة.'))}</p>`,
         { ok: 'صرف', onOk: async f => { await db.rpc('stock_issue_project', { p_project: id, p_doc: { item: f.item, qty: +f.qty, warehouse: blank(f.warehouse), date: f.date, note: f.note } }); toast(tr('تم الترحيل')); route(); } });
     };
+    db.rpc('project_contract', { p_project: id }).then(ct => { const g = (ct && ct.guarantees) || []; if (!g.length) return;
+      body.insertAdjacentHTML('beforeend', `<div class="card"><h2>${esc(tr('خطابات الضمان للمشروع'))}</h2>${tbl([{ t: 'البنك', h: x => esc(x.bank) + (x.ref ? ` <span class="num small muted">${esc(x.ref)}</span>` : '') }, { t: 'المبلغ', r: 1, h: x => money(x.amount) },
+        { t: 'ينتهي', h: x => fdate(x.expiry) + (x.status === 'active' && x.expiry < today() ? ` <span class="badge bad">${esc(tr('منتهٍ'))}</span>` : '') }, { t: 'الحالة', h: x => esc(tr(x.status === 'active' ? 'قائم' : 'مُفرج عنه')) }], g)}<a class="btn sm" href="#/facilities">${esc(tr('القروض وخطابات الضمان'))}</a></div>`); }).catch(() => {});
     notesBox(page, 'project', id);
   }
 
+  if (tab === 'claims') return projectClaimsTab(body, p);
+  if (tab === 'changes') return projectChangesTab(body, p);
+  if (tab === 'risks') return projectRisksTab(body, p, em);
   if (tab === 'plan') {
     const col = s => tasks.filter(t => t.status === s);
     body.innerHTML = `<div class="card"><div class="row" style="justify-content:space-between;align-items:center"><h2>${esc(tr('المراحل'))}</h2><button class="btn sm pri" id="nms">${esc(tr('مرحلة جديدة'))}</button></div>
@@ -224,6 +234,13 @@ async function projectView(page, id) {
     $('#nmem', body).onclick = () => memForm(null);
     bindRows(body, mem, m => memForm(m));
   }
+}
+// earned value: PV = budget × planned %, EV = budget × actual %, AC = actual cost; SPI = EV ÷ PV, CPI = EV ÷ AC
+function evmBox(r, ac) {
+  const bac = n0(r.cost_budget), pg = r.progress || {}; if (!bac || pg.actual == null) return '';
+  const ev = bac * n0(pg.actual) / 100, pv = pg.planned == null ? null : bac * n0(pg.planned) / 100, spi = pv ? ev / pv : null, cpi = ac ? ev / ac : null;
+  const ix = (v, t) => v == null ? '' : `<span class="badge ${v < 0.9 ? 'bad' : v < 1 ? 'wait' : 'ok'}">${esc(tr(t))} <span class="num">${v.toFixed(2)}</span></span>`;
+  return `<div class="row" style="gap:6px;flex-wrap:wrap;margin-top:8px">${ix(spi, 'مؤشر الجدول SPI')} ${ix(cpi, 'مؤشر التكلفة CPI')}</div><p class="small muted">${esc(tr('القيمة المكتسبة'))} <span class="num">${money(ev)}</span>${pv != null ? ' · ' + esc(tr('المخطط')) + ' <span class="num">' + money(pv) + '</span>' : ''} · ${esc(tr('التكلفة الفعلية'))} <span class="num">${money(ac)}</span> — ${esc(tr('أقل من 1 يعني تأخرا أو تجاوزا للتكلفة.'))}</p>`;
 }
 const empHourEst = e => e ? (n0(e.basic) + n0(e.housing) + n0(e.transport)) / 240 : 0;   // display only; the posted cost adds allowances and GOSI (emp_hour_cost)
 

@@ -524,7 +524,8 @@ async function boot() {
   if (link && link.error) return authView('in', link.error);
   if (link && link.type === 'recovery') return changePasswordView('recovery');
   if (typeof portalToken === 'function' && portalToken()) return portalView(portalToken());   // a customer's private link: no sign-in
-  if (typeof careersToken === 'function' && careersToken()) return careersView(careersToken());   // the company's public careers page: no sign-in
+  if (typeof careersToken === 'function' && careersToken()) return careersView(careersToken());
+  if (typeof coToken === 'function' && coToken()) return coPublicView(coToken());   // a customer approves a change order: no sign-in   // the company's public careers page: no sign-in
   if (!S.session) return legalHash() ? legalView(legalHash()) : authView(startTab());
   try {
     // startup calls that do not depend on each other go out together (each round trip to the server costs ~0.2 s)
@@ -576,7 +577,7 @@ const MOD_ROUTES = {
   purch: ['purchreq', 'porders', 'receipts', 'purchases', 'rfq'],
   stock: ['items', 'warehouses', 'transfers', 'counts', 'expiry', 'reorder', 'serials'],
   finance: ['expensepolicy', 'payments', 'journal', 'reports', 'coa', 'bankrec', 'cheques', 'petty', 'mypetty', 'currencies', 'opening', 'assets', 'costcenters', 'budgets', 'periods'],
-  proj: ['projects', 'mytime'] };
+  proj: ['projects', 'mytime', 'resources'] };
 const VIEW_ONLY = { employees: 'hr_emp', docs: 'hr_emp', att: 'hr_att', leavecal: 'hr_att', payroll: 'hr_pay', penalties: 'hr_disc', reviews: 'hr_disc' };
 function viewOnlyPage(path) { const r = String(path || '').split('/')[1]; return !!VIEW_ONLY[r] && !isHR() && !has('owner', 'admin', 'finance') && hrCan(VIEW_ONLY[r]); }
 function routeModule(h) {

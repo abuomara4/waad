@@ -2135,7 +2135,7 @@ select t.err($$select * from public.code_lookups$$, 'permission denied', 'anon c
 select t.err($$select public.riyadh_today()$$, 'permission denied', 'anon cannot call helper functions');
 reset role;
 select t.ok((select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'
-  and has_function_privilege('anon', p.oid, 'execute') and p.proname not in ('company_by_code', 'ping', 'site_hit', 'site_content', 'portal_view', 'careers_view', 'careers_apply')) = 0, 'anon can call only company_by_code, the health check, the website counter/texts, the customer portal and the careers page');
+  and has_function_privilege('anon', p.oid, 'execute') and p.proname not in ('company_by_code', 'ping', 'site_hit', 'site_content', 'portal_view', 'careers_view', 'careers_apply', 'co_view', 'co_decide')) = 0, 'anon can call only company_by_code, the health check, the website counter/texts, the customer portal, the careers page and change-order links');
 select t.ok(has_function_privilege('authenticated', 'public.riyadh_today()', 'execute'), 'signed-in users keep helper functions');
 delete from public.code_lookups;
 select set_config('request.headers', '{"cf-connecting-ip":"203.0.113.7"}', false);
@@ -3713,6 +3713,75 @@ select t.ok((select revenue = 3000 and cost > 0 and (progress->>'actual')::numer
 reset role;
 select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
 select t.err($$select * from public.project_pnl('$$ || :'cid' || $$')$$, '42501|مصرح', 'profitability: not for employees');
+reset role;
+
+-- projects, phase two (0124): contract items, progress claims (ZATCA contracting guideline), change orders, guarantees, risks, resources
+select t.ok((public.claim_calc('{"kind":"interim","gross_to_date":972000,"previous_gross":0,"adv_open":500000,"recovery_pct":100}')->>'net')::numeric = 472000
+  and (public.claim_calc('{"kind":"interim","gross_to_date":972000,"previous_gross":0,"adv_open":500000,"recovery_pct":100}')->>'vat')::numeric = 70800,
+  'claims: work to date 972,000 − down payment 500,000 = invoice 472,000 + VAT 70,800 (ZATCA contracting guideline, Example 3)');
+select t.ok((public.claim_calc('{"kind":"interim","gross_to_date":5000000,"retention_pct":6,"retention_base":"incl"}')->>'retention')::numeric = 345000
+  and (public.claim_calc('{"kind":"interim","gross_to_date":5000000,"retention_pct":6,"retention_base":"incl"}')->>'vat')::numeric = 750000,
+  'claims: VAT on the whole invoice, retention 6% withheld (345,000), paid 5,405,000 (Example 4)');
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+insert into public.projects(company_id, name, party_id, billing, contract_value, retention_pct, advance_recovery_pct, start_date, due_date)
+  values (:'cid', 'إنشاء مستودع الدمام', :'c1', 'claims', 1000000, 10, 20, current_date - 60, current_date + 120) returning id as cp \gset
+insert into public.project_boq(company_id, project_id, code, description, unit, qty, rate) values (:'cid', :'cp', 'A1', 'أعمال الحفر', 'م3', 1000, 100) returning id as b1 \gset
+insert into public.project_boq(company_id, project_id, code, description, unit, qty, rate) values (:'cid', :'cp', 'A2', 'الخرسانة', 'م3', 500, 1800) returning id as b2 \gset
+select public.claim_save(:'cp', '{"kind":"advance","advance":100000}') as ca \gset
+select public.claim_approve(:'ca') as cainv \gset
+select t.ok((select subtotal = 100000 and vat = 15000 from public.sales_invoices where id = :'cainv')
+  and exists(select 1 from public.journal_lines l join public.journal_entries e on e.id = l.entry_id where e.source = 'project' and l.account_code = '2170' and l.credit = 100000),
+  'claims: the down payment gets a tax invoice and is held as a liability (2170), not revenue');
+select t.err($$select public.claim_save('$$ || :'cp' || $$', jsonb_build_object('kind', 'interim', 'lines', jsonb_build_array(jsonb_build_object('boq', '$$ || :'b1' || $$', 'qty', 1200))))$$,
+  'أكبر من كمية العقد', 'claims: no more than the contract quantity');
+select public.claim_save(:'cp', jsonb_build_object('kind', 'interim', 'lines', jsonb_build_array(jsonb_build_object('boq', :'b1', 'qty', 1000), jsonb_build_object('boq', :'b2', 'qty', 100)))) as c1c \gset
+select public.claim_approve(:'c1c') as c1inv \gset
+select t.ok((select this_gross = 280000 and advance_recovery = 56000 and net = 224000 and vat = 33600 and retention = 22400 and payable = 235200 from public.project_claims where id = :'c1c'),
+  'claims: 280,000 of work, 20% advance recovery (56,000), invoice 224,000 + VAT, 10% retention withheld');
+select t.ok((select subtotal = 224000 and cost_center_id = (select cost_center_id from public.projects where id = :'cp') from public.sales_invoices where id = :'c1inv'),
+  'claims: the claim''s tax invoice on the project''s cost center');
+select t.err($$update public.project_boq set qty = 50 where id = '$$ || :'b2' || $$'$$, 'مستخلص معتمد', 'claims: a claimed contract item is not cut (use a change order)');
+select public.claim_save(:'cp', jsonb_build_object('kind', 'final', 'lines', jsonb_build_array(jsonb_build_object('boq', :'b1', 'qty', 1000), jsonb_build_object('boq', :'b2', 'qty', 500)))) as cf \gset
+select public.claim_approve(:'cf');
+select t.ok((select previous_gross = 280000 and this_gross = 720000 and advance_recovery = 44000 from public.project_claims where id = :'cf')
+  and (public.project_contract(:'cp')->>'recovered')::numeric = 100000, 'claims: the final claim recovers the rest of the down payment');
+select t.err($$select public.claim_save('$$ || :'cp' || $$', '{"kind":"interim","lines":[]}')$$, 'الختامي', 'claims: nothing after the final claim');
+reset role;
+select t.ok((select coalesce(sum(l.credit - l.debit), 0) = 0 from public.journal_lines l where l.company_id = :'cid' and l.account_code = '2170'),
+  'claims: the down payment liability is fully recovered into revenue');
+-- change orders: the customer approves through a private link; the contract and its items change, the old version is kept
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select public.co_save(:'cp', jsonb_build_object('title', 'إضافة مظلة مواقف', 'value', 60000, 'days', 15, 'cost', 40000,
+  'items', jsonb_build_array(jsonb_build_object('code', 'V1', 'description', 'مظلة مواقف', 'unit', 'م2', 'qty', 300, 'rate', 200)))) as co1 \gset
+select public.co_send(:'co1') as cotok \gset
+reset role;
+set role anon;
+select t.ok((public.co_view(:'cotok')->>'title') = 'إضافة مظلة مواقف' and public.co_view(repeat('0', 64)) is null, 'change orders: the customer opens it by its private link');
+select t.err($$select public.co_decide('$$ || :'cotok' || $$', true, 'م', null)$$, 'اسمك', 'change orders: the customer writes his name');
+select public.co_decide(:'cotok', true, 'م. سعد الغامدي', 'موافق');
+reset role;
+select t.ok((select contract_value = 1060000 and due_date = current_date + 135 and cost_budget = 40000 from public.projects where id = :'cp')
+  and exists(select 1 from public.project_boq where project_id = :'cp' and code = 'V1' and co_id = :'co1')
+  and exists(select 1 from public.project_versions where co_id = :'co1' and contract_value = 1000000), 'change orders: approval updates the contract value, the due date, the cost budget and the items, and keeps the old version');
+set role anon;
+select t.err($$select public.co_decide('$$ || :'cotok' || $$', false, 'شخص آخر', null)$$, 'تم البت', 'change orders: decided once');
+reset role;
+-- guarantees, risks, resources
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select public.lg_create(:'cid', jsonb_build_object('bank', 'بنك الجزيرة', 'beneficiary', 'العميل', 'type', 'performance', 'amount', 100000, 'margin_pct', 0, 'expiry', current_date + 200)) as plg \gset
+select public.lg_set_project(:'plg', :'cp');
+select t.ok(jsonb_array_length(public.project_contract(:'cp')->'guarantees') = 1, 'guarantees: a letter of guarantee shows on its project');
+insert into public.project_risks(company_id, project_id, title, probability, impact, owner_id) values (:'cid', :'cp', 'تأخر توريد الحديد', 4, 5, :'e_mgr');
+select t.ok((select count(*) = 1 from public.project_risks where project_id = :'cp'), 'risks: recorded with probability and impact');
+insert into public.project_members(company_id, project_id, employee_id, alloc) values (:'cid', :'cp', :'e_emp', 80);
+update public.project_members set alloc = 50 where employee_id = :'e_emp' and project_id <> :'cp';
+insert into public.project_members(company_id, project_id, employee_id, alloc) select :'cid', p.id, :'e_emp', 50 from public.projects p
+  where p.company_id = :'cid' and p.id <> :'cp' and p.status = 'active' and not exists(select 1 from public.project_members m where m.project_id = p.id and m.employee_id = :'e_emp') limit 1;
+select t.ok((select max(alloc) >= 130 from public.resource_load(:'cid', 4) where employee_id = :'e_emp'), 'resources: an employee on two projects shows over 100% allocation');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.claim_save('$$ || :'cp' || $$', '{"kind":"advance","advance":1}')$$, '42501|مصرح', 'claims: not for employees');
+select t.ok((select count(*) = 0 from public.project_claims), 'claims: employees see none');
 reset role;
 
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset

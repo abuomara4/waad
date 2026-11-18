@@ -44,8 +44,8 @@ VIEWS['#/zakat'] = async (page, arg, q) => {
 const LG_T = { bid: 'ابتدائي (دخول منافسة)', performance: 'حسن تنفيذ', advance: 'دفعة مقدمة', other: 'أخرى' };
 VIEWS['#/facilities'] = async page => {
   if (!(can('je') || can('reports'))) { page.innerHTML = `<div class="note">${esc(tr('هذه الصفحة للمالية.'))}</div>`; return; }
-  const [rows, inst, al, acc] = await Promise.all([db.get('bank_facilities', Object.assign(C(), { order: 'start_date.desc' })), db.get('facility_instalments', Object.assign(C(), { order: 'n' })),
-    db.rpc('facility_alerts', { p_company: S.cid }), accounts()]);
+  const [rows, inst, al, acc, prjs] = await Promise.all([db.get('bank_facilities', Object.assign(C(), { order: 'start_date.desc' })), db.get('facility_instalments', Object.assign(C(), { order: 'n' })),
+    db.rpc('facility_alerts', { p_company: S.cid }), accounts(), modOn('proj') ? db.get('projects', Object.assign(C(), { select: 'id,no,name', order: 'no' })).catch(() => []) : []]);
   const loans = rows.filter(r => r.kind === 'loan'), lgs = rows.filter(r => r.kind === 'lg'), banks = acc.filter(a => a.parent_code === '1100' && !a.is_header && a.code !== '1110');
   const left = f => inst.filter(i => i.facility_id === f.id && !i.paid_on).reduce((a, i) => a + n0(i.principal), 0);
   const nxt = f => inst.find(i => i.facility_id === f.id && !i.paid_on);
@@ -100,9 +100,11 @@ VIEWS['#/facilities'] = async page => {
       ${field('النوع', `<select name="type">${Object.keys(LG_T).map(k => opt(k, tr(LG_T[k]))).join('')}</select>`)}${field('المستفيد', inp('beneficiary', '', 'maxlength="150"'))}
       ${field('مبلغ الخطاب', inp('amount', '', 'type="number" min="1" step="0.01"'))}${field('نسبة الغطاء النقدي %', inp('margin_pct', 10, 'type="number" min="0" max="100" step="0.01"'))}
       ${field('عمولة الإصدار', inp('fee', '', 'type="number" min="0" step="0.01"'))}${field('حساب البنك', bankSel('1120'))}
-      ${field('تاريخ الإصدار', `<input type="date" name="start" value="${esc(today())}">`)}${field('تاريخ الانتهاء', `<input type="date" name="expiry">`)}</div>
+      ${field('تاريخ الإصدار', `<input type="date" name="start" value="${esc(today())}">`)}${field('تاريخ الانتهاء', `<input type="date" name="expiry">`)}
+      ${prjs.length ? field('المشروع (اختياري)', `<select name="project"><option value="">—</option>${prjs.map(x => opt(x.id, x.no + ' — ' + x.name)).join('')}</select>`) : ''}</div>
       <p class="muted small">${esc(tr('الغطاء: من ح/ تأمينات خطابات الضمان (1810) إلى ح/ البنك، ويعود للبنك عند الإفراج. العمولة على ح/ تكلفة التمويل (5800).'))}</p>`,
-    { wide: true, onOk: async x => { await db.rpc('lg_create', { p_company: S.cid, p_doc: { bank: x.bank, ref: x.ref, type: x.type, beneficiary: x.beneficiary, amount: +x.amount, margin_pct: +x.margin_pct || 0, fee: +x.fee || 0, account: x.acc, start: x.start, expiry: x.expiry } }); toast(tr('تم الحفظ')); route(); } });
+    { wide: true, onOk: async x => { const lid = await db.rpc('lg_create', { p_company: S.cid, p_doc: { bank: x.bank, ref: x.ref, type: x.type, beneficiary: x.beneficiary, amount: +x.amount, margin_pct: +x.margin_pct || 0, fee: +x.fee || 0, account: x.acc, start: x.start, expiry: x.expiry } });
+      if (x.project) await db.rpc('lg_set_project', { p_id: lid, p_project: x.project }); toast(tr('تم الحفظ')); route(); } });
 };
 
 /* ---------- VAT return: the documents behind a figure ---------- */

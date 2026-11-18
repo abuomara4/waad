@@ -62,6 +62,7 @@ html = f'''<!doctype html>
 {r('modules.js')}
 {r('marketing.js')}
 {r('projects.js')}
+{r('projects2.js')}
 {r('support.js')}
 {r('forms_lib.js')}
 {r('forms.js')}
