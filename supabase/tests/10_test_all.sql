@@ -3546,6 +3546,57 @@ delete from public.vehicle_logs where entry_id = :'vfe';
 reset role;
 select t.ok(exists(select 1 from public.journal_entries where reverses = :'vfe'), 'vehicle costs: deleting a posted cost reverses its entry');
 
+-- finance phase one (0121): bank statement matching, one payment over several invoices, prepaid, journal drafts, month-end
+select (select l.id from public.journal_lines l join public.journal_entries e on e.id = l.entry_id where l.company_id = :'cid' and l.account_code = '1120' and l.debit > 0
+   and not exists(select 1 from public.bank_lines b where b.journal_line_id = l.id) order by e.date desc limit 1) as bjl \gset
+select (select e.date from public.journal_lines l join public.journal_entries e on e.id = l.entry_id where l.id = :'bjl') as bjd, (select debit from public.journal_lines where id = :'bjl') as bja \gset
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.ok((public.bank_lines_import(:'cid', '1120', jsonb_build_array(jsonb_build_object('day', :'bjd', 'amount', :'bja', 'desc', 'تحويل من عميل'),
+  jsonb_build_object('day', :'bjd', 'amount', -15, 'desc', 'عمولة بنكية')))->>'added')::int = 2, 'bank statement: lines imported');
+select t.ok((public.bank_lines_import(:'cid', '1120', jsonb_build_array(jsonb_build_object('day', :'bjd', 'amount', -15, 'desc', 'عمولة بنكية')))->>'duplicates')::int = 1, 'bank statement: the same line twice is not duplicated');
+select t.ok(exists(select 1 from public.bank_suggest(:'cid', '1120') where amount = :'bja'::numeric and jl_id is not null), 'bank statement: the book line with the same amount is suggested');
+select public.bank_match(jsonb_build_array(jsonb_build_object('line', (select line_id from public.bank_suggest(:'cid', '1120') where amount = :'bja'::numeric and jl_id is not null limit 1),
+  'jl', (select jl_id from public.bank_suggest(:'cid', '1120') where amount = :'bja'::numeric and jl_id is not null limit 1))));
+select public.bank_quick_post((select id from public.bank_lines where company_id = :'cid' and amount = -15), '5900', 'عمولة بنكية');
+select t.ok((select count(*) filter (where status = 'matched') = 1 and count(*) filter (where status = 'posted') = 1 from public.bank_lines where company_id = :'cid'),
+  'bank statement: one line matched, the bank charge posted and matched in one step');
+reset role;
+-- one receipt over every open invoice of a customer, oldest first; the rest stays as an advance
+select (select party_id from public.sales_invoices where company_id = :'cid' and status = 'posted' and total - public.paid_on(id) > 0.004 group by party_id order by count(*) desc limit 1) as apty \gset
+select (select coalesce(sum(total - public.paid_on(id)), 0) from public.sales_invoices where company_id = :'cid' and status = 'posted' and party_id = :'apty' and total - public.paid_on(id) > 0.004) as adue \gset
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select jsonb_array_length(public.payment_allocate(:'cid', jsonb_build_object('direction', 'in', 'party', :'apty', 'amount', :'adue'::numeric + 50, 'date', current_date, 'account', '1120'))) as aparts \gset
+reset role;
+select t.ok(:'aparts'::int >= 2 and not exists(select 1 from public.sales_invoices where company_id = :'cid' and status = 'posted' and party_id = :'apty' and total - public.paid_on(id) > 0.004)
+  and exists(select 1 from public.payments where party_id = :'apty' and invoice_id is null and amount = 50), 'one payment over several invoices: every open invoice paid, the extra 50 kept as an advance');
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+-- prepaid: 1,200 over 12 months from two months ago → three months posted now
+select public.prepaid_create(:'cid', jsonb_build_object('name', 'إيجار المستودع', 'expense', '5300', 'amount', 1200, 'months', 12, 'start', (date_trunc('month', current_date) - interval '2 months')::date)) as ppid \gset
+select t.ok(public.prepaid_run(:'cid', current_date) = 3 and public.prepaid_run(:'cid', current_date) = 0, 'prepaid: each month posted once (3 months so far)');
+select t.ok((select sum(amount) = 300 from public.prepaid_postings where schedule_id = :'ppid'), 'prepaid: 100 a month against the expense');
+-- journal drafts: author cannot approve; the owner approves; automatic reversal; recurring
+select public.jd_save(:'cid', null, jsonb_build_object('date', current_date - 2, 'memo', 'مستحقات كهرباء', 'reverse_on', current_date - 1,
+  'lines', jsonb_build_array(jsonb_build_object('a', '5400', 'd', 70), jsonb_build_object('a', '2100', 'c', 70))), true) as jd1 \gset
+select t.err($$select public.jd_save('$$ || :'cid' || $$', null, '{"date":"2026-01-01","memo":"غير متوازن","lines":[{"a":"5400","d":10},{"a":"2100","c":5}]}', false)$$, 'غير متوازن', 'journal drafts: an unbalanced entry is refused');
+select t.err($$select public.jd_approve('$$ || :'jd1' || $$', true, null)$$, 'أعدّه', 'journal drafts: the author does not approve his own entry');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.jd_approve(:'jd1', true, null);
+select public.jd_run_due(:'cid');
+select t.ok((select status = 'posted' and entry_id is not null and reversed_entry is not null from public.journal_drafts where id = :'jd1'), 'journal drafts: approved, posted, and reversed automatically on its date');
+select public.jd_save(:'cid', null, jsonb_build_object('date', (current_date - interval '2 months')::date, 'memo', 'اشتراك شهري', 'recur', 1,
+  'lines', jsonb_build_array(jsonb_build_object('a', '5500', 'd', 50), jsonb_build_object('a', '1120', 'c', 50))), true) as jd2 \gset
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select public.jd_approve(:'jd2', true, null);
+select public.jd_run_due(:'cid');
+select t.ok((select count(*) = 3 from public.journal_entries where source_id = :'jd2'), 'journal drafts: a monthly entry posts every month up to today');
+select t.ok(jsonb_array_length(public.month_close_status(:'cid', current_date)->'checks') = 6, 'month-end close: six checks');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.month_close_status('$$ || :'cid' || $$', current_date)$$, '42501|غير مصرح|صلاحية', 'month-end close: not for employees');
+reset role;
+
 -- the owner's monthly e-mail also counts applicants, survey answers, new hires missing data and position requests (0110)
 select t.ok((select public.monthly_report(:'cid', current_date) ?& array['applicants','survey_answers','onb_missing','hc_pending']), 'monthly e-mail: applicants, survey answers, onboarding gaps and position requests are reported');
 -- GOSI: the yearly pension step for new-regime contributors falls on 1 July (0109)

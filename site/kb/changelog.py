@@ -35,7 +35,10 @@ RELEASES = [
   ('استيراد الحضور من أجهزة البصمة', 'Attendance import from fingerprint devices'),
   ('صفحات «وعد حسب القطاع» في الموقع', '«Waad by sector» pages on the website'),
   ('إدارة الأسطول: سجل الوقود والصيانة وموعد الصيانة القادمة', 'Fleet: fuel and maintenance log and the next service'),
-  ('ملف رواتب بصيغة بنكك (مثل «تبادل» الراجحي)', 'A salary file in your bank\'s own layout (such as Al Rajhi Tabadul)')]),
+  ('ملف رواتب بصيغة بنكك (مثل «تبادل» الراجحي)', 'A salary file in your bank\'s own layout (such as Al Rajhi Tabadul)'),
+  ('مطابقة كشف البنك تلقائيا وقيود سريعة للعمولات', 'Automatic bank statement matching and quick entries for charges'),
+  ('سند قبض أو صرف على عدة فواتير، والمصروفات المقدمة موزعة شهريا', 'One receipt or payment over several invoices, and prepaid expenses spread monthly'),
+  ('مسودات القيود واعتمادها والقيود المتكررة والعكس التلقائي، وإقفال الشهر', 'Journal drafts and approval, recurring and auto-reversing entries, and the month-end close')]),
  ('16 نوفمبر 2026', '16 November 2026', [
   ('أقسام افتراضية لكل منشأة جديدة (تسعة أقسام بالعربي والإنجليزي)', 'Default departments for every new company (nine, Arabic and English)'),
   ('المرفقات عند إنشاء المستندات والعقود والعهد، وقائمة عهد جاهزة بالعربي والإنجليزي', 'Attachments when creating documents, contracts and custody, and a ready bilingual custody list'),

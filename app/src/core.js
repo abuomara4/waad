@@ -684,6 +684,8 @@ function navItems() {
     if (can('je')) it.push({ h: '#/petty', t: 'العُهد النقدية' });
     if (has('owner', 'admin', 'finance')) it.push({ h: '#/companydocs?t=vehicles', t: 'الأسطول والسيارات' });   // fleet costs live with finance too (0119)
     if (can('coa') || can('sales') || can('purch')) it.push({ h: '#/currencies', t: 'العملات' });
+    if (can('je')) it.push({ h: '#/bankmatch', t: 'مطابقة كشف البنك' }, { h: '#/prepaid', t: 'المصروفات المقدمة' });
+    if (can('reports')) it.push({ h: '#/monthclose', t: 'إقفال الشهر' });
     if (has('owner', 'admin', 'finance')) it.push({ h: '#/periods', t: 'إقفال الفترات والسنة' }, { h: '#/opening', t: 'الأرصدة الافتتاحية' });
   }
   if (has('owner', 'admin', 'finance', 'hr') || can('proj')) { g('المشاريع'); it.push({ h: '#/projects', t: 'المشاريع وجداول الوقت' }); }

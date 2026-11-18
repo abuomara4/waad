@@ -310,6 +310,9 @@ VIEWS['#/payments'] = async page => {
   const pm = {}; parties.forEach(p => pm[p.id] = p.name);
   page.innerHTML = `<div class="head"><div><h1>سندات القبض والصرف</h1></div><div class="row">${can('sales') ? '<button class="btn" id="pin">سند قبض</button>' : ''}${can('purch') ? '<button class="btn" id="pout">سند صرف</button>' : ''}${can('jepost') ? `<button class="btn" id="pexp">${esc(tr('صرف مصروف عام'))}</button>` : ''}</div></div>
     ${tbl([{ t: 'الرقم', h: p => `<span class="num">${esc(p.no)}</span>` }, { t: 'النوع', h: p => p.direction === 'in' ? '<span class="badge ok">قبض</span>' : '<span class="badge info">صرف</span>' }, { t: 'التاريخ', h: p => fdate(p.date) }, { t: 'الطرف', h: p => esc(pm[p.party_id] || '') }, { t: 'الحساب', h: p => p.account_code === '1110' ? 'الصندوق' : p.account_code === '1120' ? 'البنك' : esc(p.account_code) }, { t: 'المبلغ', r: 1, h: p => money(p.amount) }, { t: 'مقابل', h: p => p.invoice_id || p.bill_id ? 'فاتورة' : '<span class="muted">دفعة على الحساب</span>' }], pays, { empty: 'لا توجد سندات' })}`;
+  page.querySelector('.head .row').insertAdjacentHTML('beforeend', (can('sales') ? `<button class="btn" id="pain">${esc(tr('قبض على عدة فواتير'))}</button>` : '') + (can('purch') ? `<button class="btn" id="paout">${esc(tr('صرف على عدة فواتير'))}</button>` : ''));
+  if ($('#pain', page)) $('#pain', page).onclick = () => allocateForm('in');
+  if ($('#paout', page)) $('#paout', page).onclick = () => allocateForm('out');
   if ($('#pin', page)) $('#pin', page).onclick = () => paymentForm({ dir: 'in' });
   if ($('#pout', page)) $('#pout', page).onclick = () => paymentForm({ dir: 'out' });
   // an expense paid directly (rent, utilities, fees…) with no supplier: a posted entry, expense account against cash/bank
@@ -354,6 +357,7 @@ VIEWS['#/journal'] = async page => {
     if ($('#rv', d)) $('#rv', d).onclick = async () => { try { await db.rpc('reverse_journal', { p_entry: j.id, p_date: today() }); d.close(); toast('عُكس القيد'); route(); } catch (e) { showErr($('#merr', d), e); } };
   });
   if ($('#jx', page)) $('#jx', page).onclick = () => journalExport();
+  if (can('je')) { page.insertAdjacentHTML('beforeend', '<div class="card" id="jdbox" style="margin-top:14px"></div>'); journalDrafts($('#jdbox', page), acc).catch(() => {}); }
   if ($('#nj', page)) $('#nj', page).onclick = async () => {
     const post = acc.filter(a => !a.is_header); const ao = '<option value="">—</option>' + post.map(a => opt(a.code, a.code + ' — ' + a.name)).join('');
     const ccs = (await ccList()).filter(c => c.active), co = ccs.length ? `<option value="">—</option>${ccs.map(c => opt(c.id, ccName(c))).join('')}` : '';

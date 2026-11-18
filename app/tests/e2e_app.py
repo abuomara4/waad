@@ -777,6 +777,29 @@ with sync_playwright() as pw:
     o.click('#devgo'); o.wait_for_selector('text=استُورد'); ok('7777' in o.inner_text('#devp'), 'fingerprint device: an unknown device number is reported')
     ok(sql("select to_char(check_in at time zone 'Asia/Riyadh','HH24:MI') || '-' || to_char(check_out at time zone 'Asia/Riyadh','HH24:MI') from attendance a join employees e on e.id = a.employee_id where e.emp_no = '5000' and a.day = '%s'" % yday) == '08:03-17:01', 'fingerprint device: first punch = check-in, last = check-out'); o.click('#mx')
 
+    # ---------- finance phase one (0121) ----------
+    bk = sql("select e.date::text || '|' || l.debit::text from journal_lines l join journal_entries e on e.id = l.entry_id where l.account_code = '1120' and l.debit > 0 order by e.date desc limit 1").split('|')
+    bkf = os.path.join(tempfile.gettempdir(), 'statement.csv'); open(bkf, 'w', encoding='utf-8').write('Date,Description,Debit,Credit\n%s,TRANSFER IN,,%s\n%s,BANK CHARGES,15,\n' % (bk[0], bk[1], bk[0]))
+    go(o, '#/bankmatch'); o.wait_for_selector('#bmf', state='attached'); o.set_input_files('#bmf', bkf); o.wait_for_selector('#bmok')
+    ok(o.locator('[data-bm]').count() >= 1 and o.locator('[data-bq]').count() == 1, 'bank statement: the transfer is matched to its book entry, the charge is not in the books')
+    o.click('#bmok'); o.wait_for_timeout(600); o.click('[data-bq]'); o.wait_for_selector('#dlg select[name=a]'); modal_ok(o); o.wait_for_timeout(600)
+    ok(sql("select string_agg(status, ',' order by status) from bank_lines") == 'matched,posted', 'bank statement: one line matched, the bank charge posted by a quick entry')
+    apid = sql("select party_id from sales_invoices where status = 'posted' group by party_id having sum(total) > 0 limit 1")
+    go(o, '#/payments'); o.wait_for_selector('#pain'); o.click('#pain'); o.wait_for_selector('#dlg select[name=p]'); o.select_option('#dlg select[name=p]', apid); o.wait_for_timeout(800)
+    if o.locator('[data-ad]').count():
+        modal_ok(o); o.wait_for_timeout(700)
+        ok(sql("select count(*) from sales_invoices s where s.party_id = '%s' and s.status = 'posted' and s.total - paid_on(s.id) > 0.004" % apid) == '0', 'one receipt over several invoices: every open invoice of the customer paid, oldest first')
+    else:
+        o.click('#mx'); ok(True, 'one receipt over several invoices: the customer had nothing open')
+    go(o, '#/prepaid'); o.wait_for_selector('#ppn'); o.click('#ppn'); o.wait_for_selector('#dlg input[name=n]'); o.fill('#dlg input[name=n]', 'إيجار سنوي'); o.fill('#dlg input[name=a]', '12000')
+    o.fill('#dlg input[name=s]', (datetime.date.today().replace(day=1) - datetime.timedelta(days=1)).strftime('%Y-%m')); modal_ok(o); o.wait_for_timeout(500); o.click('#ppr'); o.wait_for_timeout(800)
+    ok(sql("select count(*) || '/' || sum(amount) from prepaid_postings") == '2/2000.00', 'prepaid: a year of rent from last month posts 1,000 for each of the two months so far')
+    go(o, '#/journal'); o.wait_for_selector('#jdn'); o.click('#jdn'); o.wait_for_selector('#jdl'); o.fill('#dlg input[name=m]', 'تسوية مصروف'); rows_ = o.locator('#jdl tr')
+    rows_.nth(0).locator('[data-l=a]').select_option('5500'); rows_.nth(0).locator('[data-l=d]').fill('40'); rows_.nth(1).locator('[data-l=a]').select_option('1110'); rows_.nth(1).locator('[data-l=c]').fill('40')
+    o.click('#jds'); o.wait_for_timeout(700); o.locator('#jdbox tbody tr', has_text='تسوية مصروف').click(); o.wait_for_selector('#jdok'); o.click('#jdok'); o.wait_for_timeout(700)
+    ok(sql("select status || ':' || (entry_id is not null) from journal_drafts where memo = 'تسوية مصروف'") == 'posted:true', 'journal drafts: sent for approval, approved and posted')
+    go(o, '#/monthclose'); o.wait_for_selector('#mcm'); ok(o.locator('#page .card .row').count() >= 6, 'month-end close: the checklist shows every step')
+
     # ---------- inventory: warehouses, transfers, counts, expiry, reorder ----------
     ok(all(o.locator('#nav a[href="' + h + '"]').count() == 1 for h in ['#/items', '#/warehouses', '#/transfers', '#/counts', '#/expiry', '#/reorder']), 'inventory menu: items, warehouses, transfers, counts, expiry, reorder')
     go(o, '#/sales/new'); o.wait_for_selector('#df'); ok(o.locator('#df select[name=warehouse]').count() == 0, 'single warehouse: no warehouse picker on documents')

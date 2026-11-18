@@ -40,7 +40,7 @@ VIEWS['#/bankrec'] = async (page, arg) => {
   if (arg) return reconView(page, arg);
   const [rows, acc] = await Promise.all([db.get('bank_recons', Object.assign(C(), { order: 'statement_date.desc', limit: 100 })), accounts()]);
   const banks = acc.filter(a => a.parent_code === '1100' && !a.is_header), am = {}; acc.forEach(a => am[a.code] = a.name);
-  page.innerHTML = `<div class="head"><div><h1>التسوية البنكية</h1><div class="muted small">طابق حركات البنك في الدفاتر مع كشف الحساب: حدد الحركات الظاهرة في الكشف حتى يتساوى الرصيدان</div></div>${can('je') ? '<button class="btn pri" id="nr">تسوية جديدة</button>' : ''}</div>
+  page.innerHTML = `<div class="head"><div><h1>التسوية البنكية</h1><div class="muted small">طابق حركات البنك في الدفاتر مع كشف الحساب: حدد الحركات الظاهرة في الكشف حتى يتساوى الرصيدان</div></div><div class="row">${can('je') ? `<a class="btn" href="#/bankmatch">${esc(tr('مطابقة كشف البنك'))}</a>` : ''}${can('je') ? '<button class="btn pri" id="nr">تسوية جديدة</button>' : ''}</div></div>
     ${tbl([{ t: 'الحساب', h: r => esc(r.account_code + ' — ' + (am[r.account_code] || '')) }, { t: 'تاريخ الكشف', h: r => fdate(r.statement_date) }, { t: 'رصيد الكشف', r: 1, h: r => money(r.statement_balance) },
       { t: 'الحالة', h: r => r.status === 'done' ? `<span class="badge ok">${esc(tr('مكتملة'))}</span>` : `<span class="badge wait">${esc(tr('مفتوحة'))}</span>` }], rows, { empty: 'لا توجد تسويات', onRow: true })}`;
   bindRows(page, rows, r => location.hash = '#/bankrec/' + r.id);

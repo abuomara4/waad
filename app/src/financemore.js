@@ -148,7 +148,7 @@ VIEWS['#/petty'] = async page => {
     const fc = claims.filter(c => c.fund_id === f.id);
     const d = modal(pEmp(em[f.employee_id]) + ' — ' + f.account_code, `<p>${esc(tr('الرصيد'))} <b class="num">${money(f.balance)}</b> ${esc(tr('من سقف'))} <span class="num">${money(f.ceiling)}</span></p>
       ${tbl([{ t: 'الرقم', h: c => `<span class="num">${esc(c.no)}</span>` }, { t: 'التاريخ', h: c => fdate(c.date) }, { t: 'الإجمالي', r: 1, h: c => money(c.total) }, { t: 'الحالة', h: c => badge(c.status) }], fc, { empty: 'لا توجد تسويات' })}
-      ${f.status === 'active' ? `<div class="row" style="margin-top:12px"><button type="button" class="btn sm" id="pfs">تسوية بالنيابة عنه</button><button type="button" class="btn sm" id="pft">تعزيز</button><button type="button" class="btn sm danger" id="pfc">إقفال العهدة</button></div>` : ''}`);
+      ${f.status === 'active' ? `<div class="row" style="margin-top:12px"><button type="button" class="btn sm" id="pfs">تسوية بالنيابة عنه</button><button type="button" class="btn sm" id="pft">استعاضة العهدة</button><button type="button" class="btn sm danger" id="pfc">إقفال العهدة</button></div>` : ''}`);
     if (f.status !== 'active') return;
     $('#pfs', d).onclick = () => { d.close(); pettyClaimForm(f.id); };
     $('#pft', d).onclick = () => { d.close(); modal('تعزيز العهدة', `<div class="fg">${field('المبلغ', inp('amount', r2(n0(f.ceiling) - n0(f.balance)) || '', 'type="number" step="0.01" min="0.01" required'))}${field('من حساب', `<select name="from">${cash.filter(a => a.code !== f.account_code).map(a => opt(a.code, a.name, '1110')).join('')}</select>`)}${field('التاريخ', `<input type="date" name="date" value="${today()}" max="${today()}">`)}</div>`, {
