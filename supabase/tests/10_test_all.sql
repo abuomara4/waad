@@ -3841,5 +3841,55 @@ select t.ok(exists(select 1 from public.push_due() where user_id = :'u_mgr' and 
   'alerts: the project manager hears about hours to approve, finance about a loan instalment');
 delete from public.push_subscriptions; delete from public.push_sent;
 
+-- security (0126): nobody outside a company reaches its data. Every function a signed-in user may call is tried, in a rolled-back
+-- sub-transaction, as a user with no company, with real ids of a company. A new function that answers or acts for him fails here.
+select set_config('t.ids', jsonb_build_object('p_company', :'cid', 'p_emp', :'e_emp', 'p_employee', :'e_emp', 'p_project', :'prj', 'p_party', :'c1',
+  'p_order', (select id from public.purchase_orders where company_id = :'cid' limit 1), 'p_run', (select id from public.payroll_runs where company_id = :'cid' limit 1),
+  'p_request', (select id from public.requests where company_id = :'cid' limit 1), 'p_invoice', (select id from public.sales_invoices where company_id = :'cid' limit 1),
+  'p_bill', (select id from public.purchase_bills where company_id = :'cid' limit 1), 'p_fund', (select id from public.petty_funds where company_id = :'cid' limit 1),
+  'p_item', (select id from public.items where company_id = :'cid' limit 1), 'p_training', (select id from public.trainings where company_id = :'cid' limit 1),
+  'p_kr', (select k.id from public.okr_key_results k join public.okr_objectives o on o.id = k.objective_id where o.company_id = :'cid' limit 1))::text, false) \g /dev/null
+create temp table outsider_hits(fn text, result text);
+grant all on outsider_hits to authenticated;
+do $probe$
+declare f record; a text; nm text; ty text; args text[]; known boolean; ids jsonb := current_setting('t.ids')::jsonb; r text; v text;
+begin
+  for f in select p.oid::regproc::text pn, p.proname, t.typname rt, pg_get_function_identity_arguments(p.oid) ia from pg_proc p join pg_type t on t.oid = p.prorettype
+            where p.pronamespace = 'public'::regnamespace and p.prokind = 'f' and t.typname not in ('trigger','event_trigger') and has_function_privilege('authenticated', p.oid, 'execute') loop
+    args := '{}'; known := false;
+    continue when f.ia ~ 'employees|requests|journal|project_claims';   -- whole-row arguments cannot be built from outside
+    foreach a in array case when f.ia = '' then '{}'::text[] else string_to_array(f.ia, ', ') end loop
+      nm := split_part(a, ' ', 1); ty := substr(a, length(nm) + 2); v := ids->>nm;
+      if v is not null then known := true; end if;
+      args := args || case when ty = 'uuid' then coalesce(quote_literal(v), 'gen_random_uuid()') || '::uuid' when ty = 'jsonb' then case when nm ~ 'lines|rows|items' then '''[]''::jsonb' else '''{}''::jsonb' end
+        when ty = 'text' then '''x''' when ty = 'date' then 'current_date' when ty ~ '^(numeric|integer|bigint|smallint)' then '1' when ty = 'boolean' then 'true' when ty like '%[]' then '''{}''::' || ty else 'null' end;
+    end loop;
+    continue when not known;
+    begin
+      perform set_config('request.jwt.claim.sub', '99999999-9999-9999-9999-999999999999', true); perform set_config('role', 'authenticated', true);
+      execute format('select to_jsonb(x)::text from %s(%s) x limit 1', f.pn, array_to_string(args, ',')) into r;
+      raise exception 'probe-done';
+    exception when others then
+      if sqlerrm = 'probe-done' and (f.rt = 'void' or (r is not null and r !~ '^(false|0|\[\]|\{\}|null)$')) and f.proname not in ('log_client_error','pen_grievance_deadline','member_live','signer_name') then
+        insert into outsider_hits values (f.proname, left(r, 60)); end if;
+    end;
+  end loop;
+end $probe$;
+select coalesce(string_agg(fn, ' '), 'none') as outsider_list from outsider_hits \gset
+\warn outsider probe: :outsider_list
+select t.ok(not exists(select 1 from outsider_hits), 'security: no function answers or acts for a signed-in user from outside the company');
+select t.ok(not exists(select 1 from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosrc ~ 'not \((?:(?!exists|coalesce|;)[^;])*[^<>!]=\s*public\.my_employee\('),
+  'security: no permission test can pass because the caller has no employee record');
+select t.ok(not has_function_privilege('authenticated', p.oid, 'execute'), 'security: internal helper closed: ' || p.proname) from pg_proc p
+ where p.pronamespace = 'public'::regnamespace and p.proname in ('budget_check_lines','budget_guard_lines','claim_figures','fin2_accounts','jd_check','month_close_loans','po_budget_lines','project_progress');
+select set_config('request.jwt.claim.sub', '99999999-9999-9999-9999-999999999999', false) \g /dev/null
+set role authenticated;
+select t.err($$select * from public.annual_leave_balance('$$ || :'e_emp' || $$', current_date)$$, '42501|مصرح', 'security: an outsider cannot read an employee''s leave balance');
+select t.err($$select public.per_diem_rate('$$ || :'e_emp' || $$', false)$$, '42501|مصرح', 'security: an outsider cannot read an employee''s per diem');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok(public.per_diem_rate(:'e_emp', false) is not null and exists(select 1 from public.annual_leave_balance(:'e_emp', current_date)), 'security: the employee still sees his own figures');
+reset role;
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary
