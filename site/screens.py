@@ -49,6 +49,11 @@ with sync_playwright() as p:
     o.evaluate("""async () => { const c = S.cid;
       await db.ins('company_announcements', { company_id: c, title: 'دوام رمضان', body: 'يبدأ الدوام الساعة العاشرة صباحا ولمدة ست ساعات طوال شهر رمضان.', pinned: true });
       await db.ins('surveys', { company_id: c, title: 'رضا الموظفين', kind: 'enps', questions: [{ t: 'ما مدى احتمال أن توصي بمنشأتنا كمكان عمل لصديق؟', type: 'enps' }, { t: 'ما أهم سبب لتقييمك؟', type: 'text' }] }); }""")
+    # the sample project looks like one in progress: a contract, a cost budget and weighted milestones
+    o.evaluate("""async id => { const c = S.cid, d = n => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
+      await db.upd('projects', { id: 'eq.' + id }, { billing: 'fixed', contract_value: 180000, cost_budget: 90000, start_date: d(-45), due_date: d(75) });
+      for (const [name, weight, a, b, progress, sort] of [['التحليل والتصميم', 30, -45, -15, 100, 0], ['التطوير', 50, -15, 45, 40, 1], ['الاختبار والتسليم', 20, 45, 75, 0, 2]])
+        await db.ins('project_milestones', { company_id: c, project_id: id, name, weight, start_date: d(a), end_date: d(b), progress, sort }); }""", res['projects'][0])
     shots = [('compliance', '#/compliance'), ('hr', '#/hrdash'), ('finance', '#/reports'), ('marketing', '#/marketing'), ('purch', '#/purchases'), ('stock', '#/items'), ('project', '#/projects/' + (res['projects'] or [''])[0]), ('forms', '#/forms'), ('invoice', '#/sales/' + zinv)]
     for lang in ('ar', 'en'):
         o.evaluate("l => localStorage.setItem('waad.lang', JSON.stringify(l))", lang); o.reload(); o.wait_for_selector('#nav')
