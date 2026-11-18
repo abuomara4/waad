@@ -343,7 +343,7 @@ async function paymentForm({ dir, party, doc, amount }) {
 }
 
 /* ===== journal ===== */
-const SRC = { manual: 'يدوي', reversal: 'عكس', sales: 'مبيعات', purchase: 'مشتريات', receipt: 'قبض', payment: 'صرف', stock: 'مخزون', payroll: 'رواتب', payroll_pay: 'صرف رواتب', advance: 'سلفة', expense: 'مصروفات', opening: 'افتتاحي', sales_return: 'مرتجع مبيعات', purchase_return: 'مرتجع مشتريات', asset: 'أصول ثابتة', depreciation: 'إهلاك', trip: 'بدل انتداب' };
+const SRC = { manual: 'يدوي', reversal: 'عكس', sales: 'مبيعات', purchase: 'مشتريات', receipt: 'قبض', payment: 'صرف', stock: 'مخزون', payroll: 'رواتب', payroll_pay: 'صرف رواتب', advance: 'سلفة', expense: 'مصروفات', opening: 'افتتاحي', sales_return: 'مرتجع مبيعات', purchase_return: 'مرتجع مشتريات', asset: 'أصول ثابتة', depreciation: 'إهلاك', trip: 'بدل انتداب', cheque: 'شيكات', closing: 'إقفال السنة', petty: 'عهدة نقدية', vehicle: 'سيارات', prepaid: 'مصروف مقدم', bank: 'كشف البنك', loan: 'قرض', guarantee: 'خطاب ضمان', zakat: 'زكاة' };
 VIEWS['#/journal'] = async page => {
   const [jes, acc] = await Promise.all([db.get('journal_entries', Object.assign(C(), { order: 'date.desc,created_at.desc', limit: 200 })), accounts()]);
   const am = {}; acc.forEach(a => am[a.code] = a.name);

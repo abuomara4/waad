@@ -30,7 +30,7 @@ VIEWS['#/zakat'] = async (page, arg, q) => {
     const row = (t, v, b) => `<tr><td>${b ? '<b>' : ''}${esc(tr(t))}${b ? '</b>' : ''}</td><td class="r num">${b ? '<b>' : ''}${v}${b ? '</b>' : ''}</td></tr>`;
     $('#zres', page).innerHTML = `<div class="card"><h2>${esc(tr('النتيجة'))}</h2><div class="tw"><table><tbody>
         ${row('حقوق الملكية', money(p.equity))}${row('الالتزامات المضافة (في حدود الأصول المحسومة)', money(r.liab_added))}${row('فرق الربح المعدّل عن الدفتري', money(r.diff))}
-        ${row('الأصول المحسومة', '−' + money(p.deducted))}${row('الوعاء قبل الحدود', money(r.base_before))}${row('الحد الأعلى (م28)', money(r.cap))}
+        ${row('الأصول المحسومة', (p.deducted ? '−' : '') + money(p.deducted))}${row('الوعاء قبل الحدود', money(r.base_before))}${row('الحد الأعلى (م28)', money(r.cap))}
         ${row('الوعاء الزكوي', money(r.base), 1)}${row('النسبة', (r.rate * 100).toFixed(4) + '% · ' + r.days + ' ' + tr('يوما'))}${row('الزكاة التقديرية', money(r.zakat), 1)}</tbody></table></div>
       <p class="small">${esc(tr(ZK_RULE[r.rule]))}</p>
       ${n0(inp0.posted) ? `<p class="small muted">${esc(tr('سبق تسجيل مصروف زكاة في هذه السنة'))}: <span class="num">${money(inp0.posted)}</span></p>` : ''}

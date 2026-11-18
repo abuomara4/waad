@@ -4146,6 +4146,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 رُوجعت هذه الفاتورة مسبقا	This invoice was already reviewed
 زاتكا	ZATCA
 زاتكا تقبل الفاتورة بدونه لكن مع ملاحظة	ZATCA accepts the invoice without it, but with a warning
+زكاة	Zakat
 زوار الموقع	Website visitors
 زي العمل	Work uniform
 زيادة	Increase
@@ -4441,6 +4442,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 شيك مرتجع	Bounced cheque
 شيك وارد	Received cheque
 شيك وارد من عميل	Cheque received from a customer
+شيكات	Cheques
 شيكات برسم التحصيل	Cheques under collection
 شيكات صادرة مؤجلة	Post-dated cheques issued
 شيكات صادرة مؤجلة الدفع	Post-dated cheques issued
@@ -5012,6 +5014,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قرار التظلم	Grievance decision
 قرار الحذف	Deletion decision
 قرار توقيع جزاء تأديبي	Disciplinary penalty decision
+قرض	Loan
 قرض جديد	New loan
 قروض وتسهيلات بنكية	Bank loans and facilities
 قرّر التثبيت أو الإنهاء قبل نهايتها	decide on confirmation or termination before it ends
@@ -5060,6 +5063,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كانت أيامي الأولى منظمة وواضحة	My first days were organised and clear
 كانت علاقتي بمديري المباشر جيدة	My relationship with my direct manager was good
 كسبناها	Won
+كشف البنك	Bank statement
 كشف بتاريخ	Statement dated
 كشف حساب	Statement
 كشف رصيد الإجازة السنوية	Annual leave statement
@@ -5909,6 +5913,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مصروف الإهلاك	Depreciation expense
 مصروف الزكاة	Zakat expense
 مصروف تدفعه مقدما لعدة أشهر	An expense paid in advance for several months
+مصروف مقدم	Prepaid expense
 مصروفات	Expense
 مصروفات أخرى	Other expenses
 مصروفات إدارية وعمومية	General and administrative expenses
