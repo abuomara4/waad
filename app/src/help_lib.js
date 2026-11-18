@@ -73,6 +73,9 @@ const HELP = {
     ['أنشئ المشروع بقيمة عقده وموازنته ومديره؛ يُنشأ له مركز تكلفة تلقائيا.', 'Create the project with its contract value, budget and manager; it gets a cost center automatically.'],
     ['التبويبات: المراحل والمهام، والجدول الزمني، والساعات، والفريق، وأوامر التغيير، والمخاطر، والمستخلصات لعقود المقاولات.', 'Tabs: milestones and tasks, timeline, hours, team, change orders, risks, and claims for contracting jobs.'],
     ['الربحية تأتي من القيود على مركز تكلفة المشروع، والهامش المتوقع = قيمة العقد − التكلفة ÷ نسبة الإنجاز.', 'Profitability comes from entries on the project\'s cost center; expected margin = contract value − cost ÷ % complete.']] },
+  '#/accesslog': { t: ['سجل الوصول', 'Access log'], s: [
+    ['يعرض من فتح ملفات الموظفين والرواتب وملفات البنك والتقارير والمرفقات، ومتى. لا يمكن تعديله أو حذفه.', 'Shows who opened employee files, payroll, bank files, reports and attachments, and when. It cannot be edited or deleted.'],
+    ['يراه مالك المنشأة ومدير النظام، ويدخل في تصدير بيانات المنشأة.', 'The owner and administrators can see it, and it is part of the company data export.']] },
   '#/mytime': { t: ['ساعات عملي', 'My hours'], s: [
     ['سجّل ساعاتك ليوم أو لأسبوع كامل، وتذهب لمدير المشروع للاعتماد.', 'Log your hours for a day or a whole week; they go to the project manager for approval.'],
     ['إذا كنت مدير مشروع تظهر هنا ساعات فريقك بانتظار اعتمادك.', 'If you manage a project, your team\'s hours waiting for approval appear here.']] },

@@ -48,7 +48,7 @@ const EXP_SECTIONS = [
   [['المشتريات والموردون', 'Purchasing and suppliers'], ['purchase_orders', 'purchase_order_lines', 'purchase_bills', 'purchase_bill_lines', 'goods_receipts', 'goods_receipt_lines', 'rfqs', 'rfq_lines', 'rfq_quotes', 'rfq_quote_lines', 'supplier_ratings']],
   [['المخزون', 'Inventory'], ['items', 'item_units', 'item_serials', 'warehouses', 'stock_moves', 'stock_batches', 'stock_counts', 'stock_count_lines', 'stock_transfers', 'stock_transfer_lines']],
   [['التسويق والمشاريع', 'Marketing and projects'], ['crm_leads', 'crm_activities', 'marketing_campaigns', 'projects', 'project_tasks']],
-  [['المنشأة والمستخدمون', 'Company and users'], ['companies', 'company_subscriptions', 'members', 'member_perms', 'invites', 'company_documents', 'vehicles', 'custom_fields', 'record_notes', 'code_lookups', 'audit_log']]];
+  [['المنشأة والمستخدمون', 'Company and users'], ['companies', 'company_subscriptions', 'members', 'member_perms', 'invites', 'company_documents', 'vehicles', 'custom_fields', 'record_notes', 'code_lookups', 'audit_log', 'access_log']]];
 const EXP_T = {
   employees: ['الموظفون', 'Employees'], departments: ['الأقسام', 'Departments'], job_grades: ['الدرجات الوظيفية', 'Job grades'], employee_allowances: ['البدلات', 'Allowances'], salary_history: ['سجل الرواتب', 'Salary history'],
   contracts: ['العقود', 'Contracts'], employee_documents: ['مستندات الموظفين', 'Employee documents'], letters: ['الخطابات', 'Letters'], custody: ['العهد', 'Custody'], custody_items: ['أصناف العهد', 'Custody items'],
@@ -77,6 +77,7 @@ const EXP_T = {
   companies: ['بيانات المنشأة', 'Company'], company_subscriptions: ['الاشتراك', 'Subscription'], members: ['المستخدمون', 'Users'], member_perms: ['الصلاحيات', 'Permissions'], invites: ['الدعوات', 'Invites'],
   company_documents: ['مستندات المنشأة', 'Company documents'], vehicles: ['السيارات', 'Vehicles'], custom_fields: ['الحقول المخصصة', 'Custom fields'], record_notes: ['الملاحظات', 'Notes'], code_lookups: ['محاولات رمز المنشأة', 'Code lookups'],
   audit_log: ['سجل التدقيق', 'Audit log'],
+  access_log: ['سجل الوصول', 'Access log'],
   document_files: ['مرفقات المستندات', 'Document files'], contract_files: ['مرفقات العقود', 'Contract files'], custody_files: ['مرفقات العهد', 'Custody files'], request_attachments: ['مرفقات الطلبات', 'Request attachments'],
   travel_files: ['مرفقات السفر', 'Travel files'], candidate_files: ['مرفقات المرشحين', 'Candidate files'], company_document_files: ['مرفقات مستندات المنشأة', 'Company document files'], vehicle_files: ['مرفقات السيارات', 'Vehicle files'] };
 const EXP_C = { name: ['الاسم', 'Name'], full_name: ['الاسم الكامل', 'Full name'], emp_no: ['الرقم الوظيفي', 'Employee no.'], national_id: ['رقم الهوية', 'ID number'], nationality: ['الجنسية', 'Nationality'],

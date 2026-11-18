@@ -58,3 +58,25 @@ VIEWS['#/permissions'] = async page => {
   $$('[data-pacc]', page).forEach(b => b.onclick = () => { const m = mem.find(x => x.user_id === b.dataset.pacc); accessDialog(m, who(m), mp[m.user_id] || []); });
   $$('input[data-p]', page).forEach(c => c.onchange = async () => { try { await db.rpc('set_finance_permission', { p_company: S.cid, p_role: c.dataset.r, p_perm: c.dataset.p, p_allowed: c.checked }); toast(tr('تم الحفظ')); } catch (e) { c.checked = !c.checked; toast(e.message); } });
 };
+
+/* ===== «سجل الوصول» (0128): who opened sensitive data. The owner and admins read it; nobody can edit it ===== */
+const ACCESS_K = { employee: 'ملف موظف', payroll: 'مسير رواتب', payslip: 'قسيمة راتب', bank_file: 'ملف بنك أو حماية أجور', report: 'تقرير موارد بشرية', file: 'مرفق', export: 'تصدير بيانات المنشأة' };
+VIEWS['#/accesslog'] = async (page, arg, q) => {
+  if (!has('owner', 'admin')) { page.innerHTML = `<div class="note">${esc(tr('هذه الصفحة لمالك المنشأة ومدير النظام.'))}</div>`; return; }
+  const from = q.get('from') || addDays(today(), -30), to = q.get('to') || today(), k = q.get('k') || '';
+  const f = Object.assign(C(), { order: 'at.desc', limit: 500, at: 'gte.' + from + 'T00:00:00' }); if (k) f.kind = 'eq.' + k;
+  const all = await db.get('access_log', f), rows = all.filter(r => String(r.at).slice(0, 10) <= to);
+  const go = () => location.hash = `#/accesslog?from=${$('#alf', page).value}&to=${$('#alt', page).value}&k=${$('#alk', page).value}`;
+  const what = r => tr(ACCESS_K[r.kind]) + (r.employee_name ? ' — ' + r.employee_name : '') + (r.label && r.kind !== 'file' ? ' — ' + tr(r.label) : '');
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('سجل الوصول'))}</h1><div class="muted small">${esc(tr('من فتح البيانات الحساسة ومتى. لا يمكن تعديله أو حذفه، ويبقى مع بيانات المنشأة ويدخل في تصديرها.'))}</div></div>
+      <div class="row"><button class="btn" id="alx">${esc(tr('تنزيل CSV'))}</button></div></div>
+    <div class="row" style="gap:6px;flex-wrap:wrap;margin-bottom:10px"><input type="date" id="alf" value="${esc(from)}" style="width:auto" aria-label="${esc(tr('من'))}"><input type="date" id="alt" value="${esc(to)}" style="width:auto" aria-label="${esc(tr('إلى'))}">
+      <select id="alk" style="width:auto" aria-label="${esc(tr('النوع'))}"><option value="">${esc(tr('كل الأنواع'))}</option>${Object.keys(ACCESS_K).map(x => opt(x, tr(ACCESS_K[x]), k)).join('')}</select>
+      <input id="alq" placeholder="${esc(tr('بحث بالاسم'))}" style="width:auto" aria-label="${esc(tr('بحث بالاسم'))}"></div>
+    <div id="alb"></div><p class="muted small">${esc(tr('يسجل ما يُفتح من شاشات النظام وعمليات التصدير. فتح الشخص لبياناته هو لا يُسجل، وتكرار الفتح خلال 10 دقائق يُحسب مرة واحدة.'))}</p>`;
+  const draw = () => { const t = $('#alq', page).value.trim(), r2w = rows.filter(r => !t || (String(r.actor_name || '') + ' ' + String(r.employee_name || '')).includes(t));
+    $('#alb', page).innerHTML = tbl([{ t: 'الوقت', h: r => `<span class="num">${esc(String(r.at).slice(0, 16).replace('T', ' '))}</span>` }, { t: 'من', h: r => esc(r.actor_name || '') }, { t: 'ماذا فتح', h: r => esc(what(r)) }], r2w, { empty: 'لا توجد سجلات في هذه الفترة' }); return r2w; };
+  draw(); $('#alq', page).oninput = draw; ['#alf', '#alt', '#alk'].forEach(x => $(x, page).onchange = go);
+  $('#alx', page).onclick = () => { const c = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"', csv = '\ufeff' + [[tr('الوقت'), tr('من'), tr('ماذا فتح')].map(c).join(',')].concat(draw().map(r => [String(r.at).slice(0, 19).replace('T', ' '), r.actor_name, what(r)].map(c).join(','))).join('\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = 'waad-access-log.csv'; a.click(); };
+};

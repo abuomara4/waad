@@ -2814,6 +2814,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بتوقيت الرياض	Riyadh time
 بتوقيعك تقرّ بالاطلاع على المستند أعلاه والموافقة عليه	By signing you confirm you have read and agree to the document above
 بحث	Search
+بحث بالاسم	Search by name
 بحث بالاسم أو البريد أو الباقة	Search by name, e-mail or plan
 بحث عن صنف	Search items
 بحث في الدليل	Search the guide
@@ -3446,6 +3447,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تقرير طبي بتاريخ الولادة	Medical report with the delivery date
 تقرير طبي معتمد	Approved medical report
 تقرير مراكز التكلفة	Cost centers report
+تقرير موارد بشرية	HR report
 تقنية	Technology
 تقنية المعلومات	IT
 تقويم الإجازات	Leave calendar
@@ -4054,6 +4056,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 دفعة مقدمة	Advance
 دقائق	minutes
 دقائق التأخير	Late minutes
+دقائق يُحسب مرة واحدة	minutes counts once
 دقة	Accuracy
 دقة الموقع ضعيفة	Location accuracy is poor
 دقيقة	minutes
@@ -4409,6 +4412,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 سجل المنشآت المحذوفة	Deleted companies log
 سجل الموظف	Employee record
 سجل الموظف مربوط بحساب آخر	The employee record is linked to another account
+سجل الوصول	Access log
 سجل الوقود والصيانة	Fuel and maintenance log
 سجل تجاري أو رخصة أو استمارة أو تأمين ينتهي خلال	A commercial registration, licence, vehicle registration or insurance expiring within
 سجل زاتكا لا يتغيّر	The ZATCA record cannot be changed
@@ -5071,6 +5075,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فالمنضم بعد الإقفال يتأخر أول راتب له	so a joiner after the cutoff gets the first wage later
 فبعض البنوك تطلب ترتيب أعمدة مختلفا	as some banks require a different column order
 فبعض البنوك تطلب ترتيب أعمدة مختلفاً	as some banks require a different column order
+فتح الشخص لبياناته هو لا يُسجل	A person opening their own data is not logged
 فتح المسير	Open the payroll
 فتح الموقع	Open the website
 فتح النظام	Open the system
@@ -5445,6 +5450,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد ساعات مسجلة	No hours logged
 لا توجد ساعات معتمدة غير مفوترة	No approved hours left to invoice
 لا توجد سجلات تختار منها	There are no records to choose from
+لا توجد سجلات في هذه الفترة	No records in this period
 لا توجد سجلات للاختيار منها	There are no records to choose from
 لا توجد سجلات للاختيار منها. أضفها أولا.	There are no records to choose from. Add them first.
 لا توجد سلف متبقية	No remaining advances
@@ -5566,6 +5572,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يمكن تحديث الحقل	This field cannot be updated
 لا يمكن تسجيل حضور ليوم لم يأتِ بعد	Attendance cannot be recorded for a future day
 لا يمكن تعديل الإضافي	overtime can no longer be changed
+لا يمكن تعديله أو حذفه	It cannot be edited or deleted
 لا يمكن تعيين مرشح مرحلته	Cannot hire a candidate whose stage is
 لا يمكن حذف الموظف لوجود حركات مرتبطة به	The employee can't be deleted: records are linked to him
 لا يمكن طلب تعديل الحقل	You cannot request a change to the field
@@ -5875,6 +5882,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ما يلزم منشأتك نظاما في مكان واحد	What your company must do by law, in one place
 ما يمدّد	no extension
 ماجستير	Master's
+ماذا فتح	What was opened
 ماذا لو	What if
 ماذا يرى كل دور	What each role sees
 مالك المنصة	Platform owner
@@ -6153,6 +6161,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مسير أكتوبر يحسب الحضور والغياب والإضافي والإجازات من	the October payroll counts attendance, absence, overtime and leave from
 مسير الرواتب	Payroll
 مسير الشهر معتمد	The month's payroll is approved
+مسير رواتب	Payroll run
 مسير رواتب بانتظار اعتماد المالية	Payroll awaiting finance approval
 مسير رواتب بانتظار اعتمادك النهائي	Payroll awaiting your final approval
 مسير رواتب شهر	Payroll for
@@ -6310,9 +6319,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ملف الفاتورة	Invoice file
 ملف الموظف	Employee file
 ملف بسطر لكل طرف قيد	A file with one row per entry line
+ملف بنك أو حماية أجور	Bank or wage protection file
 ملف حماية الأجور	WPS file
 ملف حماية الأجور جاهز للتنزيل من المسير	The wage protection file is ready to download from the payroll
 ملف كل مشروع ومراحله ومهامه وساعات فريقه وتكلفته وربحيته من الدفاتر	Each project's file, milestones, tasks, team hours, cost and profitability from the books
+ملف موظف	Employee file
 ملفات	files
 ملفات Excel	Excel files
 ملفات Excel لكل قسم مع المرفقات (ZIP)	Excel files per section with attachments (ZIP)
@@ -6361,6 +6372,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 من طلب شراء معتمد	from an approved purchase request
 من طلب عروض الأسعار	from request for quotations
 من عرض السعر	from quotation
+من فتح البيانات الحساسة ومتى	Who opened sensitive data and when
 من قائمة الدخل قبل الزكاة	From the income statement before zakat
 من له موظفون تحته	anyone with direct reports
 من ليس له مدير مباشر تقيّمه الموارد البشرية	employees without a direct manager are reviewed by HR
@@ -6683,6 +6695,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 هذه الصفحة للموارد البشرية والمدراء	This page is for HR and managers
 هذه الصفحة للموارد البشرية ومن ينوب عنها	This page is for HR and its deputy
 هذه الصفحة للموظفين المرتبطين بملف موظف	This page is for users linked to an employee record
+هذه الصفحة لمالك المنشأة ومدير النظام	This page is for the company owner and administrators
 هذي السنة	This year
 هـ	AH
 هل تريد إلغاء هذا الطلب	Do you want to cancel this request
@@ -6787,6 +6800,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وتبقى ملتزماً بأداء عملك خلالها	and you remain bound to perform your work during it
 وتتحول المعتمدة إلى وظيفة شاغرة	and the approved ones become job openings
 وتصل نتيجتك لمالك المنشأة والموارد البشرية	your result goes to the company owner and HR
+وتكرار الفتح خلال	and opening again within
 وتمر على مديره ثم المالية ثم المدير العام	go to their manager, then finance, then the GM
 وتنتهي العلاقة بانتهائها	and employment ends when it ends
 وتنتهي العلاقة من تاريخ قبولها	and employment ends on the date it is accepted
@@ -6960,6 +6974,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ووين	and where
 ويبقى المبلغ في	and the amount stays in
 ويبقى في وعد سجل مختصر بالحذف ودفعات الاشتراك فقط	Waad keeps only a short record of the deletion and the subscription payments
+ويبقى مع بيانات المنشأة ويدخل في تصديرها	and it stays with the company data and is included in its export
 ويتابعها النظام وينبه قبل انتهائها	and the system tracks it and alerts before expiry
 ويتحدّث تلقائيا	and it updates by itself
 ويتحدّث تلقائياً	and it updates by itself
@@ -7081,6 +7096,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يساوي المبلغ إن تُرك فارغاً	equals the amount if left empty
 يستخدم	Uses
 يستعيد كلمة المرور من	and recovers the password from
+يسجل ما يُفتح من شاشات النظام وعمليات التصدير	Records what is opened from system screens and data exports
 يسجّل بنفس البريد ثم يُدخل الرمز	They sign up with the same email, then enter the code
 يسجّل حضوره فيه فقط	checks in there only
 يسرّنا دعوتك لمقابلة وظيفة	We are pleased to invite you to an interview for

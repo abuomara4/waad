@@ -1415,6 +1415,11 @@ with sync_playwright() as pw:
     for h in ['#/home', '#/guide', '#/settings', '#/employees', '#/forms', '#/org', '#/analytics', '#/reports', '#/sales', '#/purchases', '#/journal', '#/payroll', '#/projects', '#/projects/' + prj_id, '#/facilities', '#/zakat']:
         go(cs, h); cs.wait_for_timeout(500)
     v = cs.evaluate('__csp'); ok(not v, 'the content security policy blocks nothing the system needs ' + str(v[:3])); csc.close()
+    rid = sql("select id from payroll_runs limit 1"); go(o, '#/payroll/' + rid); o.wait_for_selector('#page tbody tr'); o.wait_for_timeout(500)
+    go(o, '#/employees'); o.wait_for_selector('#page tbody tr'); o.locator('#page tbody tr', has_text='محمد العتيبي').first.click(); o.wait_for_selector('#dlg[open]'); o.wait_for_timeout(500); o.click('#mx')
+    ok(sql("select count(*) from access_log where kind in ('payroll','employee')") >= '2', 'access log: opening payroll and an employee file is recorded')
+    go(o, '#/accesslog'); o.wait_for_selector('#alb'); ok('مسير رواتب' in o.inner_text('#alb') and 'محمد العتيبي' in o.inner_text('#alb'), 'access log: the owner sees who opened what')
+    go(e, '#/accesslog'); e.wait_for_selector('#page .note'); ok(e.locator('#alb').count() == 0, 'access log: employees cannot open it')
     # ---------- completion batch (0125): the project manager, «My hours», week sheet, Kanban drag, project and milestone on documents, mobile ----------
     today_s = datetime.date.today().isoformat()
     sqlx("update projects set manager_id = (select id from employees where emp_no = '5001') where id = '" + prj_id + "'")

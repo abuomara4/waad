@@ -694,7 +694,7 @@ function navItems() {
     if (has('owner', 'admin', 'finance')) it.push({ h: '#/periods', t: 'إقفال الفترات والسنة' }, { h: '#/opening', t: 'الأرصدة الافتتاحية' });
   }
   if (has('owner', 'admin', 'finance', 'hr') || can('proj') || S.myPM) { g('المشاريع'); it.push({ h: '#/projects', t: 'المشاريع وجداول الوقت' }); if (!S.myPM || has('owner', 'admin', 'finance', 'hr') || can('proj')) it.push({ h: '#/resources', t: 'إشغال الفريق' }); }
-  if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); it.push({ h: '#/companydocs', t: 'مستندات المنشأة والسيارات' }); if (has('owner', 'admin')) it.push({ h: '#/customfields', t: 'الحقول المخصصة' }); if (has('owner', 'admin', 'hr')) it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); }
+  if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); it.push({ h: '#/companydocs', t: 'مستندات المنشأة والسيارات' }); if (has('owner', 'admin')) it.push({ h: '#/accesslog', t: 'سجل الوصول' }, { h: '#/customfields', t: 'الحقول المخصصة' }); if (has('owner', 'admin', 'hr')) it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); }
   return it;
 }
 function shell() {
@@ -973,7 +973,10 @@ async function readAttachment(file) {
   if (!blob || blob.size > 3 * 1048576) throw new Error(tr('حجم الملف أكبر من 3 ميجابايت') + ': ' + file.name);
   return { name: file.name.replace(/\.[^.]+$/, '') + '.jpg', mime: 'image/jpeg', data: await blobB64(blob) };
 }
+// tells the access log what was opened (0128); never holds up the screen
+function accessNote(kind, o = {}) { if (S.cid) db.rpc('access_note', { p_company: S.cid, p_kind: kind, p_emp: o.emp || null, p_ref: o.ref == null ? null : String(o.ref), p_label: o.label || null }).catch(() => {}); }
 async function openAttachment(id, table = 'request_attachments') {
+  accessNote('file', { ref: table + ':' + id, label: table });
   const w = window.open('', '_blank');
   try { const [a] = await db.get(table, { id: 'eq.' + id, select: 'file_name,mime,data' }); if (!a) throw new Error('المرفق غير موجود');
     const bin = atob(a.data), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);

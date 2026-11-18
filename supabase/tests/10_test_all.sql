@@ -3902,5 +3902,24 @@ select set_config('request.jwt.claim.sub', :'u_fin', false); set role authentica
 select t.err($$select public.platform_storage()$$, '42501|مصرح', 'storage: only the Waad team sees it');
 reset role;
 
+-- access log (0128)
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.access_note(:'cid', 'employee', :'e_emp', :'e_emp', null);
+select public.access_note(:'cid', 'employee', :'e_emp', :'e_emp', null);
+select public.access_note(:'cid', 'employee', :'e_hr', :'e_hr', null);
+select t.err($$select public.access_note('$$ || :'cid' || $$', 'hack', null, null, null)$$, 'غير معروف', 'access log: only known kinds');
+select t.ok((select count(*) = 0 from public.access_log), 'access log: HR cannot read it');
+reset role;
+select t.ok((select count(*) = 1 and min(employee_name) = 'محمد العتيبي' and min(actor_name) = 'منيرة السالم' from public.access_log where company_id = :'cid' and kind = 'employee'), 'access log: who opened which file, once per visit, and not one''s own record');
+select t.err($$update public.access_log set actor_name = 'x'$$, 'append-only', 'access log: records cannot be changed');
+select t.err($$delete from public.access_log$$, 'append-only', 'access log: records cannot be deleted');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok((select count(*) >= 1 from public.access_log), 'access log: the owner reads it');
+reset role;
+select t.ok((select count(*) = 2 from pg_proc where pronamespace = 'public'::regnamespace and proname in ('company_export','platform_company_export') and prosrc like '%access_add(%'), 'access log: both data exports are recorded on the server');
+select set_config('request.jwt.claim.sub', '99999999-9999-9999-9999-999999999999', false); set role authenticated;
+select t.err($$select public.access_note('$$ || :'cid' || $$', 'employee', null, null, null)$$, '42501|مصرح', 'access log: outsiders cannot write to it');
+reset role;
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

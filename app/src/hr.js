@@ -304,6 +304,7 @@ VIEWS['#/payslips'] = async page => {
   bindRows(page, rows, l => payslip(l, S.myEmp));
 };
 function payslip(l, e) {
+  if (e) accessNote('payslip', { emp: e.id, ref: l.run_id || l.id });
   const row = (t, v, neg) => `<tr><td>${esc(t)}</td><td class="r num">${neg && n0(v) ? '−' : ''}${money(v)}</td></tr>`;
   const title = `قسيمة راتب ${l._r ? l._r.month + '/' + l._r.year : ''}`;
   const d = modal(title, `<div id="psl"><p><b>${esc(e ? e.full_name : '')}</b> <span class="muted">${esc(e ? e.emp_no : '')}</span>${l.paid_days != null && l.paid_days < 30 ? ` <span class="badge">${esc(tr('أيام مستحقة'))} <span class="num">${l.paid_days}/30</span></span>` : ''}</p><div class="tw"><table><tbody>
@@ -403,6 +404,7 @@ function departmentsDlg() {
   d.addEventListener('close', () => route(), { once: true });
 }
 async function employeeForm(e, { linkMe } = {}) {
+  if (e && e.id) accessNote('employee', { emp: e.id, ref: e.id });
   const em = await employeesMap(); const deps = cache.deps || (cache.deps = await db.get('departments', { company_id: 'eq.' + S.cid, order: 'name' }));
   const v = e || { is_saudi: true, gender: 'm', hire_date: today(), basic: '', housing: '', transport: '', emp_no: String(Math.max(1000, ...Object.values(em).map(x => /^\d+$/.test(x.emp_no || '') ? +x.emp_no : 0)) + 1) };
   const others = Object.values(em).filter(x => !e || x.id !== e.id);
@@ -596,6 +598,7 @@ function payrollPrint(run, lines, em) {
 async function payrollRun(page, id) {
   const [[run], lines, em] = await Promise.all([db.get('payroll_runs', { id: 'eq.' + id }), db.get('payroll_lines', { run_id: 'eq.' + id }), employeesMap(true)]);
   if (!run) throw new Error('المسير غير موجود');
+  accessNote('payroll', { ref: id, label: run.month + '/' + run.year });
   lines.sort((a, b) => String((em[a.employee_id] || {}).emp_no).localeCompare(String((em[b.employee_id] || {}).emp_no)));
   const sum = k => lines.reduce((a, l) => a + n0(l[k]), 0);
   const draft = run.status === 'draft', hasArr = lines.some(l => n0(l.arrears));
@@ -648,6 +651,7 @@ const bankGuess = h => { h = String(h || '').toLowerCase();
     : /deduct|استقطاع|خصم/.test(h) ? 'deductions' : /net|صافي|amount|المبلغ/.test(h) ? 'net' : /gross|إجمالي|اجمالي/.test(h) ? 'gross' : /emp|وظيفي|staff/.test(h) ? 'emp_no' : /curr|عملة/.test(h) ? 'currency'
     : /month|شهر|period/.test(h) ? 'month' : /date|تاريخ/.test(h) ? 'pay_date' : /remark|desc|بيان|ملاحظ/.test(h) ? 'remarks' : ''; };
 async function bankFile(run, lines, em) {
+  accessNote('bank_file', { ref: run.id, label: 'ملف البنك ' + run.month + '/' + run.year });
   const tpl = (S.company || {}).bank_file;
   const setup = () => { const d = modal(tr('ملف البنك'), `<ol class="small" style="padding-inline-start:18px;margin-top:0"><li>${esc(tr('اطلب من بنكك (مثل منصة «تبادل» في مصرف الراجحي) نموذج ملف رفع الرواتب، ونزّله من بوابة الشركات.'))}</li>
       <li>${esc(tr('ارفعه هنا مرة واحدة، وطابق كل عمود مع بيانات وعد. بعدها يصدر ملف البنك من كل مسير بنفس الترتيب.'))}</li></ol>
@@ -677,6 +681,7 @@ async function bankFile(run, lines, em) {
   $('#bkd', d).href = URL.createObjectURL(blob); $('#bkc', d).onclick = () => { d.close(); setup(); };
 }
 function wpsFile(run, lines, em) {
+  accessNote('bank_file', { ref: 'wps:' + run.id, label: 'ملف حماية الأجور ' + run.month + '/' + run.year });
   const en = LANG === 'en';
   const rows = lines.map(l => { const e = em[l.employee_id] || {}, iban = String(e.iban || '').replace(/\s/g, '').toUpperCase(), bank = SA_BANKS[iban.slice(4, 6)];
     const probs = [];
@@ -702,6 +707,7 @@ function wpsFile(run, lines, em) {
   return d;
 }
 async function gosiReport(run, em) {
+  accessNote('report', { ref: 'gosi:' + run.id, label: 'تقرير التأمينات ' + run.month + '/' + run.year });
   const rows = await db.rpc('gosi_report', { p_run: run.id });
   const st = { new: ['مشترك جديد — سجّله في التأمينات', 'info'], left: ['انتهت خدمته — استبعده من التأمينات', 'wait'] };
   const chg = x => x.prev_base != null && r2(x.prev_base) !== r2(x.base);
@@ -724,6 +730,7 @@ async function gosiReport(run, em) {
 /* ===== end of service ===== */
 const EOS_REASONS = { resign: 'استقالة العامل (م85)', agree: 'اتفاق الطرفين (م74/1)', expiry: 'انتهاء العقد محدد المدة (م74/2)', employer: 'إنهاء من صاحب العمل لسبب مشروع (م75)', noreason: 'إنهاء دون سبب مشروع (م77)', art81: 'ترك العمل مع بقاء الحقوق (م81)', resignw: 'استقالة العاملة للزواج أو الولادة (م87)', resignfm: 'ترك العمل لقوة قاهرة (م87)', force: 'القوة القاهرة (م74)', ret: 'بلوغ سن التقاعد (م74)', disab: 'العجز الكلي (م74)', death: 'الوفاة (م74)', art80: 'فسخ بدون مكافأة (م80)', probation: 'إنهاء خلال فترة التجربة (م54)' };
 VIEWS['#/eos'] = async page => {
+  accessNote('report', { ref: 'eos', label: 'مكافأة نهاية الخدمة' });
   const em = await employeesMap();
   page.innerHTML = `<div class="head"><div><h1>مكافأة نهاية الخدمة والمخالصة</h1><div class="muted">المواد 77 و84 إلى 88 و111 و116 من نظام العمل</div></div></div><div class="card"><form id="ef" class="fg" novalidate>
     ${field('الموظف', `<select name="e"><option value="">— إدخال يدوي —</option>${Object.values(em).map(e => opt(e.id, e.full_name + ' (' + e.emp_no + ')')).join('')}</select>`)}

@@ -91,6 +91,9 @@ const GUIDE = {
       ['سجّل الدفعة المقدمة، ثم في كل مستخلص أدخل الكمية المنفذة حتى تاريخه واعتمده لتصدر فاتورته الضريبية.', 'Record the down payment, then in each claim enter the quantity done to date and approve it to issue its tax invoice.'],
       ['محتجز الضمان يبقى ضمن رصيد الفاتورة؛ عند تحصيله سجّل سند القبض ثم «استُلم المحتجز».', 'Retention stays in the invoice balance; when collected, record the receipt, then «Retention received».'],
       ['أمر التغيير يُرسل للعميل برابط خاص، وعند اعتماده تتحدث قيمة العقد ومدته وبنوده مع حفظ النسخة السابقة.', 'A change order goes to the customer by a private link; on approval the contract value, duration and items update and the old version is kept.']] },
+    { id: 'accesslog', go: '#/accesslog', t: ['سجل الوصول', 'Access log'], s: [
+      ['من «الإعدادات» افتح «سجل الوصول» لتعرف من فتح ملفات الموظفين والرواتب والمرفقات ومتى.', 'Open «Access log» under Settings to see who opened employee files, payroll and attachments, and when.'],
+      ['صفِّ بالفترة أو النوع أو الاسم، ونزّل النتيجة CSV عند الحاجة.', 'Filter by period, type or name, and download the result as CSV when needed.']] },
     { id: 'zakatfac', go: '#/zakat', t: ['الزكاة والقروض وخطابات الضمان', 'Zakat, loans and guarantees'], s: [
       ['«الزكاة التقديرية» تحسب تقديرا من دفاترك وفق اللائحة، ويمكنك تعديل أي رقم. الإقرار الرسمي يُقدَّم في بوابة الهيئة.', '«Zakat estimate» works out a guide figure from your books under the regulation, and any number can be changed. The official return is filed on the ZATCA portal.'],
       ['«القروض وخطابات الضمان» تعرض جدول الأقساط، وغطاء كل خطاب، وتنبهك قبل الاستحقاق والانتهاء.', '«Loans and guarantees» shows the instalment schedule and each guarantee\'s margin, and alerts you before due and expiry dates.']] },

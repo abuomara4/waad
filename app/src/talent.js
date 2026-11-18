@@ -274,6 +274,7 @@ async function training(page, id) {
 /* ===== HR reports ===== */
 VIEWS['#/hrreports'] = async page => {
   if (!isHR() && !has('finance')) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
+  accessNote('report', { ref: 'hrreports', label: 'تقارير الموارد البشرية' });
   const y = today().slice(0, 4), yAgo = addDays(today(), -365), in60 = addDays(today(), 60);
   const [em, deps, reqs, lt, att, trs, cycles, revs] = await Promise.all([employeesMap(true), db.get('departments', { company_id: 'eq.' + S.cid, order: 'name' }),
     db.get('requests', { company_id: 'eq.' + S.cid, kind: 'eq.leave', status: 'eq.approved', from_date: 'gte.' + y + '-01-01', select: 'sub,days,employee_id' }), LEAVE_TYPES(),
