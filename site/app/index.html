@@ -8014,11 +8014,13 @@ VIEWS['#/resources'] = async page => {
 /* ---------- the bell: hours to approve, rejected hours, instalments and guarantees ---------- */
 async function projNotifs(add, safe) {
   if (!modOn('proj') && !isFin()) return;
-  if (modOn('proj') && (S.emp || prjOffice())) { const p = await safe(db.rpc('timesheets_pending', { p_company: S.cid })); NAVC.time = (p || []).length;
-    if (NAVC.time) add(NAVC.time + ' تسجيل ساعات عمل بانتظار اعتمادك', '#/mytime', { hot: 1 });
-    if (S.emp) { const since = new Date(Date.now() - 7 * 864e5).toISOString(), r = await safe(db.get('timesheets', { employee_id: 'eq.' + S.emp, status: 'eq.rejected', reviewed_at: 'gte.' + since, select: 'id,reviewed_at' })); (r || []).forEach(x => add('رُفضت ساعات عمل لك — راجع السبب', '#/mytime', { at: x.reviewed_at })); } }
-  if (can('je') || can('reports')) { const a = await safe(db.rpc('facility_alerts', { p_company: S.cid })); if (!a) return;
-    if (a.instalments.length) add(a.instalments.length + ' أقساط قروض مستحقة أو قريبة', '#/facilities', { hot: 1 });
+  const time = modOn('proj') && (S.emp || prjOffice()), since = new Date(Date.now() - 7 * 864e5).toISOString();
+  const [p, r, a] = await Promise.all([time ? safe(db.rpc('timesheets_pending', { p_company: S.cid })) : null,   // together: the bell must not wait for each in turn
+    time && S.emp ? safe(db.get('timesheets', { employee_id: 'eq.' + S.emp, status: 'eq.rejected', reviewed_at: 'gte.' + since, select: 'id,reviewed_at' })) : null,
+    can('je') || can('reports') ? safe(db.rpc('facility_alerts', { p_company: S.cid })) : null]);
+  if (time) { NAVC.time = (p || []).length; if (NAVC.time) add(NAVC.time + ' تسجيل ساعات عمل بانتظار اعتمادك', '#/mytime', { hot: 1 }); }
+  (r || []).forEach(x => add('رُفضت ساعات عمل لك — راجع السبب', '#/mytime', { at: x.reviewed_at }));
+  if (a) { if (a.instalments.length) add(a.instalments.length + ' أقساط قروض مستحقة أو قريبة', '#/facilities', { hot: 1 });
     if (a.guarantees.length) add(a.guarantees.length + ' خطابات ضمان تنتهي خلال 30 يوما', '#/facilities', { hot: 1 }); }
 }
 /* «المرحلة» appears once a project with milestones is chosen in the cost-center picker */
