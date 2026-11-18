@@ -19,7 +19,7 @@ def sqlx(q):
     return json.loads(urllib.request.urlopen(req).read())['r']
 
 def new_page(b, mobile=False):
-    ctx = b.new_context(viewport={'width': 390, 'height': 844} if mobile else {'width': 1280, 'height': 900}, locale='ar-SA')
+    ctx = b.new_context(bypass_csp=True, viewport={'width': 390, 'height': 844} if mobile else {'width': 1280, 'height': 900}, locale='ar-SA')
     ctx.add_init_script(INIT)
     ctx.route(re.compile(r'https://fonts\.(googleapis|gstatic)\.com/.*'), lambda r: r.abort())
     p = ctx.new_page(); p.errors = []
@@ -44,7 +44,7 @@ def go(p, h): p.evaluate(f"location.hash='{h}'"); p.wait_for_timeout(350)
 with sync_playwright() as pw:
     b = pw.chromium.launch(executable_path=CHROME)
     # ---------- the landing page's «start free» link opens account creation directly ----------
-    lp = b.new_context(locale='ar-SA'); lp.add_init_script(INIT); lp = lp.new_page(); lp.goto(BASE + '/waad-app.html?start=signup')
+    lp = b.new_context(bypass_csp=True, locale='ar-SA'); lp.add_init_script(INIT); lp = lp.new_page(); lp.goto(BASE + '/waad-app.html?start=signup')
     lp.wait_for_selector('#af input[name=password2]')
     ok(lp.locator('input[name=agree]').count() == 1 and 'start=' not in lp.url, 'app/?start=signup opens the new-account form and cleans the address bar')
     site = BASE + '/'   # the website is one folder up from the app
@@ -1230,7 +1230,7 @@ with sync_playwright() as pw:
     # careers page: a published opening, applied for without signing in
     sqlx("insert into job_openings(company_id, title, positions, status, public) select id, 'أخصائي مبيعات', 1, 'open', true from companies where name = 'شركة وعد التجريبية'")
     go(o, '#/recruit'); o.wait_for_selector('#crl'); o.click('#crl'); o.wait_for_selector('#dlg[open] #curl'); curl = o.input_value('#dlg #curl'); o.click('#mx')
-    cc = b.new_context(viewport={'width': 390, 'height': 844}, locale='ar-SA'); cc.add_init_script(INIT); cp = cc.new_page()
+    cc = b.new_context(bypass_csp=True, viewport={'width': 390, 'height': 844}, locale='ar-SA'); cc.add_init_script(INIT); cp = cc.new_page()
     cp.goto(curl.replace('#/careers/', 'waad-app.html#/careers/') if 'waad-app.html' not in curl else curl); cp.wait_for_selector('[data-apply]')
     ok('أخصائي مبيعات' in cp.inner_text('.portal'), 'careers page: the public link lists the published opening')
     cp.click('[data-apply]'); cp.wait_for_selector('#dlg[open] input[name=name]'); cp.fill('#dlg input[name=name]', 'نورة الشهري'); cp.fill('#dlg input[name=phone]', '0551112233'); cp.click('#mok'); cp.wait_for_timeout(1200)
@@ -1272,7 +1272,7 @@ with sync_playwright() as pw:
     cust_id = sql("select id from parties where name='مؤسسة النخبة'")
     leftovers = {}
     pid_any = sql("select id from penalties limit 1")
-    for h in ['#/home', '#/employees', '#/docs', '#/att', '#/leavecal', '#/penalties', '#/penalties?t=register', '#/penalties?t=table', '#/penalties/' + pid_any, '#/payroll', '#/eos', '#/org', '#/org?v=dept', '#/docs/' + sql("select id from employees where emp_no='5000'"), '#/recruit', '#/training', '#/hrreports', '#/reviews', '#/settings', '#/sales', '#/purchases', '#/payments', '#/items', '#/journal', '#/reports', '#/approvals', '#/requests', '#/profile', '#/payslips', '#/attendance', '#/users', '#/assets', '#/bankrec', '#/costcenters', '#/budgets', '#/budgets?m=edit', '#/periods', '#/reports?r=cf', '#/cheques?v=all', '#/currencies', '#/petty', '#/opening', '#/mypetty', '#/statement/' + cust_id, '#/privacy', '#/terms', '#/crm', '#/marketing', '#/projects', '#/rfq', '#/grades', '#/insurance', '#/trainplan', '#/serials']:
+    for h in ['#/home', '#/employees', '#/docs', '#/att', '#/leavecal', '#/penalties', '#/penalties?t=register', '#/penalties?t=table', '#/penalties/' + pid_any, '#/payroll', '#/eos', '#/org', '#/org?v=dept', '#/docs/' + sql("select id from employees where emp_no='5000'"), '#/recruit', '#/training', '#/hrreports', '#/reviews', '#/settings', '#/sales', '#/purchases', '#/payments', '#/items', '#/journal', '#/reports', '#/approvals', '#/requests', '#/profile', '#/payslips', '#/attendance', '#/users', '#/assets', '#/bankrec', '#/costcenters', '#/budgets', '#/budgets?m=edit', '#/periods', '#/reports?r=cf', '#/cheques?v=all', '#/currencies', '#/petty', '#/opening', '#/mypetty', '#/statement/' + cust_id, '#/privacy', '#/terms', '#/crm', '#/marketing', '#/projects', '#/rfq', '#/grades', '#/insurance', '#/trainplan', '#/serials', '#/clearance', '#/coa']:
         go(o, h); o.wait_for_timeout(700)
         txt = o.evaluate("(()=>{const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let r=[],n;while(n=w.nextNode()){if(n.parentElement.closest('[data-nt],script,style'))continue;r.push(n.nodeValue)}return r.join('\\n')})()")
         left = [r for r in set(ARX.findall(txt)) if not all(w in typed for w in r.split())]
@@ -1287,7 +1287,7 @@ with sync_playwright() as pw:
     ok('{:,.2f}'.format(float(bal)) in o.inner_text('#stb'), 'statement closing balance equals the customer balance (%s)' % bal)
     # customer portal: a private link opens the customer's invoices without signing in
     o.click('#stportal'); o.wait_for_selector('#dlg[open] #purl'); purl = o.input_value('#dlg #purl'); o.click('#mx')
-    pp2 = b.new_context(viewport={'width': 1100, 'height': 800}, locale='ar-SA'); pp2.add_init_script(INIT); pv = pp2.new_page(); pv.goto(purl.replace('#/portal/', 'waad-app.html#/portal/') if 'waad-app.html' not in purl else purl)
+    pp2 = b.new_context(bypass_csp=True, viewport={'width': 1100, 'height': 800}, locale='ar-SA'); pp2.add_init_script(INIT); pv = pp2.new_page(); pv.goto(purl.replace('#/portal/', 'waad-app.html#/portal/') if 'waad-app.html' not in purl else purl)
     pv.wait_for_selector('.portal h1'); ok('مؤسسة النخبة' in pv.inner_text('.portal') and pv.locator('.portal tbody tr').count() >= 1, 'customer portal: the private link shows the customer its invoices without signing in')
     pv.locator('.portal tbody tr').first.click(); pv.wait_for_selector('#dlg[open] .tw'); ok('الإجمالي' in pv.inner_text('#dlg'), 'customer portal: an invoice opens with its lines and totals'); pp2.close()
     # notes on a record
@@ -1400,7 +1400,7 @@ with sync_playwright() as pw:
     o.fill('#dlg input[name=title]', 'إضافة غرفة حارس'); o.fill('#dlg input[name=value]', '25000'); o.fill('#dlg input[name=days]', '10'); modal_ok(o); o.wait_for_timeout(500)
     o.locator('#pbody tbody tr').first.click(); o.wait_for_selector('#cos'); o.click('#cos'); o.wait_for_timeout(800)
     tok = sql("select token from project_change_orders where title='إضافة غرفة حارس'")
-    cx = b.new_context(locale='ar-SA'); cx.add_init_script(INIT); cp = cx.new_page(); cp.goto(BASE + '/waad-app.html#/co/' + tok); cp.wait_for_selector('#coy')
+    cx = b.new_context(bypass_csp=True, locale='ar-SA'); cx.add_init_script(INIT); cp = cx.new_page(); cp.goto(BASE + '/waad-app.html#/co/' + tok); cp.wait_for_selector('#coy')
     ok('إضافة غرفة حارس' in cp.inner_text('body'), 'change order: the customer opens it by the private link without signing in')
     cp.fill('#cof input[name=n]', 'م. خالد العمري'); cp.click('#coy'); cp.wait_for_timeout(1000); cx.close()
     ok(sql("select contract_value from projects where id='" + cprj + "'") == '525000.00' and sql("select status from project_change_orders where title='إضافة غرفة حارس'") == 'approved',
@@ -1408,6 +1408,13 @@ with sync_playwright() as pw:
     go(o, '#/projects/' + cprj + '?t=risks'); o.wait_for_selector('#nrk'); o.click('#nrk'); o.wait_for_selector('#dlg input[name=title]'); o.fill('#dlg input[name=title]', 'تأخر تصاريح البلدية')
     o.select_option('#dlg select[name=probability]', '4'); o.select_option('#dlg select[name=impact]', '4'); modal_ok(o); o.wait_for_timeout(500); ok('16' in o.inner_text('#pbody'), 'risks: score = probability × impact')
     go(o, '#/resources'); o.wait_for_selector('#page h1'); ok('إشغال الفريق' in o.inner_text('#page'), 'team allocation page opens')
+    csc = b.new_context(viewport={'width': 1280, 'height': 900}, locale='ar-SA'); csc.add_init_script(INIT + ";window.__csp=[];addEventListener('securitypolicyviolation',e=>__csp.push(e.violatedDirective+' '+e.blockedURI))")
+    csc.route(re.compile(r'https://fonts\.(googleapis|gstatic)\.com/.*'), lambda r: r.fulfill(status=200, content_type='text/css', body=''))
+    cs = csc.new_page(); cs.goto(BASE + '/waad-app.html'); cs.click('[data-go=in]'); cs.fill('input[name=email]', 'gm@waad.test'); cs.fill('input[name=password]', PW); cs.click('#ab'); cs.wait_for_selector('#nav')
+    ok(cs.locator('meta[http-equiv="Content-Security-Policy"]').count() == 1, 'the content security policy is on')
+    for h in ['#/home', '#/guide', '#/settings', '#/employees', '#/forms', '#/org', '#/analytics', '#/reports', '#/sales', '#/purchases', '#/journal', '#/payroll', '#/projects', '#/projects/' + prj_id, '#/facilities', '#/zakat']:
+        go(cs, h); cs.wait_for_timeout(500)
+    v = cs.evaluate('__csp'); ok(not v, 'the content security policy blocks nothing the system needs ' + str(v[:3])); csc.close()
     # ---------- completion batch (0125): the project manager, «My hours», week sheet, Kanban drag, project and milestone on documents, mobile ----------
     today_s = datetime.date.today().isoformat()
     sqlx("update projects set manager_id = (select id from employees where emp_no = '5001') where id = '" + prj_id + "'")
@@ -1442,6 +1449,13 @@ with sync_playwright() as pw:
             go(o, h); o.wait_for_timeout(700)
             if not o.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'): bad.append(h)
         ok(not bad, 'phone (' + lang + '): no sideways scroll on the finance and project pages ' + str(bad))
+        if lang == 'ar':
+            bad = []
+            for h, btn in [('#/facilities', '#fnn'), ('#/facilities', '#fnl'), ('#/projects', '#nprj'), ('#/projects/' + cprj + '?t=claims', '#nclm'), ('#/projects/' + cprj + '?t=claims', '#nadv'), ('#/projects/' + cprj + '?t=changes', '#nco'), ('#/projects/' + cprj + '?t=risks', '#nrk'), ('#/projects/' + cprj + '?t=team', '#nmem')]:
+                go(o, h); o.wait_for_selector(btn); o.click(btn); o.wait_for_selector('#dlg[open]'); o.wait_for_timeout(200)
+                if not o.evaluate("(() => { const d = document.getElementById('dlg'), b = d.querySelector('.db'); return d.getBoundingClientRect().width <= innerWidth && b.scrollWidth <= b.clientWidth + 1; })()"): bad.append(btn)
+                o.click('#mx')
+            ok(not bad, 'phone: the finance and project forms fit the screen ' + str(bad))
     o.evaluate("localStorage.setItem('waad.lang', JSON.stringify('ar'))"); o.set_viewport_size({'width': 1280, 'height': 900}); o.reload(); o.wait_for_selector('#nav')
     sqlx("insert into parties(company_id, kind, name) select id, 'supplier', 'مورد العروض الثاني' from companies where name='شركة وعد التجريبية'")
     go(o, '#/rfq/new'); o.wait_for_selector('#rf'); o.fill('#rf input[name=title]', 'توريد طابعات للفرع'); o.select_option('#lb tr:nth-child(1) select[data-f=what]', label='IT-001 — طابعة ليزر'); o.fill('#lb tr:nth-child(1) input[data-f=qty]', '3')
@@ -1614,6 +1628,7 @@ with sync_playwright() as pw:
     # system numbers
     go(pp, '#/system'); pp.wait_for_selector('#ppage .pbars')
     ok('نسبة التحويل إلى اشتراك' in pp.inner_text('#ppage') and 'محمد العتيبي' not in pp.inner_text('#app'), 'admin site: system numbers from subscription data only')
+    pp.wait_for_selector('#pstore h2'); ok('مساحة قاعدة البيانات' in pp.inner_text('#pstore'), 'admin site: database and file storage are shown')
     # website visitors: the public site's counter (signed out) feeds the admin site
     def anon_rpc(fn, body):
         req = urllib.request.Request(BASE + '/rest/v1/rpc/' + fn, data=json.dumps(body).encode(), headers={'Content-Type': 'application/json', 'apikey': 'test-publishable-key'})
@@ -1631,7 +1646,7 @@ with sync_playwright() as pw:
     sc = json.loads(sql("public.site_content()"))
     ok(sc.get('contact', {}).get('phone') == '966500000001' and sc.get('banner', {}).get('on') and sc.get('faq', [{}])[-1].get('qa') == 'هل فيه دعم فني؟', 'admin site: contact details, notice bar and FAQ saved')
     # the public website shows them and counts its own visit (Supabase calls are sent to the local emulator)
-    sp = b.new_context(viewport={'width': 390, 'height': 844}, locale='ar-SA').new_page(); sp.errors = []; sp.on('pageerror', lambda e: sp.errors.append(str(e)))
+    sp = b.new_context(bypass_csp=True, viewport={'width': 390, 'height': 844}, locale='ar-SA').new_page(); sp.errors = []; sp.on('pageerror', lambda e: sp.errors.append(str(e)))
     sp.route(re.compile(r'https://static\.cloudflareinsights\.com/.*|https://fonts\.(googleapis|gstatic)\.com/.*'), lambda r: r.abort())
     def to_mock(r):
         u = urllib.parse.urlparse(r.request.url); h = dict(r.request.headers); h['apikey'] = 'test-publishable-key'
@@ -1770,7 +1785,7 @@ with sync_playwright() as pw:
     pp.check('#dlg [data-pp=support]'); pp.check('#dlg [data-pp=export]'); pp.click('#tpp'); pp.wait_for_timeout(800)
     ok(sql("select array_to_string(perms, ',') from platform_admins where username = 'sara'") == 'export,support' and 'الرد على طلبات الدعم' in pp.inner_text('#ppage'),
        'admin site: the platform owner gives a member chosen permissions and the team list shows them')
-    tc = b.new_context(viewport={'width': 390, 'height': 844}, locale='ar-SA'); tc.add_init_script(INIT)
+    tc = b.new_context(bypass_csp=True, viewport={'width': 390, 'height': 844}, locale='ar-SA'); tc.add_init_script(INIT)
     tp = tc.new_page(); tp.errors = []; tp.on('pageerror', lambda e: tp.errors.append(str(e))); tp.goto(BASE + '/waad-admin.html')
     tp.wait_for_selector('#af input[name=user]'); ok(tp.locator('#af input[name=email]').count() == 0, 'admin site signs in with a username, not an e-mail')
     tp.fill('#af input[name=user]', 'Sara'); tp.fill('#af input[name=password]', 'TempPass123'); tp.click('#ab')

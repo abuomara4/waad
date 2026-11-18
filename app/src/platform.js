@@ -221,10 +221,23 @@ PV.system = async page => {
         ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'نهاية التجربة', h: c => `<span class="num">${esc(c.trial_ends)}</span>` }, { t: '', h: c => c.owner_email ? `<a class="btn sm" href="${esc(gmailTo(c.owner_email, 'وعد: ' + c.name))}" target="_blank" rel="noopener">${esc(tr('مراسلة'))}</a>` : '' }], ending, { empty: 'لا توجد تجارب تنتهي خلال ٣ أيام' })}</div>
       <div class="card"><h2>${esc(tr('منشآت ما دخلت من أسبوعين'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('اشتراكها مفتوح وما أحد دخل منها من ١٤ يوما أو أكثر.'))}</p>
         ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'آخر دخول', h: c => c.last_sign_in ? `<span class="num">${esc(String(c.last_sign_in).slice(0, 10))}</span>` : '—' }, { t: '', h: c => c.owner_email ? `<a class="btn sm" href="${esc(gmailTo(c.owner_email, 'وعد: ' + c.name))}" target="_blank" rel="noopener">${esc(tr('مراسلة'))}</a>` : '' }], quiet, { empty: 'كل المنشآت نشطة' })}</div></div>
+    <div id="pstore"></div>
     <h2 style="margin:18px 0 10px">${esc(tr('مين عملاؤك'))}</h2>
     <div class="g2p">${countCard('حسب المدينة', countBy(rows, 'city'))}${countCard('حسب عدد الموظفين', countBy(rows, 'size_band', SIZE_B))}
       ${countCard('حسب النشاط', countBy(rows, 'industry', INDUSTRY))}${countCard('من وين عرفوا عن وعد', countBy(rows, 'heard_from', HEARD))}</div>`;
+  pStorage($('#pstore', page));
 };
+/* database size against the plan's limit, and the files each company keeps inside it (sizes only) */
+async function pStorage(box) {
+  const s = await db.rpc('platform_storage').catch(() => null); if (!s || !box) return;
+  const mb = b => (n0(b) / 1048576).toFixed(1), share = Math.round(n0(s.db_bytes) / 1048576 / n0(s.limit_mb) * 100);
+  box.innerHTML = `<div class="card" style="margin-bottom:14px"><h2>${esc(tr('مساحة قاعدة البيانات والملفات'))} <span class="badge ${share >= 80 ? 'bad' : share >= 60 ? 'wait' : 'ok'} num">${share}%</span></h2>
+    <p class="muted small" style="margin-top:0"><span class="num">${mb(s.db_bytes)}</span> ${esc(tr('ميجابايت من'))} <span class="num">${s.limit_mb}</span> · ${esc(tr('الملفات'))} <span class="num">${mb(s.files_bytes)}</span> ${esc(tr('ميجابايت'))}. ${esc(tr('يصل الفريق تنبيه عند 80%.'))}</p>
+    ${tbl([{ t: 'المنشأة', h: c => esc(c.name) }, { t: 'ملفاتها (ميجابايت)', r: 1, h: c => `<span class="num">${mb(c.bytes)}</span>` }, { t: 'الحد', r: 1, h: c => c.quota ? `<span class="num">${c.quota}</span>` : esc(tr('بلا حد')) },
+      { t: '', h: c => pcan('subs') ? `<button class="btn sm" data-fq="${c.id}">${esc(tr('تحديد'))}</button>` : '' }], s.companies, { empty: 'لا توجد ملفات بعد' })}</div>`;
+  $$('[data-fq]', box).forEach(b => b.onclick = () => { const c = s.companies.find(x => x.id === b.dataset.fq);
+    modal(tr('حد ملفات المنشأة') + ' — ' + c.name, field('الحد بالميجابايت (فارغ = بلا حد)', inp('mb', c.quota || '', 'type="number" min="1" step="1"')), { onOk: async f => { await db.rpc('platform_file_quota_set', { p_company: c.id, p_mb: f.mb ? +f.mb : null }); toast(tr('تم الحفظ')); pStorage(box); } }); });
+}
 
 /* ---------- website visitors (the site's own counter: daily totals only, no cookies) ---------- */
 const SRC_N = { direct: 'مباشر', whatsapp: 'واتساب', google: 'قوقل', bing: 'بينق', x: 'إكس', linkedin: 'لينكدإن', instagram: 'إنستقرام', snapchat: 'سناب شات', tiktok: 'تيك توك', facebook: 'فيسبوك', other: 'مواقع أخرى' };

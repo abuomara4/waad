@@ -574,10 +574,10 @@ const profileRow = f => Object.assign({ owner_phone: (f.owner_phone || '').repla
 const MODULES = { hr: 'الموارد البشرية', finance: 'المالية والمحاسبة', sales: 'المبيعات', purch: 'المشتريات', stock: 'المخزون', proj: 'المشاريع' };
 const MOD_ROUTES = {
   hr: ['hrdash', 'compliance', 'onboarding', 'announcements', 'surveys', 'workforce', 'employees', 'grades', 'insurance', 'trainplan', 'docs', 'att', 'attendance', 'roster', 'policies', 'leavecal', 'penalties', 'payroll', 'payslips', 'eos', 'nitaqat', 'travel', 'workflows', 'clearance', 'reviews', 'recruit', 'training', 'hrreports', 'org', 'letter', 'path', 'profile', 'requests'],
-  sales: ['quotes', 'orders', 'deliveries', 'sales', 'crm', 'marketing'],
-  purch: ['purchreq', 'porders', 'receipts', 'purchases', 'rfq'],
+  sales: ['quotes', 'orders', 'deliveries', 'sales', 'crm', 'marketing', 'pos', 'recurring'],
+  purch: ['purchreq', 'porders', 'receipts', 'purchases', 'rfq', 'supinbox'],
   stock: ['items', 'warehouses', 'transfers', 'counts', 'expiry', 'reorder', 'serials'],
-  finance: ['expensepolicy', 'payments', 'journal', 'reports', 'coa', 'bankrec', 'cheques', 'petty', 'mypetty', 'currencies', 'opening', 'assets', 'costcenters', 'budgets', 'periods'],
+  finance: ['expensepolicy', 'payments', 'journal', 'reports', 'coa', 'bankrec', 'cheques', 'petty', 'mypetty', 'currencies', 'opening', 'assets', 'costcenters', 'budgets', 'periods', 'bankmatch', 'prepaid', 'monthclose', 'facilities', 'zakat', 'spend'],
   proj: ['projects', 'mytime', 'resources'] };
 const VIEW_ONLY = { employees: 'hr_emp', docs: 'hr_emp', att: 'hr_att', leavecal: 'hr_att', payroll: 'hr_pay', penalties: 'hr_disc', reviews: 'hr_disc' };
 function viewOnlyPage(path) { const r = String(path || '').split('/')[1]; return !!VIEW_ONLY[r] && !isHR() && !has('owner', 'admin', 'finance') && hrCan(VIEW_ONLY[r]); }

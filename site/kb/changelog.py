@@ -3,6 +3,7 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('18 نوفمبر 2026', '18 November 2026', [
+  ('تسريع قاعدة البيانات مع نمو المنشآت، وسياسة أمان إضافية لصفحات النظام', 'A faster database as companies grow, and an added security policy for system pages'),
   ('تقوية عزل بيانات المنشآت، مع فحص آلي دائم لكل دالة في النظام', 'Stronger separation of company data, with a permanent automatic check of every system function'),
   ('مدير المشروع يدير مشاريعه بنفسه، وجدول أسبوعي لتسجيل الساعات، واختيار المرحلة في تكاليف المشروع', 'Project managers run their own projects, a weekly timesheet, and a milestone on project costs'),
   ('أوامر التغيير تعدّل كميات البنود القائمة، والإشعار الدائن يصحّح المستخلص تلقائيا', 'Change orders can adjust existing items, and a credit note corrects its claim automatically'),

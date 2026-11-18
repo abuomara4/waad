@@ -13,6 +13,7 @@ html = f'''<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#131b29">
 <meta name="color-scheme" content="dark light">
@@ -97,6 +98,13 @@ print('built', len(html), 'bytes')
 
 # the admin site (site/admin/): the same page shell with only the sign-in, the shared helpers and the admin screens.
 # It is not installable (no manifest / service worker) and never indexed.
+# every file shares one scope: a name declared twice stops the whole system, so the build refuses it
+def no_duplicate_names(src, label):
+    seen, dup = set(), set()
+    for m in re.finditer(r'^(?:const|let|class|(?:async )?function) ([A-Za-z_$][\w$]*)', src, re.M):
+        (dup if m.group(1) in seen else seen).add(m.group(1))
+    if dup: raise SystemExit('%s: names declared twice: %s' % (label, ', '.join(sorted(dup))))
+no_duplicate_names(html, 'app')
 start, end = html.index('<script>\n' + EN_JS), html.index('applyLang();\nboot();')
 admin = html[:start] + '<script>\nconst ADMIN_SITE = true;\n' + EN_JS + '\n' + r('core.js') + '\n' + r('export_lib.js') + '\n' + r('qr.js') + '\n' + r('legal.js') + '\n' + r('support_lib.js') + '\n' + r('platform.js') + '\n' + html[end:]
 admin = re.sub(r'<link rel="manifest"[^>]*>\n?|<link rel="apple-touch-icon"[^>]*>\n?|<meta name="(apple-mobile-web-app-capable|apple-mobile-web-app-title|mobile-web-app-capable)"[^>]*>\n?', '', admin)

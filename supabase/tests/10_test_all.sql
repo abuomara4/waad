@@ -3891,5 +3891,16 @@ select set_config('request.jwt.claim.sub', :'u_emp', false); set role authentica
 select t.ok(public.per_diem_rate(:'e_emp', false) is not null and exists(select 1 from public.annual_leave_balance(:'e_emp', current_date)), 'security: the employee still sees his own figures');
 reset role;
 
+-- capacity (0127): indexes and the files limit
+select t.ok(not exists(select 1 from pg_constraint c join pg_attribute a on a.attrelid = c.conrelid and a.attnum = c.conkey[1] where c.contype = 'f' and c.connamespace = 'public'::regnamespace and a.attname = 'company_id'
+  and not exists(select 1 from pg_index i where i.indrelid = c.conrelid and (i.indkey::int2[])[0] = c.conkey[1])), 'indexes: every company_id link has an index');
+update public.company_subscriptions set max_file_mb = 1 where company_id = :'cid';
+select t.err($$insert into public.purchase_bill_files(company_id, bill_id, file_name, mime, size, data) values ('$$ || :'cid' || $$', '$$ || :'pbill' || $$', 'a.pdf', 'application/pdf', 1500000, 'x')$$, 'حد مساحة', 'files: the company limit is enforced when set');
+update public.company_subscriptions set max_file_mb = null where company_id = :'cid';
+insert into public.purchase_bill_files(company_id, bill_id, file_name, mime, size, data) values (:'cid', :'pbill', 'a.pdf', 'application/pdf', 1500000, 'x');
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select public.platform_storage()$$, '42501|مصرح', 'storage: only the Waad team sees it');
+reset role;
+
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

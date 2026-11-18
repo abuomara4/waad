@@ -80,6 +80,13 @@ elif prev:
     mins = int((now - st.get('since', now)) / 60)
     notify('وعد: عاد كل شيء للعمل', 'عاد للعمل: ' + '، '.join(prev) + '\nمدة التوقف التقريبية: %d دقيقة.' % mins)
     st = {}
+# the database near its plan limit: one alert a day (the percentage only)
+if db.startswith(('postgres://', 'postgresql://')) and now - st.get('storage_at', 0) >= 86400:
+    try:
+        pct = int(subprocess.run(['psql', '-X', '-At', '-d', db, '-c', "select round(100.0 * pg_database_size(current_database()) / (db_limit_mb * 1048576.0)) from public.platform_settings limit 1"], capture_output=True, text=True, timeout=30).stdout.strip())
+        if pct >= 80 and notify('وعد: مساحة قاعدة البيانات %d%%' % pct, 'اقتربت قاعدة البيانات من حد الخطة. راجع «أرقام النظام» في لوحة الإدارة.'): st['storage_at'] = now
+    except Exception:
+        print('::warning::storage check skipped')
 st['down'] = down
 os.makedirs(os.path.dirname(STATE), exist_ok=True); json.dump(st, open(STATE, 'w'))
 print('uptime: %d of %d down' % (len(down), len(CHECKS) + 1))

@@ -871,6 +871,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 احتفظ بهذا الرمز	Keep this code
 احذف المستخدم بدلا منها	remove the user instead
 احذف المستخدم بدلاً منها	remove the user instead
+احذف ملفات لا تحتاجها أو تواصل مع وعد	Delete files you do not need or contact Waad
 احذفه وسجّله من جديد	delete it and log it again
 احسب	Calculate
 احسب الزكاة	Calculate zakat
@@ -1731,6 +1732,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الحالة الاجتماعية غير صحيحة	Invalid marital status
 الحالة بعد التغيير	Status after the change
 الحالي	current
+الحد	Limit
 الحد الأعلى	Upper limit
 الحد الأعلى للمستخدمين	User limit
 الحد الأعلى للموظفين	Employee limit
@@ -1739,6 +1741,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الحد الأقصى لهذه الإجازة	The maximum for this leave is
 الحد الشهري	Monthly limit
 الحد الشهري للموظف	Monthly limit per employee
+الحد بالميجابايت	Limit in MB
 الحد لا يكون سالباً	The limit cannot be negative
 الحدود الشهرية من لائحة المنشأة الداخلية	Monthly limits come from the company's internal regulation
 الحذف النهائي لمالك المنصة فقط	Permanent deletion is for the platform owner only
@@ -2538,6 +2541,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الملف لا يحتوي مستندات	The file has no documents
 الملف لا يحتوي موظفين	The file has no employees
 الملف ليس بصيغة	The file is not in
+الملفات	Files
 المملكه العربيه السعودي	Saudi Arabia
 المندوب المسؤول	Responsible rep
 المنشآت	Companies
@@ -2546,6 +2550,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المنشأة	Company
 المنشأة الداعية	Inviting company
 المنشأة المدعوة	Invited company
+المنشأة بلا اشتراك	The company has no subscription
 المنشأة شغّالة	The company is live
 المنشأة شغّالة. أوقفها أولا ثم احذفها	The company is live. Suspend it first, then delete it
 المنشأة غير موجودة	Company not found
@@ -3163,6 +3168,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تحديث بيانات	Data change
 تحديث بيانات الموظفين من	Update employee data from
 تحديث جماعي من	Bulk update from
+تحديد	Set
 تحديد الكل	Select all
 تحصيل	Collect
 تحصيل شيك	Cheque collected
@@ -3769,6 +3775,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حد طلبات نسيان البصمة في الشهر	Forgotten-fingerprint requests per month
 حد لكل فئة مطالبة	A limit for each claim category
 حد للمطالبة الواحدة وحد شهري	a per-claim limit and a monthly limit
+حد ملفات المنشأة	Company file limit
 حد نسيان البصمة بين	Forgotten-fingerprint limit between
 حدث خطأ غير متوقع	An unexpected error occurred
 حدد آخر يوم عمل	Set the last working day
@@ -5497,6 +5504,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد ملاحظات	No notes
 لا توجد ملاحظات بعد	No notes yet
 لا توجد ملاحظات بعد.	No notes yet.
+لا توجد ملفات بعد	No files yet
 لا توجد منشآت	No companies
 لا توجد مهام	No tasks
 لا توجد موازنة ولا حركات لهذه السنة	No budget or activity for this year
@@ -6087,6 +6095,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مسؤول مبيعات	sales officer
 مسؤول مشتريات	Purchasing officer
 مساحة التوقيع	Signature area
+مساحة قاعدة البيانات والملفات	Database and file storage
 مسار اعتماد كل نوع طلب ومن يرفع طلبات الشراء يُحددان في	Each request type's approval path and who may raise purchase requests are set in
 مسار الاعتماد	Approval route
 مسار الطلب	Request journey
@@ -6307,6 +6316,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ملفات	files
 ملفات Excel	Excel files
 ملفات Excel لكل قسم مع المرفقات (ZIP)	Excel files per section with attachments (ZIP)
+ملفاتها	Its files
 ملفي	My profile
 ملم	mm
 من	from
@@ -6453,6 +6463,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ميجابايت	MB
 ميجابايت لكل ملف	MB per file
 ميجابايت للملف	MB per file
+ميجابايت من	MB of
 ميزان المراجعة	Trial balance
 مين عملاؤك	Who your customers are
 مُباعة	Sold
@@ -6856,6 +6867,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وصلت حد	You reached the limit of
 وصلت عروض على هذا الطلب	Offers have arrived on this request
 وصلت للموظف	Delivered to the employee
+وصلت منشأتك إلى حد مساحة الملفات	Your company has reached its file storage limit
 وصلت نتيجتك لمالك المنشأة والموارد البشرية	Your result has reached the company owner and HR
 وصلت نتيجتك لمالك المنشأة والموارد البشرية.	Your result has reached the company owner and HR.
 وصلتك تأشيرة الخروج والعودة	Your exit/re-entry visa has arrived
@@ -7078,6 +7090,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يصدر النموذج لـ	Form issued to
 يصل إلى	Goes to
 يصل الطلب للموظف في	The request reaches the employee in
+يصل الفريق تنبيه عند	The team is alerted at
 يصل لكل الموظفين	reaches every employee
 يصل للمالك أول كل شهر بمبيعات الشهر الماضي ومشترياته ورواتبه والمتأخرات وما ينتظر الاعتماد	sent to the owner at the start of each month with last month's sales, purchases, payroll, overdue invoices and pending approvals
 يصير أدمن بعد التفعيل	It becomes an admin once activated
