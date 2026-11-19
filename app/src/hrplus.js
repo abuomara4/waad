@@ -97,20 +97,23 @@ VIEWS['#/roster'] = async (page, arg, q) => {
   const cell = (e, d) => { const r = rm[e.id + d]; const dow = new Date(d + 'T12:00:00Z').getUTCDay();
     if (r) return r.off ? `<span class="badge">${esc(tr('راحة'))}</span>` : `<span class="badge info">${esc(sm[r.shift_id] ? sm[r.shift_id].name : '?')}</span>`;
     const b = base(e); return b && b.work_days.includes(dow) ? `<span class="muted small">${esc(b.name)}</span>` : `<span class="muted small">${esc(tr('راحة'))}</span>`; };
+  const groups = deps.map(x => ({ id: x.id, name: x.name, list: emps.filter(e => e.department_id === x.id) })).concat([{ id: '', name: tr('بدون قسم'), list: emps.filter(e => !dm[e.department_id]) }]).filter(g => g.list.length);
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('جدول الورديات'))}</h1><div class="muted">${esc(tr('الأسبوع'))} ${fdate(ws)} – ${fdate(we)}</div></div>
       <div class="row"><a class="btn" href="#/roster?w=${addDaysU(ws, -7)}${dep ? '&d=' + dep : ''}">→</a><a class="btn" href="#/roster?w=${today()}${dep ? '&d=' + dep : ''}">${esc(tr('هذا الأسبوع'))}</a><a class="btn" href="#/roster?w=${addDaysU(ws, 7)}${dep ? '&d=' + dep : ''}">←</a>
       <select id="rdep" style="width:auto"><option value="">${esc(tr('كل الأقسام'))}</option>${deps.map(x => opt(x.id, x.name, dep)).join('')}</select>
       <a class="btn" href="#/att/settings">${esc(tr('إدارة الورديات'))}</a><button class="btn pri" id="rnew">${esc(tr('تعيين جدول'))}</button></div></div>${shifts.length ? '' : `<div class="note">${esc(tr('لا توجد ورديات عمل بعد. أنشئ الورديات من «إدارة الورديات» ثم عيّنها للموظفين.'))}</div>`}
-    <div class="card"><div class="tw"><table><thead><tr><th>${esc(tr('الموظف'))}</th>${days.map(d => `<th>${esc(dayName(d))}<br><span class="num small muted">${d.slice(5)}</span></th>`).join('')}</tr></thead><tbody>
-      ${emps.map(e => `<tr><td>${esc(e.full_name)} <span class="muted num small">${esc(e.emp_no)}</span></td>${days.map(d => `<td data-rc="${e.id}|${d}" style="cursor:pointer">${cell(e, d)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="8" class="muted">${esc(tr('لا يوجد موظفون'))}</td></tr>`}
-    </tbody></table></div><p class="muted small">${esc(tr('الخلايا الملونة من الجدول، والرمادية من وردية الموظف أو قسمه أو الافتراضية. اضغط على أي يوم لتغييره.'))}</p></div>`;
+    ${groups.map(g => `<div class="card" data-rdep="${esc(g.id)}"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap"><h2 style="margin:0">${esc(g.name)} <span class="muted small">(<span class="num">${g.list.length}</span> ${esc(tr('موظف'))})</span></h2>${g.id ? `<button type="button" class="btn sm" data-rdn="${esc(g.id)}">${esc(tr('تعيين جدول للقسم'))}</button>` : ''}</div>
+      <div class="tw" style="margin-top:8px"><table><thead><tr><th>${esc(tr('الموظف'))}</th>${days.map(d => `<th>${esc(dayName(d))}<br><span class="num small muted">${d.slice(5)}</span></th>`).join('')}</tr></thead><tbody>
+      ${g.list.map(e => `<tr><td>${esc(e.full_name)} <span class="muted num small">${esc(e.emp_no)}</span></td>${days.map(d => `<td data-rc="${e.id}|${d}" style="cursor:pointer">${cell(e, d)}</td>`).join('')}</tr>`).join('')}
+    </tbody></table></div></div>`).join('') || `<div class="card muted">${esc(tr('لا يوجد موظفون'))}</div>`}
+    <p class="muted small">${esc(tr('الخلايا الملونة من الجدول، والرمادية من وردية الموظف أو قسمه أو الافتراضية. اضغط على أي يوم لتغييره.'))}</p>`;
   $('#rdep', page).onchange = ev => location.hash = '#/roster?w=' + ws + (ev.target.value ? '&d=' + ev.target.value : '');
   const shOpts = sel => `<option value="">${esc(tr('راحة'))}</option>${shiftOpts(shifts, sel)}`;
   $$('[data-rc]', page).forEach(c => c.onclick = () => { const [eid, d] = c.dataset.rc.split('|'), r = rm[eid + d];
     const dl = modal(em[eid].full_name + ' — ' + fdate(d), `${field('الوردية', `<select name="sh">${shOpts(r ? r.shift_id || '' : (base(em[eid]) || {}).id)}</select>`)}${r ? `<button type="button" class="btn sm" id="rcl">${esc(tr('إلغاء التعديل والرجوع للوردية المعتادة'))}</button>` : ''}`, {
       onOk: async f => { await db.rpc('roster_assign', { p_company: S.cid, p_emps: [eid], p_from: d, p_to: d, p_shifts: [await shiftPick(blank(f.sh))], p_every: 1 }); route(); } });
     if ($('#rcl', dl)) $('#rcl', dl).onclick = async () => { try { await db.rpc('roster_clear', { p_company: S.cid, p_emps: [eid], p_from: d, p_to: d }); dl.close(); route(); } catch (er) { toast(er.message); } }; });
-  $('#rnew', page).onclick = () => {
+  const rosterNew = dep => {
     const list = Object.values(em).filter(e => !e.end_date || e.end_date >= today()).sort((a, b) => String(a.emp_no).localeCompare(String(b.emp_no)));
     const dl = modal(tr('تعيين جدول ورديات'), `<div class="fg">
       ${field('القسم', `<select id="rsd"><option value="">${esc(tr('اختيار يدوي'))}</option>${deps.map(x => opt(x.id, x.name, dep)).join('')}</select>`)}
@@ -125,6 +128,7 @@ VIEWS['#/roster'] = async (page, arg, q) => {
         const n = await db.rpc('roster_assign', { p_company: S.cid, p_emps: emps2, p_from: f.from, p_to: f.to, p_shifts: sh, p_every: +f.every || 7 }); toast(tr('تم تعيين') + ' ' + n + ' ' + tr('يوم')); route(); } });
     $('#rsd', dl).onchange = ev => $$('#rse input', dl).forEach(x => x.checked = !!ev.target.value && x.dataset.dep === ev.target.value);
   };
+  $('#rnew', page).onclick = () => rosterNew(dep); $$('[data-rdn]', page).forEach(b => b.onclick = () => rosterNew(b.dataset.rdn));
 };
 
 /* ----- bulk raise ----- */

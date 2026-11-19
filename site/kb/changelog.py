@@ -3,6 +3,7 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('19 نوفمبر 2026', '19 November 2026', [
+  ('جدول الورديات يعرض كل قسم في جدول مستقل، مع تعيين جدول للقسم مباشرة', 'The shift roster shows each department in its own table, with a roster set per department'),
   ('مكتبة ورديات جاهزة على مدار الساعة بأوقات رمضان، تختار منها ما يناسب منشأتك', 'A library of ready-made round-the-clock shifts with Ramadan times to choose from'),
   ('تسجيل الحضور من أي مكان لموظفين تحددهم الموارد البشرية، مع بقاء التحقق من الموقع لغيرهم', 'Check-in from any place for employees chosen by HR, while the location check stays on for everyone else'),
   ('طلب إجازة سنوية خارجية ببلد الوجهة، وحساب أيام الإجازة المرضية حسب المادة 117 قبل الإرسال', 'Annual leave abroad with its destination, and sick days split under Article 117 before sending'),
