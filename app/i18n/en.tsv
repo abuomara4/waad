@@ -376,6 +376,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أو أدخل المفتاح يدويا	or enter the key manually
 أو أدخل المفتاح يدوياً	or enter the key manually
 أو أنشئ منشأة جديدة	Or create a new company
+أو اخترها مباشرة من قائمة الوردية في ملف الموظف والقسم وجدول الورديات	or choose one directly from the shift list in the employee file, department or roster
 أو استوردهم من	or import them from
 أو افتح المنشأة لتختار اشتراك ومدة	or open the company to choose a subscription and length
 أو اقترب من نافذة ثم أعد المحاولة	or move near a window and try again
@@ -5002,6 +5003,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 على هذا الاستلام	against this receipt
 على ورق المنشأة الرسمي	On the company's printed letterhead
 عليه إشعار دائن	Has a credit note
+علّم ما تريد ثم اضغط إضافة المحدد	Tick what you need and press Add selected
 عماني	Omani
 عمل إضافي	Overtime
 عمل إضافي قريب من	Overtime close to
@@ -6400,7 +6402,6 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مكان تسجيل الحضور	Check-in place
 مكة المكرمة	Makkah
 مكتب العقار	real estate office
-مكتبة الورديات	Shift library
 مكتبي	Office
 مكتمل	Completed
 مكتملة	Completed
@@ -6975,6 +6976,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وذلك استناداً إلى المادة	pursuant to Article
 وراجع المعاينة ثم اضغط استيراد	review the preview, then press Import
 ورديات الأقسام	Department shifts
+ورديات جاهزة	Ready-made shifts
 وردية	shift
 وردية القسم أو الافتراضية	Department or default shift
 وردية جديدة	New shift

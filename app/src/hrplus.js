@@ -105,10 +105,10 @@ VIEWS['#/roster'] = async (page, arg, q) => {
       ${emps.map(e => `<tr><td>${esc(e.full_name)} <span class="muted num small">${esc(e.emp_no)}</span></td>${days.map(d => `<td data-rc="${e.id}|${d}" style="cursor:pointer">${cell(e, d)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="8" class="muted">${esc(tr('لا يوجد موظفون'))}</td></tr>`}
     </tbody></table></div><p class="muted small">${esc(tr('الخلايا الملونة من الجدول، والرمادية من وردية الموظف أو قسمه أو الافتراضية. اضغط على أي يوم لتغييره.'))}</p></div>`;
   $('#rdep', page).onchange = ev => location.hash = '#/roster?w=' + ws + (ev.target.value ? '&d=' + ev.target.value : '');
-  const shOpts = sel => `<option value="">${esc(tr('راحة'))}</option>${shifts.map(s => opt(s.id, s.name + ' (' + s.start_time.slice(0, 5) + '–' + s.end_time.slice(0, 5) + ')', sel)).join('')}`;
+  const shOpts = sel => `<option value="">${esc(tr('راحة'))}</option>${shiftOpts(shifts, sel)}`;
   $$('[data-rc]', page).forEach(c => c.onclick = () => { const [eid, d] = c.dataset.rc.split('|'), r = rm[eid + d];
     const dl = modal(em[eid].full_name + ' — ' + fdate(d), `${field('الوردية', `<select name="sh">${shOpts(r ? r.shift_id || '' : (base(em[eid]) || {}).id)}</select>`)}${r ? `<button type="button" class="btn sm" id="rcl">${esc(tr('إلغاء التعديل والرجوع للوردية المعتادة'))}</button>` : ''}`, {
-      onOk: async f => { await db.rpc('roster_assign', { p_company: S.cid, p_emps: [eid], p_from: d, p_to: d, p_shifts: [blank(f.sh)], p_every: 1 }); route(); } });
+      onOk: async f => { await db.rpc('roster_assign', { p_company: S.cid, p_emps: [eid], p_from: d, p_to: d, p_shifts: [await shiftPick(blank(f.sh))], p_every: 1 }); route(); } });
     if ($('#rcl', dl)) $('#rcl', dl).onclick = async () => { try { await db.rpc('roster_clear', { p_company: S.cid, p_emps: [eid], p_from: d, p_to: d }); dl.close(); route(); } catch (er) { toast(er.message); } }; });
   $('#rnew', page).onclick = () => {
     const list = Object.values(em).filter(e => !e.end_date || e.end_date >= today()).sort((a, b) => String(a.emp_no).localeCompare(String(b.emp_no)));
@@ -119,8 +119,9 @@ VIEWS['#/roster'] = async (page, arg, q) => {
       <div class="wide"><label>${esc(tr('الورديات بالترتيب (تتكرر)'))}</label><div class="row">${[0, 1, 2, 3].map(i => `<select name="s${i}" style="width:auto">${i ? `<option value="-">—</option>` : ''}${shOpts(i ? '-' : (shifts[0] || {}).id)}</select>`).join('')}</div></div>
       <div class="wide"><label>${esc(tr('الموظفون'))}</label><div id="rse" style="max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px">${list.map(e => `<label class="row small" style="gap:6px"><input type="checkbox" name="e_${e.id}" data-dep="${e.department_id || ''}" ${dep && e.department_id === dep ? 'checked' : ''}> ${esc(e.full_name)} <span class="muted num">${esc(e.emp_no)}</span></label>`).join('')}</div></div></div>
       <p class="muted small">${esc(tr('مثال: ورديتان مع التبدل كل 7 أيام = أسبوع على الأولى وأسبوع على الثانية. اختر «راحة» ليوم أو فترة راحة ضمن التدوير.'))}</p>`, { wide: true, ok: 'تطبيق',
-      onOk: async f => { const emps2 = list.filter(e => f['e_' + e.id]).map(e => e.id), sh = [0, 1, 2, 3].map(i => f['s' + i]).filter(v => v !== '-' && v !== undefined).map(v => blank(v));
+      onOk: async f => { const emps2 = list.filter(e => f['e_' + e.id]).map(e => e.id), sh = [];
         if (!emps2.length) throw new Error(tr('اختر موظفا واحدا على الأقل'));
+        for (const v of [0, 1, 2, 3].map(i => f['s' + i]).filter(v => v !== '-' && v !== undefined)) sh.push(await shiftPick(blank(v)));
         const n = await db.rpc('roster_assign', { p_company: S.cid, p_emps: emps2, p_from: f.from, p_to: f.to, p_shifts: sh, p_every: +f.every || 7 }); toast(tr('تم تعيين') + ' ' + n + ' ' + tr('يوم')); route(); } });
     $('#rsd', dl).onchange = ev => $$('#rse input', dl).forEach(x => x.checked = !!ev.target.value && x.dataset.dep === ev.target.value);
   };
