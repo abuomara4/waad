@@ -573,7 +573,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إدارة الفريق وصلاحياته لمالك المنصة.	Managing the team and its permissions is for the platform owner.
 إدارة الورديات	Manage shifts
 إدخال عرض مورد	Enter a supplier offer
-إدخال يدوي	Manual entry
+إدخال يدوي	Enter manually
 إذا أرسلت لك الموارد البشرية رمز دعوة	If HR sent you an invitation code
 إذا أنشأت الحساب للتو	If you just created the account
 إذا استمر الطرفان بعد نهايته يتحوّل إلى غير محدد المدة	if both parties continue after its end, it becomes indefinite
@@ -680,6 +680,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إضافة من الفرص	Add from opportunities
 إضافة موظف	Add employee
 إضافة وحذف وكلمات المرور	add, remove, passwords
+إضافة وردية أخرى بعد الحفظ	Add another shift after saving
 إضافي	Overtime
 إضافي معتمد	Approved overtime
 إطلاق الخدمة	service launch
@@ -6979,6 +6980,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ورديات جاهزة	Ready-made shifts
 وردية	shift
 وردية القسم أو الافتراضية	Department or default shift
+وردية جاهزة	Ready-made shift
 وردية جديدة	New shift
 ورديتان مع التبدل كل	two shifts rotating every
 ورديته في ملفه	the shift on the employee file
