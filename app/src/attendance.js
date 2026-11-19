@@ -6,6 +6,24 @@ const lateCell = r => mins(r.late_min) + (n0(r.permit_min) ? ` <span class="smal
 const AT_ST = { present: ['حاضر', 'ok'], late: ['متأخر', 'wait'], open: ['داخل الدوام', 'info'], nocheckout: ['بدون انصراف', 'bad'], absent: ['غائب', 'bad'],
   leave: ['إجازة', 'info'], holiday: ['عطلة رسمية', ''], off: ['راحة', ''], pending: ['لم يسجّل بعد', 'wait'], na: ['—', ''] };
 const atBadge = s => `<span class="badge ${(AT_ST[s] || ['', ''])[1]}">${esc((AT_ST[s] || [s])[0])}</span>`;
+// ready-made shifts: working time within Art. 98 (8 hours, 6 in Ramadan), a break whenever work exceeds 5 hours (Art. 101), at most 12 hours at work
+const SHIFT_GROUPS = [
+  { k: 'p8', t: 'حضور 8 ساعات شاملة نصف ساعة راحة', pre: ['وردية', 'Shift'], work: 450, brk: 30 },
+  { k: 'w8', t: '8 ساعات عمل مع نصف ساعة راحة', pre: ['دوام', 'Duty'], work: 480, brk: 30 },
+  { k: 'h9', t: '8 ساعات عمل مع ساعة راحة', pre: ['نوبة', 'Rota'], work: 480, brk: 60 },
+  { k: 'hh', t: 'دوام مكتبي يبدأ على النصف ساعة', pre: ['مكتبي', 'Office'], work: 480, brk: 60, starts: [390, 450, 510, 570, 630] },
+  { k: 'sp', t: 'فترتان مع راحة 3 ساعات', pre: ['فترتين', 'Split'], work: 480, brk: 180, starts: [360, 420, 480, 540, 600, 660, 720] },
+  { k: 'p6', t: 'دوام جزئي 6 ساعات مع نصف ساعة راحة', pre: ['جزئي 6', 'Part-time 6'], work: 360, brk: 30 },
+  { k: 'p4', t: 'دوام جزئي 4 ساعات', pre: ['جزئي 4', 'Part-time 4'], work: 240, brk: 0 }];
+const shTime = m => { const x = ((m % 1440) + 1440) % 1440; return String(Math.floor(x / 60)).padStart(2, '0') + ':' + String(x % 60).padStart(2, '0'); };
+const shClock = (t, en) => { const h = +t.slice(0, 2), m = en ? (h < 12 ? 'AM' : 'PM') : (h < 12 ? 'ص' : 'م'); return String(h % 12 || 12).padStart(2, '0') + t.slice(2, 5) + ' ' + m; };
+function shiftLibrary() {
+  const hours = Array.from({ length: 24 }, (_, h) => h * 60), out = [];
+  SHIFT_GROUPS.forEach(g => (g.starts || hours).forEach(s => { const st = shTime(s), en = shTime(s + g.work + g.brk), rw = Math.min(g.work, 360), h = Math.floor(s / 60);
+    out.push({ id: g.k + '|' + st, group: g.k, period: h >= 5 && h < 12 ? 'am' : h >= 12 && h < 18 ? 'pm' : 'night', work: g.work, name: `${g.pre[0]} ${shClock(st)} - ${shClock(en)}`, name_en: `${g.pre[1]} ${shClock(st, 1)} - ${shClock(en, 1)}`,
+      start_time: st, end_time: en, break_min: g.brk, ramadan_start: st, ramadan_end: shTime(s + rw + g.brk), ramadan_work: rw }); }));
+  return out;
+}
 const DOW = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 const rToday = () => new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10);          // Riyadh (UTC+3, no DST)
 const hm = ts => ts ? new Date(ts).toLocaleTimeString('en-GB', { timeZone: 'Asia/Riyadh', hour: '2-digit', minute: '2-digit' }) : '—';
@@ -161,7 +179,7 @@ async function attSettings(box) {
       <p class="muted small">الغياب بلا عذر يُحسم بأجر اليوم (الأجر الفعلي ÷ 30). حسم التأخير يكون بقدر الوقت الذي لم يُعمل فيه فقط؛ أي جزاء إضافي يحتاج لائحة جزاءات معتمدة وتحقيقا (م66 و71).</p></div>
     <div class="card"><div class="row" style="justify-content:space-between"><h2>مواقع العمل</h2><button class="btn sm" id="ns">+ موقع</button></div>
       ${tbl([{ t: 'الموقع', k: 'name' }, { t: 'الإحداثيات', h: s => `<span class="num small">${(+s.lat).toFixed(5)}, ${(+s.lng).toFixed(5)}</span>` }, { t: 'النطاق', h: s => `<span class="num">${s.radius_m}</span> م` }], sites, { empty: 'لا توجد مواقع — بدونها يُقبل التسجيل من أي مكان', onRow: true })}</div>
-    <div class="card"><div class="row" style="justify-content:space-between"><h2>الورديات</h2><button class="btn sm" id="nsh">+ وردية</button></div>
+    <div class="card"><div class="row" style="justify-content:space-between"><h2>الورديات</h2><div class="row" style="gap:6px"><button class="btn sm" id="shl">${esc(tr('مكتبة الورديات'))}</button><button class="btn sm" id="nsh">+ وردية</button></div></div>
       ${tbl([{ t: 'الوردية', h: s => esc(s.name) + (s.is_default ? ' <span class="badge info">الافتراضية</span>' : '') }, { t: 'الوقت', h: s => `<span class="num">${s.start_time.slice(0, 5)}–${s.end_time.slice(0, 5)}</span>` }, { t: 'الراحة', h: s => s.break_min ? `<span class="num">${s.break_min}</span> ${esc(tr('د'))}` : '—' },
         { t: 'ساعات العمل', h: s => `<span class="num">${r2((spanMin(s.start_time, s.end_time) - n0(s.break_min)) / 60)}</span>` }, { t: 'في رمضان', h: s => s.ramadan_start ? `<span class="num">${s.ramadan_start.slice(0, 5)}–${s.ramadan_end.slice(0, 5)}</span>` : '<span class="muted small">' + esc(tr('حسب إعداد رمضان العام')) + '</span>' }, { t: 'السماح', h: s => s.grace_min + ' د' }, { t: 'أيام العمل', h: s => s.work_days.map(i => DOW[i]).join('، ') }], shifts, { empty: 'لا توجد ورديات', onRow: true })}</div>
     <div class="card"><div class="row" style="justify-content:space-between"><h2>العطل الرسمية</h2><div class="row"><button class="btn sm" id="nat">+ اليوم الوطني ويوم التأسيس</button><button class="btn sm" id="nh">+ عطلة</button></div></div>
@@ -210,6 +228,20 @@ async function attSettings(box) {
     $$('input', $('#mform', d)).forEach(x => x.addEventListener('input', hint)); hint();
     if (s) $('#shdel', d).onclick = async () => { try { await db.del('shifts', { id: 'eq.' + s.id }); d.close(); route(); } catch (e) { showErr($('#merr', d), e); } }; };
   $('#ns', box).onclick = () => siteForm(null); bindRows(stbl, sites, siteForm);
+  const shiftLib = () => { const lib = shiftLibrary(), k = x => String(x.start_time).slice(0, 5) + '|' + String(x.end_time).slice(0, 5) + '|' + x.break_min, have = new Set(shifts.map(k)), names = new Set(shifts.map(x => x.name)), pick = new Set(), had = x => have.has(k(x)) || names.has(x.name);
+    const d = modal(tr('مكتبة الورديات'), `<div class="fg">${field('نوع الوردية', `<select id="slg"><option value="">${esc(tr('كل الأنواع'))}</option>${SHIFT_GROUPS.map(g => opt(g.k, tr(g.t), '')).join('')}</select>`)}${field('وقت البداية', `<select id="slp"><option value="">${esc(tr('كل الأوقات'))}</option>${opt('am', tr('صباحية'), '')}${opt('pm', tr('مسائية'), '')}${opt('night', tr('ليلية'), '')}</select>`)}
+      ${field('فترة السماح بالتأخير (دقيقة)', inp('lg', 15, 'type="number" min="0" max="120"'))}<div class="wide"><label>${esc(tr('أيام العمل'))}</label><div class="row">${DOW.map((n, i) => `<label style="display:flex;gap:6px;align-items:center;color:var(--ink)"><input type="checkbox" name="ld${i}" ${i < 5 ? 'checked' : ''}> ${esc(tr(n))}</label>`).join('')}</div></div></div>
+      <div class="row" style="justify-content:space-between;margin:8px 0"><label class="row small" style="gap:6px"><input type="checkbox" id="sla" style="width:auto"> ${esc(tr('تحديد المعروض'))}</label><span class="small">${esc(tr('المحدد'))}: <b class="num" id="slc">0</b></span></div><div class="tw" style="max-height:320px;overflow:auto"><table><thead><tr><th></th><th>${esc(tr('الوردية'))}</th><th>${esc(tr('ساعات العمل'))}</th><th>${esc(tr('الراحة'))}</th><th>${esc(tr('في رمضان'))}</th></tr></thead><tbody id="slb"></tbody></table></div>
+      <p class="muted small">${esc(tr('وقت رمضان يبدأ مع الوردية بست ساعات عمل للمسلمين (م98)، ويمكنك تعديل أي وردية بعد إضافتها.'))}</p>`, { wide: true, ok: tr('إضافة المحدد'), onOk: async f => {
+        const days = DOW.map((_, i) => i).filter(i => f['ld' + i]); if (!pick.size) throw new Error(tr('اختر وردية واحدة على الأقل')); if (!days.length) throw new Error('اختر يوم عمل واحدا على الأقل'); if (days.length > 6) throw new Error(tr('اترك يوم راحة أسبوعيا'));
+        const rows = lib.filter(x => pick.has(x.id)).map((x, i) => ({ company_id: S.cid, name: x.name, name_en: x.name_en, start_time: x.start_time, end_time: x.end_time, break_min: x.break_min, ramadan_start: x.ramadan_start, ramadan_end: x.ramadan_end, grace_min: Math.round(+f.lg || 0), work_days: days, is_default: !shifts.length && i === 0 }));
+        await db.ins('shifts', rows); toast(tr('أُضيفت الورديات') + ': ' + rows.length); route(); } });
+    const shown = () => { const g = $('#slg', d).value, p = $('#slp', d).value; return lib.filter(x => (!g || x.group === g) && (!p || x.period === p)); };
+    const count = () => { $('#slc', d).textContent = pick.size; const free = shown().filter(x => !had(x)); $('#sla', d).checked = !!free.length && free.every(x => pick.has(x.id)); };
+    const draw = () => { $('#slb', d).innerHTML = shown().map(x => `<tr><td><input type="checkbox" style="width:auto" data-sl="${esc(x.id)}" ${had(x) ? 'disabled checked' : pick.has(x.id) ? 'checked' : ''}></td><td>${esc(LANG === 'en' ? x.name_en : x.name)}${had(x) ? ` <span class="badge info">${esc(tr('مضافة'))}</span>` : ''}</td><td class="num">${r2(x.work / 60)}</td><td class="num">${x.break_min}</td><td class="num" dir="ltr">${x.ramadan_start}–${x.ramadan_end}</td></tr>`).join('');
+      $$('[data-sl]', d).forEach(c => c.onchange = () => { c.checked ? pick.add(c.dataset.sl) : pick.delete(c.dataset.sl); count(); }); count(); };
+    $('#slg', d).onchange = draw; $('#slp', d).onchange = draw; $('#sla', d).onchange = e => { shown().filter(x => !had(x)).forEach(x => e.target.checked ? pick.add(x.id) : pick.delete(x.id)); draw(); }; draw(); };
+  $('#shl', box).onclick = shiftLib;
   $('#nsh', box).onclick = () => shiftForm(null); bindRows(shtbl, shifts, shiftForm);
   bindRows(htbl, hols, h => confirmBox('حذف العطلة', h.name + ' — ' + h.day, 'حذف').then(ok => ok && db.del('holidays', { company_id: 'eq.' + S.cid, day: 'eq.' + h.day }).then(route).catch(e => toast(e.message))));
   const dayList = (from, to) => { const out = []; for (let d = new Date(from + 'T12:00:00Z'); d.toISOString().slice(0, 10) <= to && out.length < 15; d = new Date(d.getTime() + 864e5)) out.push(d.toISOString().slice(0, 10)); return out; };

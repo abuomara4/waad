@@ -478,6 +478,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أُضيفت	Added
 أُضيفت البيانات التجريبية	Sample data added
 أُضيفت الساعات	Hours added
+أُضيفت الورديات	Shifts added
 أُضيفت للإجازة التعويضية	Added to compensatory leave
 أُعيد التقييم للمقيّم	Review returned to the reviewer
 أُعيد المسير	Payroll returned
@@ -659,6 +660,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إضافة إلى الشاشة الرئيسية	Add to Home Screen
 إضافة الأعضاء وحذفهم وتعيين كلمات مرورهم لمالك المنصة فقط	Adding and removing members and setting their passwords is for the platform owner only
 إضافة الأعضاء وحذفهم وتعيين كلمات مرورهم لمالك المنصة فقط.	Adding and removing members and setting their passwords is for the platform owner only.
+إضافة المحدد	Add selected
 إضافة الملاحظة	Add note
 إضافة الموظفين الجدد	Add new employees
 إضافة بدل	Allowance added
@@ -858,6 +860,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اترك المعدود فارغاً للأصناف التي لم تُعد	Leave counted empty for items not counted
 اترك وقت الحضور فارغا لحذف السجل واعتبار اليوم غيابا	Leave the check-in time empty to delete the record and count the day as absent
 اترك وقت الحضور فارغاً لحذف السجل واعتبار اليوم غياباً	Leave the check-in time empty to delete the record and count the day as absent
+اترك يوم راحة أسبوعيا	Leave a weekly rest day
 اتركه فارغا إذا كانت كل إجازاته منذ المباشرة مسجّلة في النظام	Leave it empty if all their leave since joining is recorded in the system
 اتركه فارغا إن كان مستمرا	leave empty if ongoing
 اتركه فارغا لفتح كل شيء	leave empty to open everything
@@ -2350,6 +2353,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المحتجز	Retention
 المحتوى طويل جدا	The content is too long
 المحتوى طويل جداً	The content is too long
+المحدد	Selected
 المحسوم	Deducted
 المحصّل	Collected
 المحضر	Minutes
@@ -3205,6 +3209,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تحديث جماعي من	Bulk update from
 تحديد	Set
 تحديد الكل	Select all
+تحديد المعروض	Select those shown
 تحصيل	Collect
 تحصيل شيك	Cheque collected
 تحصيلات من العملاء	Collections from customers
@@ -3737,6 +3742,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 جزء من الشهر	Part of the month
 جزء من الكمية بيع	part of the quantity has been sold
 جزء من كمية	part of the quantity of
+جزئي	Part-time
 جزاءات تأديبية	Disciplinary penalties
 جزاءات صادرة	Penalties issued
 جزائري	Algerian
@@ -4111,8 +4117,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 دليل الاستخدام	User guide
 دليل الحسابات	Chart of accounts
 دليل الموظف في نظام وعد	Employee guide to Waad
+دوام	Duty
+دوام جزئي	Part-time
 دوام رمضان	Ramadan hours
 دوام رمضان لا يزيد على	Ramadan hours do not exceed
+دوام مكتبي يبدأ على النصف ساعة	Office hours starting on the half hour
 دوامه العادي في رمضان	normal hours in Ramadan
 دورات	Courses
 دورات التقييم	Review cycles
@@ -4406,12 +4415,16 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ساعات بعد خصم الراحة	hours after the break
 ساعات تعويضية	compensatory hours
 ساعات تعويضية تنتهي خلال	Compensatory hours expiring within
+ساعات شاملة نصف ساعة راحة	hours including a half-hour break
 ساعات عمل	Work hours
 ساعات عمل بانتظار اعتمادك	Work hours waiting for your approval
 ساعات عمل على المشاريع	Project work hours
+ساعات عمل مع ساعة راحة	working hours with a one-hour break
+ساعات عمل مع نصف ساعة راحة	working hours with a half-hour break
 ساعات عملي	My hours
 ساعات في رمضان للمسلمين	hours in Ramadan for Muslims
 ساعات متواصلة	hours in a row
+ساعات مع نصف ساعة راحة	hours with a half-hour break
 ساعات معتمدة قابلة للفوترة	Approved billable hours
 ساعات مفوترة	Billable hours
 ساعات يوميا و	hours a day and
@@ -4686,6 +4699,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 شيكات صادرة مؤجلة	Post-dated cheques issued
 شيكات صادرة مؤجلة الدفع	Post-dated cheques issued
 شيكات مستحقة خلال	cheques due within
+ص	AM
 صاحب الصلاحية	Authorised signatory
 صادر	Issued
 صادر لـ	Issued to
@@ -4702,6 +4716,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 صافي المرتجعات	net of returns
 صالح حتى	Valid until
 صالح لمدة قصيرة	valid for a short time
+صباحية	Morning
 صحة	Health
 صحتي	Sehhaty
 صحيحة	are correct
@@ -5149,6 +5164,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فترة السماح بالتأخير	Late grace period
 فترة تجربة تنتهي	probation period(s) ending
 فترة مخصصة	Custom period
+فترتان مع راحة	Two periods with a break of
+فترتين	Split
 فتظهر لك خدمات الطلبات والإجازات وقسائم راتبك	so you get requests, leave and payslip services
 فتعتمدها الموارد البشرية ثم المالية	HR then finance approve them
 فتنتهي في	so it ends on
@@ -5351,6 +5368,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كل الأعضاء يرون المنشآت ويسجلون التواصل معها. اختر ما يقدر يعدّله.	All members see the companies and log contact with them. Choose what they can change.
 كل الأقسام	All departments
 كل الأنواع	All types
+كل الأوقات	All times
 كل الاستبيانات	All surveys
 كل الجنسيات	All nationalities
 كل الدورات	All courses
@@ -5912,6 +5930,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ليظهر الإشغال هنا	to see the allocation here
 ليظهر لك نظام الطلبات وقسائم الراتب	so requests and payslips appear for you
 ليلي	dark
+ليلية	Night
 لينكدإن	LinkedIn
 ليوم أو فترة راحة ضمن التدوير	for a day or a rest period in the rotation
 ليُحفظ السبب وتاريخ السريان في سجل الرواتب	so the reason and effective date are kept in the salary history
@@ -6185,6 +6204,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مسؤول المشتريات	Purchasing officer
 مسؤول مبيعات	sales officer
 مسؤول مشتريات	Purchasing officer
+مسائية	Evening
 مساحة التوقيع	Signature area
 مساحة قاعدة البيانات والملفات	Database and file storage
 مسار اعتماد كل نوع طلب ومن يرفع طلبات الشراء يُحددان في	Each request type's approval path and who may raise purchase requests are set in
@@ -6283,6 +6303,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مصلحة العمل	work needs
 مصنع الديار	Al-Diyar Factory
 مصنفة حسب الحساب المقابل	classified by the counter-account
+مضافة	Added
 مطابقات مقترحة	Suggested matches
 مطابقة	Matches
 مطابقة ثلاثية	Three-way match
@@ -6379,6 +6400,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مكان تسجيل الحضور	Check-in place
 مكة المكرمة	Makkah
 مكتب العقار	real estate office
+مكتبة الورديات	Shift library
+مكتبي	Office
 مكتمل	Completed
 مكتملة	Completed
 مكرر	Duplicate
@@ -6712,6 +6735,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نهاية رمضان	Ramadan ends
 نهاية فترة التجربة	Probation end
 نهاية فترة التجربة غير صحيحة	Invalid probation end
+نوبة	Rota
 نوع إجازة غير معروف	Unknown leave type
 نوع الإجازة	Leave type
 نوع الإشعار غير صالح	Invalid note type
@@ -6729,6 +6753,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نوع المستند غير معروف	Unknown document type
 نوع المستند مطلوب	The document type is required
 نوع المقابلة	Interview type
+نوع الوردية	Shift type
 نوع تواصل غير معروف	Unknown contact type
 نوع سطر غير معروف	Unknown line type
 نوع طلب غير معروف	Unknown request type
@@ -7025,12 +7050,14 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وقت الانصراف غير صحيح	Invalid check-out time
 وقت الانصراف في المستقبل	The check-out time is in the future
 وقت الانصراف قبل وقت الحضور	Check-out is before check-in
+وقت البداية	Start time
 وقت البداية والنهاية متساويان	The start and end times are the same
 وقت البصمة	Punch time
 وقت التوقيع	Signed at
 وقت الحضور	Check-in time
 وقت الحضور غير صحيح	Invalid check-in time
 وقت رمضان	Ramadan time
+وقت رمضان يبدأ مع الوردية بست ساعات عمل للمسلمين	The Ramadan time starts with the shift, with six working hours for Muslims
 وقد اكتُشفت بتاريخ	and discovered on
 وقع	Fell
 وقود	fuel
@@ -7111,6 +7138,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ويليه	followed by
 ويمكنك إعادة تعيينها لاحقا	you can reset it later
 ويمكنك إعادة تعيينها لاحقاً	you can reset it later
+ويمكنك تعديل أي وردية بعد إضافتها	and you can edit any shift after adding it
 ويمكنك تغييرها	and you can change them
 ويمكنك حذف الأعمدة التي لا تحتاجها	and you can delete the columns you do not need
 ويمكنك مسحها لاحقا بضغطة	and you can clear it later with one click

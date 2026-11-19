@@ -26,6 +26,7 @@ const HELP = {
     ['افتح الطلب، راجع التفاصيل، ثم اعتمد أو ارفض مع ذكر السبب.', 'Open it, check the details, then approve or reject with a reason.']] },
   '#/att': { t: ['الحضور والانصراف', 'Attendance'], s: [
     ['يسجّل الموظف حضوره من جواله أو من الموقع دون جهاز بصمة، ويظهر هنا الحاضر والمتأخر والغائب لكل يوم.', 'Employees check in from their phone or the website with no fingerprint device; this page shows who is present, late or absent each day.'],
+    ['من «الإعدادات» ← «مكتبة الورديات» اختر ما يناسبك من ورديات جاهزة بأوقات رمضان، ثم أسندها للقسم أو الموظف.', 'From «Settings» → «Shift library» pick ready-made shifts with Ramadan times, then assign them to a department or employee.'],
     ['لموظفي المكاتب أو العمل عن بعد: اختر في ملف الموظف «من أي مكان بدون تحديد الموقع»، ويبقى التحقق من الموقع لغيرهم.', 'For desk or remote staff: choose «From any place, without location» in the employee file; the location check stays on for everyone else.'],
     ['حدّد الورديات وموقع العمل من الإعدادات، والغياب والتأخير يُحسبان في المسير.', 'Set shifts and the work location in settings; absence and lateness flow into payroll.']] },
   '#/docs': { t: ['المستندات والعقود', 'Documents & contracts'], s: [
