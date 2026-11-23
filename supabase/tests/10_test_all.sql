@@ -3991,5 +3991,21 @@ reset role;
 select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
 select t.ok((select count(*) from public.agreements) = 0 and (select count(*) from public.agreements_due(:'cid')) = 0, 'contracts: an employee without sales sees none');
 reset role;
+-- approval delegation (0135)
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.err($$select public.delegation_set('$$ || :'cid' || $$', '$$ || :'u_owner' || $$', current_date, current_date + 3)$$, 'غيرك', 'delegation: not to oneself');
+select t.err($$select public.delegation_set('$$ || :'cid' || $$', '$$ || :'u_emp' || $$', current_date, current_date + 120)$$, '90', 'delegation: at most 90 days');
+select public.delegation_set(:'cid', :'u_emp', current_date, current_date + 3, 'إجازة') as dg \gset
+select t.err($$select public.can_act_self(r, 'g') from public.requests r limit 1$$, 'permission denied', 'delegation: the inner step check is not callable');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((select count(*) from public.approval_delegations where id = :'dg') = 1, 'delegation: the colleague sees the delegation given to them');
+select t.ok(not exists(select 1 from jsonb_array_elements((select coalesce(jsonb_agg(x), '[]') from public.delegated_pending(:'cid') x)) e where (e->>'employee_id')::uuid = public.my_employee(:'cid')), 'delegation: never one''s own request');
+select t.err($$select public.delegation_end('$$ || :'dg' || $$')$$, 'مصرح', 'delegation: only the approver or HR ends it');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.delegation_end(:'dg');
+select t.ok((select count(*) from public.approval_delegations where id = :'dg') = 0, 'delegation: ending one that has not started removes it');
+reset role;
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

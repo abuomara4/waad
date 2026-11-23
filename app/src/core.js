@@ -908,7 +908,9 @@ async function pendingForMe() {
   const ids = [...new Set(reqs.map(r => r.employee_id))];
   const emps = await db.get('employees', { id: 'in.(' + ids.join(',') + ')', select: 'id,manager_id,department_id,full_name,emp_no' });
   const em = {}; emps.forEach(e => em[e.id] = e);
-  return reqs.filter(r => canAct(r, em[r.employee_id])).map(r => Object.assign(r, { _emp: em[r.employee_id] }));
+  const own = reqs.filter(r => canAct(r, em[r.employee_id])).map(r => Object.assign(r, { _emp: em[r.employee_id] })), seen = new Set(own.map(r => r.id));
+  const del = await db.rpc('delegated_pending', { p_company: S.cid }).catch(() => []);   // requests that reach me through a delegation (0135)
+  return own.concat((del || []).filter(r => !seen.has(r.id)));
 }
 function canAct(r, e) {
   const st = r.route[r.step]; if (!st) return false;

@@ -932,6 +932,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اختر حساب المصروف	Choose the expense account
 اختر حساب بنك أو صندوق	Choose a bank or cash account
 اختر حساب مصروف لكل بند	Choose an expense account for each line
+اختر زميلا غيرك	Choose a colleague other than yourself
+اختر زميلا من منشأتك	Choose a colleague from your company
 اختر سبب الصفر أو الإعفاء	Choose the zero-rate or exemption reason
 اختر شخصا يحدد صلاحيات الوظائف نيابة عن مدير الموارد البشرية	Choose someone who sets job permissions on behalf of the HR manager
 اختر صلاحية واحدة على الأقل	Choose at least one role
@@ -1684,6 +1686,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 التغييرات	Changes
 التفاصيل	Details
 التفعيل	Activation
+التفويض	The delegation
 التقارير	Reports
 التقدير	Rating
 التقديري	Estimate
@@ -2030,6 +2033,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الشاملة	Complete
 الشخص المسؤول	Contact person
 الشرط متاح لطلبات الإجازة والمبالغ فقط	The condition is for leave and money requests only
+الشرط متاح لطلبات المبالغ فقط	The rule is available for money requests only
 الشركة المصنعة	Make
 الشروط	Terms
 الشروط والأحكام	Terms and conditions
@@ -2829,6 +2833,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بالإضافة إلى حسم أجر مدة ترك العمل	plus deducting the wage for the time away
 بالانتظار	Pending
 بالبريد	By email
+بالتفويض	By delegation
 بالحقول المطلوبة لرفع الرواتب في	with the fields required to upload salaries to
 بالربح	with the profit
 بالرقم الوظيفي	By employee number
@@ -3165,6 +3170,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تاريخ الميلاد في المستقبل	Date of birth is in the future
 تاريخ النهاية	End date
 تاريخ النهاية قبل البداية	The end date is before the start date
+تاريخ النهاية مضى	The end date has passed
 تاريخ الواقعة	Event date
 تاريخ الواقعة غير صحيح	Invalid event date
 تاريخ انتهاء الإقامة	Iqama expiry date
@@ -3503,6 +3509,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تفعيل التحقق بخطوتين	Turn on two-step verification
 تفعيل التنبيهات	Turn on notifications
 تفعيل التنبيهات على هذا الجهاز	Turn on notifications on this device
+تفويض الاعتمادات	Delegate approvals
 تقارير الموارد البشرية	HR reports
 تقدر تعتمد الطلب أو ترفضه بدلا من المدير المباشر	You can approve or reject the request in the direct manager's place
 تقدر تعتمد الطلب أو ترفضه بدلا من المدير المباشر، ويُسجَّل باسمك مع السبب في مسار الطلب.	You can approve or reject the request in the direct manager's place; it is logged under your name with the reason in the request's journey.
@@ -7395,6 +7402,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يلغي القديم	cancels the old one
 يمدّد الاشتراك بالأيام	Extends the subscription by days
 يمر الطلب على مديرك ثم المالية ثم المدير العام	The request goes to your manager, then finance, then the general manager
+يمر على المالية إذا زاد عن	Goes to finance above
 يمر على المدير العام إذا زاد عن	Goes to the general manager above
 يمكن أكثر من دور	more than one is allowed
 يمكن اختيار أكثر من دور	more than one can be chosen
@@ -7467,6 +7475,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يوما عدا العطل الرسمية	days excluding public holidays
 يوما على إبلاغ العامل بالجزاء السابق	days have passed since the worker was notified of the previous penalty
 يوما على الأقل	days in advance
+يوما على الأكثر	days at most
 يوما على انتهاء التحقيق	days from the end of the investigation
 يوما على انتهائها دون تجديد	days since it ended without renewal
 يوما في الجرس والصفحة الرئيسية	days in the bell and on the home page

@@ -282,11 +282,12 @@ VIEWS['#/approvals'] = async (page, arg, q) => {
   if (all) return approvalsTrack(page);
   const mine = await pendingForMe(); NAVC.approvals = mine.length; drawNav();
   const lt = await LEAVE_TYPES(); const ltn = {}; lt.forEach(l => ltn[l.code] = l.name_ar);
-  page.innerHTML = `<div class="head"><div><h1>الاعتمادات</h1><div class="muted">الطلبات التي تنتظر قرارك</div></div></div>${boss ? apprTabs('mine') : ''}
+  page.innerHTML = `<div class="head"><div><h1>الاعتمادات</h1><div class="muted">الطلبات التي تنتظر قرارك</div></div><button class="btn" id="adlg">${esc(tr('تفويض الاعتمادات'))}</button></div>${boss ? apprTabs('mine') : ''}
    ${tbl([{ t: 'الموظف', h: r => esc(r._emp ? r._emp.full_name : '') }, { t: 'النوع', h: r => esc(KIND[r.kind] + (r.sub ? ' — ' + leaveLbl(r, ltn) : '')) },
      { t: 'الفترة/المبلغ', h: r => r.amount != null ? `<span class="num">${money(r.amount)}</span>` : r.from_date ? fdate(r.from_date) + ' → ' + fdate(r.to_date) : '—' },
-     { t: 'مرحلتك', h: r => esc(STEP[r.route[r.step]]) }, { t: 'تاريخ الطلب', h: r => fdate(r.created_at) }, { t: 'مدة الانتظار', h: r => `<span class="${slaLate(r) ? 'bad' : 'muted'} small" title="${esc(waitAt(r.step_at))}">${esc(waitTxt(r.step_at))}<br><span class="num">${esc(waitAt(r.step_at))}</span>${slaLate(r) ? ' · ' + esc(tr('متأخر')) : ''}</span>` }], mine, { empty: 'لا شيء بانتظارك', onRow: true })}`;
+     { t: 'مرحلتك', h: r => esc(STEP[r.route[r.step]]) + (r._deleg ? ` <span class="badge info">${esc(tr('بالتفويض'))}</span>` : '') }, { t: 'تاريخ الطلب', h: r => fdate(r.created_at) }, { t: 'مدة الانتظار', h: r => `<span class="${slaLate(r) ? 'bad' : 'muted'} small" title="${esc(waitAt(r.step_at))}">${esc(waitTxt(r.step_at))}<br><span class="num">${esc(waitAt(r.step_at))}</span>${slaLate(r) ? ' · ' + esc(tr('متأخر')) : ''}</span>` }], mine, { empty: 'لا شيء بانتظارك', onRow: true })}`;
   bindRows(page, mine, r => requestDetail(r, { decide: true }));
+  if ($('#adlg', page)) $('#adlg', page).onclick = delegDialog;
 };
 
 const apprTabs = cur => `<div class="tabs" style="max-width:420px"><button type="button" class="${cur === 'mine' ? 'on' : ''}" onclick="location.hash='#/approvals'">${esc(tr('بانتظاري'))}</button><button type="button" class="${cur === 'all' ? 'on' : ''}" onclick="location.hash='#/approvals?t=all'">${esc(tr('متابعة كل الطلبات'))}</button></div>`;

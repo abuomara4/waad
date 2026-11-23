@@ -105,6 +105,8 @@ const HELP = {
     ['قائمة مهام لكل موظف باشر خلال آخر 120 يوما، مع نسبة الإنجاز.', 'A checklist for each employee who started in the last 120 days, with progress.'],
     ['بنود مثل العقد والآيبان والإقامة والتأمين الطبي تكتمل تلقائيا عند إدخالها، والباقي كالتسجيل في التأمينات وتوثيق العقد في قوى تعلّمه أنت.', 'Items such as the contract, IBAN, iqama and medical insurance complete themselves when entered; you tick the rest, like GOSI registration and documenting the contract in Qiwa.'],
     ['أضف بنود منشأتك الخاصة من «بنود المنشأة الخاصة».', 'Add your own steps from «Company\'s own steps».']] },
+  '#/approvals': { t: ['الاعتمادات', 'Approvals'], s: [
+    ['هنا الطلبات التي تنتظر قرارك. عند غيابك اضغط «تفويض الاعتمادات» واختر زميلا ومدة، فيعتمد بدلا منك ويُسجَّل باسمه.', 'Requests waiting for your decision. Before an absence press «Delegate approvals», choose a colleague and a period; they approve in your place and the trail shows their name.']] },
   '#/agreements': { t: ['العقود والاتفاقيات', 'Contracts and agreements'], s: [
     ['سجّل عقود الخدمات والصيانة والإيجار والتوريد مع العملاء والموردين: المدة والقيمة والفوترة والمسؤول، وأرفق النسخة الموقعة.', 'Record service, maintenance, lease and supply contracts with customers and suppliers: term, value, billing and owner, and attach the signed copy.'],
     ['يصلك تنبيه في الجرس قبل انتهاء العقد بالمدة التي تحددها، وتجدده بضغطة لمدة مماثلة.', 'The bell warns you before a contract ends by the period you set, and you renew it with one click for the same term.'],
