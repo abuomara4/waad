@@ -356,8 +356,8 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
   } else {
     body = `${field('البريد الإلكتروني', `<input name="email" type="email" autocomplete="email" required dir="ltr">`)}<div style="height:10px"></div>
       ${field('كلمة المرور', pwInput('password', tab === 'in' ? 'current-password' : 'new-password'))}${tab === 'in' ? rememberBox() : ''}
-      ${tab === 'up' ? `<div style="height:10px"></div>${field('تأكيد كلمة المرور', pwInput('password2', 'new-password', ''))}
-        <label class="row small" style="gap:6px;margin-top:10px;align-items:flex-start"><input type="checkbox" name="agree" style="width:auto;margin-top:3px"> <span>أوافق على <a href="#/terms">شروط الاستخدام</a> و<a href="#/privacy">سياسة الخصوصية</a></span></label>` : ''}`;
+      ${tab === 'up' ? `<div style="height:10px"></div>${field('تأكيد كلمة المرور', pwInput('password2', 'new-password'))}
+        <label class="row small" style="gap:6px;margin-top:10px;align-items:flex-start"><input type="checkbox" name="agree" style="width:auto;margin-top:3px"> <span>أوافق على <a href="#/terms">الشروط والأحكام</a> و<a href="#/privacy">سياسة الخصوصية</a></span></label>` : ''}`;
     btn = tab === 'up' ? 'إنشاء الحساب' : 'دخول';
     foot = tab === 'in' ? `<div style="margin-top:10px;text-align:center"><a href="#" id="forgot" class="small">نسيت كلمة المرور؟</a></div>`
       : `<p class="muted small" style="margin:10px 0 0">لصاحب منشأة جديدة، أو لمن وصلته دعوة بالبريد من الإدارة. الموظفون لا يسجلون هنا — يدخلون برمز المنشأة ورقمهم الوظيفي.</p>`;
@@ -369,14 +369,14 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
     <form id="af" novalidate>${body}<div id="aerr"></div><div style="height:12px"></div><button class="btn pri full" id="ab">${btn}</button>${foot}</form></div>
     <p class="muted small" style="text-align:center">${links}</p>
     <p class="muted small" style="text-align:center"><a href="#" id="theme" data-theme-btn="text"></a> · ${langBtn('linkbtn')}</p>
-    <p class="muted small afoot"><a href="${SITE_URL}" id="tosite">← الموقع الرئيسي</a> · نظام وعد السحابي لإدارة المنشآت © ${new Date().getFullYear()} · <a href="#/privacy">سياسة الخصوصية</a> · <a href="#/terms">شروط الاستخدام</a></p></div></div>`;
+    <p class="muted small afoot"><a href="${SITE_URL}" id="tosite">← الموقع الرئيسي</a> · نظام وعد السحابي لإدارة المنشآت © ${new Date().getFullYear()} · <a href="#/privacy">سياسة الخصوصية</a> · <a href="#/terms">الشروط والأحكام</a></p></div></div>`;
   $('#lg').onclick = () => setLang(LANG === 'en' ? 'ar' : 'en');
   $$('[data-go]', app).forEach(a => a.onclick = e => { e.preventDefault(); authView(a.dataset.go); });
   $('#theme').onclick = e => { e.preventDefault(); toggleTheme(); }; applyTheme(curTheme());
   if ($('#chg')) $('#chg').onclick = e => { e.preventDefault(); LS.set('waad.ccode', null); LS.set('waad.cname', null); LS.set('waad.empno', null); authView('staff'); };
   if ($('#sforgot')) $('#sforgot').onclick = async e => { e.preventDefault(); const n = $('#af').emp.value.trim(); if (!/^[A-Za-z0-9_-]{1,20}$/.test(n)) return showErr('#aerr', 'اكتب رقمك الوظيفي أولا');
     try { await db.rpc('staff_password_help', { p_code: ccode, p_emp_no: n }); authView('staff', 'إذا كان الرقم مرتبطا بحساب دخول، وصل طلبك إلى الموارد البشرية في منشأتك، وستزودك بكلمة مرور مؤقتة.'); } catch (er) { showErr('#aerr', er); } };
-  if ($('#forgot')) $('#forgot').onclick = async e => { e.preventDefault(); const em = $('#af').email.value.trim(); if (!em) return showErr('#aerr', 'اكتب بريدك أولا'); try { await authApi.recover(em); authView('in', 'أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك (إن كان مسجلا).'); } catch (er) { showErr('#aerr', er); } };
+  if ($('#forgot')) $('#forgot').onclick = async e => { e.preventDefault(); const em = $('#af').email.value.trim(); if (!em) return showErr('#aerr', 'يرجى إدخال البريد الإلكتروني أولا'); try { await authApi.recover(em); authView('in', 'أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك (إن كان مسجلا).'); } catch (er) { showErr('#aerr', er); } };
   $('#af').onsubmit = async e => {
     e.preventDefault(); const f = formData(e.target);
     if (step === 'code') {
@@ -392,10 +392,12 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
       catch (er) { showErr('#aerr', /غير صحيحة/.test(er.message) ? 'الرقم الوظيفي أو كلمة المرور غير صحيحة' : er); }
       return;
     }
+    if (!(f.email || '').trim()) return showErr('#aerr', 'يرجى إدخال البريد الإلكتروني');
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)) return showErr('#aerr', 'البريد الإلكتروني غير صحيح');
+    if (!f.password) return showErr('#aerr', 'أدخل كلمة المرور');
     if (tab === 'up' && f.password.length < 8) return showErr('#aerr', 'كلمة المرور 8 أحرف على الأقل');
     if (tab === 'up' && f.password !== f.password2) return showErr('#aerr', 'كلمتا المرور غير متطابقتين');
-    if (tab === 'up' && !f.agree) return showErr('#aerr', 'وافق على شروط الاستخدام وسياسة الخصوصية لإنشاء الحساب');
+    if (tab === 'up' && !f.agree) return showErr('#aerr', 'وافق على الشروط والأحكام وسياسة الخصوصية لإنشاء الحساب');
     if (tab === 'up') { LS.set('waad.terms', TERMS_VERSION); LS.set('waad.authtab', 'in'); }
     try {
       await busy($('#ab'), async () => {
@@ -572,7 +574,7 @@ function profileFields(co = {}, withCity = true) {
     ${withCity ? field('المدينة', inp('city', co.city, 'list="sacities" required') + `<datalist id="sacities">${SA_CITIES.map(c => `<option value="${esc(c)}">`).join('')}</datalist>`) : ''}
     ${field('عدد الموظفين', `<select name="size_band" required>${selOpts(SIZE_B, co.size_band, 'اختر')}</select>`)}
     ${field('نشاط المنشأة', `<select name="industry" required>${selOpts(INDUSTRY, co.industry, 'اختر')}</select>`)}
-    ${field('من وين عرفت عن وعد؟', `<select name="heard_from">${selOpts(HEARD, co.heard_from, 'اختر (اختياري)')}</select>`)}`;
+    ${field('كيف تعرفت على وعد؟', `<select name="heard_from">${selOpts(HEARD, co.heard_from, 'اختر (اختياري)')}</select>`)}`;
 }
 const profileErr = (f, needCity = true) => !/^05\d{8}$/.test((f.owner_phone || '').replace(/\s/g, '')) ? 'اكتب جوال المالك بالشكل 05XXXXXXXX'
   : (needCity && !(f.city || '').trim()) ? 'اكتب المدينة' : !f.size_band ? 'اختر عدد الموظفين' : !f.industry ? 'اختر نشاط المنشأة' : '';
@@ -581,7 +583,7 @@ const profileRow = f => Object.assign({ owner_phone: (f.owner_phone || '').repla
 const MODULES = { hr: 'الموارد البشرية', finance: 'المالية والمحاسبة', sales: 'المبيعات', purch: 'المشتريات', stock: 'المخزون', proj: 'المشاريع' };
 const MOD_ROUTES = {
   hr: ['hrdash', 'compliance', 'onboarding', 'announcements', 'surveys', 'workforce', 'employees', 'grades', 'insurance', 'trainplan', 'docs', 'att', 'attendance', 'roster', 'policies', 'leavecal', 'penalties', 'payroll', 'payslips', 'eos', 'nitaqat', 'travel', 'workflows', 'clearance', 'reviews', 'recruit', 'training', 'hrreports', 'org', 'letter', 'path', 'profile', 'requests'],
-  sales: ['quotes', 'orders', 'deliveries', 'sales', 'crm', 'marketing', 'pos', 'recurring'],
+  sales: ['quotes', 'orders', 'deliveries', 'sales', 'crm', 'marketing', 'pos', 'recurring', 'agreements'],
   purch: ['purchreq', 'porders', 'receipts', 'purchases', 'rfq', 'supinbox'],
   stock: ['items', 'warehouses', 'transfers', 'counts', 'expiry', 'reorder', 'serials'],
   finance: ['expensepolicy', 'payments', 'journal', 'reports', 'coa', 'bankrec', 'cheques', 'petty', 'mypetty', 'currencies', 'opening', 'assets', 'costcenters', 'budgets', 'periods', 'bankmatch', 'prepaid', 'monthclose', 'facilities', 'zakat', 'spend'],
@@ -665,7 +667,7 @@ function navItems() {
     if (can('sales') || can('mkt')) it.push({ h: '#/crm', t: 'الفرص والعملاء المحتملون' }, { h: '#/marketing', t: 'التسويق والحملات' });
     if (can('sales')) it.push({ h: '#/quotes', t: 'عروض الأسعار' });
     if (can('sales') || can('stock')) it.push({ h: '#/orders', t: 'أوامر البيع' }, { h: '#/deliveries', t: 'إشعارات التسليم' });
-    if (can('sales')) it.push({ h: '#/pos', t: 'نقطة البيع' }, { h: '#/sales', t: 'فواتير المبيعات' }, { h: '#/recurring', t: 'الفواتير المتكررة' }, { h: '#/parties/customer', t: 'العملاء' });
+    if (can('sales')) it.push({ h: '#/pos', t: 'نقطة البيع' }, { h: '#/sales', t: 'فواتير المبيعات' }, { h: '#/recurring', t: 'الفواتير المتكررة' }, { h: '#/agreements', t: 'العقود والاتفاقيات' }, { h: '#/parties/customer', t: 'العملاء' });
   }
   if (isFin() && (can('purch') || can('stock'))) {
     g('المشتريات');
@@ -843,6 +845,7 @@ async function loadNotifs() {
     (vv || []).forEach(v => add('وصلتك تأشيرة الخروج والعودة — افتح طلبك', '#/requests', { at: v.delivered_at, ok: true })); }
   if (typeof finNotifs === 'function') await finNotifs(add, safe);
   if (typeof projNotifs === 'function') await projNotifs(add, safe);
+  if (typeof agNotifs === 'function') await agNotifs(add, safe);
   if (typeof pwNotifs === 'function') await pwNotifs(add, safe);
   if (myReqs) { const since = Date.now() - 30 * 864e5; myReqs.filter(r => r.decided_at && new Date(r.decided_at) > since).forEach(r => add((r.status === 'approved' ? 'اعتُمد ' : 'رُفض ') + 'طلبك: ' + (KIND[r.kind] || r.kind), '#/requests', { at: r.decided_at, ok: r.status === 'approved' })); }
   return out;
@@ -883,7 +886,7 @@ async function route() {
   try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); if (viewOnlyPage(path) && page.isConnected) { page.classList.add('viewonly'); const h = $('.head', page); h && h.insertAdjacentHTML('afterend', `<div class="note small">${esc(tr('صلاحيتك في هذه الصفحة: عرض فقط.'))}</div>`); } setTimeout(() => page.isConnected && markWide(page), 60); if (key === '#/home' && typeof guideWelcome === 'function') guideWelcome(page); }
   catch (e) { if (e.status === 401 && !S.session) { if (!$('#af')) authView('in', 'انتهت الجلسة — سجّل الدخول مجددا'); return; } /* a late answer from a page left behind never replaces a sign-in screen already shown */ if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div><p style="margin-top:10px"><button type="button" class="btn" onclick="history.length > 1 ? history.back() : (location.hash = '#/home')">${esc(tr('رجوع'))}</button> <a class="btn" href="#/home">${esc(tr('الرئيسية'))}</a></p>`; }
 }
-window.addEventListener('hashchange', () => /(^#|&)(access_token|error_code)=/.test(location.hash) ? boot() : !S.session && legalHash() ? legalView(legalHash()) : ADMIN ? (S.platform && $('#ppage') ? platformView() : null) : S.platform && /^#\/platform/.test(location.hash) ? (location.href = ADMIN_URL) : S.platform && !$('#page') ? boot() : route());
+window.addEventListener('hashchange', () => /(^#|&)(access_token|error_code)=/.test(location.hash) ? boot() : !S.session && legalHash() ? legalView(legalHash()) : !S.session && $('#lback') ? authView() : ADMIN ? (S.platform && $('#ppage') ? platformView() : null) : S.platform && /^#\/platform/.test(location.hash) ? (location.href = ADMIN_URL) : S.platform && !$('#page') ? boot() : route());
 window.addEventListener('hashchange', () => { if (!ADMIN && Date.now() - BELL_AT > 60000) drawBell(); });
 
 /* ===== shared look-ups ===== */

@@ -21,6 +21,8 @@ def hero(ar, en, sar, sen, crumb=None):
 HUB = ('knowledge.html', 'مركز وعد للمعرفة', 'Waad Knowledge Centre')
 NOTE = '<p class="small kn-note">%s</p>' % bi('محتوى إرشادي عام، راجعناه على النص الرسمي لنظام العمل المنشور من وزارة الموارد البشرية (بتعديلاته حتى 2025). المرجع النهائي هو النظام ولوائحه والمنصات الرسمية، فراجع المختص قبل أي قرار.',
                                               'General guidance checked against the official Labor Law text published by the Ministry of Human Resources (amended to 2025). The final reference is the law, its regulations and the official platforms; consult a specialist before any decision.')
+NOTE_BIZ = '<p class="small kn-note">%s</p>' % bi('محتوى إرشادي عام مبني على ما تنشره هيئة الزكاة والضريبة والجمارك والممارسات المحاسبية المتعارف عليها. المرجع النهائي هو الأنظمة واللوائح الرسمية، فراجع محاسبك أو مستشارك الضريبي قبل أي قرار.',
+                                                  'General guidance based on what the Zakat, Tax and Customs Authority publishes and on accepted accounting practice. The final reference is the official regulations; consult your accountant or tax adviser before any decision.')
 CTA = '<div class="kn-cta card">%s<a class="btn gold" href="app/?start=signup">%s</a></div>' % (
     bi('طبّق هذا تلقائيا في منشأتك: وعد يحسب الإجازات والرواتب والمكافآت وينبهك قبل كل موعد', 'Apply this automatically: Waad calculates leave, payroll and awards and alerts you before every deadline', 'p'),
     bi('جرّب وعد مجانا 14 يوما', 'Try Waad free for 14 days'))
@@ -32,7 +34,7 @@ def hub():
     tiles = [('blog.html', 'الأدلة والمقالات', 'Guides and articles', '%d دليلا عمليا في التوظيف والأجور والإجازات وإنهاء الخدمة والضريبة والتشغيل، بمواد النظام' % n_art, '%d practical guides on hiring, pay, leave, ending employment, tax and operations, with the articles of law' % n_art),
              ('policies.html', 'مكتبة السياسات', 'Policy library', '%d سياسة مفصلة: الغرض والنطاق والأحكام والإجراءات والمسؤوليات، جاهزة للطباعة والتعديل' % n_pol, '%d detailed policies: purpose, scope, rules, procedures and responsibilities, ready to print and adapt' % n_pol),
              ('jobs.html', 'دليل الوظائف', 'Job guide', '%d وصفا وظيفيا لكل الإدارات: المهام والمتطلبات ومؤشرات الأداء' % n_job, '%d job descriptions across all departments: tasks, requirements and KPIs' % n_job),
-             ('glossary.html', 'قاموس المنشأة', 'Company glossary', '%d مصطلحا في الموارد البشرية والامتثال والمالية والمبيعات والمشتريات والمخزون والمشاريع' % n_term, '%d terms across HR, compliance, finance, sales, purchasing, inventory and projects' % n_term),
+             ('glossary.html', 'قاموس المنشأة', 'Company glossary', '%d مصطلح في الموارد البشرية والامتثال والمالية والمبيعات والمشتريات والمخزون والمشاريع' % n_term, '%d terms across HR, compliance, finance, sales, purchasing, inventory and projects' % n_term),
              ('tools.html', 'حاسبات وعد', 'Waad calculators', 'نهاية الخدمة، صافي الراتب، التأمينات، العمل الإضافي، الإجازة، الإشعار والتعويض، الضريبة، تكلفة الموظف، نطاقات', 'End of service, net pay, GOSI, overtime, leave, notice and compensation, VAT, employee cost, Nitaqat'),
              ('updates.html', 'ما الجديد في وعد', 'What\'s new in Waad', 'كل تحديثات النظام بتواريخها منذ إطلاقه', 'Every update to the system, dated, since launch')]
     cards = ''.join('<a class="card kn-tile" href="%s"><h3>%s</h3><p>%s</p></a>' % (h, bi(a, b), bi(c, d)) for h, a, b, c, d in tiles)
@@ -67,11 +69,11 @@ def article(a):
     more = ''.join('<li><a href="blog-%s.html">%s</a></li>' % (x['slug'], bi(x['ar'], x['en'])) for x in rel[:5])
     return (hero(a['ar'], a['en'], a['sar'], a['sen'], ('blog.html', 'الأدلة والمقالات', 'Guides and articles'))
             + '<section><div class="wrap kn-art"><article class="card"><div class="kn-cat">%s</div>%s<p class="kn-ref"><b>%s</b> %s</p>%s</article>%s<div class="card"><h3>%s</h3><ul class="kn-list">%s</ul></div></div></section>' % (
-                bi(cat[1], cat[2]), body, bi('المرجع:', 'Reference:'), e(a['refs']), NOTE, CTA, bi('أدلة ذات صلة', 'Related guides'), more) + schema)
+                bi(cat[1], cat[2]), body, bi('المرجع:', 'Reference:'), e(a['refs']), NOTE_BIZ if a['cat'] == 'biz' else NOTE, CTA, bi('أدلة ذات صلة', 'Related guides'), more) + schema)
 
 def policies():
     items = ''.join('<a class="card kn-tile" data-kn-item href="policy-%s.html"><h3>%s</h3><p>%s</p></a>' % (p['slug'], bi(p['ar'], p['en']), bi(*p['purpose'])) for p in POLICIES)
-    return (hero('مكتبة السياسات', 'Policy library', 'سياسات موارد بشرية مفصلة تبدأ منها: الغرض والنطاق والأحكام والإجراءات والمسؤوليات والمرجع النظامي', 'Detailed HR policies to start from: purpose, scope, rules, procedures, responsibilities and legal reference', (HUB[0],) + HUB[1:])
+    return (hero('مكتبة السياسات', 'Policy library', 'نماذج سياسات موارد بشرية مفصلة: الغرض والنطاق والأحكام والإجراءات والمسؤوليات والمرجع النظامي', 'Detailed HR policies to start from: purpose, scope, rules, procedures, responsibilities and legal reference', (HUB[0],) + HUB[1:])
             + '<section><div class="wrap">%s<div class="grid g2">%s</div>%s</div></section>%s' % (SEARCH, items, NOTE, SEARCH_JS))
 
 def policy(p):

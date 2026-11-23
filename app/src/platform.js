@@ -81,7 +81,7 @@ function adminAuthView(msg = '') {
     ${msg ? `<div class="note">${esc(msg)}</div>` : ''}
     <form id="af" novalidate>${field('اسم المستخدم', '<input name="user" required dir="ltr" autocapitalize="none" autocomplete="username" spellcheck="false">')}<div style="height:10px"></div>
       ${field('كلمة المرور', pwInput('password', setup ? 'new-password' : 'current-password'))}
-      ${setup ? `<div style="height:10px"></div>${field('تأكيد كلمة المرور', pwInput('password2', 'new-password', ''))}` : ''}
+      ${setup ? `<div style="height:10px"></div>${field('تأكيد كلمة المرور', pwInput('password2', 'new-password'))}` : ''}
       <div id="aerr"></div><div style="height:12px"></div><button class="btn pri full" id="ab">${esc(tr(setup ? 'إنشاء الحساب' : 'دخول'))}</button>
       ${setup ? '' : `<p class="muted small" style="margin:10px 0 0;text-align:center">${esc(tr('نسيت كلمة المرور؟ يعيّنها لك أدمن ثاني من «فريق وعد».'))}</p>`}</form></div>
     <p class="muted small" style="text-align:center"><a href="#" id="theme" data-theme-btn="text"></a> · ${langBtn('linkbtn')}</p>
@@ -232,7 +232,7 @@ async function pStorage(box) {
   const s = await db.rpc('platform_storage').catch(() => null); if (!s || !box) return;
   const mb = b => (n0(b) / 1048576).toFixed(1), share = Math.round(n0(s.db_bytes) / 1048576 / n0(s.limit_mb) * 100);
   box.innerHTML = `<div class="card" style="margin-bottom:14px"><h2>${esc(tr('مساحة قاعدة البيانات والملفات'))} <span class="badge ${share >= 80 ? 'bad' : share >= 60 ? 'wait' : 'ok'} num">${share}%</span></h2>
-    <p class="muted small" style="margin-top:0"><span class="num">${mb(s.db_bytes)}</span> ${esc(tr('ميجابايت من'))} <span class="num">${s.limit_mb}</span> · ${esc(tr('الملفات'))} <span class="num">${mb(s.files_bytes)}</span> ${esc(tr('ميجابايت'))}. ${esc(tr('يصل الفريق تنبيه عند 80%.'))}</p>
+    <p class="muted small" style="margin-top:0"><span class="num">${mb(s.db_bytes)}</span> ${esc(tr('ميجابايت من'))} <span class="num">${s.limit_mb}</span> ${esc(tr('ميجابايت'))} · ${esc(tr('الملفات'))} <span class="num">${mb(s.files_bytes)}</span> ${esc(tr('ميجابايت'))}. ${esc(tr('يصل الفريق تنبيه عند 80%.'))}</p>
     ${tbl([{ t: 'المنشأة', h: c => esc(c.name) }, { t: 'ملفاتها (ميجابايت)', r: 1, h: c => `<span class="num">${mb(c.bytes)}</span>` }, { t: 'الحد', r: 1, h: c => c.quota ? `<span class="num">${c.quota}</span>` : esc(tr('بلا حد')) },
       { t: '', h: c => pcan('subs') ? `<button class="btn sm" data-fq="${c.id}">${esc(tr('تحديد'))}</button>` : '' }], s.companies, { empty: 'لا توجد ملفات بعد' })}</div>`;
   $$('[data-fq]', box).forEach(b => b.onclick = () => { const c = s.companies.find(x => x.id === b.dataset.fq);
@@ -310,7 +310,7 @@ PV.content = async page => {
   const draw = () => {
     list.innerHTML = faq.length ? faq.map((x, i) => `<div class="fqi" data-i="${i}"><div class="row" style="gap:6px;margin-bottom:6px"><b class="num">${i + 1}</b><div class="sp"></div>
         <button type="button" class="btn sm" data-mv="-1" aria-label="${esc(tr('أعلى'))}" ${i ? '' : 'disabled'}>↑</button><button type="button" class="btn sm" data-mv="1" aria-label="${esc(tr('أسفل'))}" ${i < faq.length - 1 ? '' : 'disabled'}>↓</button>
-        <button type="button" class="btn sm" data-rm aria-label="${esc(tr('حذف'))}">✕</button></div>
+        <button type="button" class="btn sm danger" data-rm>${esc(tr('حذف'))}</button></div>
       <div class="fg">${field('السؤال بالعربية', `<input name="qa" value="${esc(x.qa)}" maxlength="200">`)}${field('السؤال بالإنجليزية', `<input name="qe" value="${esc(x.qe)}" maxlength="200" dir="ltr">`)}
         ${field('الجواب بالعربية', `<textarea name="aa" rows="3" maxlength="800">${esc(x.aa)}</textarea>`)}${field('الجواب بالإنجليزية', `<textarea name="ae" rows="3" maxlength="800" dir="ltr">${esc(x.ae)}</textarea>`)}</div></div>`).join('')
       : `<div class="empty">${esc(tr('لا توجد أسئلة. أضف سؤالا.'))}</div>`;
@@ -330,7 +330,7 @@ PV.content = async page => {
 const annState = a => a.starts_at > today() ? ['مجدول', 'wait'] : a.ends_at && a.ends_at < today() ? ['منتهي', ''] : ['ظاهر الآن', 'ok'];
 PV.news = async page => {
   const rows = await db.rpc('platform_announcements');
-  page.innerHTML = `<div class="head"><div><h1>${esc(tr('الإعلانات'))}</h1><div class="muted">${esc(tr('رسالة قصيرة تظهر أعلى النظام لكل المستخدمين في كل المنشآت، ويقدر كل مستخدم يقفلها.'))}</div></div>
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('الإعلانات'))}</h1><div class="muted">${esc(tr('رسالة قصيرة تظهر أعلى النظام لجميع المستخدمين في كل المنشآت، ويستطيع كل مستخدم إغلاقها.'))}</div></div>
       <button class="btn pri" id="annadd">${esc(tr('إعلان جديد'))}</button></div>
     ${tbl([{ t: 'النص', h: a => `<div data-nt>${esc(a.body_ar)}</div>` + (a.body_en ? `<div class="small muted" data-nt dir="ltr">${esc(a.body_en)}</div>` : '') },
       { t: 'النوع', h: a => `<span class="badge ${a.level === 'warn' ? 'bad' : 'info'}">${esc(tr(a.level === 'warn' ? 'تنبيه مهم' : 'معلومة'))}</span>` },
@@ -356,12 +356,12 @@ function annForm(a) {
 
 /* ---------- the Waad team: who can open this site ---------- */
 const tempPw = () => { const c = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789', v = crypto.getRandomValues(new Uint32Array(10)); return [...v].map(x => c[x % c.length]).join(''); };
-const credsBox = (u, pw) => `<p>${esc(tr('أرسل له بياناته، وبيطلب منه النظام يغيّر كلمة المرور أول ما يدخل.'))}</p>
+const credsBox = (u, pw) => `<p>${esc(tr('أرسل له بيانات الدخول، وسيطلب منه النظام تغيير كلمة المرور عند أول دخول.'))}</p>
   <div class="card" style="padding:10px 12px" dir="ltr" data-nt><div>${esc(tr('اسم المستخدم'))}: <b>${esc(u)}</b></div><div>${esc(tr('كلمة المرور المؤقتة'))}: <b>${esc(pw)}</b></div></div>
   <p class="small muted">${esc(tr('رابط اللوحة'))}: <span dir="ltr">${esc(location.href.split('#')[0].split('?')[0])}</span></p>`;
 PV.team = async page => {
   const rows = await db.rpc('platform_team');
-  page.innerHTML = `<div class="head"><div><h1>${esc(tr('فريق وعد'))}</h1><div class="muted">${esc(tr('كل عضو يدخل اللوحة باسم مستخدم وكلمة مرور. تضيفه بكلمة مرور مؤقتة، ويغيّرها أول ما يدخل.'))}</div></div>
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('فريق وعد'))}</h1><div class="muted">${esc(tr('يدخل كل عضو اللوحة باسم مستخدم وكلمة مرور. تضيفه بكلمة مرور مؤقتة، ويغيّرها عند أول دخول.'))}</div></div>
       ${pcan('team') ? `<button class="btn pri" id="tadd">${esc(tr('إضافة عضو'))}</button>` : ''}</div>
     ${tbl([{ t: 'اسم المستخدم', h: a => `<b dir="ltr">${esc(a.username || a.email)}</b>` + (a.is_me ? ` <span class="badge info">${esc(tr('أنت'))}</span>` : '') },
       { t: 'آخر دخول', h: a => a.last_sign_in ? `<span class="num">${esc(String(a.last_sign_in).slice(0, 10))}</span>` : '—' },
@@ -401,7 +401,7 @@ PV.team = async page => {
       } });
     if ($('#tpp', d)) $('#tpp', d).onclick = async () => { try { await db.rpc('platform_set_perms', { p_username: a.username, p_perms: $$('[data-pp]', d).filter(x => x.checked).map(x => x.dataset.pp) }); $('#dlg').close(); toast(tr('تم الحفظ')); } catch (e) { toast(e.message); } platformView(); };
     $('#trm', d).onclick = async () => {
-      if (!(await confirmBox(tr('حذف من الفريق'), tr('ما يقدر يدخل اللوحة بعدها.') + ' ' + a.username, tr('حذف')))) return;
+      if (!(await confirmBox(tr('حذف من الفريق'), tr('لن يستطيع دخول اللوحة بعد الحذف.') + ' ' + a.username, tr('حذف')))) return;
       try { await db.rpc('platform_remove_admin', { p_username: a.username }); toast(tr('تم الحذف')); } catch (e) { toast(e.message); } platformView();
     };
   });
@@ -529,7 +529,7 @@ PV.company = async (page, id) => {
         <form id="nform"><div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px">
             <select name="channel" style="width:auto">${Object.entries(CH_N).map(([k, [t, i]]) => opt(k, i + ' ' + tr(t), 'call')).join('')}</select>
             <input type="date" name="on" value="${today()}" max="${today()}" style="width:auto" aria-label="${esc(tr('تاريخ التواصل'))}"></div>
-          <div class="row" style="gap:8px;align-items:flex-start"><textarea name="body" rows="2" maxlength="1000" placeholder="${esc(tr('مثلا: اتصلت بالمالك، يبي باقة أكبر'))}" style="flex:1"></textarea><button class="btn pri">${esc(tr('إضافة'))}</button></div></form>
+          <div class="row" style="gap:8px;align-items:flex-start"><textarea name="body" rows="2" maxlength="1000" placeholder="${esc(tr('مثلا: تواصلت مع المالك ويرغب في باقة أكبر'))}" style="flex:1"></textarea><button class="btn pri">${esc(tr('إضافة'))}</button></div></form>
         <div id="nerr"></div>
         ${d.notes.length ? d.notes.map(x => { const [t, i] = CH_N[x.channel] || CH_N.other; return `<div class="pnote"><div><span class="badge">${i} ${esc(tr(t))}</span> <span class="num small">${esc(x.on || String(x.at).slice(0, 10))}</span></div>
           <div data-nt style="margin-top:4px">${esc(x.body)}</div><div class="small muted"><span dir="ltr">${esc(x.by || '')}</span> · <a href="#" data-dn="${esc(x.id)}">${esc(tr('حذف'))}</a></div></div>`; }).join('')

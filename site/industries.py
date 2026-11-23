@@ -98,7 +98,7 @@ def page(s):
 def hub():
     cards = ''.join('<a class="card mini" href="industry-%s.html" style="text-decoration:none;color:inherit"><h3>%s</h3><p class="small">%s</p></a>' % (s[0], T(s[1], s[2]), T(s[3], s[4])) for s in SECTORS)
     return ('<div class="phero"><div class="wrap"><h1>' + T('وعد حسب القطاع', 'Waad by sector') + '</h1><p>' + T('كيف يخدم وعد منشأتك حسب نشاطها: نفس النظام، بما يهم قطاعك أولا.', 'How Waad serves your company by its activity: the same system, with what matters to your sector first.') + '</p></div></div>'
-            '<section><div class="wrap"><div class="grid g3">' + cards + '</div></div></section>' + cta())
+            '<section><div class="wrap"><div class="grid g3">' + cards + '<a class="card mini" href="contact.html" style="text-decoration:none;color:inherit"><h3>' + T('قطاع آخر؟', 'Another sector?') + '</h3><p class="small">' + T('اطلب تهيئة وعد لنشاطك، ونوضح لك ما يناسبه من أقسام النظام.', 'Ask us to set Waad up for your activity, and we will show you which parts fit it.') + '</p></a></div></div></section>' + cta())
 
 def pages():
     out = [('industries', 'industries.html', 'وعد حسب القطاع | وعد', 'كيف يخدم وعد المقاولات والتجزئة والمطاعم والخدمات والتجارة: الموارد البشرية والمحاسبة والمخزون في نظام واحد.', hub())]

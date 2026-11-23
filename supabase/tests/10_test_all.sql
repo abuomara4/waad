@@ -3965,5 +3965,20 @@ select public.reset_staff_password(:'cid', :'e_pw', 'TempPass9x');
 reset role;
 select t.ok((select status = 'done' and handled_by = :'u_hr' from public.staff_password_requests), 'password help: issuing a temporary password closes the request');
 
+-- contracts and agreements (0133)
+reset role;
+insert into public.parties(company_id, kind, name) values (:'cid', 'customer', 'عميل العقود'), (:'cid', 'supplier', 'مورد العقود');
+select id as ag_cust from public.parties where company_id = :'cid' and name = 'عميل العقود' \gset
+select id as ag_sup from public.parties where company_id = :'cid' and name = 'مورد العقود' \gset
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+insert into public.agreements(company_id, direction, party_id, kind, title, start_date, end_date, value, billing, notice_days)
+  values (:'cid', 'sale', :'ag_cust', 'maintenance', 'صيانة سنوية', current_date - 340, current_date + 20, 12000, 'monthly', 30);
+select t.ok((select no from public.agreements where title = 'صيانة سنوية') like 'AG-%', 'contracts: numbered on save');
+select t.err($$insert into public.agreements(company_id, direction, party_id, title, start_date) values ('$$ || :'cid' || $$', 'sale', '$$ || :'ag_sup' || $$', 'خطأ', current_date)$$, 'عميلا', 'contracts: a sales contract needs a customer');
+select t.ok((select count(*) from public.agreements_due(:'cid')) = 1, 'contracts: one ending within its notice period is due');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((select count(*) from public.agreements) = 0 and (select count(*) from public.agreements_due(:'cid')) = 0, 'contracts: an employee without sales sees none');
+reset role;
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

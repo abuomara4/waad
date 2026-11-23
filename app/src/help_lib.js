@@ -105,6 +105,10 @@ const HELP = {
     ['قائمة مهام لكل موظف باشر خلال آخر 120 يوما، مع نسبة الإنجاز.', 'A checklist for each employee who started in the last 120 days, with progress.'],
     ['بنود مثل العقد والآيبان والإقامة والتأمين الطبي تكتمل تلقائيا عند إدخالها، والباقي كالتسجيل في التأمينات وتوثيق العقد في قوى تعلّمه أنت.', 'Items such as the contract, IBAN, iqama and medical insurance complete themselves when entered; you tick the rest, like GOSI registration and documenting the contract in Qiwa.'],
     ['أضف بنود منشأتك الخاصة من «بنود المنشأة الخاصة».', 'Add your own steps from «Company\'s own steps».']] },
+  '#/agreements': { t: ['العقود والاتفاقيات', 'Contracts and agreements'], s: [
+    ['سجّل عقود الخدمات والصيانة والإيجار والتوريد مع العملاء والموردين: المدة والقيمة والفوترة والمسؤول، وأرفق النسخة الموقعة.', 'Record service, maintenance, lease and supply contracts with customers and suppliers: term, value, billing and owner, and attach the signed copy.'],
+    ['يصلك تنبيه في الجرس قبل انتهاء العقد بالمدة التي تحددها، وتجدده بضغطة لمدة مماثلة.', 'The bell warns you before a contract ends by the period you set, and you renew it with one click for the same term.'],
+    ['من عقد البيع أنشئ فاتورة متكررة بقيمة كل فترة، وتصدرها من «الفواتير المتكررة» عند موعدها.', 'From a sales contract create a recurring invoice for each period, and issue it from «Recurring invoices» when due.']] },
   '#/announcements': { t: ['الإعلانات الداخلية', 'Company announcements'], s: [
     ['انشر إعلانا لكل الموظفين أو لقسم واحد، فيظهر في الصفحة الرئيسية لكل منهم ويصل على أجهزتهم.', 'Post to all staff or one department; it shows on each home page and reaches their devices.'],
     ['ثبّت المهم أعلى الرئيسية، وحدد تاريخا يختفي بعده إن أردت.', 'Pin the important ones to the top of home, and set a date to hide them if you like.'],

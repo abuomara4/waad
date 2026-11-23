@@ -602,11 +602,13 @@ VIEWS['#/payroll'] = async (page, arg) => {
   if (!(isHR() || has('finance') || hrCan('hr_pay'))) { page.innerHTML = `<div class="note">${esc(tr('هذه الصفحة للموارد البشرية والمالية.'))}</div>`; return; }
   if (arg) return payrollRun(page, arg);
   const runs = await db.get('payroll_runs', { company_id: 'eq.' + S.cid, order: 'year.desc,month.desc' });
+  const pl = runs.length ? await db.get('payroll_lines', { run_id: 'in.(' + runs.slice(0, 36).map(r => r.id).join(',') + ')', select: 'run_id,gross,net' }).catch(() => []) : [], ps = {};
+  pl.forEach(l => { const x = ps[l.run_id] || (ps[l.run_id] = { n: 0, g: 0, net: 0 }); x.n++; x.g += n0(l.gross); x.net += n0(l.net); });
   const d = new Date();
   const cut = S.company && S.company.payroll_cutoff;
   page.innerHTML = `<div class="head"><div><h1>مسير الرواتب</h1><div class="muted small">${cut ? esc(tr('يوم الإقفال')) + ' <span class="num">' + cut + '</span> — ' + esc(tr('الحضور والغياب والإضافي من يوم')) + ' <span class="num">' + cut + '</span> ' + esc(tr('في الشهر السابق إلى يوم')) + ' <span class="num">' + (cut - 1) + '</span>' : esc(tr('بدون يوم إقفال — الحضور والغياب حسب الشهر الميلادي'))}</div></div>
     <div class="row">${isHR() ? '<button class="btn" id="cut">يوم الإقفال</button><button class="btn pri" id="np">إعداد مسير شهر</button>' : ''}</div></div>
-    ${tbl([{ t: 'الشهر', h: r => `${r.month}/${r.year}` }, { t: 'تاريخ الصرف', h: r => fdate(r.pay_date) }, { t: 'الحالة', h: r => badge(r.status) }], runs, { empty: 'لا توجد مسيرات', onRow: true })}`;
+    ${tbl([{ t: 'الشهر', h: r => `${r.month}/${r.year}` }, { t: 'تاريخ الصرف', h: r => fdate(r.pay_date) }, { t: 'الموظفون', r: 1, h: r => ps[r.id] ? `<span class="num">${ps[r.id].n}</span>` : '—' }, { t: 'إجمالي الرواتب', r: 1, h: r => ps[r.id] ? money(ps[r.id].g) : '—' }, { t: 'الصافي', r: 1, h: r => ps[r.id] ? money(ps[r.id].net) : '—' }, { t: 'الحالة', h: r => badge(r.status) }], runs, { empty: 'لا توجد مسيرات', onRow: true })}`;
   bindRows(page, runs, r => location.hash = '#/payroll/' + r.id);
   if ($('#cut', page)) $('#cut', page).onclick = () => modal('يوم إقفال الرواتب', `${field('يوم الإقفال', `<select name="c"><option value="">${esc(tr('بدون إقفال (الشهر الميلادي)'))}</option>${[...Array(27)].map((_, i) => opt(i + 2, i + 2, String(cut || ''))).join('')}</select>`)}
     <p class="muted small">${esc(tr('مثال يوم 21: مسير أكتوبر يحسب الحضور والغياب والإضافي والإجازات من 21 سبتمبر إلى 20 أكتوبر. من ينضم يوم 21 أو بعده لا يدخل مسير أكتوبر، وتُصرف له أيام أكتوبر في مسير نوفمبر كمستحقات الشهر السابق مع راتب نوفمبر كاملا. المغادر يُحسب له إلى آخر يوم عمل.'))}</p>
@@ -781,6 +783,7 @@ VIEWS['#/eos'] = async page => {
     <div data-m="manual">${field('أيام إجازة غير مستخدمة', inp('l', '0', 'type="number" min="0" step="0.5"'))}</div>
     <div data-m="emp">${field('نهاية العقد محدد المدة (إن وجد)', '<input type="date" name="ce">')}</div>
     <div class="wide"><button class="btn pri" id="eb">احسب</button></div></form><div id="er"></div></div>`;
+  new MutationObserver(() => { const x = $('#er .tw', page); if (x) x.scrollIntoView({ behavior: 'smooth', block: 'start' }); }).observe($('#er', page), { childList: true });
   const f = $('#ef', page);
   const mode = () => { const m = f.e.value ? 'emp' : 'manual'; $$('[data-m]', page).forEach(d => d.hidden = d.dataset.m !== m); };
   f.e.onchange = () => { mode(); const x = em[f.e.value]; if (x && x.end_date) { f.t.value = x.end_date; if (x.end_reason && EOS_REASONS[x.end_reason]) f.r.value = x.end_reason; } }; mode();
@@ -960,7 +963,7 @@ VIEWS['#/settings'] = async page => {
      <label class="btn sm pri">${co.logo ? 'تغيير الشعار' : 'رفع الشعار'}<input type="file" id="lgf" accept="image/*" hidden></label>${co.logo ? '<button type="button" class="btn sm" id="lgd">إزالة الشعار</button>' : ''}</div>
      <div id="lgerr"></div><p class="muted small">يظهر أعلى الخطابات المطبوعة. يفضّل PNG بخلفية شفافة؛ نصغّر الصورة تلقائيا.</p></div>` : ''}
    ${admin && S.sub ? `<div class="card"><h2>${esc(tr('الاشتراك'))}</h2><p>${esc(tr('الباقة'))}: <b>${esc(S.sub.plan === 'trial' ? tr('تجريبية') : S.sub.plan)}</b> · <span class="badge ${subState(S.sub)[1]}">${esc(tr(subState(S.sub)[0]))}</span>${S.sub.status === 'trial' && S.sub.trial_ends ? ` · ${esc(tr('تنتهي التجربة'))} <span class="num">${esc(S.sub.trial_ends)}</span>` : ''}${S.sub.status === 'active' && S.sub.sub_ends ? ` · ${esc(tr('ينتهي الاشتراك'))} <span class="num">${esc(S.sub.sub_ends)}</span>` : ''}${S.sub.max_users ? ` · ${esc(tr('الحد الأعلى للمستخدمين'))} <span class="num">${S.sub.max_users}</span>` : ''}${S.sub.max_employees ? ` · ${esc(tr('الحد الأعلى للموظفين'))} <span class="num">${S.sub.max_employees}</span>` : ''}</p>
-     <p>${Object.entries(MODULES).map(([k, t]) => `<span class="badge ${modOn(k) ? 'ok' : ''}">${modOn(k) ? '✓' : '✕'} ${esc(tr(t))}</span>`).join(' ')}</p>${IN_APP ? '' : `<p class="muted small">${esc(tr('لتغيير الباقة أو فتح قسم تواصل مع إدارة وعد.'))}</p>`}</div>` : ''}
+     <p>${Object.entries(MODULES).map(([k, t]) => `<span class="badge ${modOn(k) ? 'ok' : ''}">${esc(tr(t))}${modOn(k) ? '' : ' — ' + esc(tr('غير مفعّل'))}</span>`).join(' ')}</p>${IN_APP ? '' : `<p class="muted small">${esc(tr('لتغيير الباقة أو فتح قسم تواصل مع إدارة وعد.'))}</p>`}</div>` : ''}
    ${admin && !IN_APP ? '<div class="card" id="refc"></div>' : ''}
    ${admin && !IN_APP ? '<div class="card" id="winvs"></div>' : ''}
    ${admin && (modOn('finance') || modOn('sales')) ? '<div class="card" id="zcard"></div>' : ''}

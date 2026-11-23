@@ -347,9 +347,10 @@ const SRC = { manual: 'يدوي', reversal: 'عكس', sales: 'مبيعات', pur
 VIEWS['#/journal'] = async page => {
   const [jes, acc] = await Promise.all([db.get('journal_entries', Object.assign(C(), { order: 'date.desc,created_at.desc', limit: 200 })), accounts()]);
   const am = {}; acc.forEach(a => am[a.code] = a.name);
-  const reversed = new Set(jes.filter(j => j.reverses).map(j => j.reverses));
+  const reversed = new Set(jes.filter(j => j.reverses).map(j => j.reverses)), jt = {};
+  if (jes.length) (await db.get('journal_lines', { entry_id: 'in.(' + jes.map(j => j.id).join(',') + ')', select: 'entry_id,debit' }).catch(() => [])).forEach(l => jt[l.entry_id] = n0(jt[l.entry_id]) + n0(l.debit));
   page.innerHTML = `<div class="head"><div><h1>القيود اليومية</h1><div class="muted">آخر 200 قيد — القيود لا تُعدّل، تُعكس فقط</div></div><div class="row">${can('ledger') || can('je') ? `<button class="btn" id="jx">${esc(tr('تصدير القيود'))}</button>` : ''}${can('jepost') ? '<button class="btn pri" id="nj">قيد يدوي</button>' : ''}</div></div>
-    ${tbl([{ t: 'الرقم', h: j => `<span class="num">${esc(j.no)}</span>` }, { t: 'التاريخ', h: j => fdate(j.date) }, { t: 'البيان', k: 'memo' }, { t: 'المصدر', h: j => `<span class="badge">${esc(SRC[j.source] || j.source)}</span>` + (reversed.has(j.id) ? ' <span class="badge bad">معكوس</span>' : '') }], jes, { empty: 'لا توجد قيود', onRow: true })}`;
+    ${tbl([{ t: 'الرقم', h: j => `<span class="num">${esc(j.no)}</span>` }, { t: 'التاريخ', h: j => fdate(j.date) }, { t: 'البيان', k: 'memo' }, { t: 'المبلغ', r: 1, h: j => jt[j.id] != null ? money(jt[j.id]) : '—' }, { t: 'المصدر', h: j => `<span class="badge">${esc(SRC[j.source] || j.source)}</span>` + (reversed.has(j.id) ? ' <span class="badge bad">معكوس</span>' : '') }], jes, { empty: 'لا توجد قيود', onRow: true })}`;
   bindRows(page, jes, async j => {
     const ls = await db.get('journal_lines', { entry_id: 'eq.' + j.id, order: 'id' });
     const d = modal('قيد ' + j.no, `<p>${esc(j.memo)} · ${fdate(j.date)}</p>${tbl([{ t: 'الحساب', h: l => esc(l.account_code + ' — ' + (am[l.account_code] || '')) + (l.memo ? `<div class="small muted">${esc(l.memo)}</div>` : '') }, { t: 'مدين', r: 1, h: l => n0(l.debit) ? money(l.debit) : '' }, { t: 'دائن', r: 1, h: l => n0(l.credit) ? money(l.credit) : '' }], ls)}

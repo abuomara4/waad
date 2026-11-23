@@ -100,7 +100,7 @@
       </form>
     </div>
     <p class="small kn-note" style="text-align:center;margin-top:18px"><span class="ar">نتائج تقديرية للاسترشاد وفق النص الرسمي لنظام العمل بتعديلاته حتى 2025. المرجع النهائي الجهات المختصة: وزارة الموارد البشرية، والتأمينات الاجتماعية، وقوى، وهيئة الزكاة والضريبة والجمارك.</span><span class="en">Estimates for guidance under the official Labor Law as amended to 2025. The final reference is the authorities: MHRSD, GOSI, Qiwa and ZATCA.</span></p>
-    <p style="text-align:center"><a class="btn gold" href="app/?start=signup"><span class="ar">احسبها لكل موظفيك تلقائيا: جرّب وعد مجانا</span><span class="en">Calculate them for all your staff automatically: try Waad free</span></a></p>
+    <p style="text-align:center"><a class="btn gold" href="app/?start=signup"><span class="ar">احسب رواتب موظفيك ومستحقاتهم تلقائيا في وعد: جرّب مجانا</span><span class="en">Let Waad work out your staff's pay and dues automatically: try it free</span></a></p>
   </div>
 </section>
 
@@ -122,17 +122,18 @@
       if (!(e >= s)) return out(f, row('تاريخ الانتهاء قبل المباشرة', 'End date is before the start', '—'));
       var y = (Math.round((e - s) / 864e5) + 1) / 365, full = y <= 5 ? w / 2 * y : w / 2 * 5 + w * (y - 5);
       var fr = r === 'art80' ? 0 : r === 'resign' ? (y < 2 ? 0 : y < 5 ? 1 / 3 : y < 10 ? 2 / 3 : 1) : 1;
-      out(f, row('مدة الخدمة (سنة)', 'Service (years)', y.toFixed(2)) + row('المكافأة الكاملة', 'Full award', fmt(full)) + row('النسبة المستحقة', 'Entitled share', Math.round(fr * 100) + '%') + row('المكافأة المستحقة', 'Award due', fmt(Math.round(full * fr)))); },
+      out(f, row('مدة الخدمة (سنة)', 'Service (years)', y.toFixed(2)) + row('المكافأة الكاملة', 'Full award', fmt(full)) + row('النسبة المستحقة', 'Entitled share', Math.round(fr * 100) + '%') + row('المكافأة المستحقة', 'Award due', fmt(full * fr))); },
     tnet: function (f) { var b = +f.basic.value || 0, h = +f.housing.value || 0, o = +f.other.value || 0, g = gosi(b, h, f.saudi.value === '1', f.first.value);
       out(f, row('إجمالي الراتب', 'Gross salary', fmt(b + h + o)) + row('حصة الموظف في التأمينات', 'Employee GOSI share', fmt(g.emp)) + row('صافي الراتب', 'Net salary', fmt(b + h + o - g.emp))); },
     tgosi: function (f) { var b = +f.basic.value || 0, h = +f.housing.value || 0, o = +f.other.value || 0, g = gosi(b, h, f.saudi.value === '1', f.first.value);
       out(f, row('الأجر الخاضع للاشتراك', 'Contribution wage', fmt(g.base)) + row('حصة الموظف', 'Employee share', fmt(g.emp) + ' (' + g.emp_rate + '%)') + row('حصة صاحب العمل', 'Employer share', fmt(g.er) + ' (' + g.er_rate + '%)')
         + row('تكلفة الموظف الشهرية على المنشأة', 'Monthly cost to the company', fmt(b + h + o + g.er)) + row('تكلفته السنوية', 'Yearly cost', fmt((b + h + o + g.er) * 12))); },
-    tot: function (f) { var t = +f.total.value || 0, b = +f.basic.value || 0, hr = Math.max(+f.hours.value || 8, 1), n = +f.ot.value || 0, rate = t / 30 / hr + 0.5 * b / 30 / hr;
+    tot: function (f) { if (f.hours.value !== '' && !(+f.hours.value > 0)) return out(f, row('أدخل ساعات العمل اليومية (أكثر من صفر)', 'Enter the daily working hours (more than zero)', '—'));
+      var t = +f.total.value || 0, b = +f.basic.value || 0, hr = Math.max(+f.hours.value || 8, 1), n = +f.ot.value || 0, rate = t / 30 / hr + 0.5 * b / 30 / hr;
       out(f, row('أجر الساعة العادية', 'Normal hourly wage', fmt(t / 30 / hr)) + row('أجر الساعة الإضافية', 'Overtime hourly wage', fmt(rate)) + row('أجر الساعات الإضافية', 'Overtime pay', fmt(rate * n))); },
     tleave: function (f) { if (!f.asof.value) f.asof.value = todayIso;
       var s = new Date(f.start.value), a = new Date(f.asof.value); if (!(a >= s)) return out(f, row('التاريخ قبل المباشرة', 'Date is before the start', '—'));
-      var d = Math.round((a - s) / 864e5) + 1, acc = Math.min(d, 1826) * 21 / 365 + Math.max(d - 1826, 0) * 30 / 365, bal = acc - (+f.taken.value || 0);
+      var d = Math.round((a - s) / 864e5) + 1, acc = Math.min(d, 1826) * 21 / 365 + Math.max(d - 1826, 0) * 30 / 365, bal = Math.round((acc - (+f.taken.value || 0)) * 100) / 100;
       out(f, row('الاستحقاق السنوي الحالي', 'Current yearly entitlement', (d > 1826 ? 30 : 21) + (ar() ? ' يوما' : ' days')) + row('الأيام المستحقة منذ المباشرة', 'Days earned since start', acc.toFixed(2))
         + row('الرصيد المتبقي', 'Remaining balance', bal.toFixed(2)) + row('أجر الرصيد (الأجر ÷ 30 × الأيام)', 'Value of the balance (wage ÷ 30 × days)', fmt(Math.max(bal, 0) * (+f.wage.value || 0) / 30))); },
     tsick: function (f) { var w = (+f.wage.value || 0) / 30, p = +f.prev.value || 0, n = +f.days.value || 0, full = 0, tq = 0, none = 0;
@@ -146,24 +147,26 @@
     tprob: function (f) { var s = new Date(f.start.value), n = Math.min(Math.max(+f.days.value || 0, 1), 180), x = +f.ex.value || 0;
       if (isNaN(s)) return out(f, '');
       var end = new Date(s.getTime() + (n + x - 1) * 864e5);
-      out(f, row('المدة المعتمدة', 'Length applied', n + (ar() ? ' يوما' : ' days') + ((+f.days.value || 0) > 180 ? (ar() ? ' (الحد الأعلى)' : ' (the maximum)') : '')) + row('تنتهي التجربة في', 'Probation ends on', iso(end))); },
+      out(f, row('المدة المعتمدة', 'Length applied', n + (ar() ? ' يوما' : ' days') + ((+f.days.value || 0) > 180 ? (ar() ? ' (الحد الأعلى)' : ' (the maximum)') : '')) + row('تنتهي التجربة في', 'Probation ends on', end.toLocaleDateString(ar() ? 'ar-SA-u-ca-gregory-nu-latn' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }))); },
     tvat: function (f) { var a = +f.amt.value || 0, inc = f.mode.value === 'in', net = inc ? a / 1.15 : a, v = net * 0.15;
       out(f, row('قبل الضريبة', 'Before VAT', fmt(net)) + row('الضريبة 15%', 'VAT 15%', fmt(v)) + row('الإجمالي', 'Total', fmt(net + v))); },
-    tnit: function (f) { var T = Math.max(+f.total.value || 0, 1), W = (+f.full.value || 0) + 0.5 * (+f.half.value || 0), p = W / T * 100, need = (+f.need.value || 0) / 100;
+    tnit: function (f) { if (!(+f.total.value >= 1)) return out(f, row('أدخل إجمالي الموظفين (واحد على الأقل)', 'Enter the total number of employees (at least one)', '—'));
+      var T = +f.total.value, W = (+f.full.value || 0) + 0.5 * (+f.half.value || 0), p = W / T * 100, need = (+f.need.value || 0) / 100;
       var add = W / T >= need ? 0 : Math.max(0, Math.ceil((need * T - W) / (1 - need) - 1e-9));
       out(f, row('نسبة التوطين المحتسبة', 'Counted ratio', p.toFixed(1) + '%') + row('لبلوغ النسبة المطلوبة: سعوديون إضافيون بأجر 4,000 فأكثر', 'To reach it: extra Saudis paid 4,000+', add)); }
   };
-  var all = function () { Object.keys(calc).forEach(function (id) { calc[id]($(id)); }); };
+  var opts = function () { document.querySelectorAll('.tool option').forEach(function (o) { if (!o.dataset.ar) { var p = o.text.split(' · '); o.dataset.ar = p[0]; o.dataset.en = p[1] || p[0]; } o.text = ar() ? o.dataset.ar : o.dataset.en; }); };
+  var all = function () { opts(); Object.keys(calc).forEach(function (id) { calc[id]($(id)); }); };
   // one calculator at a time: the chips pick it, and the address (tools.html#tot) opens it directly
   var hint = document.getElementById('tpick');
-  var show = function (id) { if (!calc[id]) id = null;   // nothing is shown until a calculator is picked (or its link opens it)
+  var show = function (id) { if (!calc[id]) id = null;   // the first calculator opens unless the link asks for another
     if (hint) hint.hidden = !!id;
     Object.keys(calc).forEach(function (k) { $(k).hidden = k !== id; });
     document.querySelectorAll('[data-tool]').forEach(function (b) { b.setAttribute('aria-selected', b.dataset.tool === id ? 'true' : 'false'); });
     if (id) { calc[id]($(id)); $(id).scrollIntoView({ block: 'nearest' }); } };
   document.querySelectorAll('[data-tool]').forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.tool); if (history.replaceState) history.replaceState(null, '', '#' + b.dataset.tool); }); });
   window.addEventListener('hashchange', function () { show(location.hash.slice(1)); });
-  show(location.hash.slice(1));
+  show(location.hash.slice(1) || 'teos');
   Object.keys(calc).forEach(function (id) { var f = $(id), fn = function () { calc[id](f); }; f.addEventListener('input', fn); f.addEventListener('change', fn); });
   all();
   var lg = document.getElementById('lg'); if (lg) lg.addEventListener('click', function () { setTimeout(all, 0); });

@@ -2,6 +2,10 @@
 Add a new block at the top with each release. (date ar, date en, [(item ar, item en)])"""
 
 RELEASES = [
+ ('23 نوفمبر 2026', '23 November 2026', [
+  ('قسم العقود والاتفاقيات: عقود العملاء والموردين بمدتها وقيمتها ونسختها الموقعة، مع تنبيه قبل الانتهاء وفاتورة متكررة من عقد البيع', 'Contracts and agreements: customer and supplier contracts with term, value and signed copy, a warning before the end, and a recurring invoice from a sales contract'),
+  ('تحسينات من مراجعة شاملة: شاشة الدخول، والبحث السريع، ومجاميع المسيرات والقيود، ودقة الحاسبات المجانية، وصياغة الموقع ولوحة الإدارة', 'Improvements from a full review: the sign-in screen, quick search, payroll and journal totals, the free calculators, and wording across the website and admin site'),
+ ]),
  ('19 نوفمبر 2026', '19 November 2026', [
   ('جدول الورديات يعرض كل قسم في جدول مستقل، مع تعيين جدول للقسم مباشرة', 'The shift roster shows each department in its own table, with a roster set per department'),
   ('مكتبة ورديات جاهزة على مدار الساعة بأوقات رمضان، تختار منها ما يناسب منشأتك', 'A library of ready-made round-the-clock shifts with Ramadan times to choose from'),

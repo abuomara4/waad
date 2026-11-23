@@ -81,7 +81,7 @@ ARTICLES = [
          'عند اعتماد سلفة يحدد الموظف عدد أقساطها، ويخصمها وعد من المسير شهريا، ويظهر المتبقي في ملفه وعند المخالصة.',
          'When an advance is approved the employee sets its instalments; Waad deducts them in payroll each month and shows what remains in the file and at final settlement.')],
   refs='نظام العمل: المادة 92'),
- dict(slug='gosi', cat='pay', ar='اشتراكات التأمينات الاجتماعية: من يدفع كم؟', en='GOSI contributions: who pays what?',
+ dict(slug='gosi', cat='pay', ar='حساب اشتراكات التأمينات: حصة المنشأة والموظف', en='GOSI contributions: who pays what?',
   sar='الأجر الخاضع للاشتراك، ونسب السعودي وغير السعودي، والزيادة التدريجية للمشتركين الجدد.', sen='The contribution wage, the rates for Saudis and non-Saudis, and the gradual rise for new contributors.',
   body=[('الأجر الخاضع للاشتراك', 'The contribution wage',
          'يُحسب الاشتراك على الأجر الأساسي مضافا إليه بدل السكن، بحد أدنى 1,500 ريال وحد أعلى 45,000 ريال شهريا.',

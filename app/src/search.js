@@ -22,8 +22,9 @@ function searchOpen() {
     out.innerHTML = hits.length ? hits.map((h, i) => (h.g !== last ? `<div class="gsg">${esc(tr((last = h.g)))}</div>` : '') + `<a class="gsi${i === sel ? ' on' : ''}" href="${esc(h.h)}" data-i="${i}" role="option"><b>${esc(h.t)}</b>${h.s ? ` <span class="small muted num">${esc(h.s)}</span>` : ''}</a>`).join('')
       : `<div class="muted small" style="padding:10px">${esc(tr('لا توجد نتائج'))}</div>`;
     $$('.gsi', out).forEach(a => a.onclick = () => d.close()); };
-  q.oninput = () => { clearTimeout(t); t = setTimeout(run, 250); };
-  q.onkeydown = ev => { if (!hits.length) return;
+  q.oninput = () => { clearTimeout(t); t = setTimeout(() => { t = 0; run(); }, 250); };
+  q.onkeydown = async ev => { if (ev.key === 'Enter' && (t || !hits.length)) { ev.preventDefault(); clearTimeout(t); t = 0; await run(); if (hits.length) { location.hash = hits[0].h; d.close(); } return; }
+    if (!hits.length) return;
     if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { ev.preventDefault(); sel = (sel + (ev.key === 'ArrowDown' ? 1 : hits.length - 1)) % hits.length; draw(); }
     if (ev.key === 'Enter') { ev.preventDefault(); location.hash = hits[sel].h; d.close(); } };
   setTimeout(() => q.focus(), 30);

@@ -77,6 +77,7 @@ html = f'''<!doctype html>
 {r('archive.js')}
 {r('notes.js')}
 {r('portal.js')}
+{r('agreements.js')}
 {r('custom.js')}
 {r('compliance.js')}
 {r('onboarding.js')}
