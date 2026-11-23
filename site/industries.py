@@ -19,7 +19,7 @@ SECTORS = [
     ('المشاريع وجداول الوقت وتكلفة كل مشروع، ومراكز التكلفة', 'Projects, timesheets and the cost of each project, with cost centers'),
     ('جدول الكميات والمستخلصات ومحتجز الضمان والدفعة المقدمة وأوامر التغيير', 'Bills of quantities, progress claims, retention, down payments and change orders'),
     ('خطابات الضمان بغطائها وتنبيهات انتهائها، مرتبطة بالمشروع', 'Letters of guarantee with their margin and expiry alerts, linked to the project'),
-    ('العُهد بتوقيع إلكتروني، والعهد النقدية لكل موقع', 'Custody signed electronically, and petty cash per site'),
+    ('العهد بتوقيع إلكتروني، والعهد النقدية لكل موقع', 'Custody signed electronically, and petty cash per site'),
     ('العمل الإضافي حسب المادة 107، ولائحة المخالفات والجزاءات', 'Overtime per Art. 107, and the work rules for penalties'),
     ('نطاقات وحماية الأجور والتأمينات الاجتماعية في صفحة الامتثال', 'Nitaqat, wage protection and GOSI on the compliance page'),
     ('طلبات الشراء وأوامر الشراء والمطابقة الثلاثية، والمخزون لكل مستودع', 'Purchase requests, orders and three-way matching, and stock per warehouse')]),
@@ -50,7 +50,7 @@ SECTORS = [
     ('مسير الرواتب بالعمل الإضافي والغياب والتأمينات وملف حماية الأجور', 'Payroll with overtime, absence, GOSI and the wage protection file'),
     ('المشتريات من الموردين واعتماد فواتيرهم', 'Purchasing from suppliers and approving their invoices')]),
   ('services', 'الخدمات والمكاتب المهنية', 'Services and professional firms',
-   'مشاريع للعملاء، وساعات عمل تُفوتر، وعقود وتوقيعات، وفريق يحتاج تقييما وتطويرا.',
+   'مشاريع للعملاء، وساعات عمل تفوتر، وعقود وتوقيعات، وفريق يحتاج تقييما وتطويرا.',
    'Client projects, billable hours, contracts and signatures, and a team that needs reviews and growth.',
    [('معرفة ربحية كل عميل ومشروع', 'Knowing the profit of each client and project'),
     ('الفواتير الدورية والمتابعة', 'Recurring invoices and follow-up'),
@@ -78,7 +78,7 @@ SECTORS = [
 ]
 
 def cta():
-    return ('<section><div class="wrap"><div class="band"><div><h2>' + T('جرّب «وعد» لمدة 14 يوما مجانا', 'Try Waad free for 14 days') + '</h2><p>' +
+    return ('<section><div class="wrap"><div class="band"><div><h2>' + T('جرب «وعد» لمدة 14 يوما مجانا', 'Try Waad free for 14 days') + '</h2><p>' +
             T('دون بطاقة دفع، ببيانات منشأتك الفعلية.', 'No payment card, with your real company data.') + '</p></div>'
             '<div class="cta"><a class="btn gold" href="app/?start=signup">' + T('ابدأ التجربة المجانية', 'Start the free trial') + '</a>'
             '<a class="btn ghost" href="pricing.html#which">' + T('أي باقة تناسبني؟', 'Which plan fits me?') + '</a></div></div></div></section>')

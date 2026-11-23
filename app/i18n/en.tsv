@@ -1944,6 +1944,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الرواتب والبدلات لا تُعدَّل من هنا	Wages and allowances are not changed here
 الرواتب والمزايا والسلف	Payroll, benefits and advances
 الرياض	Riyadh
+الريال السعودي	Saudi riyal
 الريال هو العملة الأساسية	The riyal is the base currency
 الزكاة التقديرية	Zakat estimate
 الزملاء	Peers
@@ -2136,6 +2137,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 العملاء والموردون بأسمائهم	customers and suppliers by name
 العملات	Currencies
 العملة	Currency
+العملة الأساسية	The base currency
 العملة الأساسية الريال السعودي	The base currency is the Saudi riyal
 العمليات	Operations
 العمولة على ح	The fee goes to a/c
@@ -2871,6 +2873,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بحث عن صنف	Search items
 بحث في الدليل	Search the guide
 بحث في الشروحات	Search the guides
+بحث في القائمة	Search the list
 بحث في الموظفين	Search employees
 بحريني	Bahraini
 بحساب المنشأة	with the company account
@@ -4104,6 +4107,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 خيار	The option
 خيار غير معروف	Unknown option
 د	min
+دائما	always
 دائن	Credit
 دائن البنك أو الصندوق	credit bank or cash
 داخل	In
@@ -4950,6 +4954,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عدد الساعات بين	Hours must be between
 عدد الشواغر	Positions
 عدد الفواتير	Invoice count
+عدد المرات	Times
 عدد المرافقين	Dependents
 عدد المرافقين بين	Dependents must be between
 عدد المرافقين رقم	Dependents must be a number
@@ -5435,6 +5440,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كل الصلاحيات	all permissions
 كل القسم	the whole department
 كل المالية واعتماد المسير والقيود	all finance, approving payroll and journal entries
+كل المبالغ في الدفاتر بالريال	All amounts in the books are in riyals
 كل المستندات والعقود سارية	all documents and contracts are valid
 كل المعاملات بالريال	all transactions are in riyals
 كل المنشآت نشطة	All companies are active
@@ -7067,6 +7073,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وسائل التواصل	Social media
 وستزودك بكلمة مرور مؤقتة	and they will give you a temporary password
 وسجّل بالبريد	and sign up with the email
+وسعرها	its rate is
 وسلّم الملف له وحده	and hand the file to him alone
 وسماع دفاعك	and hearing your defence
 وسيارات المنشأة	and the company's vehicles

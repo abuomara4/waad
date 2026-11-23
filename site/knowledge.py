@@ -24,8 +24,8 @@ NOTE = '<p class="small kn-note">%s</p>' % bi('محتوى إرشادي عام، 
 NOTE_BIZ = '<p class="small kn-note">%s</p>' % bi('محتوى إرشادي عام مبني على ما تنشره هيئة الزكاة والضريبة والجمارك والممارسات المحاسبية المتعارف عليها. المرجع النهائي هو الأنظمة واللوائح الرسمية، فراجع محاسبك أو مستشارك الضريبي قبل أي قرار.',
                                                   'General guidance based on what the Zakat, Tax and Customs Authority publishes and on accepted accounting practice. The final reference is the official regulations; consult your accountant or tax adviser before any decision.')
 CTA = '<div class="kn-cta card">%s<a class="btn gold" href="app/?start=signup">%s</a></div>' % (
-    bi('طبّق هذا تلقائيا في منشأتك: وعد يحسب الإجازات والرواتب والمكافآت وينبهك قبل كل موعد', 'Apply this automatically: Waad calculates leave, payroll and awards and alerts you before every deadline', 'p'),
-    bi('جرّب وعد مجانا 14 يوما', 'Try Waad free for 14 days'))
+    bi('طبق هذا تلقائيا في منشأتك: وعد يحسب الإجازات والرواتب والمكافآت وينبهك قبل كل موعد', 'Apply this automatically: Waad calculates leave, payroll and awards and alerts you before every deadline', 'p'),
+    bi('جرب وعد مجانا 14 يوما', 'Try Waad free for 14 days'))
 SEARCH = '<input class="kn-search" type="search" placeholder="ابحث… / Search…" aria-label="search" data-kn-search>'
 SEARCH_JS = '''<script>(function(){var i=document.querySelector('[data-kn-search]');if(!i)return;i.addEventListener('input',function(){var q=i.value.trim().toLowerCase();document.querySelectorAll('[data-kn-item]').forEach(function(x){x.hidden=q&&x.textContent.toLowerCase().indexOf(q)<0;});document.querySelectorAll('[data-kn-group]').forEach(function(g){g.hidden=!g.querySelector('[data-kn-item]:not([hidden])');});});})();</script>'''
 
@@ -81,7 +81,7 @@ def policy(p):
     sec = lambda ar, en, inner: '<h2>%s</h2>%s' % (bi(ar, en), inner)
     body = (sec('الغرض', 'Purpose', '<p>%s</p>' % bi(*p['purpose'])) + sec('النطاق', 'Scope', '<p>%s</p>' % bi(*p['scope']))
             + sec('الأحكام', 'Provisions', ol(p['prov'])) + sec('الإجراءات', 'Procedures', ol(p['proc'])) + sec('المسؤوليات', 'Responsibilities', ol(p['resp']))
-            + sec('الاعتماد والمراجعة', 'Approval and review', '<p>%s</p>' % bi('تُعتمد هذه السياسة من الإدارة العليا، وتُراجع سنويا أو عند تعديل الأنظمة، وتُربط بلائحة تنظيم العمل المعتمدة في المنشأة.', 'Approved by senior management, reviewed yearly or when the law changes, and linked to the company\'s approved work regulations.')))
+            + sec('الاعتماد والمراجعة', 'Approval and review', '<p>%s</p>' % bi('تعتمد هذه السياسة من الإدارة العليا، وتراجع سنويا أو عند تعديل الأنظمة، وتربط بلائحة تنظيم العمل المعتمدة في المنشأة.', 'Approved by senior management, reviewed yearly or when the law changes, and linked to the company\'s approved work regulations.')))
     schema = ld({'@context': 'https://schema.org', '@graph': [{'@type': 'Article', 'headline': p['ar'], 'alternativeHeadline': p['en'], 'description': p['purpose'][0], 'inLanguage': ['ar', 'en'],
         'url': BASE + 'policy-%s.html' % p['slug'], 'publisher': {'@type': 'Organization', 'name': 'وعد Waad', 'url': BASE}},
         crumbs(('مركز وعد للمعرفة', 'knowledge.html'), ('مكتبة السياسات', 'policies.html'), (p['ar'], 'policy-%s.html' % p['slug']))]})

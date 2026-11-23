@@ -291,7 +291,7 @@ main{animation:wfade .25s cubic-bezier(.22,1,.36,1)}@keyframes wfade{from{opacit
         <p class="small"><span class="ar">21 يوما، و30 بعد خمس سنوات متصلة (المادة 109)</span><span class="en">21 days, 30 after five continuous years (Article 109)</span></p>
         <label><span class="ar">تاريخ المباشرة</span><span class="en">Start date</span><input type="date" name="start" value="2022-03-01"></label>
         <label><span class="ar">حتى تاريخ</span><span class="en">As of</span><input type="date" name="asof"></label>
-        <label><span class="ar">أيام استُخدمت</span><span class="en">Days already taken</span><input type="number" name="taken" min="0" value="30"></label>
+        <label><span class="ar">أيام استخدمت</span><span class="en">Days already taken</span><input type="number" name="taken" min="0" value="30"></label>
         <label><span class="ar">الأجر الشهري (لحساب أجر الرصيد)</span><span class="en">Monthly wage (to value the balance)</span><input type="number" name="wage" min="0" step="0.01" value="9000"></label>
         <div class="tout" aria-live="polite"></div>
       </form>
@@ -318,19 +318,19 @@ main{animation:wfade .25s cubic-bezier(.22,1,.36,1)}@keyframes wfade{from{opacit
         <p class="small"><span class="ar">بحد أقصى 180 يوما في جميع الأحوال (المادة 53)</span><span class="en">At most 180 days in all cases (Article 53)</span></p>
         <label><span class="ar">تاريخ المباشرة</span><span class="en">Start date</span><input type="date" name="start" value="2026-09-01"></label>
         <label><span class="ar">مدة التجربة بالأيام</span><span class="en">Probation length in days</span><input type="number" name="days" min="1" max="180" value="90"></label>
-        <label><span class="ar">أيام لا تُحسب (إجازات بحسب اللائحة)</span><span class="en">Days not counted (leave per the regulations)</span><input type="number" name="ex" min="0" value="0"></label>
+        <label><span class="ar">أيام لا تحسب (إجازات بحسب اللائحة)</span><span class="en">Days not counted (leave per the regulations)</span><input type="number" name="ex" min="0" value="0"></label>
         <div class="tout" aria-live="polite"></div>
       </form>
       <form class="card tool" hidden id="tvat" onsubmit="return false">
         <h3><span class="ar">ضريبة القيمة المضافة</span><span class="en">VAT</span></h3>
         <p class="small"><span class="ar">بنسبة 15%</span><span class="en">At 15%</span></p>
         <label><span class="ar">المبلغ</span><span class="en">Amount</span><input type="number" name="amt" min="0" step="0.01" value="1000"></label>
-        <label><span class="ar">المبلغ المُدخل</span><span class="en">The amount is</span><select name="mode"><option value="ex">قبل الضريبة · Before VAT</option><option value="in">شامل الضريبة · Including VAT</option></select></label>
+        <label><span class="ar">المبلغ المدخل</span><span class="en">The amount is</span><select name="mode"><option value="ex">قبل الضريبة · Before VAT</option><option value="in">شامل الضريبة · Including VAT</option></select></label>
         <div class="tout" aria-live="polite"></div>
       </form>
       <form class="card tool" hidden id="tnit" onsubmit="return false">
         <h3><span class="ar">نسبة التوطين (تقدير)</span><span class="en">Saudization ratio (estimate)</span></h3>
-        <p class="small"><span class="ar">السعودي بأجر 4,000 فأكثر يُحتسب كاملا، ومن 3,000 نصفا. المرجع الرسمي منصة قوى</span><span class="en">A Saudi paid 4,000+ counts as one, from 3,000 as half. The official reference is Qiwa</span></p>
+        <p class="small"><span class="ar">السعودي بأجر 4,000 فأكثر يحتسب كاملا، ومن 3,000 نصفا. المرجع الرسمي منصة قوى</span><span class="en">A Saudi paid 4,000+ counts as one, from 3,000 as half. The official reference is Qiwa</span></p>
         <label><span class="ar">إجمالي العاملين</span><span class="en">Total employees</span><input type="number" name="total" min="1" value="20"></label>
         <label><span class="ar">سعوديون بأجر 4,000 فأكثر</span><span class="en">Saudis paid 4,000+</span><input type="number" name="full" min="0" value="4"></label>
         <label><span class="ar">سعوديون بأجر من 3,000 إلى أقل من 4,000</span><span class="en">Saudis paid 3,000 to under 4,000</span><input type="number" name="half" min="0" value="2"></label>
@@ -339,7 +339,7 @@ main{animation:wfade .25s cubic-bezier(.22,1,.36,1)}@keyframes wfade{from{opacit
       </form>
     </div>
     <p class="small kn-note" style="text-align:center;margin-top:18px"><span class="ar">نتائج تقديرية للاسترشاد وفق النص الرسمي لنظام العمل بتعديلاته حتى 2025. المرجع النهائي الجهات المختصة: وزارة الموارد البشرية، والتأمينات الاجتماعية، وقوى، وهيئة الزكاة والضريبة والجمارك.</span><span class="en">Estimates for guidance under the official Labor Law as amended to 2025. The final reference is the authorities: MHRSD, GOSI, Qiwa and ZATCA.</span></p>
-    <p style="text-align:center"><a class="btn gold" href="app/?start=signup"><span class="ar">احسب رواتب موظفيك ومستحقاتهم تلقائيا في وعد: جرّب مجانا</span><span class="en">Let Waad work out your staff's pay and dues automatically: try it free</span></a></p>
+    <p style="text-align:center"><a class="btn gold" href="app/?start=signup"><span class="ar">احسب رواتب موظفيك ومستحقاتهم تلقائيا في وعد: جرب مجانا</span><span class="en">Let Waad work out your staff's pay and dues automatically: try it free</span></a></p>
   </div>
 </section>
 

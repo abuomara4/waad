@@ -699,7 +699,7 @@ PV.errors = async page => {
       <select id="edays" style="width:auto">${[1, 7, 30].map(d => opt(d, d === 1 ? tr('آخر يوم') : tr('آخر') + ' ' + arCount(d, 'يوم'), n)).join('')}</select></div>
     <div class="grid" style="margin-bottom:14px">${pkpi('أخطاء مختلفة', rows.length)}${pkpi('مرات الحدوث', rows.reduce((a, r) => a + r.times, 0))}${pkpi('منشآت تأثرت', rows.length ? Math.max(...rows.map(r => r.companies)) : 0, 'أعلى عدد لخطأ واحد')}</div>
     ${tbl([{ t: 'الخطأ', h: r => `<span dir="ltr" class="small" style="word-break:break-word">${esc(r.message)}</span>` }, { t: 'الشاشة', h: r => `<span dir="ltr" class="small">${esc(r.route || '—')}</span>` },
-      { t: 'مرات', r: 1, h: r => r.times }, { t: 'مستخدمين', r: 1, h: r => r.users }, { t: 'منشآت', r: 1, h: r => r.companies },
+      { t: 'عدد المرات', r: 1, h: r => r.times }, { t: 'مستخدمين', r: 1, h: r => r.users }, { t: 'منشآت', r: 1, h: r => r.companies },
       { t: 'آخر مرة', h: r => `<span class="num">${esc(String(r.last_at).slice(0, 16).replace('T', ' '))}</span>` }], rows, { empty: 'لا توجد أخطاء في هذه الفترة 👌', onRow: true })}
     <p class="muted small">${esc(tr('اضغط على خطأ لتشوف مكانه في الكود والمتصفح. أرسل الصورة للمطوّر.'))}</p>`;
   $('#edays', page).onchange = e => { LS.set('waad.errdays', +e.target.value); platformView(); };

@@ -1251,6 +1251,7 @@ with sync_playwright() as pw:
     o.wait_for_selector('#dlg', state='hidden'); o.wait_for_timeout(600); o.locator('#page tbody tr', has_text='عقد صيانة المكيفات').click(); o.wait_for_selector('#dlg[open] #agr'); o.click('#agr'); o.wait_for_selector('#dlg[open]:has-text("تجديد العقد")'); o.click('#mok'); o.wait_for_timeout(1500)
     ok(sql("select ((end_date - start_date) >= 300 and start_date > current_date)::text from agreements where title = 'عقد صيانة المكيفات'") == 'true', 'contracts: renewal starts the day after the end for the same term')
     sqlx("update recurring_invoices set active = false where id in (select recurring_id from agreements where title = 'عقد صيانة المكيفات')"); sqlx("delete from agreements where title = 'عقد صيانة المكيفات'")
+    go(o, '#/items'); o.wait_for_selector('#page tbody tr'); ok(o.locator('.lsq').count() == (1 if o.locator('#page tbody tr').count() >= 8 else 0), 'long lists get a quick search box')
     # company announcement: posted by HR, shown on the home page
     go(o, '#/announcements'); o.wait_for_selector('#annn'); o.click('#annn'); o.wait_for_selector('#dlg[open] input[name=title]')
     o.fill('#dlg input[name=title]', 'اجتماع عام الأحد'); o.fill('#dlg textarea[name=body]', 'اجتماع لكل الموظفين الساعة 10 صباحا'); sqlx("update employees set email = 'staff5001@example.com', phone = '0551234567' where emp_no = '5001'"); o.click('#mok'); o.wait_for_selector('#dlg[open] #asb a[data-mb]')

@@ -870,6 +870,12 @@ function markWide(root = document) {
   });
 }
 window.addEventListener('resize', () => { clearTimeout(markWide.t); markWide.t = setTimeout(() => markWide(), 250); });
+const LIST_SEARCH = new Set(['#/parties', '#/sales', '#/purchases', '#/items', '#/payments', '#/warehouses', '#/quotes', '#/orders', '#/porders', '#/receipts', '#/deliveries', '#/costcenters', '#/cheques', '#/assets', '#/journal']);
+function listSearch(page) {
+  const tw = $('.tw', page), rows = tw ? $$('tbody tr', tw) : []; if (rows.length < 8 || $('.lsq', page)) return;
+  tw.insertAdjacentHTML('beforebegin', `<input type="search" class="lsq" placeholder="${esc(tr('بحث في القائمة'))}" aria-label="${esc(tr('بحث في القائمة'))}" style="margin-bottom:10px;max-width:360px">`);
+  const q = $('.lsq', page); q.oninput = () => { const v = q.value.trim().toLowerCase(); rows.forEach(r => r.hidden = !!v && !r.textContent.toLowerCase().includes(v)); };
+}
 async function route() {
   if (!S.session || !S.cid || !$('#page')) return;
   const [path, q] = (location.hash || '#/home').split('?');
@@ -883,7 +889,7 @@ async function route() {
   const page = document.createElement('div'); page.innerHTML = '<div class="muted">جاري التحميل…</div>';
   $('#page').replaceChildren(page);
   if (!modOn(routeModule(path))) { page.innerHTML = `<div class="note">${esc(tr('هذا القسم غير مشمول في باقة منشأتك.'))} ${IN_APP ? '' : has('owner') ? esc(tr('لتفعيله تواصل مع إدارة وعد.')) : esc(tr('راجع مالك المنشأة.'))}</div>`; return; }
-  try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); if (viewOnlyPage(path) && page.isConnected) { page.classList.add('viewonly'); const h = $('.head', page); h && h.insertAdjacentHTML('afterend', `<div class="note small">${esc(tr('صلاحيتك في هذه الصفحة: عرض فقط.'))}</div>`); } setTimeout(() => page.isConnected && markWide(page), 60); if (key === '#/home' && typeof guideWelcome === 'function') guideWelcome(page); }
+  try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); if (!arg && LIST_SEARCH.has(key) && page.isConnected) listSearch(page); if (viewOnlyPage(path) && page.isConnected) { page.classList.add('viewonly'); const h = $('.head', page); h && h.insertAdjacentHTML('afterend', `<div class="note small">${esc(tr('صلاحيتك في هذه الصفحة: عرض فقط.'))}</div>`); } setTimeout(() => page.isConnected && markWide(page), 60); if (key === '#/home' && typeof guideWelcome === 'function') guideWelcome(page); }
   catch (e) { if (e.status === 401 && !S.session) { if (!$('#af')) authView('in', 'انتهت الجلسة — سجّل الدخول مجددا'); return; } /* a late answer from a page left behind never replaces a sign-in screen already shown */ if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div><p style="margin-top:10px"><button type="button" class="btn" onclick="history.length > 1 ? history.back() : (location.hash = '#/home')">${esc(tr('رجوع'))}</button> <a class="btn" href="#/home">${esc(tr('الرئيسية'))}</a></p>`; }
 }
 window.addEventListener('hashchange', () => /(^#|&)(access_token|error_code)=/.test(location.hash) ? boot() : !S.session && legalHash() ? legalView(legalHash()) : !S.session && $('#lback') ? authView() : ADMIN ? (S.platform && $('#ppage') ? platformView() : null) : S.platform && /^#\/platform/.test(location.hash) ? (location.href = ADMIN_URL) : S.platform && !$('#page') ? boot() : route());
