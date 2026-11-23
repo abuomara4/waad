@@ -1050,3 +1050,22 @@ VIEWS['#/nitaqat'] = async page => {
   $('#nts', page).onclick = ev => { ev.preventDefault(); busy(ev.target, async () => { const v = formData($('#ntf', page));
     try { await db.rpc('nitaqat_set', { p_company: S.cid, p_bands: v }); await loadContext(); toast('تم الحفظ'); route(); } catch (e) { showErr($('#nterr', page), e); } }); };
 };
+
+/* ----- approval delegation (0135): an approver hands their approvals to a colleague for a period ----- */
+async function delegDialog() {
+  const boss = has('owner', 'admin', 'hr');
+  const [rows, people] = await Promise.all([db.get('approval_delegations', { company_id: 'eq.' + S.cid, order: 'from_date.desc', limit: 30 }).catch(() => []), db.rpc('delegation_people', { p_company: S.cid }).catch(() => [])]);
+  const nm = {}; people.forEach(p => nm[p.user_id] = p.name); const me = S.session && S.session.user && S.session.user.id, td = today();
+  const live = g => g.to_date >= td;
+  const m = modal(tr('تفويض الاعتمادات'), `<p class="muted small" style="margin-top:0">${esc(tr('عند غيابك يعتمد زميلك كل ما كان سيصلك من طلبات خلال المدة، ويُسجَّل باسمه في مسار الطلب. حتى 90 يوما.'))}</p>
+    ${tbl([{ t: 'من', h: g => esc(nm[g.from_user] || '—') }, { t: 'إلى', h: g => esc(nm[g.to_user] || '—') }, { t: 'المدة', h: g => `<span class="num">${esc(g.from_date)} – ${esc(g.to_date)}</span>` },
+      { t: '', h: g => live(g) && (g.from_user === me || boss) ? `<button type="button" class="btn sm" data-dend="${esc(g.id)}">${esc(tr('إنهاء'))}</button>` : (live(g) ? '' : `<span class="muted small">${esc(tr('منتهٍ'))}</span>`) }], rows, { empty: 'لا يوجد تفويض' })}
+    <h3 style="margin:14px 0 6px">${esc(tr('تفويض جديد'))}</h3><div class="fg">
+      ${boss ? field('عن', `<select name="who">${opt('', tr('أنا'), '')}${people.filter(p => p.user_id !== me).map(p => opt(p.user_id, p.name, '')).join('')}</select>`) : ''}
+      ${field('إلى الزميل', `<select name="to" required><option value="">—</option>${people.filter(p => p.user_id !== me).map(p => opt(p.user_id, p.name, '')).join('')}</select>`)}
+      ${field('من تاريخ', `<input type="date" name="from" value="${td}">`)}${field('إلى تاريخ', `<input type="date" name="until" value="${addDaysU(td, 7)}">`)}
+      ${field('ملاحظة (اختياري)', inp('note', '', 'maxlength="300"'), 'wide')}</div>`, {
+    ok: tr('حفظ التفويض'), onOk: async f => { if (!f.to) throw new Error(tr('اختر الزميل'));
+      await db.rpc('delegation_set', { p_company: S.cid, p_to: f.to, p_from: f.from, p_until: f.until, p_note: blank(f.note), p_for: blank(f.who) }); toast(tr('حُفظ التفويض')); route(); } });
+  $$('[data-dend]', m).forEach(b => b.onclick = async () => { try { await db.rpc('delegation_end', { p_id: b.dataset.dend }); toast(tr('انتهى التفويض')); m.close(); route(); } catch (e) { toast(e.message); } });
+}

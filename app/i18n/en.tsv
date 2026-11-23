@@ -773,6 +773,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إلى	to
 إلى أقل من	to below
 إلى الأرباح المبقاة وتُقفل الدفاتر حتى هذا التاريخ	to retained earnings and the books are locked through that date
+إلى الزميل	To colleague
 إلى تاريخ	To date
 إلى ح	to a/c
 إلى حساب	To account
@@ -809,6 +810,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إنشاء دخول للموظف	Create employee sign-in
 إنشاء فاتورة متكررة	Create a recurring invoice
 إنشاء ورقة الجرد	Create count sheet
+إنهاء	End
 إنهاء خلال فترة التجربة	Termination during probation
 إنهاء دون سبب مشروع	Termination without a valid reason
 إنهاء من صاحب العمل لسبب مشروع	Termination by the employer for a valid reason
@@ -912,6 +914,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اختر التاريخ	Choose the date
 اختر الحساب المقابل	Choose the counter account
 اختر الحسابين حسب سياسة منشأتك المحاسبية	choose both accounts by your company's accounting policy
+اختر الزميل	Choose the colleague
 اختر الصندوق أو البنك	Choose cash or bank
 اختر الصندوق أو البنك المستلم	Choose the receiving cash or bank account
 اختر الصنف أو الخدمة	Choose the item or service
@@ -2799,6 +2802,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 انتهى اشتراكك	Your subscription has ended
 انتهى الاشتراك	Subscription ended
 انتهى التحقيق في هذه المخالفة	The investigation of this case has ended
+انتهى التفويض	Delegation ended
 انتهى هذا الرابط أو أُلغي	This link has expired or was revoked
 انتهى هذا الرابط أو أُلغي. اطلب رابطا جديدا من المنشأة.	This link has expired or was revoked. Ask the company for a new link.
 انتهى ولم يُجدد	Ended, not renewed
@@ -3510,6 +3514,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تفعيل التنبيهات	Turn on notifications
 تفعيل التنبيهات على هذا الجهاز	Turn on notifications on this device
 تفويض الاعتمادات	Delegate approvals
+تفويض جديد	New delegation
 تقارير الموارد البشرية	HR reports
 تقدر تعتمد الطلب أو ترفضه بدلا من المدير المباشر	You can approve or reject the request in the direct manager's place
 تقدر تعتمد الطلب أو ترفضه بدلا من المدير المباشر، ويُسجَّل باسمك مع السبب في مسار الطلب.	You can approve or reject the request in the direct manager's place; it is logged under your name with the reason in the request's journey.
@@ -4012,6 +4017,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حفظ	Save
 حفظ الأسئلة	Save questions
 حفظ التعديل	Save change
+حفظ التفويض	Save delegation
 حفظ السند	Save voucher
 حفظ الشيك	Save cheque
 حفظ الصلاحيات	Save permissions
@@ -4047,6 +4053,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حُذفت	Deleted
 حُذفت المنشأة نهائيا	The company was deleted permanently
 حُذفت المهمة	Task deleted
+حُفظ التفويض	Delegation saved
 حُفظ التقييم	rating saved
 حُفظ الرد الجاهز على هذا الجهاز	Ready reply saved on this device
 حُفظ السند	Voucher saved
@@ -5085,6 +5092,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عميل نقدي	Walk-in customer
 عميلا	a customer
 عميلاً	a customer
+عن	On behalf of
 عن المنشأة	About the company
 عن المنفذ	below the quantity done
 عن بُعد	Remote
@@ -5099,6 +5107,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عند السداد	On payment
 عند المعتمد وفي مسار الطلب	to the approver and in the request journey
 عند تتبع الصلاحية يُطلب تاريخ الانتهاء عند الاستلام	With expiry tracking, the expiry date is required on receipt
+عند غيابك يعتمد زميلك كل ما كان سيصلك من طلبات خلال المدة	While you are away, your colleague approves everything that would reach you during the period
 عند موعدها تصدرها بضغطة	when due, issue it with one click
 عند موعدها تصدرها من	When due, issue it from
 عند نقل الموظف	When moving the employee
@@ -5754,6 +5763,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يوجد تسجيل حضور في هذا اليوم	There is no attendance record on this day
 لا يوجد تطبيق مصادقة مربوط	No authenticator app is linked
 لا يوجد تظلم قائم	There is no pending grievance
+لا يوجد تفويض	No delegation
 لا يوجد تواصل مسجّل	No contact recorded
 لا يوجد جرد	No stock counts
 لا يوجد جوال صحيح في سجل الموظف	No valid mobile in the employee record
@@ -7248,6 +7258,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ويُرسل إلى زاتكا مرتبطاً بالفاتورة الأصلية	and is sent to ZATCA linked to the original invoice
 ويُستحق التعويض عن المدة الباقية إذا أُنهي قبلها بلا سبب مشروع	and compensation for the remaining term is due if ended early without a valid reason
 ويُسجَّل باسمك مع السبب في مسار الطلب	it is logged under your name with the reason in the request's journey
+ويُسجَّل باسمه في مسار الطلب	and their name is recorded in the request trail
 ويُسجَّل رقمها وآخر موعد للعودة في طلبك	and its number and return deadline are recorded in your request
 ويُسجَّل كل تصدير في سجل التدقيق	every export is recorded in the audit log
 ويُشترط توثيق العقد في قوى	and the contract must be documented in Qiwa
