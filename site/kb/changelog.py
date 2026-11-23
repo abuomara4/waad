@@ -3,6 +3,7 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('24 نوفمبر 2026', '24 November 2026', [
+  ('ملخص أسبوعي للمالك بالبريد كل أحد: المبيعات والتحصيل والنقد والحضور والطلبات المعلقة والعقود القريبة من الانتهاء', 'A weekly owner e-mail every Sunday: sales, collections, cash, attendance, pending requests and contracts ending soon'),
   ('بحث سريع في قوائم العملاء والموردين والفواتير والأصناف والمدفوعات، وإظهار الريال كعملة أساسية', 'Quick search in customer, supplier, invoice, item and payment lists, and the riyal shown as the base currency'),
   ('ملف العميل والمورد: بيانات التواصل والعقود فوق كشف الحساب، وتنزيل التقارير المالية بصيغة Excel', 'Customer and supplier file: contact details and contracts above the statement, and financial reports downloadable as Excel'),
  ]),

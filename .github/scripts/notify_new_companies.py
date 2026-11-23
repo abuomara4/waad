@@ -302,6 +302,40 @@ def monthly():
             n += body is not None; skip += body is None
     print('monthly: sent %d, nothing to report %d, of %d due' % (n, skip, len(rows)))
 
+# ---------- 6b. the weekly summary → each company's owner (Sunday or Monday) ----------
+def weekly_body(name, d):
+    L, E = [], []
+    if d['sales_n'] or float(d['sales']): L.append('• المبيعات: %s ريال (عدد الفواتير %d)' % (money(d['sales']), d['sales_n'])); E.append('Sales: %d invoices, SAR %s' % (d['sales_n'], money(d['sales'])))
+    if float(d['collected']): L.append('• المحصل من العملاء: %s ريال' % money(d['collected'])); E.append('Collected: SAR %s' % money(d['collected']))
+    if float(d['paid_out']): L.append('• المدفوع للموردين والمصروفات: %s ريال' % money(d['paid_out'])); E.append('Paid out: SAR %s' % money(d['paid_out']))
+    if float(d['cash']): L.append('• رصيد الصندوق والبنك الآن: %s ريال' % money(d['cash'])); E.append('Cash and bank now: SAR %s' % money(d['cash']))
+    if d['overdue_n']: L.append('• فواتير متأخرة السداد: %s ريال (عددها %d)' % (money(d['overdue']), d['overdue_n'])); E.append('Overdue invoices: %d, SAR %s' % (d['overdue_n'], money(d['overdue'])))
+    if d['present_days'] or d['late']: L.append('• الحضور: %d يوم حضور، منها %d بتأخير' % (d['present_days'], d['late'])); E.append('Attendance: %d days present, %d late' % (d['present_days'], d['late']))
+    if d['on_leave']: L.append('• موظفون في إجازة خلال الأسبوع: %d' % d['on_leave']); E.append('Staff on leave during the week: %d' % d['on_leave'])
+    if d['joined'] or d['left']: L.append('• انضم %d وغادر %d' % (d['joined'], d['left'])); E.append('%d joined, %d left' % (d['joined'], d['left']))
+    if d['pending']: L.append('• طلبات بانتظار الاعتماد: %d' % d['pending']); E.append('Requests waiting for approval: %d' % d['pending'])
+    if d['contracts_due']: L.append('• عقود تنتهي قريبا أو انتهت ولم تجدد: %d' % d['contracts_due']); E.append('Contracts ending soon or not renewed: %d' % d['contracts_due'])
+    if d['expiring']: L.append('• مستندات موظفين تنتهي خلال 30 يوما: %d' % d['expiring']); E.append('Employee documents expiring within 30 days: %d' % d['expiring'])
+    if not L: return None   # a quiet week: no e-mail
+    return ('السلام عليكم،\n\nملخص أسبوع %s إلى %s لمنشأة «%s» من نظام وعد:\n\n%s\n\nللتفاصيل: %sapp/\n'
+            'لإيقاف هذا الملخص: إعدادات المنشأة ← «الملخص الأسبوعي بالإيميل».\n\nفريق وعد\n\n— — —\n'
+            'Your Waad week %s to %s, «%s»:\n%s\nDetails: %sapp/ · To stop it: company settings → weekly e-mail summary.') % (
+        d['from'], d['to'], name, '\n'.join(L), SITE, d['from'], d['to'], name, '\n'.join(E), SITE)
+
+def weekly():
+    rows = json.loads(psql("select coalesce(json_agg(x), '[]') from (select * from public.weekly_report_due()) x"))
+    if not rows:
+        print('weekly: none due'); return
+    n = skip = 0
+    for r in rows:
+        if not r.get('email'): continue
+        d = json.loads(psql("select public.weekly_report('%s', '%s')" % (r['company_id'], r['week_from'])))
+        body = weekly_body(r['name'], d)
+        if body is None or mail(r['email'], 'وعد: ملخص الأسبوع %s' % r['week_from'], body):
+            psql("update public.companies set weekly_report_sent = '%s' where id = '%s'" % (r['week_from'], r['company_id']))
+            n += body is not None; skip += body is None
+    print('weekly: sent %d, nothing to report %d, of %d due' % (n, skip, len(rows)))
+
 team()
 if not TEST:
-    remind(); support_team(); support_replies(); welcome(); monthly(); purge_notices(); export_notices(); push_notices()
+    remind(); support_team(); support_replies(); welcome(); monthly(); weekly(); purge_notices(); export_notices(); push_notices()

@@ -958,6 +958,7 @@ VIEWS['#/settings'] = async page => {
      <h3 class="wide" style="margin:8px 0 0">${esc(tr('التواصل والبنك'))}</h3>${field('الهاتف', inp('phone', co.phone, 'dir="ltr"'))}${field('البريد الإلكتروني', inp('email', co.email, 'type="email" dir="ltr"'))}
      ${field('الآيبان (يظهر في فواتير المبيعات)', inp('iban', co.iban, 'dir="ltr" maxlength="34" id="cibn"') + `<div class="small muted" id="cibk">${esc(ibanBank(co.iban))}</div>`)}
      <div class="wide"><label class="row" style="gap:6px"><input type="checkbox" name="monthly_report" ${co.monthly_report !== false ? 'checked' : ''}> ${esc(tr('الملخص الشهري بالإيميل: يصل للمالك أول كل شهر بمبيعات الشهر الماضي ومشترياته ورواتبه والمتأخرات وما ينتظر الاعتماد.'))}</label></div>
+     <div class="wide"><label class="row" style="gap:6px"><input type="checkbox" name="weekly_report" ${co.weekly_report !== false ? 'checked' : ''}> ${esc(tr('الملخص الأسبوعي بالإيميل: يصل للمالك كل أحد بمبيعات الأسبوع والتحصيل والنقد والحضور والطلبات المعلقة'))}</label></div>
      <div class="wide"><div id="cerr"></div><button class="btn pri" id="cb">حفظ</button></div></form></div>
    <div class="card" id="logocard"><h2>شعار المنشأة</h2><div class="row"><div class="logo-prev">${co.logo ? `<img src="${esc(co.logo)}" alt="">` : '<span class="muted small">لا يوجد شعار</span>'}</div>
      <label class="btn sm pri">${co.logo ? 'تغيير الشعار' : 'رفع الشعار'}<input type="file" id="lgf" accept="image/*" hidden></label>${co.logo ? '<button type="button" class="btn sm" id="lgd">إزالة الشعار</button>' : ''}</div>
@@ -979,7 +980,7 @@ VIEWS['#/settings'] = async page => {
 `;
   if ($('#cf', page)) $('#cf', page).onsubmit = async e => { e.preventDefault(); const f = formData(e.target);
     try { await busy($('#cb', page), async () => { const pe = profileErr(f, false); if (pe) throw new Error(pe); await db.upd('companies', { id: 'eq.' + S.cid }, Object.assign({ name: f.name, name_en: blank((f.name_en || '').trim()), vat_no: blank(f.vat_no), cr_no: blank(f.cr_no), unified_no: blank(f.unified_no), mhrsd_no: blank(f.mhrsd_no), gosi_no: blank(f.gosi_no),
-      phone: blank(f.phone), email: blank(f.email), iban: blank(f.iban), monthly_report: !!f.monthly_report }, profileRow(f), Object.fromEntries(SA_ADDR.map(([k]) => [k, blank(f[k])])), 'address' in f ? { address: blank(f.address) } : {})); await loadContext(); shell(); toast('تم الحفظ'); route(); }); } catch (er) { showErr($('#cerr', page), er); } };
+      phone: blank(f.phone), email: blank(f.email), iban: blank(f.iban), monthly_report: !!f.monthly_report, weekly_report: !!f.weekly_report }, profileRow(f), Object.fromEntries(SA_ADDR.map(([k]) => [k, blank(f[k])])), 'address' in f ? { address: blank(f.address) } : {})); await loadContext(); shell(); toast('تم الحفظ'); route(); }); } catch (er) { showErr($('#cerr', page), er); } };
   const setLogo = async v => { try { await db.upd('companies', { id: 'eq.' + S.cid }, { logo: v }); await loadContext(); toast('تم الحفظ'); route(); } catch (er) { showErr($('#lgerr', page), er); } };
   if ($('#lgf', page)) $('#lgf', page).onchange = async ev => { const f = ev.target.files[0]; if (!f) return; try { await setLogo(await imgToLogo(f)); } catch (er) { showErr($('#lgerr', page), er); } };
   if ($('#lgd', page)) $('#lgd', page).onclick = () => setLogo(null);

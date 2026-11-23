@@ -2822,6 +2822,17 @@ select t.ok((public.zatca_creds(:'cid')->>'key') = 'KEY', 'the server reads the 
 reset role;
 delete from public.zatca_secrets where company_id = :'cid'; update public.zatca_settings set enabled = false where company_id = :'cid';
 
+-- ================= WEEKLY REPORT E-MAIL (0134) =================
+set role service_role;
+select public.weekly_report(:'cid', current_date - extract(dow from current_date)::int) as wr \gset
+reset role;
+select t.ok((:'wr'::jsonb->>'sales')::numeric = (select coalesce(sum(total), 0) from public.sales_invoices where company_id = :'cid' and status = 'posted' and not is_opening
+    and date >= current_date - extract(dow from current_date)::int and date < current_date - extract(dow from current_date)::int + 7)
+  and (:'wr'::jsonb->>'pending')::int >= 0 and (:'wr'::jsonb ? 'cash') and (:'wr'::jsonb ? 'contracts_due'), 'weekly report: the week''s sales match the books, with cash, approvals and contracts');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.err($$select public.weekly_report('$$ || :'cid' || $$', current_date)$$, 'permission denied', 'the weekly figures are read by the server job only');
+select t.err($$select * from public.weekly_report_due()$$, 'permission denied', 'the list of due weekly reports is server only');
+reset role;
 -- ================= MONTHLY REPORT E-MAIL (0081) =================
 set role service_role;
 select public.monthly_report(:'cid', date_trunc('month', current_date)::date) as mr \gset
