@@ -2,6 +2,9 @@
 Add a new block at the top with each release. (date ar, date en, [(item ar, item en)])"""
 
 RELEASES = [
+ ('24 نوفمبر 2026', '24 November 2026', [
+  ('ملف العميل والمورد: بيانات التواصل والعقود فوق كشف الحساب، وتنزيل التقارير المالية بصيغة Excel', 'Customer and supplier file: contact details and contracts above the statement, and financial reports downloadable as Excel'),
+ ]),
  ('23 نوفمبر 2026', '23 November 2026', [
   ('قسم العقود والاتفاقيات: عقود العملاء والموردين بمدتها وقيمتها ونسختها الموقعة، مع تنبيه قبل الانتهاء وفاتورة متكررة من عقد البيع', 'Contracts and agreements: customer and supplier contracts with term, value and signed copy, a warning before the end, and a recurring invoice from a sales contract'),
   ('تحسينات من مراجعة شاملة: شاشة الدخول، والبحث السريع، ومجاميع المسيرات والقيود، ودقة الحاسبات المجانية، وصياغة الموقع ولوحة الإدارة', 'Improvements from a full review: the sign-in screen, quick search, payroll and journal totals, the free calculators, and wording across the website and admin site'),

@@ -1380,6 +1380,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الأصول	Assets
 الأصول الثابتة	Fixed assets
 الأصول المحسومة	Deducted assets
+الأعلى	Highest
 الأعلى أداء	Top performers
 الأعلى أداءً	Top performers
 الأعمال المنفذة حتى تاريخه	Work done to date
@@ -5560,6 +5561,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد بيانات تجريبية لهذه المنشأة	No sample data for this company
 لا توجد بيانات تواصل	No contact details
 لا توجد بيانات في هذه الفترة	No data in this period
+لا توجد بيانات في هذه الفترة بعد	No data in this period yet
+لا توجد بيانات للتصدير	Nothing to export
 لا توجد تأشيرات	No visas
 لا توجد تجارب تنتهي خلال	No trials ending within
 لا توجد تحليلات متاحة لصلاحياتك	No analytics are available for your permissions
@@ -6490,7 +6493,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ملف JSON كامل (مع المرفقات)	Full JSON file (with attachments)
 ملف إضافي	Additional file
 ملف البنك	Bank file
+ملف العميل	Customer file
 ملف الفاتورة	Invoice file
+ملف المورد	Supplier file
 ملف الموظف	Employee file
 ملف بسطر لكل طرف قيد	A file with one row per entry line
 ملف بنك أو حماية أجور	Bank or wage protection file

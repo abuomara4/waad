@@ -305,7 +305,7 @@ async function approvalsTrack(page) {
     if (st === 'b') return esc(tr('مسؤول المشتريات'));
     if (st === 'g') return esc(owner);
     return '—'; };
-  const path = r => `<span class="rpath">${r.route.map((st, i) => `<span class="rstep ${i < r.step ? 'done' : i === r.step ? 'now' : ''}">${i < r.step ? '✓ ' : ''}${esc(tr(STEP[st] || st))}</span>`).join('<span class="muted">←</span>')}</span>`;
+  const path = r => `<span class="rpath">${r.route.map((st, i) => `<span style="display:inline-flex;gap:4px;align-items:center;white-space:nowrap">${i ? '<span class="muted">←</span>' : ''}<span class="rstep ${i < r.step ? 'done' : i === r.step ? 'now' : ''}">${i < r.step ? '✓ ' : ''}${esc(tr(STEP[st] || st))}</span></span>`).join('')}</span>`;
   const late = reqs.filter(slaLate).length, byStep = {}; reqs.forEach(r => { const k = r.route[r.step]; byStep[k] = (byStep[k] || 0) + 1; });
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('الاعتمادات'))}</h1><div class="muted">${esc(tr('كل طلبات الموظفين التي لم يُبت فيها بعد: أين وصلت، وعند من، ومنذ متى'))}</div></div></div>${apprTabs('all')}
     <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:12px"><span class="badge">${esc(tr('قيد الاعتماد'))}: <b class="num">${reqs.length}</b></span>${Object.entries(byStep).map(([k, n]) => `<span class="badge">${esc(tr('عند'))} ${esc(tr(STEP[k] || k))}: <b class="num">${n}</b></span>`).join('')}${late ? `<span class="badge bad">${esc(tr('متأخر'))}: <b class="num">${late}</b></span>` : ''}</div>

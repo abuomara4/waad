@@ -42,7 +42,7 @@ h2{font-size:17px;margin:0 0 12px;font-weight:600}
 #cs{max-width:220px}
 .btn.menu{display:none}
 .page{padding:24px;max-width:1400px}
-.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}.head>div:first-child{min-width:0;flex:1 1 280px}.head .muted{overflow-wrap:anywhere}
 /* cards & tables */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--sh1);margin-bottom:16px}
 .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}

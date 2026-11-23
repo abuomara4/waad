@@ -90,3 +90,17 @@ function agForm(a, parties, em) {
 // bell: contracts ending within their notice period (or already ended while still active)
 async function agNotifs(add, safe) { if (!agCan()) return; const r = await safe(db.rpc('agreements_due', { p_company: S.cid }));
   if (r && r.length) add(r.length + ' ' + tr('عقود تنتهي قريبا أو انتهت ولم تُجدد'), '#/agreements?s=due', { hot: r.some(x => x.days < 0) }); }
+
+// the customer / supplier file: contact details and contracts above the statement
+async function partyFile(page, p) {
+  const ags = agCan() ? await db.get('agreements', { party_id: 'eq.' + p.id, order: 'end_date.asc.nullslast' }).catch(() => []) : [];
+  const wa = typeof waPhone === 'function' ? waPhone(p.phone) : '', val = (k, v) => v ? `<div><span class="muted small">${esc(tr(k))}</span><div>${v}</div></div>` : '';
+  const box = document.createElement('div'); box.className = 'card'; box.id = 'pfile';
+  box.innerHTML = `<h2 style="margin-top:0">${esc(tr(p.kind === 'customer' ? 'ملف العميل' : 'ملف المورد'))}</h2>
+    <div class="grid" style="margin-bottom:10px">${val('الجوال', p.phone ? `<span class="num" dir="ltr">${esc(p.phone)}</span>${wa ? ` <a href="https://wa.me/${wa}" target="_blank" rel="noopener" class="small">${esc(tr('واتساب'))}</a>` : ''}` : '')}
+      ${val('البريد', p.email ? `<a href="mailto:${esc(p.email)}" dir="ltr">${esc(p.email)}</a>` : '')}${val('المدينة', esc(p.city || ''))}${val('الرقم الضريبي', p.vat_no ? `<span class="num">${esc(p.vat_no)}</span>` : '')}
+      ${val('مدة السداد', p.terms_days ? `<span class="num">${p.terms_days}</span> ${esc(tr('يوما'))}` : '')}${val('حد الائتمان', p.credit_limit != null ? money(p.credit_limit) : '')}</div>
+    ${agCan() ? `<h3 style="margin:8px 0 6px">${esc(tr('العقود والاتفاقيات'))}</h3>${ags.length ? tbl([{ t: 'العقد', h: a => `<a href="#/agreements?q=${encodeURIComponent(a.no || '')}" class="num">${esc(a.no || '')}</a> <span data-nt>${esc(a.title)}</span>` },
+      { t: 'المدة', h: a => `${fdate(a.start_date)} – ${a.end_date ? fdate(a.end_date) : esc(tr('مفتوح'))}` }, { t: 'القيمة', r: 1, h: a => +a.value ? money(a.value) : '—' }, { t: 'الحالة', h: a => agBadge(a) }], ags, {}) : `<p class="muted small">${esc(tr('لا توجد عقود'))} · <a href="#/agreements">${esc(tr('+ عقد'))}</a></p>`}` : ''}`;
+  const head = $('.head', page); if (head) head.after(box);
+}

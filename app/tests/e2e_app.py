@@ -214,6 +214,8 @@ with sync_playwright() as pw:
     ok('CN-0001' in o.inner_text('#page'), 'credit note posted')
     ok(o.locator('#vd').count() == 0, 'void hidden once invoice has payments')
     go(o, '#/reports?r=tb'); o.wait_for_selector('#rb table'); ok('متوازن' in o.inner_text('#rb') and 'غير متوازن' not in o.inner_text('#rb'), 'trial balance balanced')
+    with o.expect_download() as dl_tb: o.click('#rxls')
+    ok(dl_tb.value.suggested_filename.endswith('.xlsx'), 'reports download as Excel')
     go(o, '#/reports?r=vat'); o.wait_for_selector('#rb table'); txt = o.inner_text('#rb')
     ok('37.50' in txt and '450.00' in txt, 'VAT: output 37.50 (75−37.5) and input 450.00')
     go(o, '#/reports?r=bs'); o.wait_for_selector('#rb table'); ok('غير متوازن' not in o.inner_text('#rb'), 'balance sheet balanced')
@@ -1332,6 +1334,7 @@ with sync_playwright() as pw:
     # ---------- statements, item master, barcode entry, legal pages, error log ----------
     go(o, '#/parties/customer'); o.locator('#page tbody tr', has_text='مؤسسة النخبة').locator('[data-st]').click(); o.wait_for_selector('#stf')
     ok('#/statement/' + cust_id in o.url and 'فاتورة مبيعات' in o.inner_text('#page') and 'رصيد أول المدة' in o.inner_text('#page'), 'customer statement opens from the customer list with invoices and opening balance')
+    o.wait_for_selector('#pfile'); ok('ملف العميل' in o.inner_text('#pfile') and 'العقود والاتفاقيات' in o.inner_text('#pfile'), 'the customer file shows contact details and contracts above the statement')
     o.fill('#stf input[name=from]', '2000-01-01'); o.click('#stf button'); o.wait_for_timeout(700)
     bal = sql("select round(public.party_balance('%s'),2)" % cust_id)
     ok('{:,.2f}'.format(float(bal)) in o.inner_text('#stb'), 'statement closing balance equals the customer balance (%s)' % bal)

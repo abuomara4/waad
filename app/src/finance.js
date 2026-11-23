@@ -80,7 +80,7 @@ VIEWS['#/statement'] = async (page, id, q) => {
       <div class="card kpi"><div class="muted small">${esc(tr('الرصيد في'))} <span class="num">${esc(to)}</span></div><div class="v num">${money(last)}</div></div></div>
     ${tbl([{ t: 'التاريخ', h: r => fdate(r.d) }, { t: 'البيان', h: r => esc(tr(ST_KIND[r.kind] || r.kind)) }, { t: 'الرقم', h: r => r.no ? (link(r) ? `<a href="${link(r)}" class="num">${esc(r.no)}</a>` : `<span class="num">${esc(r.no)}</span>`) : '' },
       { t: 'المرجع', h: r => esc(r.ref || '') }, { t: 'مدين', r: 1, h: r => n0(r.debit) ? money(r.debit) : '' }, { t: 'دائن', r: 1, h: r => n0(r.credit) ? money(r.credit) : '' }, { t: 'الرصيد', r: 1, h: r => '<b>' + money(r.balance) + '</b>' }], rows, { empty: 'لا توجد حركات' })}</div>`;
-  notesBox(page, 'party', id);
+  notesBox(page, 'party', id); if (typeof partyFile === 'function') partyFile(page, p).catch(() => {});
   if ($('#stportal', page)) $('#stportal', page).onclick = () => portalLinkDialog(p).catch(er => toast(er.message));
   $('#stf', page).onsubmit = e => { e.preventDefault(); const f = formData(e.target); location.hash = `#/statement/${id}?from=${f.from}&to=${f.to}`; };
   $('#stp', page).onclick = () => { const w = document.createElement('div');
@@ -403,7 +403,8 @@ VIEWS['#/reports'] = async (page, arg, q) => {
   const ranged = ['is', 'cf', 'vat', 'ledger'].includes(r);
   page.innerHTML = `<div class="head"><div><h1>التقارير</h1></div></div><div class="seg" style="margin-bottom:14px">${tabs.map(t => `<a href="#/reports?r=${t[0]}" class="${t[0] === r ? 'on' : ''}">${t[1]}</a>`).join('')}</div>
     <form id="rf" class="row card" style="padding:12px">${r === 'ledger' ? `<select name="code" style="width:auto">${acc.filter(a => !a.is_header).map(a => opt(a.code, a.code + ' — ' + a.name, q.get('code') || '1120')).join('')}</select>` : ''}
-      ${ranged ? `<label style="margin:0">من</label><input type="date" name="from" value="${from}" style="width:auto">` : ''}<label style="margin:0">${ranged ? 'إلى' : 'حتى تاريخ'}</label><input type="date" name="to" value="${to}" style="width:auto"><button class="btn">عرض</button><button type="button" class="btn" id="rprint">طباعة</button></form><div id="rb">جاري التحميل…</div>`;
+      ${ranged ? `<label style="margin:0">من</label><input type="date" name="from" value="${from}" style="width:auto">` : ''}<label style="margin:0">${ranged ? 'إلى' : 'حتى تاريخ'}</label><input type="date" name="to" value="${to}" style="width:auto"><button class="btn">عرض</button><button type="button" class="btn" id="rxls">Excel</button><button type="button" class="btn" id="rprint">طباعة</button></form><div id="rb">جاري التحميل…</div>`;
+  $('#rxls', page).onclick = () => tablesXlsx($('#rb', page), tabs.find(t => t[0] === r)[1] + ' ' + to);
   $('#rprint', page).onclick = () => printBlock($('#rb', page), tabs.find(t => t[0] === r)[1] + (ranged ? ' من ' + from + ' إلى ' + to : ' حتى ' + to) + (r === 'ledger' ? ' — ' + ($('select[name=code] option:checked', page) || {}).textContent : ''));
   $('#rf', page).onsubmit = e => { e.preventDefault(); const f = formData(e.target); location.hash = '#/reports?' + qs(Object.assign({ r }, f)); };
   const rb = $('#rb', page);

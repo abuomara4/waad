@@ -69,7 +69,7 @@ VIEWS['#/prepaid'] = async page => {
   const done = {}; posts.forEach(p => { const x = done[p.schedule_id] = done[p.schedule_id] || { n: 0, a: 0 }; x.n++; x.a += n0(p.amount); });
   const am = {}; acc.forEach(a => am[a.code] = a.name);
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('المصروفات المقدمة'))}</h1><div class="muted">${esc(tr('مصروف تدفعه مقدما لعدة أشهر (مثل إيجار سنة) يُسجّل في «مصروفات مدفوعة مقدما»، ثم يوزَّع على المصروف قيدا لكل شهر.'))}</div></div>
-      <div class="row">${can('jepost') ? `<button class="btn" id="ppr">${esc(tr('ترحيل المستحق حتى اليوم'))}</button><button class="btn pri" id="ppn">${esc(tr('توزيع جديد'))}</button>` : ''}</div></div>
+      <div class="row">${can('jepost') ? `<button class="btn" id="ppr"${rows.length ? '' : ' disabled'}>${esc(tr('ترحيل المستحق حتى اليوم'))}</button><button class="btn pri" id="ppn">${esc(tr('توزيع جديد'))}</button>` : ''}</div></div>
     ${tbl([{ t: 'البيان', h: s => `<b>${esc(s.name)}</b>` }, { t: 'حساب المصروف', h: s => esc(s.expense_account + ' ' + (am[s.expense_account] || '')) }, { t: 'الإجمالي', r: 1, h: s => money(s.total) },
       { t: 'من شهر', h: s => `<span class="num">${esc(String(s.start_month).slice(0, 7))}</span>` }, { t: 'الأشهر', r: 1, h: s => `<span class="num">${(done[s.id] || {}).n || 0} / ${s.months}</span>` },
       { t: 'المتبقي', r: 1, h: s => money(n0(s.total) - n0((done[s.id] || {}).a)) }, { t: 'الحالة', h: s => `<span class="badge ${s.status === 'active' ? 'info' : s.status === 'done' ? 'ok' : ''}">${esc(tr({ active: 'جارٍ', done: 'اكتمل', stopped: 'أُوقف' }[s.status]))}</span>` }], rows, { empty: 'لا توجد مصروفات مقدمة', onRow: true })}`;

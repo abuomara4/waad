@@ -119,3 +119,8 @@ async function exportZip(d, companyName) {
     ...index.map(([f, s]) => f + '\n   ' + s), '', ar ? 'كل ملف Excel قسم، وكل ورقة فيه جدول. الأعمدة id وما ينتهي بـ _id تربط الجداول ببعضها. المرفقات الأصلية في مجلد «المرفقات».' : 'Each Excel file is a section and each sheet a table. The id and *_id columns link the tables. The original attachments are in the «Attachments» folder.'].join('\n');
   return zipStore([[ar ? 'اقرأني.txt' : 'README.txt', '﻿' + readme], ...entries, ...att], 'application/zip');
 }
+
+// every table inside a box as one Excel sheet each (numbers stay numbers)
+function tablesXlsx(root, name) { const num = t => { const v = t.replace(/[,\s]/g, ''); return /^-?\d+(\.\d+)?$/.test(v) ? +v : t; };
+  const sheets = Array.from(root.querySelectorAll('table')).map((tb, i) => ({ name: (name || 'Waad') + (i ? ' ' + (i + 1) : ''), rows: Array.from(tb.rows).map(r => Array.from(r.cells).map(c => num(c.innerText.trim()))) }));
+  if (!sheets.length) return toast(tr('لا توجد بيانات للتصدير')); anSave(xlsxBook(sheets), (name || 'waad') + '.xlsx'); }

@@ -37,7 +37,8 @@ const pkpi = (label, v, sub = '') => `<div class="card kpi"><div class="muted sm
 // a simple daily bar chart: one bar per day, the first and last dates under it
 function pbars(pts, label) {
   const mx = Math.max(1, ...pts.map(p => p.v));
-  return `<div class="pbars" role="img" aria-label="${esc(tr(label))}">${pts.map(p => `<div class="pb" title="${esc(p.k)}: ${p.v}"><i style="height:${p.v ? Math.max(4, Math.round(p.v / mx * 100)) : 0}%"></i></div>`).join('')}</div>
+  if (!pts.some(p => p.v)) return `<div class="empty">${esc(tr('لا توجد بيانات في هذه الفترة بعد'))}</div>`;
+  return `<div class="small muted" style="text-align:end">${esc(tr('الأعلى'))}: <span class="num">${mx.toLocaleString('en-US')}</span></div><div class="pbars" role="img" aria-label="${esc(tr(label))}">${pts.map(p => `<div class="pb" title="${esc(p.k)}: ${p.v}"><i style="height:${p.v ? Math.max(4, Math.round(p.v / mx * 100)) : 0}%"></i></div>`).join('')}</div>
     <div class="pbx small muted"><span class="num">${esc(pts[0].k)}</span><span class="num">${esc(pts[pts.length - 1].k)}</span></div>`;
 }
 
@@ -134,9 +135,9 @@ PV.companies = async page => {
     <div class="ptabs pfil" role="tablist">${Object.entries(BUCKET).map(([k, [t, f]]) => `<a href="#" data-f="${k}"${k === fk ? ' aria-current="page"' : ''}>${esc(tr(t))} <span class="num">${rows.filter(f).length}</span></a>`).join('')}</div>
     <div class="row" style="margin-bottom:10px;gap:8px;flex-wrap:wrap"><input id="pq" placeholder="${esc(tr('بحث بالاسم أو البريد أو الباقة'))}" value="${esc(q)}" style="max-width:320px">
       <div class="sp"></div><button type="button" class="btn sm" id="pxlog">${esc(tr('سجل التصدير'))}</button><button type="button" class="btn sm" id="pdlog">${esc(tr('سجل المنشآت المحذوفة'))}</button><button type="button" class="btn sm" data-copymail="${esc([...new Set(shown.map(c => c.owner_email).filter(Boolean))].join(', '))}">${esc(tr('نسخ إيميلات المنشآت الظاهرة'))}</button></div>
-    ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'الباقة', h: c => esc(c.plan) },
+    ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}${c.owner_phone ? ' · <span class="num">' + esc(c.owner_phone) + '</span>' : ''}</div>` }, { t: 'الباقة', h: c => esc(c.plan) },
       { t: 'المدينة', h: c => esc(c.city || '—') + (c.size_band ? `<div class="small muted">${esc(tr(SIZE_B[c.size_band] || c.size_band))}</div>` : '') },
-      { t: 'يستخدم', h: c => { const u = c.usage || {}; return `<span class="num">${u.employees || 0}${c.max_employees ? ' / ' + c.max_employees : ''}</span> ${esc(tr('موظف'))}<div class="small muted">${(u.modules || []).map(m => esc(tr(MODULES[m] || m))).join('، ') || '—'}</div>`; } },
+      { t: 'يستخدم', h: c => { const u = c.usage || {}; return `${esc(tr('الموظفون'))}: <span class="num">${u.employees || 0}${c.max_employees ? ' / ' + c.max_employees : ''}</span><div class="small muted">${(u.modules || []).map(m => esc(tr(MODULES[m] || m))).join('، ') || '—'}</div>`; } },
       { t: 'الحالة', h: c => { const [t, k] = subState(c); return `<span class="badge ${k}">${esc(tr(t))}</span>`; } },
       { t: 'ينتهي', h: c => { const e = subEnd(c), n = daysLeft(e); return e ? `<span class="num">${esc(e)}</span>` + (n >= 0 ? `<div class="small muted">${esc(tr('باقي'))} <span class="num">${n}</span> ${esc(tr('يوم'))}</div>` : '') : '—'; } },
       { t: 'المستخدمون', r: 1, h: c => `<span class="num">${c.users}${c.max_users ? ' / ' + c.max_users : ''}</span>` },
@@ -215,7 +216,7 @@ PV.system = async page => {
     <div class="grid" style="margin-bottom:14px">${pkpi('تسجيلات آخر ٧ أيام', since(7))}${pkpi('تسجيلات آخر ٣٠ يوما', since(30))}
       ${pkpi('منشآت دخلت آخر ٧ أيام', active7, rows.length ? pct(active7, rows.length) + ' ' + tr('من المنشآت') : '')}
       ${pkpi('نسبة التحويل إلى اشتراك', pct(paid, decided), 'من المنشآت التي انتهت تجربتها أو اشتركت')}${pkpi('تجارب تنتهي خلال ٣ أيام', ending.length)}${pkpi('بانتظار القبول', rows.filter(c => c.status === 'pending').length)}</div>
-    <div class="card" style="margin-bottom:14px"><h2>${esc(tr('التسجيلات الجديدة يوميا (آخر ٣٠ يوما)'))}</h2>${pbars(days.map(k => ({ k, v: rows.filter(c => String(c.created_at).slice(0, 10) === k).length })), 'التسجيلات الجديدة يوميا (آخر ٣٠ يوما)')}</div>
+    <div class="card" style="margin-bottom:14px"><h2>${esc(tr('التسجيلات الجديدة يوميا (آخر 30 يوما)'))}</h2>${pbars(days.map(k => ({ k, v: rows.filter(c => String(c.created_at).slice(0, 10) === k).length })), 'التسجيلات الجديدة يوميا (آخر 30 يوما)')}</div>
     <div class="g2p">
       <div class="card"><h2>${esc(tr('تجارب تنتهي قريبا'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('تواصل معهم قبل ما تنتهي التجربة.'))}</p>
         ${tbl([{ t: 'المنشأة', h: c => esc(c.name) + `<div class="small muted" dir="ltr">${esc(c.owner_email || '—')}</div>` }, { t: 'نهاية التجربة', h: c => `<span class="num">${esc(c.trial_ends)}</span>` }, { t: '', h: c => c.owner_email ? `<a class="btn sm" href="${esc(gmailTo(c.owner_email, 'وعد: ' + c.name))}" target="_blank" rel="noopener">${esc(tr('مراسلة'))}</a>` : '' }], ending, { empty: 'لا توجد تجارب تنتهي خلال ٣ أيام' })}</div>
@@ -394,7 +395,7 @@ PV.team = async page => {
       ${(S.pme || {}).super ? `<h3 style="margin:14px 0 6px">${esc(tr('الصلاحيات'))}</h3><div class="muted small" style="margin-bottom:6px">${esc(tr('كل الأعضاء يرون المنشآت ويسجلون التواصل معها. اختر ما يقدر يعدّله.'))}</div>
         <div style="display:grid;gap:6px">${PPERMS.map(([k, t]) => `<label class="row" style="gap:8px"><input type="checkbox" data-pp="${k}"${(a.perms || []).includes(k) ? ' checked' : ''}> ${esc(tr(t))}</label>`).join('')}</div>
         <button type="button" class="btn sm pri" id="tpp" style="margin-top:8px">${esc(tr('حفظ الصلاحيات'))}</button>` : ''}
-      <div class="row" style="gap:6px;margin-top:12px;flex-wrap:wrap"><button type="button" class="btn sm" id="trm">${esc(tr('حذف من الفريق'))}</button></div>`, {
+      <div class="row" style="gap:6px;margin-top:12px;flex-wrap:wrap"><button type="button" class="btn sm danger" id="trm">${esc(tr('حذف من الفريق'))}</button></div>`, {
       ok: 'إعادة تعيين كلمة المرور', onOk: async f => {
         await db.rpc('platform_reset_admin_password', { p_username: a.username, p_password: f.pw });
         setTimeout(() => { modal(tr('تم تعيين كلمة مرور مؤقتة'), credsBox(a.username, f.pw)); platformView(); }, 0);
@@ -588,7 +589,7 @@ PV.billing = async page => {
       <div class="row">${pcan('billing') ? `<button class="btn" id="pinvs">${esc(tr('بيانات فواتير وعد'))}</button>` : ''}<button class="btn pri" id="padd">${esc(tr('باقة جديدة'))}</button></div></div>
     <div class="grid" style="margin-bottom:14px">${pkpi('هذا الشهر', money0(sumIf(p => p.paid_on >= m0)), 'ريال')}${pkpi('الشهر الماضي', money0(sumIf(p => p.paid_on >= lm && p.paid_on < m0)), 'ريال')}
       ${pkpi('هذه السنة', money0(sumIf(p => p.paid_on >= y0)), 'ريال')}${pkpi('منشآت مشتركة', paying)}</div>
-    <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الإيرادات شهريا (آخر ١٢ شهر)'))}</h2>${pbars(months.map(k => ({ k, v: Math.round(sumIf(p => p.paid_on.slice(0, 7) === k)) })), 'الإيرادات شهريا (آخر ١٢ شهر)')}</div>
+    <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الإيرادات شهريا (آخر 12 شهرا)'))}</h2>${pbars(months.map(k => ({ k, v: Math.round(sumIf(p => p.paid_on.slice(0, 7) === k)) })), 'الإيرادات شهريا (آخر 12 شهرا)')}</div>
     <div class="card" id="cplans" style="margin-bottom:14px"><h2>${esc(tr('الباقات والأسعار'))}</h2><p class="muted small" style="margin-top:-4px">${esc(tr('اضغط أي باقة لتعديل اسمها أو سعرها أو مدتها أو أقسامها أو حد الموظفين.'))}</p>
       ${tbl([{ t: 'الباقة', h: p => `<b>${esc(p.name)}</b>` + (p.active ? '' : ` <span class="badge">${esc(tr('موقوفة'))}</span>`) }, { t: 'السعر', r: 1, h: p => money0(p.price) },
         { t: 'المدة', h: p => `<span class="num">${p.period_days}</span> ${esc(tr('يوم'))}` }, { t: 'الأقسام', h: p => p.modules.map(m => `<span class="badge">${esc(tr(MODULES[m] || m))}</span>`).join(' ') },
