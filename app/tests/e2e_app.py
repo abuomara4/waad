@@ -171,7 +171,10 @@ with sync_playwright() as pw:
     o.click('#rt'); o.fill('#dlg textarea[name=n]', 'تأكد من الإضافي'); modal_ok(o); o.wait_for_timeout(500)
     ok('تأكد من الإضافي' in o.inner_text('#page') and o.locator('.pstep.done').count() == 0, 'payroll returned for correction with the reason; signatures cleared')
     o.click('#sg'); o.wait_for_timeout(500); o.click('#sg'); o.wait_for_timeout(500)
-    o.click('#ap'); modal_ok(o); o.wait_for_timeout(400); ok('معتمد' in o.inner_text('h1') and o.locator('.pstep.done').count() == 3, 'payroll approved by HR, finance and the general manager')
+    o.click('#ap'); modal_ok(o)
+    try: o.wait_for_function("/معتمد/.test(document.querySelector('h1').innerText) && document.querySelectorAll('.pstep.done').length === 3", timeout=15000)   # a slow CI machine
+    except Exception: pass
+    ok('معتمد' in o.inner_text('h1') and o.locator('.pstep.done').count() == 3, 'payroll approved by HR, finance and the general manager')
     o.evaluate("window.__print=window.print;window.print=()=>{};0"); o.click('#prn'); o.wait_for_timeout(300)
     ok('مسير رواتب شهر' in o.inner_text('#printarea') and o.locator('#printarea .psig > div').count() == 3 and o.locator('#printarea tbody tr').count() == 3, 'payroll prints with every employee and the three signatures')
     o.evaluate("window.print=window.__print;window.dispatchEvent(new Event('afterprint'))")
