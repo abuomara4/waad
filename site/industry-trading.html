@@ -57,7 +57,7 @@ nav.links a:hover{color:#fff}
 .menu{display:none;background:transparent;border:0;color:#fff;font-size:26px;cursor:pointer;padding:4px 8px}
 /* hero */
 .hero{background:var(--navy);color:#fff;padding:84px 0 96px;overflow:hidden}
-.hero-g{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.hero-g{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:48px;align-items:center}.hero-g>*{min-width:0}
 .pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#e2e8f0;border-radius:999px;padding:6px 14px;font-size:13px;font-weight:500}
 .pill b{width:8px;height:8px;border-radius:50%;background:var(--gold2);display:inline-block}
 h1{font-size:clamp(32px,5vw,52px);line-height:1.25;margin:18px 0 16px;font-weight:700;letter-spacing:-.5px}
@@ -68,6 +68,7 @@ h1 em{font-style:normal;color:var(--gold2)}
 .kicker{margin:0 0 10px;color:var(--gold2);font-weight:600;font-size:clamp(15px,3.6vw,19px);letter-spacing:.2px}
 .fbrand{display:flex;flex-direction:column;gap:6px}.ftag{font-size:13px;color:var(--gold2);font-weight:500}
 html:not([lang=en]) .hero h1{white-space:nowrap;font-size:clamp(22px,8vw,46px)}
+@media(max-width:560px){html:not([lang=en]) .hero h1{white-space:normal}}   /* a phone: the heading wraps before «في نظام واحد» instead of running off the screen */
 .lead{font-size:clamp(16px,2vw,19px);color:#cbd5e1;max-width:620px;margin:0 0 30px}
 .cta{display:flex;gap:12px;flex-wrap:wrap}
 .note7{margin:12px 0 0;color:#e0b45e;font-size:14px;font-weight:600}
@@ -198,7 +199,7 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
 .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
 .foot img{height:32px}
 .foot nav{display:flex;gap:20px;flex-wrap:wrap}.foot a{text-decoration:none}.foot a:hover{color:#fff}
-@media(max-width:960px){.hero-g{grid-template-columns:1fr}.shot{max-width:520px;width:100%;margin-inline:auto}.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:960px){.hero-g{grid-template-columns:minmax(0,1fr)}.shot{max-width:520px;width:100%;margin-inline:auto}.g3{grid-template-columns:1fr 1fr}}
 @media(max-width:760px){nav.links{display:none}.menu{display:block}.hide-m{display:none}
   nav.links.open .mlogin{display:inline-flex!important;color:#fff}
   nav.links.open{display:flex;flex-direction:column;position:absolute;top:68px;inset-inline:0;background:var(--navy);padding:16px 20px;gap:14px;border-bottom:1px solid rgba(255,255,255,.08)}
