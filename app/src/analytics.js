@@ -191,3 +191,18 @@ VIEWS['#/analytics'] = async page => {
     } catch (er) { toast(er.message); }
   });
 };
+
+/* ----- the owner's home dashboard: overview, finance and people for a chosen period, with the full analytics one click away ----- */
+async function ownerDash(page) {
+  let box = $('#odash', page); if (!box) { box = document.createElement('div'); box.id = 'odash'; const gr = $('.grid', page); (gr || $('.head', page)).after(box); }
+  const pre = LS.get('waad.odp') || 'y', [from, to] = anPreset(pre);
+  box.innerHTML = `<div class="muted small" style="margin:12px 0">${esc(tr('جاري تحميل لوحة المالك'))}…</div>`;
+  const [d, lt] = await Promise.all([db.rpc('company_analytics', { p_company: S.cid, p_from: from, p_to: to }), LEAVE_TYPES().catch(() => [])]);
+  const model = anModel(d, lt).filter(s => ['exec', 'finance', 'hr'].includes(s.k));
+  if (!box.isConnected) return;
+  const P_ = [['m', 'هذا الشهر'], ['lastm', 'الشهر الماضي'], ['q', 'هذا الربع'], ['y', 'هذه السنة'], ['l12', 'آخر 12 شهرا']];
+  box.innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:18px 0 6px"><h2 style="margin:0">${esc(tr('لوحة المالك'))} <span class="muted small">${fdate(from)} – ${fdate(to)}</span></h2>
+      <div class="row" style="gap:6px"><select id="odp" style="width:auto">${P_.map(([k, l]) => opt(k, tr(l), pre)).join('')}</select><a class="btn sm" href="#/analytics?p=${pre}">${esc(tr('التحليلات الكاملة والتصدير'))}</a></div></div>
+    ${model.length ? model.map(anSectionHtml).join('') : `<div class="note">${esc(tr('لا توجد تحليلات متاحة لصلاحياتك.'))}</div>`}`;
+  $('#odp', box).onchange = e => { LS.set('waad.odp', e.target.value); ownerDash(page).catch(() => {}); };
+}

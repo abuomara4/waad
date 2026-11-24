@@ -630,7 +630,7 @@ function navItems() {
     // an employee sees only self and own team on the chart: with nobody under them it would show just them
     if (!(isHR() || has('finance')) && (!plainEmp() || S.hasTeam) && (ov === 'all' || (ov === 'managers' && has('manager')))) it.push({ h: '#/org', t: 'الهيكل التنظيمي' }); }
   if ((!['accountant', 'storekeeper'].includes(S.role) || S.emp) && (!plainEmp() || S.hasTeam || NAVC.approvals)) it.push({ h: '#/approvals', t: 'الاعتمادات', pill: NAVC.approvals });
-  if (typeof FORM_DEPTS !== 'undefined' && Object.keys(FORM_DEPTS).some(d => modOn(d) && formCanDept(d))) it.push({ h: '#/forms', t: 'النماذج' });
+  const fm = d => { if (typeof FORM_DEPTS !== 'undefined' && modOn(d) && formCanDept(d)) it.push({ h: '#/forms?d=' + d, t: 'النماذج' }); };   // each section's own forms
   if (has('manager') && !(isHR() || has('finance'))) it.push({ h: '#/clearance', t: 'إخلاء الطرف' });
   if (isHR() || has('finance')) {
     g('الموارد البشرية');
@@ -651,36 +651,7 @@ function navItems() {
     it.push({ h: '#/clearance', t: 'إخلاء الطرف' });
     if (isHR() && !S.emp) it.push({ h: '#/reviews', t: 'تقييم الأداء' });
     if (isHR()) it.push({ h: '#/recruit', t: 'التوظيف' }, { h: '#/training', t: 'التدريب' }, { h: '#/trainplan', t: 'خطة التدريب السنوية' }, { h: '#/grades', t: 'الدرجات الوظيفية' }, { h: '#/insurance', t: 'التأمين الطبي' });
-    it.push({ h: '#/hrreports', t: 'تقارير الموارد البشرية' });
-  }
-  const permDeputy = !isHR() && !!(S.company && S.company.perm_deputy && S.session && S.company.perm_deputy === S.session.user.id);
-  if (!isHR() && !has('finance') && (hrAny() || permDeputy)) {
-    g('الموارد البشرية'); if (permDeputy) it.push({ h: '#/permissions', t: 'الصلاحيات' }); const add = (p, ...xs) => { if (S.perms.has(p)) xs.forEach(x => { if (!it.some(y => y.h === x.h)) it.push(x); }); };
-    add('hr_emp', { h: '#/employees', t: 'الموظفون' }, { h: '#/docs', t: 'المستندات والعقود' }); add('hr_att', { h: '#/att', t: 'الحضور والانصراف' }, { h: '#/leavecal', t: 'تقويم الإجازات' });
-    add('hr_pay', { h: '#/payroll', t: 'مسير الرواتب' }); add('hr_disc', { h: '#/penalties', t: 'المخالفات والجزاءات' }, { h: '#/reviews', t: 'تقييم الأداء' });
-    add('hr_recruit', { h: '#/recruit', t: 'التوظيف' }, { h: '#/workforce', t: 'خطة القوى العاملة' }); add('hr_train', { h: '#/training', t: 'التدريب' }, { h: '#/trainplan', t: 'خطة التدريب السنوية' });
-    add('hr_ann', { h: '#/announcements', t: 'الإعلانات الداخلية' }, { h: '#/surveys', t: 'الاستبيانات' }); add('hr_cdocs', { h: '#/companydocs', t: 'مستندات المنشأة والسيارات' });
-  }
-  if (has('manager') && !isHR()) { g('فريقي'); [{ h: '#/att', t: 'حضور الفريق' }, { h: '#/leavecal', t: 'تقويم الإجازات' }].concat(has('finance') ? [] : [{ h: '#/workforce', t: 'خطة القوى العاملة' }]).forEach(x => { if (!it.some(y => y.h === x.h)) it.push(x); }); }
-  if (isFin() && (can('sales') || can('stock') || can('mkt'))) {
-    g('المبيعات');
-    if (can('sales') || can('mkt')) it.push({ h: '#/crm', t: 'الفرص والعملاء المحتملون' }, { h: '#/marketing', t: 'التسويق والحملات' });
-    if (can('sales')) it.push({ h: '#/quotes', t: 'عروض الأسعار' });
-    if (can('sales') || can('stock')) it.push({ h: '#/orders', t: 'أوامر البيع' }, { h: '#/deliveries', t: 'إشعارات التسليم' });
-    if (can('sales')) it.push({ h: '#/pos', t: 'نقطة البيع' }, { h: '#/sales', t: 'فواتير المبيعات' }, { h: '#/recurring', t: 'الفواتير المتكررة' }, { h: '#/agreements', t: 'العقود والاتفاقيات' }, { h: '#/parties/customer', t: 'العملاء' });
-  }
-  if (isFin() && (can('purch') || can('stock'))) {
-    g('المشتريات');
-    if (can('purch')) it.push({ h: '#/purchreq', t: 'طلبات الشراء' }, { h: '#/rfq', t: 'طلبات عروض الأسعار' });
-    it.push({ h: '#/porders', t: 'أوامر الشراء' }, { h: '#/receipts', t: 'استلام البضاعة' });
-    if (can('purch')) it.push({ h: '#/supinbox', t: 'فواتير الموردين الواردة' }, { h: '#/purchases', t: 'فواتير المشتريات' }, { h: '#/parties/supplier', t: 'الموردون' });
-  }
-  if (isFin() && (can('stock') || can('items') || can('stockadj'))) {
-    g('المخزون');
-    it.push({ h: '#/items', t: 'الأصناف والمخزون' }, { h: '#/warehouses', t: 'المستودعات' });
-    if (can('stock')) it.push({ h: '#/transfers', t: 'تحويلات المخزون' });
-    it.push({ h: '#/counts', t: 'الجرد' });
-    if (can('stock')) it.push({ h: '#/expiry', t: 'صلاحية الأصناف' }, { h: '#/reorder', t: 'إعادة الطلب' }, { h: '#/serials', t: 'الأرقام التسلسلية' });
+    it.push({ h: '#/hrreports', t: 'تقارير الموارد البشرية' }); fm('hr');
   }
   if (isFin()) {
     g('المالية');
@@ -701,8 +672,41 @@ function navItems() {
     if (can('je') || can('reports')) it.push({ h: '#/facilities', t: 'القروض وخطابات الضمان' });
     if (can('reports')) it.push({ h: '#/zakat', t: 'الزكاة التقديرية' });
     if (has('owner', 'admin', 'finance')) it.push({ h: '#/periods', t: 'إقفال الفترات والسنة' }, { h: '#/opening', t: 'الأرصدة الافتتاحية' });
+    fm('finance');
   }
-  if (has('owner', 'admin', 'finance', 'hr') || can('proj') || S.myPM) { g('المشاريع'); it.push({ h: '#/projects', t: 'المشاريع وجداول الوقت' }); if (!S.myPM || has('owner', 'admin', 'finance', 'hr') || can('proj')) it.push({ h: '#/resources', t: 'إشغال الفريق' }); }
+  const permDeputy = !isHR() && !!(S.company && S.company.perm_deputy && S.session && S.company.perm_deputy === S.session.user.id);
+  if (!isHR() && !has('finance') && (hrAny() || permDeputy)) {
+    g('الموارد البشرية'); if (permDeputy) it.push({ h: '#/permissions', t: 'الصلاحيات' }); const add = (p, ...xs) => { if (S.perms.has(p)) xs.forEach(x => { if (!it.some(y => y.h === x.h)) it.push(x); }); };
+    add('hr_emp', { h: '#/employees', t: 'الموظفون' }, { h: '#/docs', t: 'المستندات والعقود' }); add('hr_att', { h: '#/att', t: 'الحضور والانصراف' }, { h: '#/leavecal', t: 'تقويم الإجازات' });
+    add('hr_pay', { h: '#/payroll', t: 'مسير الرواتب' }); add('hr_disc', { h: '#/penalties', t: 'المخالفات والجزاءات' }, { h: '#/reviews', t: 'تقييم الأداء' });
+    add('hr_recruit', { h: '#/recruit', t: 'التوظيف' }, { h: '#/workforce', t: 'خطة القوى العاملة' }); add('hr_train', { h: '#/training', t: 'التدريب' }, { h: '#/trainplan', t: 'خطة التدريب السنوية' });
+    add('hr_ann', { h: '#/announcements', t: 'الإعلانات الداخلية' }, { h: '#/surveys', t: 'الاستبيانات' }); add('hr_cdocs', { h: '#/companydocs', t: 'مستندات المنشأة والسيارات' });
+  }
+  if (has('manager') && !isHR()) { g('فريقي'); [{ h: '#/att', t: 'حضور الفريق' }, { h: '#/leavecal', t: 'تقويم الإجازات' }].concat(has('finance') ? [] : [{ h: '#/workforce', t: 'خطة القوى العاملة' }]).forEach(x => { if (!it.some(y => y.h === x.h)) it.push(x); }); }
+  if (isFin() && (can('sales') || can('stock') || can('mkt'))) {
+    g('المبيعات');
+    if (can('sales') || can('mkt')) it.push({ h: '#/crm', t: 'الفرص والعملاء المحتملون' }, { h: '#/marketing', t: 'التسويق والحملات' });
+    if (can('sales')) it.push({ h: '#/quotes', t: 'عروض الأسعار' });
+    if (can('sales') || can('stock')) it.push({ h: '#/orders', t: 'أوامر البيع' }, { h: '#/deliveries', t: 'إشعارات التسليم' });
+    if (can('sales')) it.push({ h: '#/pos', t: 'نقطة البيع' }, { h: '#/sales', t: 'فواتير المبيعات' }, { h: '#/recurring', t: 'الفواتير المتكررة' }, { h: '#/agreements', t: 'العقود والاتفاقيات' }, { h: '#/parties/customer', t: 'العملاء' });
+    fm('sales');
+  }
+  if (isFin() && (can('purch') || can('stock'))) {
+    g('المشتريات');
+    if (can('purch')) it.push({ h: '#/purchreq', t: 'طلبات الشراء' }, { h: '#/rfq', t: 'طلبات عروض الأسعار' });
+    it.push({ h: '#/porders', t: 'أوامر الشراء' }, { h: '#/receipts', t: 'استلام البضاعة' });
+    if (can('purch')) it.push({ h: '#/supinbox', t: 'فواتير الموردين الواردة' }, { h: '#/purchases', t: 'فواتير المشتريات' }, { h: '#/parties/supplier', t: 'الموردون' });
+    fm('purch');
+  }
+  if (isFin() && (can('stock') || can('items') || can('stockadj'))) {
+    g('المخزون');
+    it.push({ h: '#/items', t: 'الأصناف والمخزون' }, { h: '#/warehouses', t: 'المستودعات' });
+    if (can('stock')) it.push({ h: '#/transfers', t: 'تحويلات المخزون' });
+    it.push({ h: '#/counts', t: 'الجرد' });
+    if (can('stock')) it.push({ h: '#/expiry', t: 'صلاحية الأصناف' }, { h: '#/reorder', t: 'إعادة الطلب' }, { h: '#/serials', t: 'الأرقام التسلسلية' });
+    fm('stock');
+  }
+  if (has('owner', 'admin', 'finance', 'hr') || can('proj') || S.myPM) { g('المشاريع'); it.push({ h: '#/projects', t: 'المشاريع وجداول الوقت' }); fm('proj'); if (!S.myPM || has('owner', 'admin', 'finance', 'hr') || can('proj')) it.push({ h: '#/resources', t: 'إشغال الفريق' }); }
   if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); it.push({ h: '#/companydocs', t: 'مستندات المنشأة والسيارات' }); if (has('owner', 'admin')) it.push({ h: '#/accesslog', t: 'سجل الوصول' }, { h: '#/customfields', t: 'الحقول المخصصة' }); if (has('owner', 'admin', 'hr')) it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); }
   return it;
 }

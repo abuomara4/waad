@@ -1257,6 +1257,14 @@ with sync_playwright() as pw:
     ok(sql("select ((end_date - start_date) >= 300 and start_date > current_date)::text from agreements where title = 'عقد صيانة المكيفات'") == 'true', 'contracts: renewal starts the day after the end for the same term')
     sqlx("update recurring_invoices set active = false where id in (select recurring_id from agreements where title = 'عقد صيانة المكيفات')"); sqlx("delete from agreements where title = 'عقد صيانة المكيفات'")
     go(o, '#/items'); o.wait_for_selector('#page tbody tr'); ok(o.locator('.lsq').count() == (1 if o.locator('#page tbody tr').count() >= 8 else 0), 'long lists get a quick search box')
+    # the owner's home dashboard, forms inside each section, finance right under HR in the menu
+    go(o, '#/home'); o.wait_for_selector('#odash .ansec', timeout=20000)
+    ok(o.locator('#odash .ansec').count() >= 2 and o.locator('#odash svg').count() >= 1, 'home: the owner sees a dashboard of the company numbers with charts')
+    nav_h = o.eval_on_selector_all('#nav a', "xs => xs.map(a => a.getAttribute('href'))")
+    ok('#/forms' not in nav_h and '#/forms?d=hr' in nav_h and '#/forms?d=finance' in nav_h, 'menu: forms sit inside each section, not as a section of their own')
+    grp = o.eval_on_selector_all('#nav [data-grp]', "xs => xs.map(x => x.dataset.grp)")
+    ok('المالية' in grp and 'الموارد البشرية' in grp and grp.index('المالية') == grp.index('الموارد البشرية') + 1, 'menu: finance comes right after human resources %s' % grp)
+    go(o, '#/forms?d=finance'); o.wait_for_selector('.fcard'); ok('المالية' in o.inner_text('#page h1'), 'forms: a section opens its own forms')
     # company announcement: posted by HR, shown on the home page
     go(o, '#/announcements'); o.wait_for_selector('#annn'); o.click('#annn'); o.wait_for_selector('#dlg[open] input[name=title]')
     o.fill('#dlg input[name=title]', 'اجتماع عام الأحد'); o.fill('#dlg textarea[name=body]', 'اجتماع لكل الموظفين الساعة 10 صباحا'); sqlx("update employees set email = 'staff5001@example.com', phone = '0551234567' where emp_no = '5001'"); o.click('#mok'); o.wait_for_selector('#dlg[open] #asb a[data-mb]')
@@ -1585,7 +1593,7 @@ with sync_playwright() as pw:
       for (const en of [false, true]) { const V = formVals(t, { en, no: 'F-1', who: {}, deps: [] }), html = formFillText(en ? t.body_en : t.body_ar, V, {}, null, en);
         if (/\{[^}]*\}/.test(html.replace(/<[^>]*>/g, ''))) bad.push(x.k + (en ? ' en' : ' ar')); }
       if (!x.sig || !x.sig.length || x.sig.some(s => !SIG[s])) bad.push(x.k + ' signatures'); }); return { n: FORM_LIB.length, per, bad: bad.slice(0, 5), keys: new Set(FORM_LIB.map(x => x.k)).size }; })()""")
-    ok(not fl_chk['bad'] and fl_chk['keys'] == fl_chk['n'] and fl_chk['per'].get('hr', 0) >= 60, 'forms: every library form fills in both languages with no placeholder left, unique keys, HR has 60+ (%s)' % fl_chk)
+    ok(not fl_chk['bad'] and fl_chk['keys'] == fl_chk['n'] and all(fl_chk['per'].get(d, 0) >= 60 for d in ['hr', 'finance', 'sales', 'purch', 'stock', 'proj']), 'forms: every library form fills in both languages with no placeholder left, unique keys, 60+ per department (%s)' % fl_chk)
     o.locator('.fcard', has_text='استلام عهدة').click(); o.wait_for_selector('#dlg #whoq')
     n_all = o.locator('#dlg select[name=who] option').count(); eno = o.evaluate("document.querySelector('#dlg select[name=who]').options[1].textContent.split(' — ')[0]")
     o.fill('#dlg #whoq', eno); o.wait_for_timeout(300)
@@ -1596,6 +1604,10 @@ with sync_playwright() as pw:
     sheet = o.evaluate("document.getElementById('printarea').innerText")
     ok('مباشرة عمل' in sheet and re.search(r'F-\d{4}-\d{4}', sheet) is not None and 'التوقيع' in sheet, 'forms: the sheet is filled, numbered and has signature lines')
     ok('Joining Report' in sheet and 'Approvals' in sheet and o.locator('#printarea .gsheet table').count() >= 2, 'forms: a procedural form prints as a bilingual table')
+    o.evaluate("window.dispatchEvent(new Event('afterprint'))")
+    o.locator('.fcard', has_text='لفت نظر').click(); o.wait_for_selector('#dlg select[name=who]'); ok(o.locator('#dlg select[name=lang]').count() == 0, 'forms: a library form has no language choice (it prints in both)'); modal_ok(o); o.wait_for_timeout(800)
+    sheet2 = o.evaluate("document.getElementById('printarea').innerText"); o.emulate_media(media='print'); fill_h = o.evaluate("(() => { const p = document.querySelector('#printarea .gpage'); return p ? p.getBoundingClientRect().height : 0; })()"); o.emulate_media(media='screen')
+    ok('لفت نظر' in sheet2 and 'Notice of Attention' in sheet2 and o.locator('#printarea .gtx .gxe').count() == 1 and o.locator('#printarea .gnotes').count() == 1 and fill_h > 900, 'forms: an ordinary form prints Arabic and English side by side on a full A4 page (%d px)' % fill_h)
     o.evaluate("window.dispatchEvent(new Event('afterprint'))")
     o.locator('.fcard', has_text='إخلاء طرف').click(); o.wait_for_selector('#dlg select[name=who]'); modal_ok(o); o.wait_for_timeout(800)
     sheet = o.evaluate("document.getElementById('printarea').innerText")

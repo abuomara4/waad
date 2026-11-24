@@ -14,15 +14,15 @@ const libAsTpl = x => ({ key: x.k, dept: x.dept, subject: x.subject, title_ar: x
 const dbAsTpl = r => ({ key: 'custom:' + r.id, id: r.id, dept: r.dept, subject: r.subject, title_ar: r.title_ar, title_en: r.title_en, body_ar: r.body_ar, body_en: r.body_en,
   fields: customFields(r), sigs: (r.sigs || []).map(s => [s, s]), lib: false, row: r });
 
-VIEWS['#/forms'] = async page => {
+VIEWS['#/forms'] = async (page, arg, q) => {
   const depts = Object.keys(FORM_DEPTS).filter(d => modOn(d) && formCanDept(d));
   if (!depts.length) { page.innerHTML = `<div class="note">${esc(tr('النماذج لمدراء المنشأة.'))}</div>`; return; }
-  const cur = depts.includes(LS.get('waad.formdept')) ? LS.get('waad.formdept') : depts[0];
+  const qd = q && q.get('d'), cur = depts.includes(qd) ? qd : depts.includes(LS.get('waad.formdept')) ? LS.get('waad.formdept') : depts[0];
   const [mine, log] = await Promise.all([db.get('form_templates', { company_id: 'eq.' + S.cid, order: 'created_at' }).catch(() => []),
     db.get('form_issues', { company_id: 'eq.' + S.cid, order: 'issued_at.desc', limit: 30 }).catch(() => [])]);
   const list = [...FORM_LIB.filter(x => x.dept === cur).map(libAsTpl), ...mine.filter(r => r.dept === cur).map(dbAsTpl)];
   const subjN = { employee: 'موظف', customer: 'عميل', supplier: 'مورد', party: 'عميل أو مورد', none: 'عام' };
-  page.innerHTML = `<div class="head"><div><h1>${esc(tr('النماذج'))}</h1><div class="muted">${esc(tr('نماذج جاهزة تُعبّأ تلقائيا من بيانات الموظف أو العميل أو المورد، وتُطبع بترويسة منشأتك وبرقم مسلسل'))}</div></div>
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('النماذج'))} — ${esc(fT(...FORM_DEPTS[cur]))}</h1><div class="muted">${esc(tr('نماذج جاهزة تُعبّأ تلقائيا من بيانات الموظف أو العميل أو المورد، وتُطبع بترويسة منشأتك وبرقم مسلسل'))}</div></div>
       ${formCanWrite() ? `<button class="btn pri" id="fnew">${esc(tr('نموذج جديد'))}</button>` : ''}</div>
     <div class="ptabs pfil">${depts.map(d => `<a href="#" data-fd="${d}" data-nt${d === cur ? ' aria-current="page"' : ''}>${esc(fT(...FORM_DEPTS[d]))}</a>`).join('')}</div>
     <div class="fgrid">${list.map((t, i) => `<button type="button" class="card fcard" data-fi="${i}"><b data-nt>${esc(fT(t.title_ar, t.title_en))}</b>
@@ -30,7 +30,7 @@ VIEWS['#/forms'] = async page => {
     <div class="card" style="margin-top:14px"><h2>${esc(tr('آخر النماذج المطبوعة'))}</h2>
       ${tbl([{ t: 'الرقم', h: r => `<span class="num">${esc(r.no)}</span>` }, { t: 'النموذج', h: r => `<span data-nt>${esc(r.title)}</span>` },
         { t: 'صادر لـ', h: r => `<span data-nt>${esc(r.subject_name || '—')}</span>` }, { t: 'التاريخ', h: r => `<span class="num">${esc(String(r.issued_at).slice(0, 10))}</span>` }], log, { empty: 'ما طُبع شي للحين' })}</div>`;
-  $$('[data-fd]', page).forEach(a => a.onclick = e => { e.preventDefault(); LS.set('waad.formdept', a.dataset.fd); route(); });
+  $$('[data-fd]', page).forEach(a => a.onclick = e => { e.preventDefault(); LS.set('waad.formdept', a.dataset.fd); location.hash = '#/forms?d=' + a.dataset.fd; });
   $$('[data-fi]', page).forEach(b => b.onclick = () => formFill(list[+b.dataset.fi]));
   if ($('#fnew', page)) $('#fnew', page).onclick = () => formEdit({ dept: cur });
 };
@@ -93,7 +93,7 @@ async function formFill(t) {
   const d = modal(fT(t.title_ar, t.title_en), `<div class="fg">
       ${t.subject === 'employee' ? field('الموظف', `<input id="whoq" type="search" autocomplete="off" aria-label="${esc(tr('بحث'))}" placeholder="${esc(tr('ابحث بالاسم أو الرقم الوظيفي'))}" style="margin-bottom:6px"><select name="who" required>${el.map(e => opt(e.id, e.emp_no + ' — ' + e.full_name)).join('')}</select>`, 'wide') : ''}
       ${kinds.length ? field(t.subject === 'supplier' ? 'المورد' : t.subject === 'customer' ? 'العميل' : 'العميل أو المورد', `<input id="whoq" type="search" autocomplete="off" aria-label="${esc(tr('بحث'))}" placeholder="${esc(tr('ابحث بالاسم'))}" style="margin-bottom:6px"><select name="who" required>${parties.map(p => opt(p.id, p.name)).join('')}</select>`, 'wide') : ''}
-      ${t.lib && FORM_GRID[t.key] ? `<input type="hidden" name="lang" value="ar"><div class="wide small muted">${esc(tr('يظهر بالعربية والإنجليزية معا على نفس الورقة.'))}</div>` : field('لغة النموذج', `<select name="lang">${opt('ar', 'العربية', LANG)}${t.body_en ? opt('en', 'English', LANG) : ''}</select>`)}
+      ${t.lib || t.body_en ? `<input type="hidden" name="lang" value="ar"><div class="wide small muted">${esc(tr('يظهر بالعربية والإنجليزية معا على نفس الورقة.'))}</div>` : field('لغة النموذج', `<select name="lang">${opt('ar', 'العربية', LANG)}${t.body_en ? opt('en', 'English', LANG) : ''}</select>`)}
       ${t.fields.map(inputFor).join('')}</div>
     ${(t.subject === 'employee' && !el.length) || (kinds.length && !parties.length) ? `<div class="note">${esc(tr('لا توجد سجلات للاختيار منها. أضفها أولا.'))}</div>` : ''}
     ${!t.lib && formCanWrite() ? `<button type="button" class="btn sm" id="fedit" style="margin-top:8px">${esc(tr('تعديل النموذج'))}</button>` : ''}`, {
@@ -164,7 +164,7 @@ const FORM_CSS = `@page{size:A4 portrait;margin:14mm}
     .fsheet .fblank{color:#888}.fsheet .fsl{font-weight:700;margin-bottom:6mm}.fsheet .fsn{font-size:10pt;color:#333;margin-top:3mm}`;
 // the A4 sheet: letterhead, title + number + dates, the filled text, signature lines
 function formPrint(t, { en, no, who, vals, deps }) {
-  if (t.lib && FORM_GRID[t.key]) return formPrintGrid(t, { no, who, vals, deps });
+  if (t.lib || t.body_en) return formPrintGrid(t, { no, who, vals, deps });
   const c = S.company || {}, V = formVals(t, { en, no, who, deps }), d0 = V.date;
   const body = (en ? t.body_en || t.body_ar : t.body_ar).split(/\n\s*\n/).map(pp => `<p>${formFillText(pp, V, vals).replace(/\n/g, '<br>')}</p>`).join('');
   const title = en ? (t.title_en || t.title_ar) : t.title_ar, ids = [c.cr_no && (en ? 'CR ' : 'السجل التجاري ') + c.cr_no, c.vat_no && (en ? 'VAT ' : 'الرقم الضريبي ') + c.vat_no].filter(Boolean).join(' · ');
@@ -179,7 +179,7 @@ function formPrint(t, { en, no, who, vals, deps }) {
 // the same form as a bilingual table (Arabic + English on one sheet): details grid, item table, approve / not-approve rows,
 // notes, then one column per signer — for forms that are filled in and passed between departments (FORM_GRID)
 function formPrintGrid(t, { no, who, vals, deps }) {
-  const g = FORM_GRID[t.key], c = S.company || {}, A = formVals(t, { en: false, no, who, deps }), E = formVals(t, { en: true, no, who, deps });
+  const grid = !!(t.lib && FORM_GRID[t.key]), g = grid ? FORM_GRID[t.key] : {}, c = S.company || {}, A = formVals(t, { en: false, no, who, deps }), E = formVals(t, { en: true, no, who, deps });
   const L = (ar, en) => `<span class="gla">${esc(ar)}</span><span class="gle" dir="ltr">${esc(en)}</span>`;
   const both = k => { const a = A[k] || '', b = E[k] || ''; return a && b && a !== b ? `${esc(a)}<br><span class="gle" dir="ltr">${esc(b)}</span>` : esc(a || b); };
   const cells = [];
@@ -189,7 +189,7 @@ function formPrintGrid(t, { no, who, vals, deps }) {
   if (['customer', 'supplier', 'party'].includes(t.subject)) [['p.name', t.subject === 'supplier' ? 'المورد' : t.subject === 'customer' ? 'العميل' : 'الجهة', t.subject === 'supplier' ? 'Supplier' : t.subject === 'customer' ? 'Customer' : 'Party'],
     ['p.vat', 'الرقم الضريبي', 'VAT no.'], ['p.cr', 'السجل التجاري', 'CR no.'], ['p.phone', 'الجوال', 'Phone']].forEach(([k, a, b]) => cells.push([L(a, b), both(k)]));
   const lf = g.l ? g.l[0] : null, boxes = [];
-  t.fields.forEach(([k, la, le, ty]) => { if (k === lf || (g.ck && k === 'held')) return; const v = vals[k] || '';
+  if (grid) t.fields.forEach(([k, la, le, ty]) => { if (k === lf || (g.ck && k === 'held')) return; const v = vals[k] || '';
     if (ty === 'textarea') boxes.push([L(la, le), v]); else cells.push([L(la, le), esc(v)]); });
   if (cells.length % 2) cells.push(['', '']);
   const rows = []; for (let i = 0; i < cells.length; i += 2) rows.push(`<tr>${[cells[i], cells[i + 1]].map(([l, v]) => `<th>${l}</th><td>${v}</td>`).join('')}</tr>`);
@@ -202,21 +202,27 @@ function formPrintGrid(t, { no, who, vals, deps }) {
       ${lines.map((r, i) => `<tr><td class="gn">${r.length ? i + 1 : ''}</td>${cols.map((x, j) => `<td>${esc(j === cols.length - 1 && r.length > cols.length ? r.slice(j).join(' — ') : r[j] || '')}</td>`).join('')}</tr>`).join('')}</table></div>`; }
   const ck = g.ck ? '<div class="gsec">' + H('بيانات إخلاء الطرف', 'Clearance data') + `<table class="gt gc"><tr><th>${L('الإدارة', 'Department')}</th><th>${L('القرار', 'Decision')}</th><th>${L('المتعلقات', 'Pending items')}</th><th>${L('التوقيع', 'Signature')}</th></tr>
       ${g.ck.map(([a, b], i) => `<tr><th>${L(a, b)}</th><td class="gd">☐ ${L('تم إخلاء الطرف', 'Approved')}<br>☐ ${L('لم يتم إخلاء الطرف', 'Not approved')}</td><td class="small">${i === g.ck.length - 1 && vals.held ? esc(vals.held).replace(/\n/g, '<br>') : ''}</td><td></td></tr>`).join('')}</table></div>` : '';
-  const decl = g.d || g.ck ? `<div class="gdecl"><p>${formFillText(t.body_ar.split(/\n\s*\n/).filter((p, i) => g.note == null || i === g.note).join(' '), A, vals, lf, false).replace(/\n/g, ' ')}</p>
-      <p dir="ltr">${formFillText(t.body_en.split(/\n\s*\n/).filter((p, i) => g.note == null || i === g.note).join(' '), E, vals, lf, true).replace(/\n/g, ' ')}</p></div>` : '';
+  const paras = (b, V, en) => String(b || '').split(/\n\s*\n/).filter((p, i) => !grid || g.note == null || i === g.note).map(p => `<p>${formFillText(p, V, vals, lf, en).replace(/\n/g, '<br>')}</p>`).join('');
+  const decl = !grid || g.d || g.ck ? `<table class="gt gtx"><tr><td class="gxa">${paras(t.body_ar, A, false)}</td>${t.body_en ? `<td class="gxe" dir="ltr" lang="en">${paras(t.body_en, E, true)}</td>` : ''}</tr></table>` : '';
   const sg = t.sigs || [];
   const w = document.createElement('div'); w.className = 'fsheet gsheet'; w.setAttribute('data-nt', ''); w.dir = 'rtl'; w.lang = 'ar';
-  w.innerHTML = `<div class="fh"><div class="fhb">${c.logo ? `<img src="${esc(c.logo)}" alt="">` : ''}<div><div class="fco">${esc(A['c.name'] || '')}</div>${E['c.name'] && E['c.name'] !== A['c.name'] ? `<div class="fid" dir="ltr">${esc(E['c.name'])}</div>` : ''}
-        ${c.cr_no || c.vat_no ? `<div class="fid">${[c.cr_no && 'السجل التجاري CR ' + c.cr_no, c.vat_no && 'الرقم الضريبي VAT ' + c.vat_no].filter(Boolean).map(esc).join(' · ')}</div>` : ''}</div></div>
-      <div class="fmeta"><div>الرقم No.: <b class="num">${esc(no)}</b></div><div>التاريخ Date: <span class="num">${esc(A.date)}</span></div>${A.hijri ? `<div>${esc(A.hijri)}</div>` : ''}</div></div>
+  w.innerHTML = `<div class="gpage"><div class="fhx">${c.logo ? `<img class="flogo" src="${esc(c.logo)}" alt="">` : ''}<div class="fco">${esc(A['c.name'] || '')}</div>${E['c.name'] && E['c.name'] !== A['c.name'] ? `<div class="fid" dir="ltr">${esc(E['c.name'])}</div>` : ''}
+        ${c.cr_no || c.vat_no ? `<div class="fid">${[c.cr_no && 'السجل التجاري CR ' + c.cr_no, c.vat_no && 'الرقم الضريبي VAT ' + c.vat_no].filter(Boolean).map(esc).join(' · ')}</div>` : ''}
+      <div class="fmrow"><span>الرقم No.: <b class="num">${esc(no)}</b></span><span>التاريخ Date: <span class="num">${esc(A.date)}</span></span>${A.hijri ? `<span>${esc(A.hijri)}</span>` : ''}</div></div>
     <h1 class="ft">${esc(t.title_ar)}<span class="gle" dir="ltr">${esc(t.title_en || '')}</span></h1>
     ${rows.length ? `<div class="gsec">${H('البيانات', 'Details')}<table class="gt gd2">${rows.join('')}</table></div>` : ''}
     ${boxes.map(([l, v]) => `<table class="gt"><tr><th class="gbh">${l}</th></tr><tr><td class="${v ? 'gboxf' : 'gbox'}">${v ? esc(v).replace(/\n/g, '<br>') : ''}</td></tr></table>`).join('')}
     ${list}${ck}${decl}
-    <table class="gt"><tr><th class="gbh">${L('ملاحظات', 'Notes')}</th></tr><tr><td class="gbox"></td></tr></table>
+    <div class="gnh">${L('ملاحظات', 'Notes')}</div><div class="gnotes"></div>
     ${sg.length ? '<div class="gsec">' + H('الاعتماد', 'Approvals') + `<table class="gt gs"><tr>${sg.map(s => `<th>${L(s[0], s[1] || s[0])}</th>`).join('')}</tr>
-      ${[['الاسم', 'Name'], ['التوقيع والتاريخ', 'Signature & date']].map(([a, b]) => `<tr>${sg.map(() => `<td><span class="gsl">${L(a, b)}</span></td>`).join('')}</tr>`).join('')}</table></div>` : ''}`;
-  printWith(w, FORM_CSS + `@page{size:A4 portrait;margin:10mm}.gsheet{-webkit-print-color-adjust:exact;print-color-adjust:exact}.gsheet .gsec{break-inside:avoid;page-break-inside:avoid}.gsheet{font-size:9.5pt;line-height:1.4}.gsheet .fh{margin-bottom:3mm;padding-bottom:2mm}.gsheet .fhb img{max-height:14mm}.gsheet .ft{margin-bottom:3mm;font-size:15pt}
+      ${[['الاسم', 'Name'], ['التوقيع والتاريخ', 'Signature & date']].map(([a, b]) => `<tr>${sg.map(() => `<td><span class="gsl">${L(a, b)}</span></td>`).join('')}</tr>`).join('')}</table></div>` : ''}</div>`;
+  printWith(w, FORM_CSS + `@page{size:A4 portrait;margin:10mm}.gsheet{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .gsheet .gpage{display:flex;flex-direction:column;min-height:270mm;box-sizing:border-box}
+    .gsheet .fhx{text-align:center;border-bottom:1.2pt solid #1f3b57;padding-bottom:2mm;margin-bottom:3mm}.gsheet .fhx .flogo{display:block;margin:0 auto 1.5mm;max-height:20mm;max-width:60mm;object-fit:contain}
+    .gsheet .fhx .fco{font-size:14pt}.gsheet .fmrow{display:flex;justify-content:center;gap:8mm;font-size:9pt;color:#444;margin-top:1mm}
+    .gsheet .gtx td{width:50%;padding:2.5mm 3mm;font-size:10.5pt;line-height:1.7}.gsheet .gtx p{margin:0 0 2mm;text-align:justify}.gsheet .gtx .gxe{color:#222;border-inline-start:.6pt solid #8a99a8}
+    .gsheet .gnh{background:#eef2f6;border:.6pt solid #8a99a8;padding:1mm 2mm;margin-top:3mm;font-weight:700;display:flex;justify-content:space-between;align-items:baseline}.gsheet .gnh .gle{display:inline}
+    .gsheet .gnotes{flex:1 1 auto;min-height:16mm;border:.6pt solid #8a99a8;border-top:0;background:repeating-linear-gradient(to bottom,transparent 0,transparent 7mm,#c5cfd9 7mm,#c5cfd9 7.25mm)}.gsheet .gsec{break-inside:avoid;page-break-inside:avoid}.gsheet{font-size:9.5pt;line-height:1.4}.gsheet .fh{margin-bottom:3mm;padding-bottom:2mm}.gsheet .fhb img{max-height:14mm}.gsheet .ft{margin-bottom:3mm;font-size:15pt}
     .gsheet .ft .gle{display:block;font-size:11pt;font-weight:600}
     .gsheet .gle{display:block;font-size:8pt;color:#444;font-weight:400}.gsheet .gla{display:block}
     .gsheet .gh{background:#1f3b57;color:#fff;padding:1mm 3mm;margin-top:3mm;display:flex;justify-content:space-between;align-items:baseline;font-weight:700}
