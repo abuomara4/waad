@@ -17,7 +17,48 @@ concurrency:
   group: deploy
   cancel-in-progress: false
 jobs:
+  # what changed: a push that touches only the marketing website (site/, except the built system and admin pages)
+  # or texts (docs, *.md) skips the full system tests; GitHub Pages already serves those pages from main
+  changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      app: ${{ steps.c.outputs.app }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - id: c
+        env:
+          BEFORE: ${{ github.event.before }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          base="${BASE:-$BEFORE}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then echo "app=1" >> "$GITHUB_OUTPUT"; exit 0; fi
+          app=0
+          for f in $(git diff --name-only "$base" "${{ github.sha }}"); do
+            case "$f" in site/app/*|site/admin/*) app=1;; site/*|docs/*|*.md) ;; *) app=1;; esac
+          done
+          echo "app=$app" >> "$GITHUB_OUTPUT"; echo "full system tests: $app"
+
+  # website only: build it again (the committed pages must match their sources) and open every page
+  website:
+    needs: changes
+    if: needs.changes.outputs.app == '0'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pages match their sources
+        run: python3 site/build.py && git diff --exit-code -- site/*.html site/sitemap.xml || { echo "::error::Run python3 site/build.py and commit the built pages"; exit 1; }
+      - name: Every page opens, links work, calculators give the right figures
+        run: |
+          pip install --break-system-packages playwright==1.49.1
+          ok=0; for i in 1 2; do timeout 300 python3 -m playwright install --with-deps chromium && { ok=1; break; }; echo "retry $i"; sleep 20; sudo apt-get update -qq || true; done
+          [ $ok = 1 ] || python3 -m playwright install chromium
+          python3 site/tests/site_check.py
+
   test:
+    needs: changes
+    if: needs.changes.outputs.app == '1'
     runs-on: ubuntu-24.04
     timeout-minutes: 50
     steps:
