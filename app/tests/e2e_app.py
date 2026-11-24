@@ -1581,6 +1581,11 @@ with sync_playwright() as pw:
 
     # ---------- forms library: a numbered form filled from the employee record ----------
     go(o, '#/forms'); o.wait_for_selector('.fcard'); ok(o.locator('.fcard').count() >= 10, 'forms: the HR library is listed')
+    fl_chk = o.evaluate("""(() => { const bad = [], per = {}; FORM_LIB.forEach(x => { per[x.dept] = (per[x.dept] || 0) + 1; const t = libAsTpl(x);
+      for (const en of [false, true]) { const V = formVals(t, { en, no: 'F-1', who: {}, deps: [] }), html = formFillText(en ? t.body_en : t.body_ar, V, {}, null, en);
+        if (/\{[^}]*\}/.test(html.replace(/<[^>]*>/g, ''))) bad.push(x.k + (en ? ' en' : ' ar')); }
+      if (!x.sig || !x.sig.length || x.sig.some(s => !SIG[s])) bad.push(x.k + ' signatures'); }); return { n: FORM_LIB.length, per, bad: bad.slice(0, 5), keys: new Set(FORM_LIB.map(x => x.k)).size }; })()""")
+    ok(not fl_chk['bad'] and fl_chk['keys'] == fl_chk['n'] and fl_chk['per'].get('hr', 0) >= 60, 'forms: every library form fills in both languages with no placeholder left, unique keys, HR has 60+ (%s)' % fl_chk)
     o.locator('.fcard', has_text='استلام عهدة').click(); o.wait_for_selector('#dlg #whoq')
     n_all = o.locator('#dlg select[name=who] option').count(); eno = o.evaluate("document.querySelector('#dlg select[name=who]').options[1].textContent.split(' — ')[0]")
     o.fill('#dlg #whoq', eno); o.wait_for_timeout(300)
