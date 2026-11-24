@@ -220,7 +220,7 @@ function formPrintGrid(t, { no, who, vals, deps }) {
     .gsheet .gpage{display:flex;flex-direction:column;min-height:270mm;box-sizing:border-box}
     .gsheet .fhx{text-align:center;border-bottom:1.2pt solid #1f3b57;padding-bottom:2mm;margin-bottom:3mm}.gsheet .fhx .flogo{display:block;margin:0 auto 1.5mm;max-height:20mm;max-width:60mm;object-fit:contain}
     .gsheet .fhx .fco{font-size:14pt}.gsheet .fmrow{display:flex;justify-content:center;gap:8mm;font-size:9pt;color:#444;margin-top:1mm}
-    .gsheet .gtx td{width:50%;padding:2.5mm 3mm;font-size:10.5pt;line-height:1.7}.gsheet .gtx p{margin:0 0 2mm;text-align:justify}.gsheet .gtx .gxe{color:#222;border-inline-start:.6pt solid #8a99a8}
+    .gsheet th,.gsheet td{white-space:normal}.gsheet .gtx b{unicode-bidi:plaintext}.gsheet .gtx{table-layout:fixed;width:100%}.gsheet .gtx td{width:50%;padding:2.5mm 3mm;font-size:10.5pt;line-height:1.7;overflow-wrap:anywhere}.gsheet .gtx .gxe{text-align:left}.gsheet .gtx p{margin:0 0 2mm;text-align:justify}.gsheet .gtx .gxe{color:#222;border-inline-start:.6pt solid #8a99a8}
     .gsheet .gnh{background:#eef2f6;border:.6pt solid #8a99a8;padding:1mm 2mm;margin-top:3mm;font-weight:700;display:flex;justify-content:space-between;align-items:baseline}.gsheet .gnh .gle{display:inline}
     .gsheet .gnotes{flex:1 1 auto;min-height:16mm;border:.6pt solid #8a99a8;border-top:0;background:repeating-linear-gradient(to bottom,transparent 0,transparent 7mm,#c5cfd9 7mm,#c5cfd9 7.25mm)}.gsheet .gsec{break-inside:avoid;page-break-inside:avoid}.gsheet{font-size:9.5pt;line-height:1.4}.gsheet .fh{margin-bottom:3mm;padding-bottom:2mm}.gsheet .fhb img{max-height:14mm}.gsheet .ft{margin-bottom:3mm;font-size:15pt}
     .gsheet .ft .gle{display:block;font-size:11pt;font-weight:600}
