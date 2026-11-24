@@ -2,6 +2,9 @@
 Add a new block at the top with each release. (date ar, date en, [(item ar, item en)])"""
 
 RELEASES = [
+ ('25 نوفمبر 2026', '25 November 2026', [
+  ('نقطة البيع: ورديات الكاشير بعدّ الصندوق وتقرير الإغلاق، خصومات بحد تحدده الإدارة، والدفع نقدا أو بالشبكة أو بشيك أو آجل أو بأكثر من طريقة', 'Point of sale: cashier shifts with a cash count and a closing report, discounts within a limit set by management, and payment in cash, by card, by cheque, on credit or a mix'),
+ ]),
  ('24 نوفمبر 2026', '24 November 2026', [
   ('ملف شامل لكل مندوب مبيعات: المبيعات مقابل الهدف الشهري، التحصيل، المتأخرات، الفرص والعمولة التقديرية', 'A 360 file per sales rep: sales against the monthly target, collections, overdue, opportunities and the estimated commission'),
   ('استبعاد المعاملات بين شركات المجموعة في القوائم الموحدة، مع مطابقة بين كل شركتين', 'Transactions between the group\'s companies are eliminated in the consolidated statements, with matching between each pair'),

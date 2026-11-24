@@ -4238,5 +4238,51 @@ reset role;
 select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
 select t.err($$select public.rep_360('$$ || :'cid' || $$', '$$ || :'e_emp' || $$', current_date - 30, current_date)$$, '42501|المندوب نفسه', 'reps: another company cannot read a rep''s file');
 reset role;
+-- point of sale shifts (0144)
+reset role;
+insert into public.member_perms(company_id, user_id, perm) values (:'cid', :'u_emp', 'sales') on conflict do nothing;
+update public.items set sale_price = 200 where id = :'i3';
+insert into public.parties(company_id, kind, name) values (:'cid', 'customer', 'عميل نقدي') on conflict do nothing;
+select id as walkin from public.parties where company_id = :'cid' and kind = 'customer' and name = 'عميل نقدي' \gset
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select public.pos_shift_open(:'cid', 100) as sh \gset
+select t.err($$select public.pos_shift_open('$$ || :'cid' || $$', 0)$$, 'مفتوحة', 'pos: one open shift per cashier');
+select t.err($$select public.pos_sale('$$ || :'cid' || $$', '$$ || :'sh' || $$', '{"party":"$$ || :'c1' || $$","lines":[{"item":"$$ || :'i3' || $$","qty":1,"price":160}]}', 0, 0)$$,
+  'الحد', 'pos: a cashier cannot give more than the company''s discount limit');
+select public.pos_sale(:'cid', :'sh', jsonb_build_object('party', :'c1', 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 1, 'price', 190))), 0, 50) as ps1 \gset
+select public.pos_sale(:'cid', :'sh', jsonb_build_object('party', :'c1', 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 1, 'price', 200))), 100, 0) as ps2 \gset
+select t.err($$select public.pos_sale('$$ || :'cid' || $$', '$$ || :'sh' || $$', '{"party":"$$ || :'c1' || $$","lines":[{"item":"$$ || :'i3' || $$","qty":1,"price":200}]}', 99999, 0)$$,
+  'أكبر', 'pos: the amount paid cannot exceed the total');
+select t.err($$select public.pos_sale('$$ || :'cid' || $$', '$$ || :'sh' || $$', '{"party":"$$ || :'walkin' || $$","lines":[{"item":"$$ || :'i3' || $$","qty":1,"price":200}]}', 0, 0, '{"amount":200,"cheque_no":"55"}')$$,
+  'مسجّل', 'pos: a cheque needs a registered customer');
+select public.pos_sale(:'cid', :'sh', jsonb_build_object('party', :'c1', 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 1, 'price', 200))), 0, 0,
+  jsonb_build_object('amount', 150, 'cheque_no', '000781', 'bank', 'الراجحي', 'due_date', current_date + 30)) as ps3 \gset
+reset role;
+select t.ok((select status = 'open' and amount = 150 and cheque_no = '000781' and due_date = current_date + 30 from public.cheques where invoice_id = :'ps3')
+  and (select count(*) = 1 from public.payments where invoice_id = :'ps3' and account_code = '1150' and amount = 150),
+  'pos: a cheque goes to the cheques register (held in 1150 until it clears); the rest stays on credit');
+select t.ok((select pos_shift_id = :'sh' and pos_discount = 10 from public.sales_invoices where id = :'ps1') and (select pos_shift_id = :'sh' and pos_discount = 0 from public.sales_invoices where id = :'ps2'),
+  'pos: each till sale belongs to the shift and keeps the discount it gave');
+select t.ok((select count(*) = 1 from public.payments where invoice_id = :'ps1' and account_code = '1120' and amount = 50) and (select count(*) = 1 from public.payments where invoice_id = :'ps2' and account_code = '1110' and amount = 100),
+  'pos: card goes to the bank (1120) and cash to the till (1110); the rest stays on credit');
+select t.err($$update public.sales_invoices set pos_shift_id = null where id = '$$ || :'ps1' || $$'$$, 'غير مصرح', 'pos: a sale cannot be moved out of its shift');
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select public.pos_shift_summary(:'sh') as psum \gset
+select t.ok((:'psum'::jsonb->>'invoices')::int = 3 and (:'psum'::jsonb->>'card')::numeric = 50 and (:'psum'::jsonb->>'cash')::numeric = 100 and (:'psum'::jsonb->>'cheque')::numeric = 150
+  and (:'psum'::jsonb->>'expected_cash')::numeric = 200 and (:'psum'::jsonb->>'discounts')::numeric = 10,
+  'pos: the shift summary has the sales, the discounts, card, cheques, cash and the cash expected in the drawer');
+select public.pos_shift_close(:'sh', 190, 'عد نهاية اليوم') as pcl \gset
+select t.ok((:'pcl'::jsonb->>'difference')::numeric = -10 and (:'pcl'::jsonb->>'status') = 'closed', 'pos: closing counts the cash and shows a shortage');
+select t.err($$select public.pos_sale('$$ || :'cid' || $$', '$$ || :'sh' || $$', '{"party":"$$ || :'c1' || $$","lines":[{"item":"$$ || :'i3' || $$","qty":1,"price":200}]}', 0, 0)$$,
+  'افتح', 'pos: no sale on a closed shift');
+reset role;
+select t.ok((select count(*) = 1 from public.journal_entries e join public.journal_lines l on l.entry_id = e.id
+              where e.company_id = :'cid' and e.source = 'pos' and e.source_id = :'sh' and l.account_code = '5970' and l.debit = 10),
+  'pos: the shortage is posted to «عجز وزيادة الصندوق» against the till');
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.err($$select public.pos_shift_summary('$$ || :'sh' || $$')$$, 'غير مصرح|42501', 'pos: another company cannot read a shift');
+select t.ok((select count(*) = 0 from public.pos_shifts), 'pos: another company sees no shifts');
+reset role;
+delete from public.member_perms where company_id = :'cid' and user_id = :'u_emp';
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary
