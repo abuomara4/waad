@@ -192,17 +192,48 @@ VIEWS['#/analytics'] = async page => {
   });
 };
 
-/* ----- the owner's home dashboard: overview, finance and people for a chosen period, with the full analytics one click away ----- */
-async function ownerDash(page) {
-  let box = $('#odash', page); if (!box) { box = document.createElement('div'); box.id = 'odash'; const gr = $('.grid', page); (gr || $('.head', page)).after(box); }
+/* ----- dashboards: the owner's home shows the overview; each menu section opens its own (#/dash/finance, sales, supply)
+   with its numbers and charts for a chosen period — the detailed tables stay in «التحليلات» ----- */
+const DASH_P = [['m', 'هذا الشهر'], ['lastm', 'الشهر الماضي'], ['q', 'هذا الربع'], ['y', 'هذه السنة'], ['l12', 'آخر 12 شهرا']];
+async function dashSection(box, k, title) {
   const pre = LS.get('waad.odp') || 'y', [from, to] = anPreset(pre);
-  box.innerHTML = `<div class="muted small" style="margin:12px 0">${esc(tr('جاري تحميل لوحة المالك'))}…</div>`;
+  box.innerHTML = `<div class="muted small" style="margin:12px 0">${esc(tr('جاري التحميل'))}…</div>`;
   const [d, lt] = await Promise.all([db.rpc('company_analytics', { p_company: S.cid, p_from: from, p_to: to }), LEAVE_TYPES().catch(() => [])]);
-  const model = anModel(d, lt).filter(s => ['exec', 'finance', 'hr'].includes(s.k));
+  const all = anModel(d, lt), s = all.find(x => x.k === k), hrS = all.find(x => x.k === 'hr');
+  // numbers two sections share: payroll and GOSI (HR and finance), medical insurance (HR and finance)
+  let extra = null;
+  if (k === 'finance' && hrS) { const pick = ['إجمالي الرواتب', 'تأمينات المنشأة', 'الاستقطاعات', 'ساعات العمل الإضافي', 'عدد الموظفين'];
+    extra = { k: 'shared', t: 'الرواتب والتأمينات', kpis: hrS.kpis.filter(x => pick.includes(x.l)), notes: (hrS.notes || []).filter(n => /تكلفة الموظف/.test(n[0])), charts: [], tables: [] }; }
+  if (k === 'finance' || k === 'hr') { const ins = await db.get('insurance_members', { company_id: 'eq.' + S.cid, status: 'eq.active', select: 'premium' }).catch(() => null);
+    if (ins && ins.length) { const kp = [{ l: 'التأمين الطبي: المشمولون', v: ins.length, f: 'num' }, { l: 'التأمين الطبي: الأقساط', v: ins.reduce((a, x) => a + n0(x.premium), 0), f: 'money' }];
+      extra = extra ? Object.assign(extra, { kpis: extra.kpis.concat(kp) }) : { k: 'shared', t: 'التأمين الطبي', kpis: kp, notes: [], charts: [], tables: [] }; } }
   if (!box.isConnected) return;
-  const P_ = [['m', 'هذا الشهر'], ['lastm', 'الشهر الماضي'], ['q', 'هذا الربع'], ['y', 'هذه السنة'], ['l12', 'آخر 12 شهرا']];
-  box.innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:18px 0 6px"><h2 style="margin:0">${esc(tr('لوحة المالك'))} <span class="muted small">${fdate(from)} – ${fdate(to)}</span></h2>
-      <div class="row" style="gap:6px"><select id="odp" style="width:auto">${P_.map(([k, l]) => opt(k, tr(l), pre)).join('')}</select><a class="btn sm" href="#/analytics?p=${pre}">${esc(tr('التحليلات الكاملة والتصدير'))}</a></div></div>
-    ${model.length ? model.map(anSectionHtml).join('') : `<div class="note">${esc(tr('لا توجد تحليلات متاحة لصلاحياتك.'))}</div>`}`;
-  $('#odp', box).onchange = e => { LS.set('waad.odp', e.target.value); ownerDash(page).catch(() => {}); };
+  box.innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:${title ? '0' : '18px'} 0 6px">${title || `<h2 style="margin:0">${esc(tr(s ? s.t : 'نظرة عامة'))}</h2>`}
+      <div class="row" style="gap:6px"><select class="dashp" style="width:auto" aria-label="${esc(tr('الفترة'))}">${DASH_P.map(([x, l]) => opt(x, tr(l), pre)).join('')}</select><a class="btn sm" href="#/analytics?p=${pre}&tab=${k}">${esc(tr('التحليلات الكاملة والتصدير'))}</a></div></div>
+    <div class="muted small" style="margin-bottom:6px">${fdate(from)} – ${fdate(to)}</div>
+    ${s ? anSectionHtml(Object.assign({}, s, { tables: [] })) : `<div class="note">${esc(tr('لا توجد تحليلات متاحة لصلاحياتك.'))}</div>`}${extra && extra.kpis.length ? anSectionHtml(extra) : ''}`;
+  $('.dashp', box).onchange = e => { LS.set('waad.odp', e.target.value); dashSection(box, k, title).catch(() => {}); };
 }
+// which dashboards a person sees: the owner and admins all of them; otherwise the section they manage
+function dashKeys() {
+  if (has('owner', 'admin')) return ['exec', 'finance', 'sales', 'supply', 'hr', 'departments'];
+  const k = [];
+  if (has('hr')) k.push('hr');
+  if (has('finance', 'accountant')) k.push('finance', 'supply');   // purchasing and the warehouse report to finance
+  if (!has('hr', 'finance', 'accountant') && can('sales')) k.push('sales');
+  if (!has('hr', 'finance', 'accountant') && (can('purch') || can('stock'))) k.push('supply');
+  return k;
+}
+// the home page shows the dashboard of one's own section (the overview for the owner)
+async function ownerDash(page) {
+  const k = dashKeys()[0]; if (!k) return;
+  let box = $('#odash', page); if (!box) { box = document.createElement('div'); box.id = 'odash'; const gr = $('.grid', page); (gr || $('.head', page)).after(box); }
+  return dashSection(box, k);
+}
+const DASH_T = { exec: 'نظرة عامة', finance: 'المالية', sales: 'المبيعات', supply: 'المشتريات والمخزون', hr: 'الموارد البشرية', departments: 'الأقسام' };
+VIEWS['#/dash'] = async (page, arg) => {
+  const ks = dashKeys(), k = ks.includes(arg) ? arg : ks[0];
+  if (!k) { page.innerHTML = `<div class="note">${esc(tr('لا توجد تحليلات متاحة لصلاحياتك.'))}</div>`; return; }
+  page.innerHTML = '<div id="dsec"></div>';
+  await dashSection($('#dsec', page), k, `<h1 style="margin:0">${esc(tr('لوحة التحكم'))} — ${esc(tr(DASH_T[k]))}</h1>`);
+};

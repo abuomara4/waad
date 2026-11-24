@@ -1612,6 +1612,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 التأشيرة مغلقة	The visa is closed
 التأمين	Insurance
 التأمين الطبي	Medical insurance
+التأمين الطبي: الأقساط	Medical insurance: premiums
+التأمين الطبي: المشمولون	Medical insurance: members covered
 التأمينات	GOSI
 التأمينات الاجتماعية	Social insurance (GOSI)
 التأمينات الاجتماعية المستحقة	GOSI payable
@@ -1949,6 +1951,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الرواتب من الإيرادات	Payroll to revenue
 الرواتب والأجور	Salaries and wages
 الرواتب والبدلات لا تُعدَّل من هنا	Wages and allowances are not changed here
+الرواتب والتأمينات	Payroll and insurance
 الرواتب والمزايا والسلف	Payroll, benefits and advances
 الرياض	Riyadh
 الريال السعودي	Saudi riyal
@@ -2543,6 +2546,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المشتريات والموردون	Purchases and suppliers
 المشروع	Project
 المشروع غير موجود	Project not found
+المشمولون	members covered
 المصدر	Source
 المصروف	Paid
 المصروف الفعلي	Actual spend
@@ -3561,6 +3565,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تكلفة العميل	Cost per lead
 تكلفة المبيعات	Cost of sales
 تكلفة المعتمد في السنة	Approved cost for the year
+تكلفة الموظف	cost per employee
 تكلفة الوحدة	Unit cost
 تكلفة ساعات العمل	Labor hours cost
 تكلفة ساعات معتمدة لم تُرحَّل بعد	Approved hours cost not yet posted
@@ -6000,6 +6005,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لوحة الإدارة تتحكم في اشتراكات كل المنشآت	The admin site controls every company subscription
 لوحة الإدارة لفريق وعد فقط	The admin site is for the Waad team only
 لوحة الإنفاق	Spend overview
+لوحة التحكم	Dashboard
 لوحة المالك	Owner dashboard
 لوحة المالية	Finance dashboard
 لوحة الموارد البشرية	HR dashboard

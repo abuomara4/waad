@@ -1259,7 +1259,11 @@ with sync_playwright() as pw:
     go(o, '#/items'); o.wait_for_selector('#page tbody tr'); ok(o.locator('.lsq').count() == (1 if o.locator('#page tbody tr').count() >= 8 else 0), 'long lists get a quick search box')
     # the owner's home dashboard, forms inside each section, finance right under HR in the menu
     go(o, '#/home'); o.wait_for_selector('#odash .ansec', timeout=20000)
-    ok(o.locator('#odash .ansec').count() >= 2 and o.locator('#odash svg').count() >= 1, 'home: the owner sees a dashboard of the company numbers with charts')
+    ok(o.locator('#odash .ansec').count() == 1 and o.locator('#odash .ansec table').count() == 0 and o.locator('#odash .kpi').count() >= 4, 'home: the owner sees the overview dashboard, without long tables')
+    grp2 = o.eval_on_selector_all('#nav [data-grp]', "xs => xs.map(x => x.dataset.grp)")
+    ok('لوحة التحكم' in grp2 and all(o.locator('#nav a[href="#/dash/%s"]' % dk).count() == 1 for dk in ['exec', 'finance', 'sales', 'supply', 'hr']) and o.locator('#nav a[href="#/analytics"]').count() == 1, 'menu: «Dashboard» lists the sections under it')
+    go(o, '#/dash/finance'); o.wait_for_selector('#dsec .ansec[data-an="finance"]'); ok(o.locator('#dsec svg').count() >= 1 and o.locator('#dsec .ansec table').count() == 0, 'dashboards: the finance section shows its numbers and charts')
+    ok('إجمالي الرواتب' in o.inner_text('#dsec') and o.locator('#dsec .ansec[data-an="shared"]').count() == 1, 'dashboards: finance also shows the payroll and insurance numbers it shares with HR')
     nav_h = o.eval_on_selector_all('#nav a', "xs => xs.map(a => a.getAttribute('href'))")
     ok('#/forms' not in nav_h and '#/forms?d=hr' in nav_h and '#/forms?d=finance' in nav_h, 'menu: forms sit inside each section, not as a section of their own')
     grp = o.eval_on_selector_all('#nav [data-grp]', "xs => xs.map(x => x.dataset.grp)")

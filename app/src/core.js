@@ -621,7 +621,6 @@ function navItems() {
   const it = []; const g = t => it.push({ g: t });
   it.push({ h: '#/home', t: 'الرئيسية' });
   if (typeof GUIDE !== 'undefined') it.push({ h: '#/guide', t: 'دليل الاستخدام' });
-  if (isHR() || isFin() || has('manager')) it.push({ h: '#/analytics', t: 'التحليلات' });
   if (S.emp) { g('خدماتي'); if (S.company && S.company.att_enabled && !(S.myEmp && S.myEmp.att_exempt)) it.push({ h: '#/attendance', t: 'حضوري' });
     it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/sign', t: 'توقيعاتي', pill: NAVC.sign }, { h: '#/payslips', t: 'قسائم الراتب' }, ...(S.myTime ? [{ h: '#/mytime', t: 'ساعات عملي', pill: NAVC.time }] : []), { h: '#/reviews', t: 'تقييم الأداء' }, ...(isHR() ? [] : [{ h: '#/okrs', t: 'أهدافي (OKRs)' }]), { h: '#/surveys', t: 'الاستبيانات' }, { h: '#/profile', t: 'ملفي' });
     if (S.hasPetty) it.push({ h: '#/mypetty', t: 'عهدتي النقدية' });
@@ -632,6 +631,9 @@ function navItems() {
   if ((!['accountant', 'storekeeper'].includes(S.role) || S.emp) && (!plainEmp() || S.hasTeam || NAVC.approvals)) it.push({ h: '#/approvals', t: 'الاعتمادات', pill: NAVC.approvals });
   const fm = d => { if (typeof FORM_DEPTS !== 'undefined' && modOn(d) && formCanDept(d)) it.push({ h: '#/forms?d=' + d, t: 'النماذج' }); };   // each section's own forms
   if (has('manager') && !(isHR() || has('finance'))) it.push({ h: '#/clearance', t: 'إخلاء الطرف' });
+  { const ds = dashKeys().map(k => [k, DASH_T[k]]);   // each manager sees the dashboard of their own section; the owner sees them all
+    if (ds.length) { g('لوحة التحكم'); ds.forEach(([k, t]) => it.push({ h: '#/dash/' + k, t })); if (isHR() || isFin() || has('manager')) it.push({ h: '#/analytics', t: 'التحليلات' }); }
+    else if (isHR() || isFin() || has('manager')) it.push({ h: '#/analytics', t: 'التحليلات' }); }
   if (isHR() || has('finance')) {
     g('الموارد البشرية');
     if (isHR()) it.push({ h: '#/hrdash', t: 'لوحة الموارد البشرية' }, { h: '#/compliance', t: 'الامتثال' }, { h: '#/onboarding', t: 'التهيئة والترحيب' }, { h: '#/announcements', t: 'الإعلانات الداخلية' }, { h: '#/permissions', t: 'الصلاحيات' }, { h: '#/okrs', t: 'الأهداف (OKRs)' });
