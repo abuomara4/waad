@@ -62,6 +62,7 @@ deno test --allow-read supabase/functions/_shared/   # ZATCA e-invoice tests, mu
 ```
 
 ## Deploy — automated by CI (this replaces all manual steps)
+A push that changes only the marketing website (site/ except site/app and site/admin) or texts (docs, *.md) skips the full system tests: the `changes` job routes it to the quick `website` job (`site/build.py` output must match the committed pages, then `site/tests/site_check.py` opens every page, checks internal links and the calculators). GitHub Pages already serves those pages from main. Anything else runs the full tests below.
 `.github/workflows/deploy.yml`: on push to `main` it runs the DB tests + i18n check + build + browser tests, then (main only) applies NEW Supabase migrations and publishes the app.
 One repository secret the owner adds once (Settings → Secrets and variables → Actions):
 - `SUPABASE_DB_URL` — Supabase → Project Settings → Database → connection string (URI, session pooler).
