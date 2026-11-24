@@ -4020,5 +4020,14 @@ select t.ok((select count(*) from public.branches where company_id = :'cid' and 
 select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
 select t.err($$select public.branch_save('$$ || :'cid' || $$', '{"code":"X1","name":"فرع"}')$$, 'مصرح|permission|42501', 'branches: only the owner or an admin adds one');
 reset role;
+-- branch summary (0137)
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok((select count(*) from public.branch_summary(:'cid', current_date - 365, current_date) where branch_id is not null) = (select count(*) from public.branches where company_id = :'cid')
+  and (select sum(sales) from public.branch_summary(:'cid', current_date - 365, current_date)) = (select coalesce(sum(total), 0) from public.sales_invoices where company_id = :'cid' and status = 'posted' and not is_opening and date between current_date - 365 and current_date),
+  'branch summary: one row per branch, and all branches add up to the company sales');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select * from public.branch_summary('$$ || :'cid' || $$', current_date - 30, current_date)$$, 'مصرح|permission|42501', 'branch summary: only finance and management read it');
+reset role;
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

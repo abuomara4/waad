@@ -1,7 +1,8 @@
 /* ===== Branches «الفروع» (0136): a branch is a plant / profit centre inside the company, with its own cost centre,
    warehouse and attendance site; staff, warehouses and money documents carry it (part 1 of the organisation structure) ===== */
 const brName = b => b ? ((LANG === 'en' && b.name_en) || b.name) : '';
-async function branchesList(force) { if (force || !cache.branches) cache.branches = await db.get('branches', { company_id: 'eq.' + S.cid, order: 'is_main.desc,code' }).catch(() => []); return cache.branches; }
+async function branchesList(force) { if (force || !cache.branches) cache.branches = await db.get('branches', { company_id: 'eq.' + S.cid, order: 'is_main.desc,code' }).catch(() => []);
+  const n = cache.branches.filter(b => b.active).length; if (S.nBranches !== n) { S.nBranches = n; if (typeof drawNav === 'function' && $('#nav')) drawNav(); } return cache.branches; }
 VIEWS['#/branches'] = async page => {
   if (!has('owner', 'admin', 'hr', 'finance')) { page.innerHTML = `<div class="note">${esc(tr('هذه الصفحة لإدارة المنشأة.'))}</div>`; return; }
   const [rows, em, ccs, whs, mem] = await Promise.all([branchesList(true), employeesMap(), db.get('cost_centers', { company_id: 'eq.' + S.cid, select: 'id,code' }).catch(() => []),

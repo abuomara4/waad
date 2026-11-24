@@ -570,6 +570,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إخلاء الطرف غير مكتمل	Clearance is incomplete
 إخلاء طرف غير مكتمل	Incomplete clearances
 إدارة الأصناف	Manage items
+إدارة الفروع	Manage branches
 إدارة الفريق	Team management
 إدارة الفريق (إضافة وحذف وكلمات المرور)	Team management (add, remove, passwords)
 إدارة الفريق لمالك المنصة فقط	Managing the team is for the platform owner only
@@ -1490,6 +1491,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الإيرادات والمصروفات	revenue and expenses
 الإيرادات والمصروفات شهريا	Monthly revenue and expenses
 الإيرادات والمصروفات شهرياً	Monthly revenue and expenses
+الإيرادات والمصروفات والربح من القيود المحمّلة على مركز تكلفة الفرع	Revenue, expenses and profit come from entries charged to the branch's cost centre
+الإيرادات والمصروفات والربح من القيود المحمّلة على مركز تكلفة الفرع؛ المبيعات والمشتريات والرواتب من مستندات الفرع وموظفيه.	Revenue, expenses and profit come from entries charged to the branch's cost centre; sales, purchases and payroll from the branch's documents and staff.
 الاثنين	Monday
 الاجر	pay
 الاحتمال	Probability
@@ -2378,7 +2381,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المبيعات شهرياً	Monthly sales
 المبيعات قبل الضريبة	Sales before VAT
 المبيعات والتسويق	Sales & Marketing
+المبيعات والربح حسب الفرع	Sales and profit by branch
 المبيعات والعملاء	Sales and customers
+المبيعات والمشتريات والرواتب من مستندات الفرع وموظفيه	sales, purchases and payroll from the branch's documents and staff
 المبيّنة في الجدول	listed in the table
 المتابعات	Follow-ups
 المتاح	Available
@@ -3021,6 +3026,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بلا حملة	No campaign
 بلا رقم هوية	without ID number
 بلا عميل	No customer
+بلا فرع	No branch
 بلا قسم	No department
 بلا مبيعات في الفترة	no sales in the period
 بلا مدير	No manager
@@ -3571,6 +3577,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تكلفة التدريب	Training cost
 تكلفة التمويل	Finance costs
 تكلفة الرواتب	Payroll cost
+تكلفة الرواتب حسب الفرع	Payroll cost by branch
 تكلفة الرواتب من الإيرادات	Payroll cost as share of revenue
 تكلفة الساعات	Hours cost
 تكلفة الساعة	Hourly cost
@@ -5679,6 +5686,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد فرص بعد	No opportunities yet
 لا توجد فروع بعد	No branches yet
 لا توجد فروع بعد — المنشأة تعمل كفرع واحد	No branches yet — the company works as a single branch
+لا توجد فروع بعد.	No branches yet.
 لا توجد فواتير	No invoices
 لا توجد فواتير متكررة	No recurring invoices
 لا توجد فواتير مفتوحة	No open invoices

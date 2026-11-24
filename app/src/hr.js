@@ -35,6 +35,7 @@ VIEWS['#/home'] = async page => {
   const mfaNote = has('owner', 'admin', 'finance') && S.mfa && !S.mfa.enrolled ? `<div class="note">${esc(tr('احمِ حسابك: فعّل التحقق بخطوتين حتى لا تكفي كلمة المرور وحدها للدخول.'))} <button class="btn sm" id="mfan">${esc(tr('تفعيل الآن'))}</button></div>` : '';
   page.innerHTML = `<div class="head"><div><h1>أهلا${S.myEmp ? '، ' + esc(S.myEmp.full_name.split(' ')[0]) : ''}</h1><div class="muted">${esc(S.company.name)}</div></div>${isHR() || has('finance') ? `<a class="btn" href="#/hrdash">${esc(tr('لوحة الموارد البشرية'))}</a>` : ''}</div>${homeTasks([setup, mfaNote, nudge, inst])}${polNote}<div class="grid">${cards.join('')}</div>`;
   if (typeof annHome === 'function') annHome(page).catch(() => {});
+  if (typeof branchesList === 'function') branchesList().catch(() => {});   // shows «الفروع» under the dashboard once branches exist
   if (typeof ownerDash === 'function') ownerDash(page).catch(() => {});   // each manager's own section dashboard
   if ($('#instb', page)) $('#instb', page).onclick = installApp;
   if ($('#instx', page)) $('#instx', page).onclick = () => { LS.set('waad.instx', 1); $('#instg', page).remove(); };

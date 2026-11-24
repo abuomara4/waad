@@ -196,6 +196,7 @@ VIEWS['#/analytics'] = async page => {
    with its numbers and charts for a chosen period — the detailed tables stay in «التحليلات» ----- */
 const DASH_P = [['m', 'هذا الشهر'], ['lastm', 'الشهر الماضي'], ['q', 'هذا الربع'], ['y', 'هذه السنة'], ['l12', 'آخر 12 شهرا']];
 async function dashSection(box, k, title) {
+  if (k === 'branches') return dashBranches(box, title);
   const pre = LS.get('waad.odp') || 'y', [from, to] = anPreset(pre);
   box.innerHTML = `<div class="muted small" style="margin:12px 0">${esc(tr('جاري التحميل'))}…</div>`;
   const [d, lt] = await Promise.all([db.rpc('company_analytics', { p_company: S.cid, p_from: from, p_to: to }), LEAVE_TYPES().catch(() => [])]);
@@ -216,10 +217,11 @@ async function dashSection(box, k, title) {
 }
 // which dashboards a person sees: the owner and admins all of them; otherwise the section they manage
 function dashKeys() {
-  if (has('owner', 'admin')) return ['exec', 'finance', 'sales', 'supply', 'hr', 'departments'];
+  const br = S.nBranches > 0 ? ['branches'] : [];   // shown once the company has branches
+  if (has('owner', 'admin')) return ['exec', ...br, 'finance', 'sales', 'supply', 'hr', 'departments'];
   const k = [];
   if (has('hr')) k.push('hr');
-  if (has('finance', 'accountant')) k.push('finance', 'sales', 'supply');   // sales, purchasing and the warehouse all post to finance
+  if (has('finance', 'accountant')) k.push('finance', ...br, 'sales', 'supply');   // sales, purchasing and the warehouse all post to finance
   if (!has('hr', 'finance', 'accountant') && can('sales')) k.push('sales');
   if (!has('hr', 'finance', 'accountant') && (can('purch') || can('stock'))) k.push('supply');
   return k;
@@ -230,10 +232,31 @@ async function ownerDash(page) {
   let box = $('#odash', page); if (!box) { box = document.createElement('div'); box.id = 'odash'; const gr = $('.grid', page); (gr || $('.head', page)).after(box); }
   return dashSection(box, k);
 }
-const DASH_T = { exec: 'نظرة عامة', finance: 'المالية', sales: 'المبيعات', supply: 'المشتريات والمخزون', hr: 'الموارد البشرية', departments: 'الأقسام' };
+const DASH_T = { exec: 'نظرة عامة', branches: 'الفروع', finance: 'المالية', sales: 'المبيعات', supply: 'المشتريات والمخزون', hr: 'الموارد البشرية', departments: 'الأقسام' };
 VIEWS['#/dash'] = async (page, arg) => {
   const ks = dashKeys(), k = ks.includes(arg) ? arg : ks[0];
   if (!k) { page.innerHTML = `<div class="note">${esc(tr('لا توجد تحليلات متاحة لصلاحياتك.'))}</div>`; return; }
   page.innerHTML = '<div id="dsec"></div>';
   await dashSection($('#dsec', page), k, `<h1 style="margin:0">${esc(tr('لوحة التحكم'))} — ${esc(tr(DASH_T[k]))}</h1>`);
 };
+
+// «الفروع»: every branch's numbers for the period side by side, with a chart (branch_summary)
+async function dashBranches(box, title) {
+  const pre = LS.get('waad.odp') || 'y', [from, to] = anPreset(pre);
+  box.innerHTML = `<div class="muted small" style="margin:12px 0">${esc(tr('جاري التحميل'))}…</div>`;
+  const rows = (await db.rpc('branch_summary', { p_company: S.cid, p_from: from, p_to: to }).catch(() => [])).filter(r => r.branch_id || n0(r.sales) || n0(r.purchases) || n0(r.payroll) || n0(r.revenue) || n0(r.expense) || n0(r.headcount));
+  if (!box.isConnected) return;
+  const nm = r => r.branch_id ? `${r.code} — ${(LANG === 'en' && r.name_en) || r.name}` : tr('بلا فرع');
+  box.innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:${title ? '0' : '18px'} 0 6px">${title || `<h2 style="margin:0">${esc(tr('الفروع'))}</h2>`}
+      <div class="row" style="gap:6px"><select class="dashp" style="width:auto" aria-label="${esc(tr('الفترة'))}">${DASH_P.map(([x, l]) => opt(x, tr(l), pre)).join('')}</select><a class="btn sm" href="#/branches">${esc(tr('إدارة الفروع'))}</a></div></div>
+    <div class="muted small" style="margin-bottom:6px">${fdate(from)} – ${fdate(to)}</div>
+    ${rows.length ? `<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+        <div class="card"><h2>${esc(tr('المبيعات والربح حسب الفرع'))}</h2>${barChart(rows.map(r => ({ label: r.branch_id ? r.code : '—', values: [Math.max(0, n0(r.sales)), Math.max(0, n0(r.profit))] })), [{ name: tr('المبيعات'), color: AN_C[0] }, { name: tr('صافي الربح'), color: AN_C[1] }], { fmt: v => money(v) })}</div>
+        <div class="card"><h2>${esc(tr('تكلفة الرواتب حسب الفرع'))}</h2>${hbars(rows.map(r => ({ label: nm(r), v: n0(r.payroll) })), v => money(v))}</div></div>
+      <div class="card">${tbl([{ t: 'الفرع', h: r => `<span data-nt>${esc(nm(r))}</span>` }, { t: 'المبيعات', r: 1, h: r => money(r.sales) }, { t: 'الفواتير', r: 1, h: r => `<span class="num">${r.sales_n}</span>` },
+        { t: 'المحصّل', r: 1, h: r => money(r.collected) }, { t: 'المشتريات', r: 1, h: r => money(r.purchases) }, { t: 'الرواتب', r: 1, h: r => money(r.payroll) }, { t: 'الموظفون', r: 1, h: r => `<span class="num">${r.headcount}</span>` },
+        { t: 'الإيرادات', r: 1, h: r => money(r.revenue) }, { t: 'المصروفات', r: 1, h: r => money(r.expense) }, { t: 'صافي الربح', r: 1, h: r => `<b class="${n0(r.profit) < 0 ? 'bad' : ''}">${money(r.profit)}</b>` }], rows, {})}
+        <p class="muted small">${esc(tr('الإيرادات والمصروفات والربح من القيود المحمّلة على مركز تكلفة الفرع؛ المبيعات والمشتريات والرواتب من مستندات الفرع وموظفيه.'))}</p></div>`
+      : `<div class="note">${esc(tr('لا توجد فروع بعد.'))} <a href="#/branches">${esc(tr('إدارة الفروع'))}</a></div>`}`;
+  $('.dashp', box).onchange = e => { LS.set('waad.odp', e.target.value); dashBranches(box, title).catch(() => {}); };
+}
