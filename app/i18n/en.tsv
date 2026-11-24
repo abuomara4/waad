@@ -11,6 +11,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 آخر إهلاك	Last depreciation
 آخر الدفعات	Latest payments
 آخر السنة	at year end
+آخر الفواتير	Latest invoices
 آخر النماذج المطبوعة	Latest printed forms
 آخر تحديث	Last updated
 آخر تسلسل	Last sequence
@@ -72,6 +73,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أخطاء صارت في متصفحات المستخدمين	Errors that happened in users' browsers
 أخطاء مختلفة	Distinct errors
 أخطار مهنية على المنشأة فقط	occupational hazards, paid by the company only
+أداء المندوبين	Sales reps' performance
+أداء المندوبين لإدارة المبيعات	Rep performance is for sales management
 أدخل اسم العطلة	Enter the holiday name
 أدخل اسم المستند	Enter the document name
 أدخل اسم الموقع	Enter the site name
@@ -410,6 +413,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أو ما يرفع الرصيد إلى ضعف الحد	or what brings stock to twice the level
 أو مبلغ ثابت يضاف للأساسي	Or a fixed amount added to basic
 أو مدين ودائن	or debit and credit
+أو منشئه إذا كان دوره مبيعات	or its maker when his role is sales
 أوافق تماما	strongly agree
 أوافق على	I agree to the
 أوافق على حفظ بيانات منشأتي وموظفيها وعملائها لدى مزوّد سحابي خارج المملكة	I agree that the data of my company, its employees and customers is stored with a cloud provider outside the Kingdom
@@ -936,6 +940,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اختر الطرف	Choose the party
 اختر العميل	Choose the customer
 اختر المحادثة	choose the chat
+اختر المندوب	Choose the rep
 اختر المورد	Choose the supplier
 اختر المورد أو اكتب اسمه	Choose the supplier or type its name
 اختر الموظف	Choose the employee
@@ -2192,6 +2197,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 العملة الأساسية	The base currency
 العملة الأساسية الريال السعودي	The base currency is the Saudi riyal
 العمليات	Operations
+العمولة التقديرية	Estimated commission
+العمولة سياسة المنشأة وتظهر تقديرا فقط	Commission is company policy and shows as an estimate only
 العمولة على ح	The fee goes to a/c
 العميل	Customer
 العميل أو المورد	Customer or supplier
@@ -2262,6 +2269,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الفترة من يوم إلى	The period runs from one day up to
 الفحص الدوري	Periodic inspection
 الفرص	Opportunities
+الفرص المفتوحة	Open opportunities
 الفرص والعملاء المحتملون	Opportunities and leads
 الفرصة	Opportunity
 الفرصة غير موجودة	Opportunity not found
@@ -2419,6 +2427,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المبيعات شهريا	Monthly sales
 المبيعات شهرياً	Monthly sales
 المبيعات قبل الضريبة	Sales before VAT
+المبيعات مقابل الهدف	Sales against target
 المبيعات والتسويق	Sales & Marketing
 المبيعات والربح حسب الشركة	Sales and profit by company
 المبيعات والربح حسب الفرع	Sales and profit by branch
@@ -2430,6 +2439,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المتاح للإشعار	available for credit
 المتاح للتعزيز	available to top up
 المتبقي	Remaining
+المتبقي على عملائه	Still owed by his customers
 المتبقي لك	you have left
 المتبقي للاستلام من	Remaining to receive of
 المتبقي للتسليم من	Remaining to deliver of
@@ -2667,7 +2677,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الملفات	Files
 المملكه العربيه السعودي	Saudi Arabia
 المنتهية	Ended
+المندوب	Rep
 المندوب المسؤول	Responsible rep
+المندوب ليس من موظفي المنشأة	The rep is not an employee of the company
+المندوب هو موظف	The rep is an employee
 المنشآت	Companies
 المنشآت الجديدة تنتظر قبولي قبل ما تبدأ	New companies wait for my approval before they start
 المنشآت والاشتراكات	Companies and subscriptions
@@ -2790,6 +2803,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الهامش	Margin
 الهامش المتوقع	Expected margin
 الهدف	Goal
+الهدف أكبر من صفر	The target must be more than zero
 الهوية	ID
 الهوية الوطنية	National ID
 الهوية الوطنية للسعودي	National ID for Saudis
@@ -3329,6 +3343,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تحديث بيانات الموظفين من	Update employee data from
 تحديث جماعي من	Bulk update from
 تحديد	Set
+تحديد الأهداف لإدارة المبيعات	Setting targets is for sales management
 تحديد الكل	Select all
 تحديد المعروض	Select those shown
 تحصيل	Collect
@@ -3991,6 +4006,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حدد فترة التقييم بشكل صحيح	Set a valid review period
 حدد قيمة التذكرة في ملف الموظف	Set the ticket value in the employee file
 حدد لكل وظيفة ما تراه وما تعمله في كل قسم	Set what each job sees and does in each department
+حدد مندوب المبيعات في بطاقة العميل أو ضع هدفا لموظف	set the sales rep in a customer's card or give an employee a target
 حدد موعد المقابلة أولا	Set the interview time first
 حدد نسبة أو مبلغ الزيادة	Set a percentage or an amount
 حدد يوما مضى	Choose a past day
@@ -4875,6 +4891,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 صافي الربح المعدّل	Adjusted net profit
 صافي الضريبة	Net VAT
 صافي الضريبة المستحقة	Net VAT due
+صافي المبيعات	Net sales
+صافي المبيعات قبل الضريبة	net sales before VAT
 صافي المرتجعات	net of returns
 صالح حتى	Valid until
 صالح لمدة قصيرة	valid for a short time
@@ -5126,6 +5144,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عرض وظيفي	Offer
 عرعر	Arar
 عرف عن وعد من	Heard about Waad from
+عروض أسعار تحولت لفواتير	Quotations turned into invoices
 عروض الأسعار	Quotations
 عزباء	Single
 عزّز العهدة أولا	top up the fund first
@@ -5186,6 +5205,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عملاء	Customers
 عملاء محتملون	Leads
 عملاء محتملون من الحملات	Leads from campaigns
+عملاؤه المسؤول عنهم	Customers he manages
 عملة	Currency
 عملة جديدة	New currency
 عمود الاسم غير موجود	The name column is missing
@@ -5536,6 +5556,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قيمة العقود الجارية	Active contracts value
 قيمة الفاتورة	Invoice value
 قيمة الفاتورة قبل الضريبة	Invoice value before VAT
+قيمة الفرص المرجّحة	Weighted pipeline
 قيمة الفرص المفتوحة	Open pipeline value
 قيمة المخزون	Inventory value
 قيمة المستخلص قبل الضريبة	the claim value before VAT
@@ -5560,6 +5581,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كان الراتب والمزايا مناسبة	The salary and benefits were suitable
 كانت أيامي الأولى منظمة وواضحة	My first days were organised and clear
 كانت علاقتي بمديري المباشر جيدة	My relationship with my direct manager was good
+كسب	Won
 كسبناها	Won
 كشف البنك	Bank statement
 كشف بتاريخ	Statement dated
@@ -5586,6 +5608,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كل المبالغ في الدفاتر بالريال	All amounts in the books are in riyals
 كل المستندات والعقود سارية	all documents and contracts are valid
 كل المعاملات بالريال	all transactions are in riyals
+كل المندوبين	All reps
 كل المنشآت نشطة	All companies are active
 كل المنشأة	Whole company
 كل الموظفين	All employees
@@ -5659,6 +5682,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا أوصي أبدا	would never recommend
 لا بد أن يبقى للمنشأة مالك واحد على الأقل	The company must keep at least one owner
 لا تتغير	they stay unchanged
+لا تحدد هدفك بنفسك	You cannot set your own target
 لا تزيد الإجازة التعويضية في السنة على	Compensatory leave cannot exceed per year
 لا تزيد ساعات العمل على	working hours do not exceed
 لا تسلّم الفاتورة الضريبية للعميل قبل اعتماد زاتكا	Do not give the tax invoice to the customer before ZATCA clears it
@@ -5774,6 +5798,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد فئات بعد	No categories yet
 لا توجد فترة مقفلة	No closed period
 لا توجد فرص بعد	No opportunities yet
+لا توجد فرص مفتوحة	No open opportunities
 لا توجد فروع بعد	No branches yet
 لا توجد فروع بعد — المنشأة تعمل كفرع واحد	No branches yet — the company works as a single branch
 لا توجد فروع بعد.	No branches yet.
@@ -5786,6 +5811,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد قيود	No entries
 لا توجد قيود بعد	No entries yet
 لا توجد قيود في هذه الفترة	No entries in this period
+لا توجد مبيعات في الفترة	No sales in the period
 لا توجد متابعات	No follow-ups
 لا توجد مخاطر مسجلة	No risks recorded
 لا توجد مخالفات مسجلة	No violations recorded
@@ -5923,6 +5949,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يوجد مستخدم مالية	no finance user
 لا يوجد مستخدم موارد بشرية	no HR user
 لا يوجد مكان للمقابلة	No interview location
+لا يوجد ملف موظف مرتبط بحسابك	No employee file is linked to your account
+لا يوجد مندوبون بعد	No reps yet
 لا يوجد موظف له بريد صالح	No employee has a valid e-mail
 لا يوجد موظف له جوال صالح	No employee has a valid mobile number
 لا يوجد موظفون	No employees
@@ -6234,6 +6262,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 متأخرة	Overdue
 متأخرون	Late
 متأخرون اليوم	Late today
+متابعات متأخرة	Late follow-ups
 متابعات مستحقة	Follow-ups due
 متابعة	Continue
 متابعة المنشآت والدعم	Companies and support
@@ -6429,6 +6458,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مروّجون	Promoters
 مرّ	It has been
 مرّ ٦٠ يوما على انتهائها دون تجديد، ونبّهنا المالك قبلها بالإيميل. لا يُحذف شيء إلا بقرارك: افتح المنشأة واحذفها أو مدّد المهلة.	60 days have passed since it ended without renewal, and we e-mailed the owner before that. Nothing is deleted without your decision: open the company and delete it or extend the period.
+مسؤول العميل في بطاقته	the customer's account manager in its card
 مسؤول المشتريات	Purchasing officer
 مسؤول مبيعات	sales officer
 مسؤول مشتريات	Purchasing officer
@@ -6665,6 +6695,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ملف البنك	Bank file
 ملف العميل	Customer file
 ملف الفاتورة	Invoice file
+ملف المندوب لإدارة المبيعات أو المندوب نفسه	The rep's file is for sales management or the rep himself
 ملف المورد	Supplier file
 ملف الموظف	Employee file
 ملف بسطر لكل طرف قيد	A file with one row per entry line
@@ -6718,6 +6749,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 من سبل	from Saudi Post (SPL)
 من سقف	of a ceiling of
 من شهر	From month
+من صافي المبيعات	of net sales
 من طلب شراء	From purchase request of
 من طلب شراء معتمد	from an approved purchase request
 من طلب عروض الأسعار	from request for quotations
@@ -6752,6 +6784,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 منح صلاحية التصدير	Give the export permission
 مندوب	Sales rep
 مندوب / مسؤول مبيعات	Sales rep
+مندوب المبيعات المسؤول	Account sales rep
 منذ	for
 منسقة عمليات	Operations Coordinator
 منشآت	Companies
@@ -6886,12 +6919,15 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نسبة السعوديين	Saudization rate
 نسبة الضريبة	VAT rate
 نسبة الضغط من الزيارات	Click rate from visits
+نسبة العمولة	Commission rate
+نسبة العمولة بين	The commission rate is between
 نسبة الغطاء النقدي	Cash margin %
 نسبة الغطاء بين	The margin is between
 نسبة الكسب	Win rate
 نسبة النساء	Share of women
 نسبة النطاق بين	Band percentage between
 نسبة تفرغ كل موظف على المشاريع الجارية أسبوعا بأسبوع	Each employee's allocation on active projects, week by week
+نسبة كسب الفرص	Win rate
 نسبة محتجز الضمان	Retention rate
 نسخ	Copy
 نسخ إيميلات المنشآت الظاهرة	Copy the e-mails of the companies shown
@@ -7021,7 +7057,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 هامش صافي الربح	Net profit margin
 هجري	Hijri
 هدف	goal
+هدف المبيعات	Sales target
 هدف جديد	New objective
+هدف لمندوب	target for a rep
 هدف واضح وثلاث إلى خمس نتائج قابلة للقياس لكل فترة	A clear objective and three to five measurable results per period
 هذا أنا	This is me
 هذا إيصال استلام وليس فاتورة ضريبية	This is a receipt of payment, not a tax invoice
@@ -7328,11 +7366,13 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وقّع بإصبعك أو بالفأرة داخل المربع	Sign with your finger or the mouse inside the box
 وكل خطوة تنتهي تتعلّم تلقائيا	each step is ticked by itself once done
 وكل خطوة تنتهي تتعلّم تلقائياً	each step is ticked by itself once done
+وكل فاتورة أو عرض سعر جديد يأخذ مندوب العميل	and every new invoice or quotation takes the customer's rep
 وكل مستخلص يُفوتر الأعمال المنفذة حتى تاريخه مخصوما منها ما فُوتر سابقا	and each claim invoices the work done to date less what was invoiced before
 وكلمة مرور مؤقتة تظهر لك الآن	and a temporary password shown to you now
 وكميات الأصناف وتكلفتها	item quantities and their cost
 ولا تتأثر الفواتير الصادرة	and issued invoices are not affected
 ولا تتضمن أي بيانات من داخل المنشآت	with no data from inside the companies
+ولا تُضاف للرواتب تلقائيا	and is not added to payroll automatically
 ولا تُعرض إلا من رأيين فأكثر	and are shown only from two answers
 ولا تُعرض النتائج إلا بعد	and results show only after
 ولا تُفوتر بضاعة لم تُستلم	goods not received cannot be billed

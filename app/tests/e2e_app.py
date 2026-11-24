@@ -1301,6 +1301,12 @@ with sync_playwright() as pw:
     ok(sql("select count(*) from parties p join companies c on c.id = p.company_id join company_groups g on g.id = c.group_id where g.name = 'مجموعة الاختبار' and p.group_company_id is not null") == '4', 'groups: one click links the sister companies as customers and suppliers')
     go(o, '#/parties/customer'); o.wait_for_selector('table'); ok('شركة شقيقة' in o.inner_text('#page') if o.locator('#page').count() else 'شركة شقيقة' in o.inner_text('body'), 'groups: a sister company is marked in the customer list')
     o.evaluate("LS.set('waad.gdv', 'sum')")
+    # sales reps (0143): a monthly target, the leaderboard and the rep's 360 file
+    go(o, '#/reps'); o.wait_for_selector('#rpn'); o.click('#rpn'); o.wait_for_selector('#dlg[open] select[name=e]'); o.click('#mok')
+    o.wait_for_selector('#dlg[open] input[name=a]'); o.fill('#dlg input[name=a]', '50000'); o.fill('#dlg input[name=p]', '1.5'); o.click('#mok'); o.wait_for_timeout(1200)
+    ok(sql("select count(*) from sales_targets where amount = 50000 and commission_pct = 1.5") == '1', 'reps: a monthly target with a commission rate is set for a rep')
+    o.wait_for_selector('tbody tr.click'); o.locator('tbody tr.click').first.click(); o.wait_for_function("location.hash.startsWith('#/rep/') && /العمولة التقديرية/.test(document.body.innerText)", timeout=15000)
+    ok('آخر 12 شهرا' in o.inner_text('body') and '50,000' in o.inner_text('body'), 'reps: the rep file shows the target, the estimated commission and 12 months of sales against target')
     # company announcement: posted by HR, shown on the home page
     go(o, '#/announcements'); o.wait_for_selector('#annn'); o.click('#annn'); o.wait_for_selector('#dlg[open] input[name=title]')
     o.fill('#dlg input[name=title]', 'اجتماع عام الأحد'); o.fill('#dlg textarea[name=body]', 'اجتماع لكل الموظفين الساعة 10 صباحا'); sqlx("update employees set email = 'staff5001@example.com', phone = '0551234567' where emp_no = '5001'"); o.click('#mok'); o.wait_for_selector('#dlg[open] #asb a[data-mb]')

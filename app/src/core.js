@@ -694,6 +694,7 @@ function navItems() {
   if (isFin() && (can('sales') || can('stock') || can('mkt'))) {
     g('المبيعات');
     if (can('sales') || can('mkt')) it.push({ h: '#/crm', t: 'الفرص والعملاء المحتملون' }, { h: '#/marketing', t: 'التسويق والحملات' });
+    if (can('sales')) it.push({ h: '#/reps', t: 'أداء المندوبين' });
     if (can('sales')) it.push({ h: '#/quotes', t: 'عروض الأسعار' });
     if (can('sales') || can('stock')) it.push({ h: '#/orders', t: 'أوامر البيع' }, { h: '#/deliveries', t: 'إشعارات التسليم' });
     if (can('sales')) it.push({ h: '#/pos', t: 'نقطة البيع' }, { h: '#/sales', t: 'فواتير المبيعات' }, { h: '#/recurring', t: 'الفواتير المتكررة' }, { h: '#/agreements', t: 'العقود والاتفاقيات' }, { h: '#/parties/customer', t: 'العملاء' });

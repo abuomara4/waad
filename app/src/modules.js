@@ -301,3 +301,58 @@ VIEWS['#/trainplan'] = async (page, arg, q) => {
   if ($('#ntp', page)) $('#ntp', page).onclick = () => form(null);
   if (edit) bindRows(page, rows, form);
 };
+
+/* ===== «أداء المندوبين» (0143): a leaderboard of the sales reps and a 360 file per rep — net sales against the monthly target,
+   collections, what is still owed, quotations won, opportunities, follow-ups and the estimated commission ===== */
+const REP_P = [['m', 'هذا الشهر'], ['lastm', 'الشهر الماضي'], ['q', 'هذا الربع'], ['y', 'هذه السنة']];
+const repKpi = (t, v, cls = '', sub = '') => `<div class="card kpi"><div class="muted small">${esc(tr(t))}</div><div class="v num ${cls}">${v}</div>${sub ? `<div class="muted small">${sub}</div>` : ''}</div>`;
+const repPct = v => v == null ? '—' : `<span class="num ${n0(v) >= 100 ? 'ok' : n0(v) < 50 ? 'bad' : ''}">${n0(v)}%</span>`;
+function repTargetDlg(emp, name, after) {
+  const mo = today().slice(0, 7);
+  modal(tr('هدف المبيعات') + ' — ' + name, `<div class="fg">${field('الشهر', `<input type="month" name="m" value="${mo}" required>`)}${field('الهدف (صافي المبيعات قبل الضريبة)', inp('a', '', 'type="number" min="1" step="0.01" required'))}
+      ${field('نسبة العمولة % (اختياري)', inp('p', '', 'type="number" min="0" max="100" step="0.01"'))}</div>
+    <p class="muted small">${esc(tr('العمولة سياسة المنشأة وتظهر تقديرا فقط، ولا تُضاف للرواتب تلقائيا.'))}</p>`, {
+    onOk: async f => { await db.rpc('sales_target_set', { p_company: S.cid, p_emp: emp, p_month: f.m + '-01', p_amount: +f.a, p_pct: f.p === '' ? null : +f.p }); toast(tr('تم الحفظ')); after(); } });
+}
+VIEWS['#/reps'] = async page => {
+  if (!can('sales')) { location.hash = S.emp ? '#/rep/' + S.emp : '#/home'; return; }
+  const pre = LS.get('waad.repp') || 'm', [from, to] = anPreset(pre);
+  const rows = await db.rpc('rep_list', { p_company: S.cid, p_from: from, p_to: to });
+  page.innerHTML = `<div class="head"><div><h1>${esc(tr('أداء المندوبين'))}</h1><div class="muted">${fdate(from)} – ${fdate(to)}</div></div>
+      <div class="row" style="gap:6px"><select id="rpp" style="width:auto" aria-label="${esc(tr('الفترة'))}">${REP_P.map(([x, l]) => opt(x, tr(l), pre)).join('')}</select><button class="btn pri" id="rpn">${esc(tr('+ هدف لمندوب'))}</button></div></div>
+    ${rows.length ? `<div class="card"><h2>${esc(tr('المبيعات مقابل الهدف'))}</h2>${barChart(rows.slice(0, 12).map(r => ({ label: r.name.split(' ')[0], values: [Math.max(0, n0(r.sales)), n0(r.target)] })), [{ name: tr('صافي المبيعات'), color: AN_C[0] }, { name: tr('الهدف'), color: AN_C[1] }], { fmt: x => money(x) })}</div>` : ''}
+    ${tbl([{ t: 'المندوب', h: r => `<b data-nt>${esc(r.name)}</b> <span class="muted small num">${esc(r.emp_no || '')}</span>` }, { t: 'صافي المبيعات', r: 1, h: r => money(r.sales) }, { t: 'الهدف', r: 1, h: r => n0(r.target) ? money(r.target) : '—' },
+      { t: 'التحقيق', r: 1, h: r => repPct(r.achievement) }, { t: 'الفواتير', r: 1, h: r => `<span class="num">${r.invoices}</span>` }, { t: 'المحصّل', r: 1, h: r => money(r.collected) },
+      { t: 'العملاء', r: 1, h: r => `<span class="num">${r.customers}</span>` }, { t: 'فرص مفتوحة', r: 1, h: r => `<span class="num">${r.open_leads}</span>` }, { t: 'قيمة الفرص المرجّحة', r: 1, h: r => money(r.pipeline) },
+      { t: 'كسب / خسارة', h: r => `<span class="num">${r.won} / ${r.lost}</span>` }], rows, { empty: 'لا يوجد مندوبون بعد — حدد مندوب المبيعات في بطاقة العميل أو ضع هدفا لموظف', onRow: true })}
+    <p class="muted small">${esc(tr('المندوب هو موظف: مسؤول العميل في بطاقته، وكل فاتورة أو عرض سعر جديد يأخذ مندوب العميل، أو منشئه إذا كان دوره مبيعات.'))}</p>`;
+  bindRows(page, rows, r => location.hash = '#/rep/' + r.employee_id);
+  $('#rpp', page).onchange = e => { LS.set('waad.repp', e.target.value); route(); };
+  $('#rpn', page).onclick = async () => { const em = Object.values(await employeesMap()).filter(e => !e.end_date || e.end_date >= today());
+    modal(tr('اختر المندوب'), `<div class="fg">${field('الموظف', `<select name="e" required>${em.map(e => opt(e.id, e.emp_no + ' — ' + e.full_name)).join('')}</select>`, 'wide')}</div>`, {
+      ok: 'التالي', onOk: async f => { const e = em.find(x => x.id === f.e); setTimeout(() => repTargetDlg(f.e, e ? e.full_name : '', () => route()), 50); } }); };
+};
+VIEWS['#/rep'] = async (page, id) => {
+  const emp = id || S.emp; if (!emp) { page.innerHTML = `<div class="note">${esc(tr('لا يوجد ملف موظف مرتبط بحسابك.'))}</div>`; return; }
+  const pre = LS.get('waad.repp') || 'm', [from, to] = anPreset(pre);
+  const r = await db.rpc('rep_360', { p_company: S.cid, p_emp: emp, p_from: from, p_to: to });
+  const qp = r.quotes ? Math.round(100 * r.quotes_won / r.quotes) : null, wr = r.won + r.lost ? Math.round(100 * r.won / (r.won + r.lost)) : null;
+  page.innerHTML = `<div class="head"><div><h1 data-nt>${esc(r.employee.name)}</h1><div class="muted">${esc(r.employee.job || '')} · <span class="num">${esc(r.employee.emp_no || '')}</span> · ${fdate(from)} – ${fdate(to)}</div></div>
+      <div class="row" style="gap:6px;flex-wrap:wrap">${can('sales') ? `<a class="btn" href="#/reps">${esc(tr('كل المندوبين'))}</a>` : ''}<select id="rpp" style="width:auto" aria-label="${esc(tr('الفترة'))}">${REP_P.map(([x, l]) => opt(x, tr(l), pre)).join('')}</select>
+      ${can('sales') && emp !== S.emp ? `<button class="btn pri" id="rtg">${esc(tr('هدف المبيعات'))}</button>` : ''}</div></div>
+    <div class="grid" style="margin-bottom:14px">${repKpi('صافي المبيعات', money(r.sales), '', `${esc(tr('الفواتير'))} <span class="num">${r.invoices}</span>`)}
+      ${repKpi('الهدف', n0(r.target) ? money(r.target) : '—', '', r.achievement != null ? esc(tr('التحقيق')) + ' ' + repPct(r.achievement) : '')}
+      ${repKpi('المحصّل', money(r.collected))}${repKpi('المتبقي على عملائه', money(r.open), '', n0(r.overdue) ? `<span class="bad">${esc(tr('متأخر'))} ${money(r.overdue)}</span>` : '')}
+      ${repKpi('المرتجعات', money(r.returns))}${repKpi('عروض أسعار تحولت لفواتير', qp == null ? '—' : qp + '%', '', `<span class="num">${r.quotes_won} / ${r.quotes}</span>`)}
+      ${repKpi('نسبة كسب الفرص', wr == null ? '—' : wr + '%', '', `<span class="num">${r.won} / ${r.won + r.lost}</span>`)}${repKpi('متابعات متأخرة', String(r.activities_late), r.activities_late ? 'bad' : '', `${esc(tr('منجزة'))} <span class="num">${r.activities_done}</span>`)}
+      ${r.commission_pct != null ? repKpi('العمولة التقديرية', money(r.commission_est), '', `<span class="num">${n0(r.commission_pct)}%</span> ${esc(tr('من صافي المبيعات'))}`) : ''}</div>
+    <div class="card"><h2>${esc(tr('آخر 12 شهرا: المبيعات مقابل الهدف'))}</h2>${barChart(r.trend.map(x => ({ label: x.month.slice(5), values: [Math.max(0, n0(x.sales)), n0(x.target)] })), [{ name: tr('صافي المبيعات'), color: AN_C[0] }, { name: tr('الهدف'), color: AN_C[1] }], { fmt: x => money(x) })}</div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+      <div class="card"><h2>${esc(tr('أكبر العملاء'))}</h2>${tbl([{ t: 'العميل', h: x => `<a href="#/statement/${x.id}" data-nt>${esc(x.name)}</a>` }, { t: 'الفواتير', r: 1, h: x => `<span class="num">${x.n}</span>` }, { t: 'صافي المبيعات', r: 1, h: x => money(x.sales) }], r.top_customers, { empty: 'لا توجد مبيعات في الفترة' })}
+        <p class="muted small">${esc(tr('عملاؤه المسؤول عنهم'))}: <b class="num">${r.customers}</b></p></div>
+      <div class="card"><h2>${esc(tr('الفرص المفتوحة'))}</h2>${tbl([{ t: 'الفرصة', h: x => `<span class="num">${esc(x.no)}</span> <span data-nt>${esc(x.title)}</span>` }, { t: 'المرحلة', h: x => crmBadge(x.stage) },
+        { t: 'القيمة', r: 1, h: x => x.value != null ? money(x.value) : '—' }, { t: 'الإغلاق المتوقع', h: x => x.expected_close ? fdate(x.expected_close) : '—' }], r.leads, { empty: 'لا توجد فرص مفتوحة' })}</div></div>
+    <div class="card"><h2>${esc(tr('آخر الفواتير'))}</h2>${tbl([{ t: 'الرقم', h: x => `<a class="num" href="#/sales/${x.id}">${esc(x.no)}</a>` }, { t: 'التاريخ', h: x => fdate(x.date) }, { t: 'العميل', h: x => `<span data-nt>${esc(x.party)}</span>` }, { t: 'الإجمالي', r: 1, h: x => money(x.total) }], r.recent, { empty: 'لا توجد فواتير' })}</div>`;
+  $('#rpp', page).onchange = e => { LS.set('waad.repp', e.target.value); route(); };
+  if ($('#rtg', page)) $('#rtg', page).onclick = () => repTargetDlg(emp, r.employee.name, () => route());
+};

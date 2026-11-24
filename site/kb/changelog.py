@@ -3,6 +3,7 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('24 نوفمبر 2026', '24 November 2026', [
+  ('ملف شامل لكل مندوب مبيعات: المبيعات مقابل الهدف الشهري، التحصيل، المتأخرات، الفرص والعمولة التقديرية', 'A 360 file per sales rep: sales against the monthly target, collections, overdue, opportunities and the estimated commission'),
   ('استبعاد المعاملات بين شركات المجموعة في القوائم الموحدة، مع مطابقة بين كل شركتين', 'Transactions between the group\'s companies are eliminated in the consolidated statements, with matching between each pair'),
   ('لوحة المجموعة: شركاتك جنبا إلى جنب، وقائمة دخل وميزانية وميزان مراجعة موحدة', 'Group dashboard: your companies side by side, with a consolidated income statement, balance sheet and trial balance'),
   ('مجموعة المنشآت: من يملك أكثر من سجل تجاري يجمعها في مجموعة وينتقل بينها من حساب واحد', 'Groups of companies: an owner of several commercial registrations gathers them in a group and moves between them from one account'),

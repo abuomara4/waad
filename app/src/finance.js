@@ -23,6 +23,7 @@ VIEWS['#/parties'] = async (page, kind) => {
   kind = kind === 'supplier' ? 'supplier' : 'customer';
   const cust = kind === 'customer', rows = await db.get('parties', Object.assign(C(), { kind: 'eq.' + kind, order: 'active.desc,name' }));
   const scm = {}; if (!cust) (await db.rpc('supplier_scorecard', { p_company: S.cid }).catch(() => [])).forEach(x => scm[x.party_id] = x);
+  const reps = cust ? Object.values(await employeesMap()).filter(e => !e.end_date || e.end_date >= today()) : [];   // the customer's sales rep (0143)
   const sis = S.company && S.company.group_id ? await db.rpc('group_sisters', { p_company: S.cid }).catch(() => []) : [];   // sister companies of the group (0142)
   const T = cust ? ['العملاء', 'عميل'] : ['الموردون', 'مورد'];
   page.innerHTML = `<div class="head"><div><h1>${T[0]}</h1></div><div class="row"><button class="btn" id="pim">استيراد من Excel</button><button class="btn pri" id="np">إضافة ${T[1]}</button></div></div>
@@ -42,6 +43,7 @@ VIEWS['#/parties'] = async (page, kind) => {
       <h3 class="wide" style="margin:8px 0 0">${esc(tr('الدفع'))}</h3>${field('مدة السداد (يوم)', inp('terms_days', p && p.terms_days, 'type="number" min="0" max="365" step="1"'))}
       ${cust ? field('حد الائتمان (ريال)', inp('credit_limit', p && p.credit_limit, 'type="number" min="0" step="0.01" placeholder="' + esc(tr('بدون حد')) + '"')) : ''}
       ${field('الآيبان', inp('iban', p && p.iban, 'dir="ltr" maxlength="34" id="piban"') + '<div class="small muted" id="pibk"></div>')}
+      ${cust ? field('مندوب المبيعات المسؤول', `<select name="sales_rep_id"><option value="">—</option>${reps.map(e => opt(e.id, e.emp_no + ' — ' + e.full_name, p && p.sales_rep_id)).join('')}</select>`) : ''}
       ${sis.length ? field('شركة شقيقة في المجموعة', `<select name="group_company_id"><option value="">${esc(tr('لا — طرف خارجي'))}</option>${sis.map(x => opt(x.id, x.name, p && p.group_company_id)).join('')}</select>`, 'wide') : ''}
       ${typeof cfFields === 'function' ? cfFields('party', p && p.custom) : ''}${field('ملاحظات', inp('note', p && p.note), 'wide')}${p ? field('الحالة', `<label class="row" style="gap:6px"><input type="checkbox" name="active" ${p.active !== false ? 'checked' : ''}> ${esc(tr('نشط — يظهر في الفواتير والأوامر الجديدة'))}</label>`, 'wide') : ''}</div>`, {
       wide: true, onOk: async f => {
@@ -54,6 +56,7 @@ VIEWS['#/parties'] = async (page, kind) => {
         SA_ADDR.forEach(([k]) => row[k] = blank(f[k]));
         if (cust) row.credit_limit = f.credit_limit === '' ? null : +f.credit_limit;
         if (sis.length) row.group_company_id = f.group_company_id || null;
+        if (cust) row.sales_rep_id = f.sales_rep_id || null;
         if (p) row.active = !!f.active;
         if (typeof cfCollect === 'function' && cfDefs('party').length) row.custom = cfCollect(f, 'party', p && p.custom);
         if (p) await db.upd('parties', { id: 'eq.' + p.id }, row); else await db.ins('parties', Object.assign(row, { company_id: S.cid, kind }));

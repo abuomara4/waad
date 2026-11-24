@@ -4208,5 +4208,35 @@ reset role;
 select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
 select t.ok((select count(*) = 0 from public.group_sisters(:'cid')), 'group: another account sees no sister companies');
 reset role;
+-- sales reps (0143)
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+update public.parties set sales_rep_id = :'e_emp' where id = :'c1';
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select public.post_sales_invoice_sn(:'cid', jsonb_build_object('party', :'c1', 'date', current_date, 'due', current_date, 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 1, 'price', 400)))) as rinv \gset
+select t.ok((select sales_rep_id = :'e_emp' from public.sales_invoices where id = :'rinv'), 'reps: a new invoice takes the customer''s rep');
+select t.err($$select public.sales_target_set('$$ || :'cid' || $$', '$$ || :'e_fin' || $$', current_date, 5000)$$, 'بنفسك', 'reps: nobody sets his own target');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.sales_target_set(:'cid', :'e_emp', current_date, 1000, 2);
+select public.rep_360(:'cid', :'e_emp', date_trunc('month', current_date)::date, current_date) as r360 \gset
+reset role;
+select t.ok((:'r360'::jsonb->>'sales')::numeric = public.rep_net_sales(:'cid', :'e_emp', date_trunc('month', current_date)::date, current_date)
+  and (:'r360'::jsonb->>'sales')::numeric >= 400 and (:'r360'::jsonb->>'target')::numeric = 1000
+  and (:'r360'::jsonb->>'commission_est')::numeric = round((:'r360'::jsonb->>'sales')::numeric * 0.02, 2) and jsonb_array_length(:'r360'::jsonb->'trend') = 12,
+  'reps: the file shows net sales against the month''s target, the estimated commission and 12 months of trend');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok(exists(select 1 from public.rep_list(:'cid', date_trunc('month', current_date)::date, current_date) where employee_id = :'e_emp' and target = 1000 and customers >= 1),
+  'reps: the leaderboard lists the rep with his target and customers');
+select t.err($$update public.parties set sales_rep_id = gen_random_uuid() where id = '$$ || :'c1' || $$'$$, 'violates|المندوب', 'reps: the rep must be an employee of the company');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((public.rep_360(:'cid', :'e_emp', date_trunc('month', current_date)::date, current_date)->>'target')::numeric = 1000, 'reps: a rep sees his own file');
+select t.err($$select public.rep_360('$$ || :'cid' || $$', '$$ || :'e_fin' || $$', current_date - 30, current_date)$$, '42501|المندوب نفسه', 'reps: a rep cannot open another rep''s file');
+select t.err($$select * from public.rep_list('$$ || :'cid' || $$', current_date - 30, current_date)$$, '42501|لإدارة', 'reps: the leaderboard is for sales management');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.err($$select public.rep_360('$$ || :'cid' || $$', '$$ || :'e_emp' || $$', current_date - 30, current_date)$$, '42501|المندوب نفسه', 'reps: another company cannot read a rep''s file');
+reset role;
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary
