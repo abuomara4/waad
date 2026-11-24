@@ -259,6 +259,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أطفئ خيار	Turn off the
 أعتمد أمر التغيير	I approve the change order
 أعد الاختبار	Retake the quiz
+أعد الربط مع فاتورة	link it to Fatoora again
 أعد فتح وعد ثم حاول مرة أخرى	Reopen Waad and try again
 أعد للموظف	refund the employee
 أعداد وتواريخ فقط	Counts and dates only
@@ -844,6 +845,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إيقاف الدخول بالبصمة أو الوجه	Turn off fingerprint or face unlock
 إيقاف المنشأة	Suspend company
 إيقاف بدل	Allowance stopped
+إيقاف وحدة الفرع	Stop the branch unit
 إيميل	E-mail
 إيميل المالك	Owner e-mail
 ا	ا
@@ -1165,6 +1167,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اطلب رابطا جديدا	request a new link
 اطلب رابطا جديدا من المنشأة	Ask the company for a new link
 اطلب رابطاً جديداً	request a new link
+اطلب رمز	Request an
 اطلب عروضا من أكثر من مورد	Ask several suppliers for offers
 اطلب عروضاً من أكثر من مورد	Ask several suppliers for offers
 اطلب من الموارد البشرية إعادة تعيينها	ask HR to reset it
@@ -2079,6 +2082,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الصرف الفعلي	actual
 الصفحات	Pages
 الصفحات المفتوحة	Pages opened
+الصق الرمز هنا	Paste the code here
 الصق الرمز هنا واضغط	Paste the code here and press
 الصلاحيات	Permissions
 الصلاحيات الخاصة تحل محل صلاحيات دوره في المالية والمخزون	Personal permissions replace the role's finance and inventory permissions
@@ -2238,8 +2242,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الفرصة غير موجودة	Opportunity not found
 الفرع	Branch
 الفرع الرئيسي	Main branch
+الفرع غير المربوط تُرسل فواتيره عبر وحدة المنشأة	A branch that is not linked sends its invoices through the company's unit
+الفرع غير مربوط	The branch is not linked
 الفرع غير موجود	Branch not found
 الفرع لا يخص هذه المنشأة	The branch does not belong to this company
+الفرع موقوف	The branch is inactive
 الفرع نشط	Branch active
 الفرق	Difference
 الفرق بين سعر الفاتورة وسعر اليوم يُقيد ربحا	the difference between the invoice rate and today's rate is booked as a gain
@@ -2802,6 +2809,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 امسح الرمز التالي من التطبيق	Scan this code with the app
 امنع المطالبة إذا تجاوزت حد المطالبة الواحدة	Block a claim above the per-claim limit
 انتداب	business trip
+انتظر إرسالها ثم أوقف الوحدة	wait until they are sent, then stop the unit
 انتظر ساعة ثم أعد المحاولة	wait an hour and try again
 انتظر قليلا ثم أعد المحاولة	wait a little and try again
 انتظر قليلاً ثم أعد المحاولة	wait a little and try again
@@ -3724,6 +3732,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تُربط الفاتورة بعد اعتمادها من المالية	The invoice is linked after finance approves it
 تُرحّل الفاتورة بسعر الأمر بعد الخصم	The invoice is posted at the order's net price
 تُرسل بياناتك إلى المنشأة لغرض التوظيف فقط	Your details go to the company for hiring only
+تُرسل فواتير الفرع الجديدة عبر وحدة المنشأة	The branch's new invoices go through the company's unit
 تُستخدم قبل	Use by
 تُسجَّل محاسبيا في حساب	They are booked to the account
 تُسجَّل محاسبياً في حساب	They are booked to the account
@@ -4271,6 +4280,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ربح على الرصيد المتناقص	profit on the declining balance
 ربط	Link
 ربط السجل بحسابك	Link record to your account
+ربط الفرع	Link the branch
+ربط الفرع مع فاتورة	Link the branch to Fatoora
 ربط بوابة الدفع	Payment gateway integration
 ربطه بسجل موظف	Link to employee record
 رجوع	Back
@@ -4772,6 +4783,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 شهادة صحية	health certificate
 شهادة ضريبة القيمة المضافة	VAT certificate
 شهادة منتهية	Certificate expired
+شهادة وعدّاد وسلسلة خاصة به	its own certificate, counter and chain
 شهر	month
 شهر كامل بعد إجازة الوضع	One month with full pay after maternity leave
 شهرا	months
@@ -4985,6 +4997,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عادةً نهاية الشهر أو الربع بعد تقديم إقرار ضريبة القيمة المضافة	Usually the end of the month or quarter after filing the VAT return
 عام	General
 عبدالله القحطاني	Abdullah Al-Qahtani
+عبر وحدة المنشأة	Through the company's unit
 عجز	Shortage
 عدا أيام العطل الرسمية	excluding public holidays
 عدا اختبارات السنة المعادة فبدون أجر	except a repeated year's exams, which are unpaid
@@ -5197,6 +5210,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 غير متوازن	Unbalanced
 غير محدد	indefinite
 غير محدد المدة	Indefinite
+غير مربوطة	Not linked
 غير مرض	Unsatisfactory
 غير مرضٍ	Unsatisfactory
 غير مستحق	Not due
@@ -5324,6 +5338,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فقط المالك يحذف مالكاً	Only an owner can remove an owner
 فقط المالك يغيّر صلاحية المالك	Only an owner can change an owner's role
 فقط المالك يمنح صلاحية المالك	Only an owner can grant the owner role
+فلا يتعطل فرع بسبب فرع آخر	so one branch is never held up by another
 فلا يرى أحد بريد غيره	so nobody sees anyone else's address
 فلا يُخصم	so nothing is deducted
 فلا يُخفَّض إلا بموافقة العامل الكتابية	so it is reduced only with the worker's written consent
@@ -5336,6 +5351,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فهمت مهامي وما هو متوقع مني	I understood my tasks and what is expected of me
 فهو سياسة المنشأة	so it is company policy
 فواتير اشتراك وعد	Waad subscription invoices
+فواتير الفرع الجديدة تبدأ سلسلته من رقم	The branch's new invoices start its chain at number
 فواتير المبيعات	Sales invoices
 فواتير المشتريات	Purchase bills
 فواتير المورد	Supplier bills
@@ -5359,6 +5375,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 في النظام	System qty
 في حدود الأصول المحسومة	within the deducted assets
 في رمضان	In Ramadan
+في سلسلة الفرع مستندات لم تصل زاتكا بعد	The branch chain still has documents that have not reached ZATCA
 في مصرف الراجحي	at Al Rajhi Bank
 في ملف الموظف	in the employee record
 في نافذة الطباعة	in the print window
@@ -5926,6 +5943,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لكل الأصول القائمة	for all active assets
 لكل بند	for each line
 لكل حساب منشأة واحدة	Each account has one company
+لكل فرع أن يُربط كوحدة مستقلة في بوابة فاتورة	Each branch can be linked as a unit of its own in the Fatoora portal
 لكل فرع مركز تكلفة ومستودع خاصان به	Each branch has its own cost centre and warehouse
 لكل فرع مركز تكلفة ومستودع خاصان به، فتظهر نتائجه في الدفاتر والتقارير، ويأخذ كل مستند فرع المستخدم الذي أنشأه.	Each branch has its own cost centre and warehouse, so its results show in the books and reports, and every document takes the branch of the user who created it.
 لكل قسم مع المرفقات	per section with attachments
@@ -6051,6 +6069,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لوحة المالية	Finance dashboard
 لوحة الموارد البشرية	HR dashboard
 لوحة مفاتيح وفأرة	Keyboard and mouse
+لوحدة جديدة لهذا الفرع	for a new unit for this branch
 لوظيفة	for the position of
 لوعد موثوق	a promise you can trust
 لون المنتج	product colour
@@ -7063,6 +7082,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 والمدير العام لا يعتمد طلبه بنفسه	and the general manager does not approve his own request
 والمدير المباشر برقمه الوظيفي	and the direct manager by employee number
 والمدير المباشر يُكتب برقمه الوظيفي	and the direct manager is written as their employee number
+والمرسلة قبل الربط تبقى في سلسلة المنشأة	and those sent before linking stay in the company's chain
 والمسؤولية في صحة البيانات على المنشأة	and the company is responsible for the data being correct
 والمقياس	and scale
 والمهام	and tasks
@@ -7120,6 +7140,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وحد الائتمان	and the credit limit is
 وحدات أخرى	Other units
 وحدة	unit
+وحدة الفوترة غير مربوطة	The e-invoicing unit is not linked
+وحدة فوترة لكل فرع	An e-invoicing unit per branch
 وحدّث سعر الصرف عند الحاجة	and update the exchange rate when needed
 وخطابات الضمان بغطائها النقدي وتنبيه قبل انتهائها بـ	and letters of guarantee with their cash margin and an alert before expiry by
 ودائنية كل مورد	what you owe each supplier
@@ -7482,6 +7504,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يمكنك اعتماد الطلب أو رفضه بدلا من المدير المباشر	You can approve or reject the request in the direct manager's place
 يمكنك اعتماد الطلب أو رفضه بدلا من المدير المباشر، ويُسجَّل باسمك مع السبب في مسار الطلب.	You can approve or reject the request in the direct manager's place; it is logged under your name with the reason in the request's journey.
 يمكنك تعديلها	you can edit it
+يمكنك ربطه مرة أخرى لاحقا	You can link it again later
 يمكنك مسحها أولا	you can clear it first
 يمكنك مسحها أولاً	you can clear it first
 يمكنك مسحها لاحقا بضغطة من الإعدادات	You can remove it later with one click in settings

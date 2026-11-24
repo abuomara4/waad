@@ -33,7 +33,7 @@ export function zMessages(b: { validationResults?: { errorMessages?: { code: str
   return [...(v.errorMessages || []), ...(v.warningMessages || [])].map(m => `${m.code}: ${m.message}`);
 }
 
-export type Company = { name: string; vat: string; cr?: string | null; street?: string | null; building?: string | null; district?: string | null; city?: string | null; postal?: string | null; addNo?: string | null; branch?: string | null; category?: string | null };
+export type Company = { name: string; vat: string; cr?: string | null; street?: string | null; building?: string | null; district?: string | null; city?: string | null; postal?: string | null; addNo?: string | null; branch?: string | null; category?: string | null; egs?: string | null };
 export function companyProblems(c: Company) {
   const p: string[] = [];
   if (!validVat(c.vat || '')) p.push('الرقم الضريبي 15 رقماً يبدأ وينتهي بـ 3');
@@ -47,7 +47,7 @@ export function companyProblems(c: Company) {
 export async function onboard(env: Env, c: Company, otp: string, now = new Date(), fetcher = fetch) {
   const bad = companyProblems(c); if (bad.length) throw new Error(bad.join(' — '));
   const egsSerial = '1-Waad|2-1.0|3-' + crypto.randomUUID();
-  const { keyPem, csrB64 } = makeCsr({ env, vat: c.vat, orgName: c.name, branch: c.branch || c.name, egsName: 'Waad-' + c.vat.slice(0, 10),
+  const { keyPem, csrB64 } = makeCsr({ env, vat: c.vat, orgName: c.name, branch: c.branch || c.name, egsName: c.egs || 'Waad-' + c.vat.slice(0, 10),
     egsSerial, invoiceTypes: '1100', address: c.city || 'SA', category: c.category || 'Trading' });
   const cc = await api(env, '/compliance', { otp: String(otp).trim(), body: { csr: csrB64 } }, fetcher);
   if (cc.status !== 200 || !cc.body?.binarySecurityToken) throw new Error('رفضت زاتكا الطلب: ' + (cc.body?.errors?.map?.((e: { message: string }) => e.message).join(' — ') || zMessages(cc.body).join(' — ') || cc.status) + ' (تأكد من رمز OTP وأنه لم تنتهِ صلاحيته)');

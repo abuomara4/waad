@@ -2,6 +2,7 @@
 // action "onboard" {company, otp, env}: the owner / an admin pastes the OTP from the Fatoora portal; the function checks the
 // caller with the database (their own login), creates the key + CSR, passes ZATCA's six compliance documents, gets the
 // production certificate and stores it with the service key. The private key never leaves the server.
+// With "branch" the same is done for one branch, which becomes an e-invoicing unit of its own.
 // action "process" {company}: send what is waiting, in chain order (simplified → reporting, standard → clearance). Called by the
 // app right after posting a sales document and when a finance user opens it; the caller must be allowed to see the sales.
 import { onboard, type Company } from '../_shared/fatoora.ts';
@@ -30,16 +31,21 @@ Deno.serve(async req => {
   if (p.action === 'onboard') {
     const env: Env = ['sandbox', 'simulation', 'production'].includes(p.env) ? p.env : 'simulation';
     if (!/^[0-9a-f-]{36}$/.test(String(p.company)) || !/^\d{6}$/.test(String(p.otp || '').trim())) return reply({ error: 'رمز OTP من 6 أرقام' }, 400);
+    // with "branch": that branch becomes an e-invoicing unit of its own (own certificate, counter and chain — 0139)
+    const br = p.branch ? String(p.branch) : null;
+    if (br && !/^[0-9a-f-]{36}$/.test(br)) return reply({ error: 'bad request' }, 400);
     let info: Company;
-    try { info = await rpc('zatca_onboard_info', { p_company: p.company }, auth, ANON) as Company; }
+    try { info = await rpc(br ? 'zatca_unit_onboard_info' : 'zatca_onboard_info', br ? { p_company: p.company, p_branch: br } : { p_company: p.company }, auth, ANON) as Company; }
     catch (e) { return reply({ error: (e as Error).message }, 403); }
     try {
       const r = await onboard(env, info, p.otp);
-      await service('zatca_onboarded', { p_company: p.company, p_env: env, p_serial: r.egsSerial, p_cert: r.cert, p_key: r.keyPem, p_token: r.token, p_secret: r.secret });
+      const keep = { p_env: env, p_serial: r.egsSerial, p_cert: r.cert, p_key: r.keyPem, p_token: r.token, p_secret: r.secret };
+      if (br) await service('zatca_unit_onboarded', { p_company: p.company, p_branch: br, ...keep });
+      else await service('zatca_onboarded', { p_company: p.company, ...keep });
       return reply({ ok: true, env, results: r.results });
     } catch (e) {
       const msg = (e as Error).message;
-      await service('zatca_onboard_failed', { p_company: p.company, p_error: msg }).catch(() => {});
+      await (br ? service('zatca_unit_onboard_failed', { p_company: p.company, p_branch: br, p_error: msg }) : service('zatca_onboard_failed', { p_company: p.company, p_error: msg })).catch(() => {});
       return reply({ error: msg }, 422);
     }
   }

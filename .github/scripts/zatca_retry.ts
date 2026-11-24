@@ -11,6 +11,7 @@ const sql = postgres(url, { prepare: false, max: 1, idle_timeout: 5, connect_tim
 
 const Q: Record<string, [string, string[]]> = {
   zatca_creds: ['select public.zatca_creds($1::uuid) as r', ['p_company']],
+  zatca_unit_creds: ['select public.zatca_unit_creds($1::uuid, $2::uuid) as r', ['p_company', 'p_unit']],
   zatca_claim: ['select public.zatca_claim($1::uuid) as r', ['p_company']],
   zatca_doc_data: ['select public.zatca_doc_data($1::uuid) as r', ['p_doc']],
   zatca_signed: ['select public.zatca_signed($1::bigint, $2, $3, $4, $5) as r', ['p_id', 'p_pih', 'p_hash', 'p_xml', 'p_qr']],

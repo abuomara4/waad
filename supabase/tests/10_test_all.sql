@@ -4046,5 +4046,66 @@ select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenti
 select public.member_branches_set(:'cid', :'u_emp', null);
 reset role;
 select t.ok((select branches is null from public.members where company_id = :'cid' and user_id = :'u_emp'), 'branch access: clearing the list gives every branch back');
+-- ZATCA unit per branch (0139)
+reset role;
+update public.zatca_docs set status = 'rejected', hash = coalesce(hash, 'OLD' || icv) where company_id = :'cid' and status in ('pending','error');
+update public.zatca_settings set enabled = true where company_id = :'cid';
+update public.branches set cr_sub = '1010999999' where id = :'br1';
+insert into public.branches(company_id, code, name) values (:'cid2', 'OTH', 'فرع آخر') returning id as b2br \gset
+set role service_role;
+select public.zatca_unit_onboarded(:'cid', :'br1', 'sandbox', '1-Waad|2-1.0|3-b', 'BCERT', 'BKEY', 'BTOKEN', 'BSECRET');
+select t.err($$select public.zatca_unit_onboarded('$$ || :'cid' || $$', '$$ || :'b2br' || $$', 'sandbox', 's', 'c', 'k', 't', 'x')$$, 'لا يخص', 'a branch unit is stored only for a branch of the same company');
+reset role;
+select t.ok((select enabled and icv = 0 and csid_cert = 'BCERT' from public.zatca_units where branch_id = :'br1'), 'a linked branch is an e-invoicing unit with its own certificate and its own counter');
+update public.members set branch_id = :'br1' where company_id = :'cid' and user_id = :'u_fin';
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select public.post_sales_invoice_sn(:'cid', jsonb_build_object('party', :'c1', 'date', current_date, 'due', current_date, 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 1, 'price', 100)))) as zb1 \gset
+select public.post_sales_invoice_sn(:'cid', jsonb_build_object('party', :'c1', 'date', current_date, 'due', current_date, 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 1, 'price', 100)))) as zb2 \gset
+reset role;
+update public.members set branch_id = :'br2' where company_id = :'cid' and user_id = :'u_fin';
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select public.post_sales_invoice_sn(:'cid', jsonb_build_object('party', :'c1', 'date', current_date, 'due', current_date, 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 1, 'price', 100)))) as zc0 \gset
+select public.post_credit_note_cc(:'cid', jsonb_build_object('kind', 'sales', 'doc', :'zb1', 'reason', 'خصم', 'lines', jsonb_build_array(jsonb_build_object('line', (select id from public.sales_invoice_lines where invoice_id = :'zb1' limit 1), 'qty', 1)))) as zbc \gset
+select t.ok((select count(*) = 4 from public.zatca_docs where doc_id in (:'zb1', :'zb2', :'zc0', :'zbc')), 'finance sees the documents of both chains');
+reset role;
+select t.ok((select unit = :'br1' and icv = 1 from public.zatca_docs where doc_id = :'zb1') and (select unit = :'br1' and icv = 2 from public.zatca_docs where doc_id = :'zb2'),
+  'invoices of the linked branch start its own chain at number 1');
+select t.ok((select unit is null and icv = (select icv from public.zatca_settings where company_id = :'cid') from public.zatca_docs where doc_id = :'zc0'),
+  'an invoice of a branch without a unit continues the company''s chain');
+select t.ok((select unit = :'br1' and icv = 3 and kind = 'credit' from public.zatca_docs where doc_id = :'zbc'), 'a credit note follows the chain of the invoice it corrects');
+select t.err($$update public.zatca_docs set unit = null where doc_id = '$$ || :'zb1' || $$'$$, 'لا يتغيّر', 'a document never moves to another chain');
+set role service_role;
+select t.ok(public.zatca_unit_prev_hash(:'cid', :'br1', 1) = public.zatca_prev_hash(:'cid', 1), 'each unit''s chain starts from ZATCA''s first hash');
+select public.zatca_claim(:'cid') as zk1 \gset
+select t.ok((:'zk1'::jsonb->>'doc_id') = :'zb1' and (:'zk1'::jsonb->>'unit') = :'br1', 'the server claims the oldest document and says which unit signs it');
+select public.zatca_claim(:'cid') as zk2 \gset
+select t.ok((:'zk2'::jsonb->>'doc_id') = :'zc0', 'while the branch chain is busy, the company''s chain is not held');
+select t.ok(public.zatca_claim(:'cid') is null, 'the rest of each chain waits for its turn');
+select t.ok((public.zatca_unit_creds(:'cid', :'br1')->>'key') = 'BKEY' and (public.zatca_unit_creds(:'cid', :'br1')->>'cert') = 'BCERT', 'the branch unit signs with its own key');
+select t.ok((public.zatca_doc_data(:'zb1')->'seller'->>'cr') = '1010999999' and (public.zatca_doc_data(:'zc0')->'seller'->>'cr') is distinct from '1010999999',
+  'a branch document carries the branch''s commercial sub-registration');
+select public.zatca_signed((:'zk1'::jsonb->>'id')::bigint, :'zk1'::jsonb->>'pih', 'BH1', '<x/>', 'Q');
+select public.zatca_result((:'zk1'::jsonb->>'id')::bigint, 'reported', '{}', null, null, 0, null);
+select public.zatca_claim(:'cid') as zk3 \gset
+select t.ok((:'zk3'::jsonb->>'doc_id') = :'zb2' and (:'zk3'::jsonb->>'pih') = 'BH1', 'the next branch document chains to the branch''s previous hash');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok((public.zatca_unit_onboard_info(:'cid', :'br1')->>'branch') = 'فرع الرياض' and (public.zatca_unit_onboard_info(:'cid', :'br1')->>'egs') = 'Waad-RUH'
+  and (public.zatca_unit_onboard_info(:'cid', :'br1')->>'cr') = '1010999999', 'the owner links a branch with its name as the unit and its sub-registration');
+select t.err($$select private_key from public.zatca_unit_secrets$$, 'permission denied', 'nobody in the app reads a branch unit''s private key');
+select t.err($$select public.zatca_unit_off('$$ || :'cid' || $$', '$$ || :'br1' || $$')$$, 'لم تصل', 'a branch unit is not stopped while its documents wait');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select public.zatca_unit_onboard_info('$$ || :'cid' || $$', '$$ || :'br1' || $$')$$, '42501|مالك', 'finance staff cannot link a branch');
+reset role;
+select t.ok(not (public.company_export_data(:'cid', false)->'tables' ? 'zatca_unit_secrets') and (public.company_export_data(:'cid', false)->'tables' ? 'zatca_units'),
+  'the company export carries the branch units but never their keys');
+update public.zatca_docs set status = 'rejected', hash = coalesce(hash, 'OLD' || icv) where company_id = :'cid' and status in ('pending','error');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.zatca_unit_off(:'cid', :'br1');
+reset role;
+select t.ok((select not enabled from public.zatca_units where branch_id = :'br1'), 'with nothing waiting, the owner can stop a branch unit');
+update public.members set branch_id = null where company_id = :'cid' and user_id = :'u_fin';
+update public.zatca_settings set enabled = false where company_id = :'cid';
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

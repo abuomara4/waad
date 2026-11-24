@@ -3,6 +3,7 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('24 نوفمبر 2026', '24 November 2026', [
+  ('وحدة فوترة إلكترونية لكل فرع: يُربط كل فرع مع «فاتورة» بشهادة وعدّاد وسلسلة خاصة به', 'An e-invoicing unit per branch: each branch can be linked to Fatoora with its own certificate, counter and chain'),
   ('صلاحيات الفروع: مدير الفرع وموظفوه يرون بيانات فرعهم فقط، والمالك والإدارة يرون الكل', 'Branch access: a branch manager and staff see their own branch only, while the owner and management see all'),
   ('مقارنة الفروع في لوحة التحكم: المبيعات والتحصيل والمشتريات والرواتب والربح لكل فرع', 'Branch comparison in the dashboard: sales, collections, purchases, payroll and profit for each branch'),
   ('الفروع: لكل فرع مركز تكلفة ومستودع، والموظفون والمستخدمون والمستندات مرتبطة بفروعهم', 'Branches: each with its own cost centre and warehouse, and staff, users and documents linked to their branch'),

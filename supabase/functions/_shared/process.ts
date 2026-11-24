@@ -40,12 +40,24 @@ const riyadhNow = (d: Date) => new Date(d.getTime() + 3 * 3600e3).toISOString().
 
 export async function processCompany(company: string, rpc: Rpc, o: { fetcher?: typeof fetch; now?: () => Date; budgetMs?: number } = {}) {
   const now = o.now || (() => new Date()), t0 = Date.now(), budget = o.budgetMs ?? 45000, out: { icv: number; status: string; error?: string | null }[] = [];
-  const cr = await rpc('zatca_creds', { p_company: company });
-  if (!cr) return out;
-  const env = cr.env as Env, creds = { token: cr.token, secret: cr.secret };
+  // each chain signs with its own unit: the company's (unit null) or a branch's (0139)
+  // deno-lint-ignore no-explicit-any
+  const units = new Map<string, any>();
+  const credsOf = async (unit: string | null) => {
+    const k = unit || '';
+    if (!units.has(k)) units.set(k, await rpc('zatca_unit_creds', { p_company: company, p_unit: unit || null }));
+    return units.get(k);
+  };
   while (Date.now() - t0 < budget) {
     const c = await rpc('zatca_claim', { p_company: company });
     if (!c) break;
+    const cr = await credsOf(c.unit || null);
+    if (!cr) {
+      const msg = 'وحدة الفوترة غير مربوطة — أعد الربط مع فاتورة';
+      await rpc('zatca_result', { p_id: c.id, p_status: 'error', p_resp: null, p_xml: null, p_qr: null, p_retry: 3600, p_error: msg });
+      out.push({ icv: c.icv, status: 'error', error: msg }); continue;
+    }
+    const env = cr.env as Env, creds = { token: cr.token, secret: cr.secret };
     const standard = c.inv_type === 'standard';
     let xml: string = c.xml, hash: string = c.hash;
     if (!hash) {
@@ -57,7 +69,7 @@ export async function processCompany(company: string, rpc: Rpc, o: { fetcher?: t
       } catch (e) {   // the document cannot be built (e.g. a zero-rated item without its exemption): it waits, and so do the ones after it
         const msg = (e as Error).message;
         await rpc('zatca_result', { p_id: c.id, p_status: 'error', p_resp: null, p_xml: null, p_qr: null, p_retry: 600, p_error: msg });
-        out.push({ icv: c.icv, status: 'error', error: msg }); break;
+        out.push({ icv: c.icv, status: 'error', error: msg }); continue;   // its chain waits; the other units go on
       }
     }
     let r: ApiResult | null = null;
@@ -67,7 +79,8 @@ export async function processCompany(company: string, rpc: Rpc, o: { fetcher?: t
     await rpc('zatca_result', { p_id: c.id, p_status: m.status, p_resp: r ? (typeof r.body === 'object' ? r.body : { text: String(r.body).slice(0, 2000) }) : null,
       p_xml: m.xml ?? null, p_qr: m.qr ?? null, p_retry: m.retry, p_error: m.error ?? null });
     out.push({ icv: c.icv, status: m.status, error: m.error });
-    if (m.status === 'error') break;   // keep the order: the rest waits for this one
+    // keep the order: the rest of this chain waits for this one (its next try is later, so the claim skips the chain);
+    // other branches' chains go on
   }
   return out;
 }

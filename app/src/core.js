@@ -502,7 +502,9 @@ async function loadContext(pre) {
   const myPrj = S.emp && (!S.sub || (S.sub.modules || []).includes('proj')) ? await db.rpc('my_time_projects', { p_company: S.cid }).catch(() => []) : [];
   S.myTime = myPrj.length > 0; S.myPM = myPrj.some(p => p.manager);   // «ساعات عملي» and the manager of a project (0123, 0125)
   S.zatcaOn = false;
-  if (isFin()) db.get('zatca_settings', { company_id: 'eq.' + S.cid, select: 'enabled' }).then(r => { S.zatcaOn = !!(r[0] && r[0].enabled); if (S.zatcaOn) zatcaKick(); }).catch(() => {});
+  // linked = the company's unit or any branch's unit (0139)
+  if (isFin()) Promise.all([db.get('zatca_settings', { company_id: 'eq.' + S.cid, select: 'enabled' }), db.get('zatca_units', { company_id: 'eq.' + S.cid, enabled: 'is.true', select: 'branch_id' }).catch(() => [])])
+    .then(([r, u]) => { S.zatcaOn = !!(r[0] && r[0].enabled) || u.length > 0; if (S.zatcaOn) zatcaKick(); }).catch(() => {});
   return true;
 }
 // links from auth emails (password recovery, sign-up confirmation) come back as #access_token=…&type=… or #error=…

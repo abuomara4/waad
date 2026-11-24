@@ -44,7 +44,7 @@ function fakeDb(types: ('simplified' | 'standard')[]) {
   const calls: string[] = [];
   const rpc: Rpc = async (fn, a) => {
     calls.push(fn);
-    if (fn === 'zatca_creds') return { env: 'sandbox', cert: CERT, key: keyPem, token: 't', secret: 's' };
+    if (fn === 'zatca_creds' || fn === 'zatca_unit_creds') return { env: 'sandbox', cert: CERT, key: keyPem, token: 't', secret: 's' };
     if (fn === 'zatca_claim') { const d = docs.find(x => ['pending', 'error'].includes(x.status)); if (!d || d.waiting) return null; d.attempts++;
       return { ...d, pih: d.pih || (d.icv === 1 ? PIH0 : docs[d.icv - 2].hash) }; }
     if (fn === 'zatca_doc_data') { const d = docs.find(x => x.doc_id === a.p_doc);
@@ -86,4 +86,33 @@ Deno.test('sending: a document that cannot be built (zero rate without exemption
   const out = await processCompany('c', db.rpc, { fetcher: (async () => new Response('{}')) as unknown as typeof fetch });
   assertEquals(out.length, 1); assert(out[0].error!.includes('الإعفاء'));
   assertEquals([db.docs[0].hash, db.docs[1].status], [null, 'pending']);
+});
+
+Deno.test('sending: each branch unit signs with its own certificate, and one branch waiting does not hold another', async () => {
+  // two chains: branch A (its first document cannot be built) and branch B; each starts from ZATCA's first hash
+  // deno-lint-ignore no-explicit-any
+  const docs: any[] = [['A', 1, true], ['A', 2, false], ['B', 1, false], ['B', 2, false]].map(([u, icv, bad], i) => ({ id: i + 1, unit: u, icv, bad, doc_id: crypto.randomUUID(), inv_type: 'simplified', status: 'pending', attempts: 0, hash: null, pih: null }));
+  const credsAsked: (string | null)[] = [];
+  const rpc: Rpc = async (fn, a) => {
+    if (fn === 'zatca_unit_creds') { credsAsked.push(a.p_unit as string | null); return { env: 'sandbox', cert: CERT, key: keyPem, token: 't' + a.p_unit, secret: 's' }; }
+    if (fn === 'zatca_claim') {
+      const d = docs.find(x => ['pending', 'error'].includes(x.status) && !x.waiting && !docs.some(y => y.unit === x.unit && y.icv < x.icv && ['pending', 'error'].includes(y.status)));
+      if (!d) return null; d.attempts++;
+      const prev = docs.find(y => y.unit === d.unit && y.icv === d.icv - 1);
+      return { ...d, pih: d.pih || (d.icv === 1 ? PIH0 : prev.hash) };
+    }
+    if (fn === 'zatca_doc_data') { const d = docs.find(x => x.doc_id === a.p_doc);
+      return { kind: 'invoice', type: 'simplified', no: d.unit + '-' + d.icv, uuid: d.doc_id, icv: d.icv, issueDate: '2026-11-24', issueTime: '10:00:00', seller, buyer: null,
+        lines: d.bad ? [{ name: 'تصدير', qty: 1, price: 100, rate: 0 }] : [{ name: 'خدمة', qty: 1, price: 100, rate: 15 }] }; }
+    if (fn === 'zatca_signed') { const d = docs.find(x => x.id === a.p_id); Object.assign(d, { pih: a.p_pih, hash: a.p_hash }); return null; }
+    if (fn === 'zatca_result') { const d = docs.find(x => x.id === a.p_id); Object.assign(d, { status: a.p_status, waiting: a.p_status === 'error' }); return null; }
+  };
+  const auth: string[] = [];
+  const fake = (async (_u: string, init: RequestInit) => { auth.push(new Headers(init.headers).get('Authorization')!); return new Response(JSON.stringify({ reportingStatus: 'REPORTED' }), { status: 200 }); }) as typeof fetch;
+  const out = await processCompany('c', rpc, { fetcher: fake });
+  assertEquals(out.map(o => o.status), ['error', 'reported', 'reported']);
+  assertEquals(docs.map(d => d.status), ['error', 'pending', 'reported', 'reported']);
+  assertEquals(docs[2].pih, PIH0); assertEquals(docs[3].pih, docs[2].hash);
+  assertEquals(credsAsked, ['A', 'B']);
+  assert(auth.every(h => h === 'Basic ' + btoa('tB:s')));
 });

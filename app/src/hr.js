@@ -958,6 +958,34 @@ async function zatcaCard(el) {
       S.zatcaOn = true; toast(tr('تم الربط مع فاتورة')); route(); }); }
     catch (er) { showErr($('#zerr', el), er); }
   };
+  zatcaUnits(el, z, missing).catch(() => {});
+}
+// a ZATCA e-invoicing unit per branch (0139): its own certificate, counter and chain; a branch without one uses the company's unit
+async function zatcaUnits(el, z, missing) {
+  const brs = (await branchesList()).filter(b => b.active);
+  if (!brs.length) return;
+  const units = await db.get('zatca_units', { company_id: 'eq.' + S.cid }).catch(() => []), um = {}; units.forEach(u => um[u.branch_id] = u);
+  const envN = { simulation: 'بيئة المحاكاة (تجريبي)', production: 'الإنتاج (فعلي)', sandbox: 'بيئة المطوّرين' }, on = id => um[id] && um[id].enabled;
+  const box = document.createElement('div'); box.id = 'zunits'; box.style.marginTop = '14px';
+  box.innerHTML = `<h3 style="margin:0 0 4px">${esc(tr('وحدة فوترة لكل فرع'))}</h3>
+    <p class="muted small" style="margin:0 0 6px">${esc(tr('لكل فرع أن يُربط كوحدة مستقلة في بوابة فاتورة: شهادة وعدّاد وسلسلة خاصة به، فلا يتعطل فرع بسبب فرع آخر. الفرع غير المربوط تُرسل فواتيره عبر وحدة المنشأة.'))}</p>
+    ${tbl([{ t: 'الفرع', h: b => `<b class="num">${esc(b.code)}</b> <span data-nt>${esc(brName(b))}</span>${b.cr_sub ? `<div class="small muted num">${esc(b.cr_sub)}</div>` : ''}` },
+      { t: 'الحالة', h: b => on(b.id) ? `<span class="badge ok">${esc(tr('مربوطة'))}</span> <span class="small">${esc(tr(envN[um[b.id].env] || um[b.id].env))}</span>`
+          : `<span class="badge">${esc(tr(z && z.enabled ? 'عبر وحدة المنشأة' : 'غير مربوطة'))}</span>` },
+      { t: 'آخر تسلسل', r: 1, h: b => `<span class="num">${on(b.id) ? um[b.id].icv : '—'}</span>` },
+      { t: '', h: b => `${um[b.id] && um[b.id].last_error ? `<div class="small" style="color:var(--bad)" data-nt>${esc(um[b.id].last_error)}</div>` : ''}<button type="button" class="btn sm${on(b.id) ? '' : ' pri'}" data-zub="${b.id}" ${missing.length ? 'disabled' : ''}>${esc(tr(on(b.id) ? 'إعادة الربط' : 'ربط الفرع'))}</button>${on(b.id) ? ` <button type="button" class="btn sm" data-zuo="${b.id}">${esc(tr('إيقاف'))}</button>` : ''}` }], brs, {})}`;
+  el.appendChild(box);
+  $$('[data-zub]', box).forEach(x => x.onclick = () => { const b = brs.find(r => r.id === x.dataset.zub), u = um[b.id];
+    modal(tr('ربط الفرع مع فاتورة') + ' — ' + brName(b), `<ol class="small" style="margin:0 0 8px;padding-inline-start:18px"><li>${esc(tr('ادخل بوابة فاتورة fatoora.zatca.gov.sa بحساب المنشأة.'))}</li><li>${esc(tr('اطلب رمز OTP لوحدة جديدة لهذا الفرع.'))}</li><li>${esc(tr('الصق الرمز هنا. نُكمل الباقي: الشهادة واختبارات الامتثال الستة وشهادة الإنتاج.'))}</li></ol>
+      <div class="fg">${field('البيئة', `<select name="env">${opt('simulation', tr('بيئة المحاكاة (تجريبي)'), u && u.env)}${opt('production', tr('الإنتاج (فعلي)'), u && u.env)}</select>`)}
+      ${field('رمز OTP من بوابة فاتورة', '<input name="otp" inputmode="numeric" pattern="\\d{6}" maxlength="6" dir="ltr" placeholder="123456" required>')}</div>
+      <p class="muted small">${esc(tr('فواتير الفرع الجديدة تبدأ سلسلته من رقم 1، والمرسلة قبل الربط تبقى في سلسلة المنشأة.'))}</p>`, {
+      ok: 'ربط', onOk: async f => { if (!/^\d{6}$/.test((f.otp || '').trim())) throw new Error('رمز OTP من 6 أرقام');
+        await fnCall('zatca', { action: 'onboard', company: S.cid, branch: b.id, env: f.env, otp: f.otp.trim() });
+        S.zatcaOn = true; toast(tr('تم الربط مع فاتورة')); route(); } }); });
+  $$('[data-zuo]', box).forEach(x => x.onclick = () => { const b = brs.find(r => r.id === x.dataset.zuo);
+    modal(tr('إيقاف وحدة الفرع'), `<p>${esc(tr('تُرسل فواتير الفرع الجديدة عبر وحدة المنشأة. يمكنك ربطه مرة أخرى لاحقا.'))}</p><p><b data-nt>${esc(brName(b))}</b></p>`, {
+      ok: 'إيقاف', onOk: async () => { await db.rpc('zatca_unit_off', { p_company: S.cid, p_branch: b.id }); toast(tr('تم الحفظ')); route(); } }); });
 }
 VIEWS['#/settings'] = async page => {
   const co = S.company; const admin = has('owner', 'admin');

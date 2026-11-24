@@ -1278,6 +1278,7 @@ with sync_playwright() as pw:
     ok(sql("select b.code from employees e join branches b on b.id = e.branch_id where e.full_name = 'محمد العتيبي'") == 'DMM', 'branches: an employee is placed in a branch')
     go(o, '#/users'); o.wait_for_selector('[data-mbr]'); ok(o.locator('[data-mbr]').count() >= 1 and o.locator('[data-mbrs]').count() >= 1, 'branches: each user has a default branch and allowed branches')
     go(o, '#/dash/branches'); o.wait_for_selector('#dsec table'); ok('فرع الدمام' in o.inner_text('#dsec') and o.locator('#nav a[href="#/dash/branches"]').count() == 1, 'branches: the dashboard compares the branches side by side')
+    go(o, '#/settings'); o.wait_for_selector('#zunits'); ok('فرع الدمام' in o.inner_text('#zunits') and o.locator('#zunits [data-zub]').count() >= 1, 'branches: each branch can be linked to Fatoora as its own e-invoicing unit')
     # company announcement: posted by HR, shown on the home page
     go(o, '#/announcements'); o.wait_for_selector('#annn'); o.click('#annn'); o.wait_for_selector('#dlg[open] input[name=title]')
     o.fill('#dlg input[name=title]', 'اجتماع عام الأحد'); o.fill('#dlg textarea[name=body]', 'اجتماع لكل الموظفين الساعة 10 صباحا'); sqlx("update employees set email = 'staff5001@example.com', phone = '0551234567' where emp_no = '5001'"); o.click('#mok'); o.wait_for_selector('#dlg[open] #asb a[data-mb]')
