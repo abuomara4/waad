@@ -3,6 +3,7 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('24 نوفمبر 2026', '24 November 2026', [
+  ('صلاحيات الفروع: مدير الفرع وموظفوه يرون بيانات فرعهم فقط، والمالك والإدارة يرون الكل', 'Branch access: a branch manager and staff see their own branch only, while the owner and management see all'),
   ('مقارنة الفروع في لوحة التحكم: المبيعات والتحصيل والمشتريات والرواتب والربح لكل فرع', 'Branch comparison in the dashboard: sales, collections, purchases, payroll and profit for each branch'),
   ('الفروع: لكل فرع مركز تكلفة ومستودع، والموظفون والمستخدمون والمستندات مرتبطة بفروعهم', 'Branches: each with its own cost centre and warehouse, and staff, users and documents linked to their branch'),
   ('مكتبة النماذج 370 نموذجا، أكثر من 60 لكل قسم، تطبع بالعربي والإنجليزي معا على صفحة A4 كاملة وشعار المنشأة في الأعلى', 'The forms library reaches 370 forms, over 60 per department, printed in Arabic and English together on a full A4 page with the company logo on top'),

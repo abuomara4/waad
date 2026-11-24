@@ -1276,7 +1276,7 @@ with sync_playwright() as pw:
     go(o, '#/employees'); o.locator('tbody tr', has_text='محمد العتيبي').click(); o.wait_for_selector('#dlg select[name=branch_id]')
     o.select_option('#dlg select[name=branch_id]', label='DMM — فرع الدمام'); modal_ok(o); o.wait_for_timeout(500)
     ok(sql("select b.code from employees e join branches b on b.id = e.branch_id where e.full_name = 'محمد العتيبي'") == 'DMM', 'branches: an employee is placed in a branch')
-    go(o, '#/users'); o.wait_for_selector('[data-mbr]'); ok(o.locator('[data-mbr]').count() >= 1, 'branches: each user has a default branch')
+    go(o, '#/users'); o.wait_for_selector('[data-mbr]'); ok(o.locator('[data-mbr]').count() >= 1 and o.locator('[data-mbrs]').count() >= 1, 'branches: each user has a default branch and allowed branches')
     go(o, '#/dash/branches'); o.wait_for_selector('#dsec table'); ok('فرع الدمام' in o.inner_text('#dsec') and o.locator('#nav a[href="#/dash/branches"]').count() == 1, 'branches: the dashboard compares the branches side by side')
     # company announcement: posted by HR, shown on the home page
     go(o, '#/announcements'); o.wait_for_selector('#annn'); o.click('#annn'); o.wait_for_selector('#dlg[open] input[name=title]')

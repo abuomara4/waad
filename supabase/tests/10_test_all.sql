@@ -4029,5 +4029,22 @@ reset role;
 select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
 select t.err($$select * from public.branch_summary('$$ || :'cid' || $$', current_date - 30, current_date)$$, 'مصرح|permission|42501', 'branch summary: only finance and management read it');
 reset role;
+-- branch access (0138)
+reset role;
+update public.employees set branch_id = :'br1' where company_id = :'cid' and id <> public.my_employee(:'cid') and id = (select id from public.employees where company_id = :'cid' and id <> (select employee_id from public.members where user_id = :'u_emp' and company_id = :'cid') order by emp_no limit 1);
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.member_branches_set(:'cid', :'u_emp', array[:'br2']::uuid[]);
+select t.ok((select branches = array[:'br2']::uuid[] and branch_id = :'br2' from public.members where company_id = :'cid' and user_id = :'u_emp'), 'branch access: an employee is limited to one branch and it becomes the default');
+select t.ok((select count(*) from public.employees where company_id = :'cid') = (select count(*) from public.employees e where e.company_id = :'cid'), 'branch access: the owner still sees every employee');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok(not exists(select 1 from public.employees where company_id = :'cid' and branch_id = :'br1') and exists(select 1 from public.employees where id = public.my_employee(:'cid')),
+  'branch access: a limited user sees their own record but no staff of another branch');
+select t.ok(not public.branch_ok(:'cid', :'br1') and public.branch_ok(:'cid', :'br2'), 'branch access: the allowed branch passes, another does not');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.member_branches_set(:'cid', :'u_emp', null);
+reset role;
+select t.ok((select branches is null from public.members where company_id = :'cid' and user_id = :'u_emp'), 'branch access: clearing the list gives every branch back');
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

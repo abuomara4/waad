@@ -867,6 +867,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ابدأ هنا	Start here
 ابن	Son
 ابنة	Daughter
+اترك الكل بلا تحديد ليرى كل الفروع	Leave all unticked to see every branch
 اترك المعدود فارغا للأصناف التي لم تُعد	Leave counted empty for items not counted
 اترك المعدود فارغاً للأصناف التي لم تُعد	Leave counted empty for items not counted
 اترك وقت الحضور فارغا لحذف السجل واعتبار اليوم غيابا	Leave the check-in time empty to delete the record and count the day as absent
@@ -2248,6 +2249,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الفرق بينهما يضاف للوعاء	the difference is added to the base
 الفرق يُحسب على الكمية في النظام لحظة الترحيل	the difference is taken against the system quantity at posting
 الفروع	Branches
+الفروع المسموحة	Allowed branches
 الفروقات عن أشهر معتمدة تُضاف مكافأة في المسير القادم	differences for approved months are added as a bonus in the next payroll
 الفروقات عن أشهر معتمدة تُضاف مكافأةً في المسير القادم	differences for approved months are added as a bonus in the next payroll
 الفريق	Team
@@ -2355,6 +2357,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المالك والمدير المالي يرون كل شيء	The owner and the finance manager see everything
 المالك ومدير النظام والمدير المالي والموارد البشرية يرون كل شيء دائما	The owner, system admin, finance manager and HR always see everything
 المالك ومدير النظام والمدير المالي يرون كل شيء دائما	The owner, the system admin and the finance manager always see everything
+المالك ومدير النظام والموارد البشرية والمالية يرون كل الفروع دائما	The owner, admins, HR and finance always see every branch
 المالك يملك كل الصلاحيات	The owner has full access
 المالية	Finance
 المالية حسب الصلاحيات المحددة له تحت	finance, limited to the permissions chosen below
@@ -5138,6 +5141,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عند الإيقاف يكفي البريد وكلمة المرور للدخول إلى حسابك	When turned off, e-mail and password alone sign in to your account
 عند التجاوز	When exceeded
 عند التجديد عدّل تاريخ الانتهاء أو أضف المستند الجديد	On renewal, update the expiry date or add the new document
+عند التحديد يرى موظفي هذه الفروع ومستنداتها فقط	When ticked, they see only these branches' staff and documents
+عند التحديد يرى موظفي هذه الفروع ومستنداتها فقط، وسجله هو دائما.	When ticked, they see only these branches' staff and documents, and always their own record.
 عند السداد	On payment
 عند المعتمد وفي مسار الطلب	to the approver and in the request journey
 عند تتبع الصلاحية يُطلب تاريخ الانتهاء عند الاستلام	With expiry tracking, the expiry date is required on receipt
@@ -5492,6 +5497,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كل السعوديين يُحتسبون كاملاً	All Saudis are counted in full
 كل الشروحات	All guides
 كل الصلاحيات	all permissions
+كل الفروع	All branches
 كل القسم	the whole department
 كل المالية واعتماد المسير والقيود	all finance, approving payroll and journal entries
 كل المبالغ في الدفاتر بالريال	All amounts in the books are in riyals
@@ -6526,6 +6532,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مقفلة حتى	Closed through
 مقفلة مسبقا	is already closed
 مقفلة مسبقاً	is already closed
+مقيّد بـ	Limited to
 مكافأة	Bonus
 مكافأة نهاية الخدمة	End-of-service award
 مكافأة نهاية الخدمة والمخالصة	End-of-service award and settlement
@@ -7140,6 +7147,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وزن الهدف	Weight of goal
 وسائل التواصل	Social media
 وستزودك بكلمة مرور مؤقتة	and they will give you a temporary password
+وسجله هو دائما	and always their own record
 وسجّل بالبريد	and sign up with the email
 وسعرها	its rate is
 وسلّم الملف له وحده	and hand the file to him alone
@@ -7393,6 +7401,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يرجى إدخال البريد الإلكتروني أولا	Please enter your e-mail first
 يرفع طلبات الشراء	Raises purchase requests
 يرفعها الموظف من	Raised by the employee from
+يرى كل الفروع	Sees every branch
 يزيد بنفس النسبة	Raised by the same percentage
 يساوي المبلغ إن تُرك فارغا	equals the amount if left empty
 يساوي المبلغ إن تُرك فارغاً	equals the amount if left empty

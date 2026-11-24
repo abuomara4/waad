@@ -881,7 +881,8 @@ VIEWS['#/users'] = async page => {
     <div style="height:18px"></div><h2>المستخدمون</h2>${tbl([{ t: 'البريد / الدخول', h: m => mail[m.user_id] ? `<span class="num">${esc(mail[m.user_id])}</span>` : m.employee_id && em[m.employee_id] ? `<span class="muted small">${esc('بالرقم الوظيفي')}</span> <span class="num">${esc(em[m.employee_id].emp_no)}</span>` : '—' },
       { t: 'الصلاحيات', h: m => { const job = jobOf(m, mp[m.user_id] || []); return job ? `<span class="badge info">${esc(tr(ACCESS_TPL_NAME[job]))}</span>` : rolesOf(m).map(r => `<span class="badge${r === 'owner' ? ' info' : ''}">${esc(ROLES[r] || r)}</span>`).join(' ') + (mp[m.user_id] ? ` <span class="small muted">${mp[m.user_id].length} ${esc('صلاحية مخصصة')}</span>` : ''); } },
       { t: 'سجل الموظف', h: m => esc(m.employee_id && em[m.employee_id] ? em[m.employee_id].full_name : '—') },
-      ...(brs.length ? [{ t: 'الفرع', h: m => `<select data-mbr="${m.user_id}" style="width:auto"><option value="">—</option>${brs.map(b => opt(b.id, b.code + ' — ' + brName(b), m.branch_id)).join('')}</select>` }] : []),
+      ...(brs.length ? [{ t: 'الفرع', h: m => `<select data-mbr="${m.user_id}" style="width:auto"><option value="">—</option>${brs.map(b => opt(b.id, b.code + ' — ' + brName(b), m.branch_id)).join('')}</select>`
+        + `<div class="small" style="margin-top:4px"><a href="#" data-mbrs="${m.user_id}">${esc(['owner', 'admin', 'hr', 'finance'].includes(m.role) ? tr('يرى كل الفروع') : m.branches && m.branches.length ? tr('مقيّد بـ') + ' ' + m.branches.map(id => (brs.find(b => b.id === id) || {}).code || '?').join('، ') : tr('كل الفروع'))}</a></div>` }] : []),
       { t: '', h: m => (canAcc(m) ? `<button class="btn sm pri" data-acc="${m.user_id}">${esc('الصلاحيات')}</button> ` : '') + (admin && (m.role !== 'owner' || has('owner')) ? `<button class="btn sm" data-ed="${m.user_id}">تعديل</button>` : '') }], mem)}`;
   bindRows(page, pending, inviteBox);
   $$('[data-rv]', page).forEach(b => b.addEventListener('click', ev => ev.stopPropagation()));
@@ -896,6 +897,12 @@ VIEWS['#/users'] = async page => {
   $$('[data-rv]', page).forEach(b => b.onclick = async () => { try { await db.rpc('revoke_invite', { p_id: b.dataset.rv }); route(); } catch (e) { toast(e.message); } });
   $$('[data-acc]', page).forEach(b => b.onclick = () => { const m = mem.find(x => x.user_id === b.dataset.acc);
     accessDialog(m, mail[m.user_id] || (m.employee_id && em[m.employee_id] ? em[m.employee_id].full_name : ''), mp[m.user_id] || []); });
+  $$('[data-mbrs]', page).forEach(a => a.onclick = ev => { ev.preventDefault(); const m = mem.find(x => x.user_id === a.dataset.mbrs) || {};
+    if (['owner', 'admin', 'hr', 'finance'].includes(m.role)) return toast(tr('المالك ومدير النظام والموارد البشرية والمالية يرون كل الفروع دائما'));
+    const cur = new Set(m.branches || []);
+    modal(tr('الفروع المسموحة'), `<p class="muted small" style="margin-top:0">${esc(tr('اترك الكل بلا تحديد ليرى كل الفروع. عند التحديد يرى موظفي هذه الفروع ومستنداتها فقط، وسجله هو دائما.'))}</p>
+      ${brs.map(b => `<label class="row small" style="gap:6px;margin:6px 0"><input type="checkbox" name="b_${b.id}" style="width:auto"${cur.has(b.id) ? ' checked' : ''}> <b class="num">${esc(b.code)}</b> ${esc(brName(b))}</label>`).join('')}`, {
+      onOk: async f => { await db.rpc('member_branches_set', { p_company: S.cid, p_user: m.user_id, p_branches: brs.filter(b => f['b_' + b.id]).map(b => b.id) }); toast(tr('تم الحفظ')); route(); } }); });
   $$('[data-mbr]', page).forEach(x => x.onchange = async () => { try { await db.rpc('member_branch_set', { p_company: S.cid, p_user: x.dataset.mbr, p_branch: blank(x.value) }); toast(tr('تم الحفظ')); } catch (er) { toast(er.message); } });
   $$('[data-ed]', page).forEach(b => b.onclick = () => {
     const m = mem.find(x => x.user_id === b.dataset.ed); const linked = new Set(mem.filter(x => x !== m).map(x => x.employee_id).filter(Boolean));
