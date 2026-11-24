@@ -23,9 +23,10 @@ VIEWS['#/parties'] = async (page, kind) => {
   kind = kind === 'supplier' ? 'supplier' : 'customer';
   const cust = kind === 'customer', rows = await db.get('parties', Object.assign(C(), { kind: 'eq.' + kind, order: 'active.desc,name' }));
   const scm = {}; if (!cust) (await db.rpc('supplier_scorecard', { p_company: S.cid }).catch(() => [])).forEach(x => scm[x.party_id] = x);
+  const sis = S.company && S.company.group_id ? await db.rpc('group_sisters', { p_company: S.cid }).catch(() => []) : [];   // sister companies of the group (0142)
   const T = cust ? ['العملاء', 'عميل'] : ['الموردون', 'مورد'];
   page.innerHTML = `<div class="head"><div><h1>${T[0]}</h1></div><div class="row"><button class="btn" id="pim">استيراد من Excel</button><button class="btn pri" id="np">إضافة ${T[1]}</button></div></div>
-    ${tbl([{ t: 'الاسم', h: p => esc(p.name) + (p.active === false ? ` <span class="badge">${esc(tr('موقوف'))}</span>` : '') }, { t: 'الرقم الضريبي', h: p => `<span class="num">${esc(p.vat_no || '—')}</span>` }, { t: 'الجوال', h: p => `<span class="num">${esc(p.phone || '—')}</span>` },
+    ${tbl([{ t: 'الاسم', h: p => esc(p.name) + (p.group_company_id ? ` <span class="badge info">${esc(tr('شركة شقيقة'))}</span>` : '') + (p.active === false ? ` <span class="badge">${esc(tr('موقوف'))}</span>` : '') }, { t: 'الرقم الضريبي', h: p => `<span class="num">${esc(p.vat_no || '—')}</span>` }, { t: 'الجوال', h: p => `<span class="num">${esc(p.phone || '—')}</span>` },
       { t: 'المدينة', h: p => esc(p.city || '—') + (p.country && p.country !== 'SA' ? ` <span class="muted num">${esc(p.country)}</span>` : '') }, { t: 'مدة السداد', h: p => p.terms_days ? `<span class="num">${p.terms_days}</span> ${esc(tr('يوما'))}` : '—' },
       ...(cust ? [{ t: 'حد الائتمان', r: 1, h: p => p.credit_limit != null ? money(p.credit_limit) : '—' }] : [{ t: 'التقييم', h: p => { const x = scm[p.id]; return x && x.ratings ? `★ <span class="num">${x.overall}</span> <span class="small muted">(${x.ratings})</span>` : '—'; } },
         { t: 'الالتزام بالمواعيد', r: 1, h: p => { const x = scm[p.id]; return x && x.on_time_pct != null ? `<span class="num">${x.on_time_pct}%</span>` : '—'; } }]),
@@ -41,6 +42,7 @@ VIEWS['#/parties'] = async (page, kind) => {
       <h3 class="wide" style="margin:8px 0 0">${esc(tr('الدفع'))}</h3>${field('مدة السداد (يوم)', inp('terms_days', p && p.terms_days, 'type="number" min="0" max="365" step="1"'))}
       ${cust ? field('حد الائتمان (ريال)', inp('credit_limit', p && p.credit_limit, 'type="number" min="0" step="0.01" placeholder="' + esc(tr('بدون حد')) + '"')) : ''}
       ${field('الآيبان', inp('iban', p && p.iban, 'dir="ltr" maxlength="34" id="piban"') + '<div class="small muted" id="pibk"></div>')}
+      ${sis.length ? field('شركة شقيقة في المجموعة', `<select name="group_company_id"><option value="">${esc(tr('لا — طرف خارجي'))}</option>${sis.map(x => opt(x.id, x.name, p && p.group_company_id)).join('')}</select>`, 'wide') : ''}
       ${typeof cfFields === 'function' ? cfFields('party', p && p.custom) : ''}${field('ملاحظات', inp('note', p && p.note), 'wide')}${p ? field('الحالة', `<label class="row" style="gap:6px"><input type="checkbox" name="active" ${p.active !== false ? 'checked' : ''}> ${esc(tr('نشط — يظهر في الفواتير والأوامر الجديدة'))}</label>`, 'wide') : ''}</div>`, {
       wide: true, onOk: async f => {
         if (f.vat_no && !/^3\d{13}3$/.test(f.vat_no)) throw new Error('الرقم الضريبي 15 رقما يبدأ وينتهي بـ 3');
@@ -51,6 +53,7 @@ VIEWS['#/parties'] = async (page, kind) => {
           iban: blank(f.iban), note: blank(f.note), terms_days: f.terms_days === '' ? null : +f.terms_days };
         SA_ADDR.forEach(([k]) => row[k] = blank(f[k]));
         if (cust) row.credit_limit = f.credit_limit === '' ? null : +f.credit_limit;
+        if (sis.length) row.group_company_id = f.group_company_id || null;
         if (p) row.active = !!f.active;
         if (typeof cfCollect === 'function' && cfDefs('party').length) row.custom = cfCollect(f, 'party', p && p.custom);
         if (p) await db.upd('parties', { id: 'eq.' + p.id }, row); else await db.ins('parties', Object.assign(row, { company_id: S.cid, kind }));

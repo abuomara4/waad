@@ -1293,7 +1293,11 @@ with sync_playwright() as pw:
     o.select_option('.gdv', 'is'); o.wait_for_function("document.querySelector('.gdv') && document.querySelector('.gdv').value === 'is' && /صافي الربح/.test((document.querySelector('#gbody') || {}).innerText || '')", timeout=10000)
     ok(o.locator('#gbody th').filter(has_text='شركة التجارة الشقيقة').count() == 1, 'groups: the consolidated income statement has a column for each company and the group total')
     o.select_option('.gdv', 'tb'); o.wait_for_function("/متوازن/.test((document.querySelector('#gbody') || {}).innerText || '')", timeout=10000)
-    ok('غير متوازن' not in o.inner_text('#gbody'), 'groups: the consolidated trial balance balances'); o.evaluate("LS.set('waad.gdv', 'sum')")
+    ok('غير متوازن' not in o.inner_text('#gbody'), 'groups: the consolidated trial balance balances');
+    o.select_option('.gdv', 'ic'); o.wait_for_selector('#glk'); o.click('#glk'); o.wait_for_timeout(1500)
+    ok(sql("select count(*) from parties p join companies c on c.id = p.company_id join company_groups g on g.id = c.group_id where g.name = 'مجموعة الاختبار' and p.group_company_id is not null") == '4', 'groups: one click links the sister companies as customers and suppliers')
+    go(o, '#/parties/customer'); o.wait_for_selector('table'); ok('شركة شقيقة' in o.inner_text('#page') if o.locator('#page').count() else 'شركة شقيقة' in o.inner_text('body'), 'groups: a sister company is marked in the customer list')
+    o.evaluate("LS.set('waad.gdv', 'sum')")
     # company announcement: posted by HR, shown on the home page
     go(o, '#/announcements'); o.wait_for_selector('#annn'); o.click('#annn'); o.wait_for_selector('#dlg[open] input[name=title]')
     o.fill('#dlg input[name=title]', 'اجتماع عام الأحد'); o.fill('#dlg textarea[name=body]', 'اجتماع لكل الموظفين الساعة 10 صباحا'); sqlx("update employees set email = 'staff5001@example.com', phone = '0551234567' where emp_no = '5001'"); o.click('#mok'); o.wait_for_selector('#dlg[open] #asb a[data-mb]')

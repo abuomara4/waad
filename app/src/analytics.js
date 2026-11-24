@@ -265,7 +265,7 @@ async function dashBranches(box, title) {
 
 // «المجموعة» (0141): the group's companies side by side, and its consolidated income statement, balance sheet and trial
 // balance — every account with each company's share and the total. Transactions between the companies are not eliminated yet.
-const GROUP_V = [['sum', 'الشركات جنبا إلى جنب'], ['is', 'قائمة الدخل الموحدة'], ['bs', 'الميزانية الموحدة'], ['tb', 'ميزان المراجعة الموحد']];
+const GROUP_V = [['sum', 'الشركات جنبا إلى جنب'], ['is', 'قائمة الدخل الموحدة'], ['bs', 'الميزانية الموحدة'], ['tb', 'ميزان المراجعة الموحد'], ['ic', 'مطابقة المعاملات بين الشركات']];
 async function dashGroup(box, title) {
   const g = S.group; if (!g) { box.innerHTML = ''; return; }
   const pre = LS.get('waad.odp') || 'y', [from, to] = anPreset(pre), v = GROUP_V.some(x => x[0] === LS.get('waad.gdv')) ? LS.get('waad.gdv') : 'sum';
@@ -273,6 +273,7 @@ async function dashGroup(box, title) {
   const cos = g.companies || [], cname = id => (cos.find(c => c.id === id) || {}).name || '—';
   const by = (x, id) => n0((x.by_company || {})[id]);
   const coCols = cos.map(c => ({ t: c.name, r: 1, h: x => by(x, c.id) ? money(by(x, c.id)) : '' }));
+  const elCol = { t: 'الاستبعادات', r: 1, h: x => n0(x.elim) ? `<span class="muted">${money(x.elim)}</span>` : '' };
   let body = '';
   if (v === 'sum') {
     const rows = await db.rpc('group_summary', { p_group: g.id, p_from: from, p_to: to }).catch(e => { throw e; });
@@ -288,19 +289,29 @@ async function dashGroup(box, title) {
     const ord = { revenue: 0, cogs: 1, expense: 2, net_profit: 9 }, sec = { revenue: 'الإيرادات', cogs: 'تكلفة المبيعات', expense: 'المصروفات', net_profit: '' };
     const rows = (await db.rpc('group_income_statement', { p_group: g.id, p_from: from, p_to: to })).map((x, i) => [x, i]).sort((a, b) => ((ord[a[0].section] ?? 5) - (ord[b[0].section] ?? 5)) || a[1] - b[1]).map(x => x[0]);
     body = `<div class="card">${tbl([{ t: 'القسم', h: x => esc(tr(sec[x.section] || '')) }, { t: 'الحساب', h: x => x.section === 'net_profit' ? `<b>${esc(tr(x.name))}</b>` : `<span class="num">${esc(x.code)}</span> ${esc(x.name)}` },
-      ...cos.map(c => ({ t: c.name, r: 1, h: x => x.section === 'net_profit' ? `<b>${money(by(x, c.id))}</b>` : by(x, c.id) ? money(by(x, c.id)) : '' })),
+      ...cos.map(c => ({ t: c.name, r: 1, h: x => x.section === 'net_profit' ? `<b>${money(by(x, c.id))}</b>` : by(x, c.id) ? money(by(x, c.id)) : '' })), elCol,
       { t: 'المجموعة', r: 1, h: x => x.section === 'net_profit' ? `<b class="${n0(x.amount) < 0 ? 'bad' : 'ok'}">${money(x.amount)}</b>` : `<b>${money(x.amount)}</b>` }], rows, { empty: 'لا توجد حركات' })}</div>`;
   } else if (v === 'bs') {
     const sec = { asset: 'الأصول', liab: 'الخصوم', equity: 'حقوق الملكية' };
     const rows = await db.rpc('group_balance_sheet', { p_group: g.id, p_as_of: to }), tot = k => rows.filter(x => x.section === k).reduce((a, x) => a + n0(x.amount), 0);
-    body = `<div class="card">${tbl([{ t: 'القسم', h: x => esc(tr(sec[x.section])) }, { t: 'الحساب', h: x => `${x.code ? `<span class="num">${esc(x.code)}</span> ` : ''}${esc(tr(x.name))}` }, ...coCols,
+    body = `<div class="card">${tbl([{ t: 'القسم', h: x => esc(tr(sec[x.section])) }, { t: 'الحساب', h: x => `${x.code && x.code !== 'IC' ? `<span class="num">${esc(x.code)}</span> ` : ''}${x.code === 'IC' ? `<b class="bad">${esc(tr(x.name))}</b>` : esc(tr(x.name))}` }, ...coCols, elCol,
       { t: 'المجموعة', r: 1, h: x => `<b>${money(x.amount)}</b>` }], rows, { empty: 'لا توجد أرصدة' })}
       <p>${esc(tr('الأصول'))} <b class="num">${money(tot('asset'))}</b> · ${esc(tr('الخصوم وحقوق الملكية'))} <b class="num">${money(tot('liab') + tot('equity'))}</b></p></div>`;
+  } else if (v === 'ic') {
+    const rows = (await db.rpc('group_ic_recon', { p_group: g.id, p_from: from, p_to: to })).filter(r => n0(r.invoiced) || n0(r.recorded) || n0(r.receivable) || n0(r.payable));
+    const diff = (a, b) => Math.abs(n0(a) - n0(b)) < 0.01 ? `<span class="badge ok">${esc(tr('مطابق'))}</span>` : `<span class="badge bad">${money(n0(a) - n0(b))}</span>`;
+    body = `<div class="card"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center"><p class="muted small" style="margin:0;max-width:640px">${esc(tr('تُعرف المعاملات بين الشركات من العميل أو المورد المعلَّم «شركة شقيقة». اضغط الزر مرة لتضيف كل شركة عميلا ومورّدا في أخواتها، أو اختر الشركة الشقيقة في بطاقة العميل أو المورد الموجود.'))}</p>
+        <button type="button" class="btn sm pri" id="glk">${esc(tr('ربط الشركات كعملاء وموردين'))}</button></div></div>
+      <div class="card">${tbl([{ t: 'البائع', h: r => `<b data-nt>${esc(r.seller_name)}</b>` }, { t: 'المشتري', h: r => `<span data-nt>${esc(r.buyer_name)}</span>` },
+        { t: 'فوترها البائع', r: 1, h: r => money(r.invoiced) }, { t: 'سجّلها المشتري', r: 1, h: r => money(r.recorded) }, { t: 'الفرق', h: r => diff(r.invoiced, r.recorded) },
+        { t: 'رصيد البائع المدين', r: 1, h: r => money(r.receivable) }, { t: 'رصيد المشتري الدائن', r: 1, h: r => money(r.payable) }, { t: 'الفرق', h: r => diff(r.receivable, r.payable) }], rows,
+        { empty: 'لا توجد معاملات بين شركات المجموعة في الفترة' })}
+      <p class="muted small">${esc(tr('المبالغ شاملة الضريبة وبعد المرتجعات. الفرق يعني مستندا سجلته شركة ولم تسجله أختها أو بمبلغ مختلف، ويظهر في الميزانية الموحدة سطرا مستقلا حتى يُصحّح.'))}</p></div>`;
   } else {
     const rows = await db.rpc('group_trial_balance', { p_group: g.id, p_as_of: to }), sd = rows.reduce((a, x) => a + n0(x.debit), 0), sc = rows.reduce((a, x) => a + n0(x.credit), 0);
-    body = `<div class="card">${tbl([{ t: 'الحساب', h: x => `<span class="num">${esc(x.code)}</span> ${esc(x.name)}` }, ...cos.map(c => ({ t: c.name, r: 1, h: x => by(x, c.id) ? money(by(x, c.id)) : '' })),
+    body = `<div class="card">${tbl([{ t: 'الحساب', h: x => `<span class="num">${esc(x.code === 'IC' ? '' : x.code)}</span> ${esc(tr(x.name))}` }, ...cos.map(c => ({ t: c.name, r: 1, h: x => by(x, c.id) ? money(by(x, c.id)) : '' })), elCol,
       { t: 'مدين', r: 1, h: x => n0(x.debit) ? money(x.debit) : '' }, { t: 'دائن', r: 1, h: x => n0(x.credit) ? money(x.credit) : '' }], rows,
-      { empty: 'لا توجد حركات', foot: `<td colspan="${cos.length + 1}"><b>${esc(tr('الإجمالي'))}</b> ${Math.abs(sd - sc) < 0.01 ? `<span class="badge ok">${esc(tr('متوازن'))}</span>` : `<span class="badge bad">${esc(tr('غير متوازن'))}</span>`}</td><td class="r"><b>${money(sd)}</b></td><td class="r"><b>${money(sc)}</b></td>` })}
+      { empty: 'لا توجد حركات', foot: `<td colspan="${cos.length + 2}"><b>${esc(tr('الإجمالي'))}</b> ${Math.abs(sd - sc) < 0.01 ? `<span class="badge ok">${esc(tr('متوازن'))}</span>` : `<span class="badge bad">${esc(tr('غير متوازن'))}</span>`}</td><td class="r"><b>${money(sd)}</b></td><td class="r"><b>${money(sc)}</b></td>` })}
       <p class="muted small">${esc(tr('أعمدة الشركات: الرصيد المدين بالموجب والدائن بالسالب.'))}</p></div>`;
   }
   if (!box.isConnected) return;
@@ -311,7 +322,8 @@ async function dashGroup(box, title) {
         <button type="button" class="btn sm" id="gx">Excel</button><button type="button" class="btn sm" id="gp">${esc(tr('طباعة'))}</button></div></div>
     <div class="muted small" style="margin-bottom:6px"><b data-nt>${esc(g.name)}</b> · ${v === 'bs' || v === 'tb' ? esc(tr('حتى تاريخ')) + ' ' + fdate(to) : fdate(from) + ' – ' + fdate(to)}</div>
     <div id="gbody">${body}</div>
-    <p class="note small">${esc(tr('القوائم تجمع دفاتر شركات المجموعة حسب رمز الحساب. المعاملات بين شركات المجموعة لم تُستبعد بعد (المرحلة التالية)، فراجعها قبل الاعتماد على الأرقام الموحدة.'))}</p>`;
+    <p class="note small">${esc(tr('القوائم تجمع دفاتر شركات المجموعة حسب رمز الحساب، وتُستبعد المعاملات بين شركاتها (الإيراد مقابل التكلفة، والذمم المدينة مقابل الدائنة) دون أن تتغير دفاتر أي شركة. يُسوّى يدويا: الربح غير المحقق في بضاعة لم تُبع بعد خارج المجموعة، والأصول المشتراة من شركة شقيقة.'))}</p>`;
+  if ($('#glk', box)) $('#glk', box).onclick = () => busy($('#glk', box), async () => { const n = await db.rpc('group_link_parties', { p_group: g.id }); toast(n ? tr('تم الربط') + ': ' + n : tr('الشركات مرتبطة بالفعل')); });
   $('.gdv', box).onchange = e => { LS.set('waad.gdv', e.target.value); dashGroup(box, title).catch(() => {}); };
   $('.dashp', box).onchange = e => { LS.set('waad.odp', e.target.value); dashGroup(box, title).catch(() => {}); };
   $('#gx', box).onclick = () => tablesXlsx($('#gbody', box), g.name + ' — ' + tr(vt) + ' ' + to);

@@ -3,6 +3,7 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('24 نوفمبر 2026', '24 November 2026', [
+  ('استبعاد المعاملات بين شركات المجموعة في القوائم الموحدة، مع مطابقة بين كل شركتين', 'Transactions between the group\'s companies are eliminated in the consolidated statements, with matching between each pair'),
   ('لوحة المجموعة: شركاتك جنبا إلى جنب، وقائمة دخل وميزانية وميزان مراجعة موحدة', 'Group dashboard: your companies side by side, with a consolidated income statement, balance sheet and trial balance'),
   ('مجموعة المنشآت: من يملك أكثر من سجل تجاري يجمعها في مجموعة وينتقل بينها من حساب واحد', 'Groups of companies: an owner of several commercial registrations gathers them in a group and moves between them from one account'),
   ('وحدة فوترة إلكترونية لكل فرع: يُربط كل فرع مع «فاتورة» بشهادة وعدّاد وسلسلة خاصة به', 'An e-invoicing unit per branch: each branch can be linked to Fatoora with its own certificate, counter and chain'),

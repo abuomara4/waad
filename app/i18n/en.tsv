@@ -382,6 +382,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أو أدخل المفتاح يدويا	or enter the key manually
 أو أدخل المفتاح يدوياً	or enter the key manually
 أو أنشئ منشأة جديدة	Or create a new company
+أو اختر الشركة الشقيقة في بطاقة العميل أو المورد الموجود	or choose the sister company in an existing customer's or supplier's card
 أو اخترها مباشرة من قائمة الوردية في ملف الموظف والقسم وجدول الورديات	or choose one directly from the shift list in the employee file, department or roster
 أو استوردهم من	or import them from
 أو افتح المنشأة لتختار اشتراك ومدة	or open the company to choose a subscription and length
@@ -1150,6 +1151,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اضغط أي باقة لتعديل اسمها أو سعرها أو مدتها أو أقسامها أو حد الموظفين.	Click any plan to edit its name, price, period, modules or employee limit.
 اضغط أي رقم لعرض فواتيره	Click any figure to see its invoices
 اضغط إرسال فيها	press Send there
+اضغط الزر مرة لتضيف كل شركة عميلا ومورّدا في أخواتها	Press the button once to add each company as a customer and a supplier in its sisters
 اضغط زر المشاركة	Tap the Share button
 اضغط زر المشاركة (المربع والسهم للأعلى) أسفل الشاشة.	Tap the Share button (the square with an arrow) at the bottom.
 اضغط على أي بطاقة لمعالجتها	click any card to deal with it
@@ -1499,6 +1501,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الإيراد	Revenue
 الإيراد المفوتر	Billed revenue
 الإيراد لكل موظف	Revenue per employee
+الإيراد مقابل التكلفة	revenue against cost
 الإيرادات	Revenue
 الإيرادات شهريا	Revenue per month
 الإيرادات شهرياً	Revenue per month
@@ -1514,6 +1517,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الاحتمال	Probability
 الاستئذان من دقائق حتى	A permission runs from a few minutes up to
 الاستئذان هذا الشهر	Permits this month
+الاستبعادات	Eliminations
 الاستبيان	Survey
 الاستبيان غير موجود	Survey not found
 الاستبيان مغلق	The survey is closed
@@ -1580,6 +1584,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الانقطاع عن العمل دون سبب مشروع مدة تزيد على خمسة عشر يوما متصلة خلال السنة العقدية الواحدة	Abandoning work without a legitimate reason for more than fifteen consecutive days in one contract year
 الانقطاع عن العمل دون سبب مشروع مدة تزيد على خمسة عشر يوماً متصلة خلال السنة العقدية الواحدة	Abandoning work without a legitimate reason for more than fifteen consecutive days in one contract year
 الايبان	IBAN
+البائع	Seller
 الباحة	Al-Baha
 الباركود	Barcode
 الباركود مستخدم لصنف آخر	The barcode is used by another item
@@ -1920,6 +1925,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الربح	Profit
 الربح الدفتري بعد التعديلات الزكوية	Book profit after the zakat adjustments
 الربح السنوي	Annual profit rate
+الربح غير المحقق في بضاعة لم تُبع بعد خارج المجموعة	profit not yet realised on goods not yet sold outside the group
 الربط مع فاتورة	Link with Fatoora
 الربط مع فاتورة لمالك المنشأة أو مديرها	Linking to Fatoora is for the company owner or an admin
 الربط مع منصة فاتورة غير مفعّل	The link with the Fatoora platform is not enabled
@@ -2072,7 +2078,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الشرط متاح لطلبات الإجازة والمبالغ فقط	The condition is for leave and money requests only
 الشرط متاح لطلبات المبالغ فقط	The rule is available for money requests only
 الشركات جنبا إلى جنب	Companies side by side
+الشركات مرتبطة بالفعل	The companies are already linked
 الشركة	Company
+الشركة الشقيقة يجب أن تكون منشأة أخرى في المجموعة نفسها	The sister company must be another company of the same group
 الشركة المصنعة	Make
 الشروط	Terms
 الشروط والأحكام	Terms and conditions
@@ -2271,6 +2279,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الفرق بين مبلغ البيع والقيمة الدفترية يُقيد ربحا	The difference between sale amount and book value is recorded as a gain
 الفرق بين مبلغ البيع والقيمة الدفترية يُقيد ربحاً	The difference between sale amount and book value is recorded as a gain
 الفرق بينهما يضاف للوعاء	the difference is added to the base
+الفرق يعني مستندا سجلته شركة ولم تسجله أختها أو بمبلغ مختلف	A difference means a document one company recorded and its sister did not, or with a different amount
 الفرق يُحسب على الكمية في النظام لحظة الترحيل	the difference is taken against the system quantity at posting
 الفروع	Branches
 الفروع المسموحة	Allowed branches
@@ -2391,6 +2400,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المبادرة وحل المشكلات	Initiative and problem solving
 المباشرة	Start
 المبالغ	amounts
+المبالغ شاملة الضريبة وبعد المرتجعات	Amounts include VAT and are after returns
 المبلغ	Amount
 المبلغ أعلى من حد المطالبة لفئة	The amount is above the claim limit for category
 المبلغ أكبر من المتبقي	The amount exceeds the remaining balance
@@ -2587,6 +2597,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المشاريع	Projects
 المشاريع والمهام وساعات العمل والتكلفة التقديرية	Projects, tasks, logged hours and estimated cost
 المشاريع وجداول الوقت	Projects & timesheets
+المشتري	Buyer
 المشتريات	Purchases
 المشتريات الخاضعة للنسبة الأساسية	Standard-rated purchases
 المشتريات الصفرية	Zero-rated purchases
@@ -3764,6 +3775,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تُحسب نهايتها تلقائياً	end calculated automatically
 تُحسم الغرامة من أجرك بما لا يزيد على أجر خمسة أيام في الشهر	The fine is deducted from your wage at no more than five days' wage a month
 تُحمَّل عليه رواتبه	their salaries are charged to it
+تُراجع	to review
 تُربط الفاتورة بعد اعتمادها من المالية	The invoice is linked after finance approves it
 تُرحّل الفاتورة بسعر الأمر بعد الخصم	The invoice is posted at the order's net price
 تُرسل بياناتك إلى المنشأة لغرض التوظيف فقط	Your details go to the company for hiring only
@@ -3781,6 +3793,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تُعتمد قبل تسليمها	is cleared before it is handed over
 تُعتمد قبل تسليمها للعميل	cleared before it is given to the customer
 تُعدَّل من صفحة الموظف	change them from the employee page
+تُعرف المعاملات بين الشركات من العميل أو المورد المعلَّم	Transactions between the companies are recognised by the customer or supplier marked
 تُعكس فقط	they are only reversed
 تُفتح الرسالة جاهزة من بريدك وواتساب جهازك	The message opens ready in your own mailbox and your device's WhatsApp
 تُفعّل	enable
@@ -4261,6 +4274,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 دورة تدريبية جديدة	New training course
 دورة تقييم جديدة	New review cycle
 دورة جديدة	New course
+دون أن تتغير دفاتر أي شركة	without changing any company's books
 دون أي بيانات من داخل المنشأة	with no data from inside the company
 دون مكافأة	without award
 دُفع من	Paid from
@@ -4315,6 +4329,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ربح على الرصيد المتناقص	profit on the declining balance
 ربط	Link
 ربط السجل بحسابك	Link record to your account
+ربط الشركات كعملاء وموردين	Link the companies as customers and suppliers
 ربط الفرع	Link the branch
 ربط الفرع مع فاتورة	Link the branch to Fatoora
 ربط بوابة الدفع	Payment gateway integration
@@ -4363,12 +4378,14 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 رصيد الإجازة السنوية الافتتاحي	Opening annual leave balance
 رصيد الإجازة السنوية المتراكم	Accrued annual leave balance
 رصيد الاجازة	Leave balance
+رصيد البائع المدين	Seller's receivable
 رصيد التذاكر المستحقة	Tickets due
 رصيد الحساب	Balance of account
 رصيد الدفاتر	Book balance
 رصيد العميل بعد هذه الفاتورة	The customer's balance after this invoice is
 رصيد العهدة	Fund balance
 رصيد الكشف	Statement balance
+رصيد المشتري الدائن	Buyer's payable
 رصيد الموظف من الإجازة السنوية كما في نهاية	the employee's annual leave balance as at the end of
 رصيد دائن	Credit balance
 رصيد دائن للطرف	Credit balance for the party
@@ -4645,6 +4662,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 سجّلت من رابطك	Signed up from your link
 سجّلنا منشأتك	We registered your company
 سجّله في التأمينات	register in GOSI
+سجّلها المشتري	Recorded by the buyer
 سجّلها بقيد يدوي من	record it with a manual entry from
 سحب	Revoke
 سحب صلاحية التصدير	Remove the export permission
@@ -4794,12 +4812,15 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 شركة الأفق للتجارة	Al-Ufuq Trading Co.
 شركة التأمين	Insurer
 شركة التمويل	Finance company
+شركة شقيقة	Sister company
+شركة شقيقة في المجموعة	Sister company in the group
 شروط الاستخدام	Terms of Use
 شروط الدفع والتسليم	Payment and delivery terms
 شريحة اتصال	SIM card
 شريط تنبيه أعلى الموقع	Notice bar at the top of the website
 شعار المنشأة	Company logo
 شغّل الإهلاك بالترتيب	run depreciation in order
+شقيقة	sister
 شكرا	Thank you
 شكرا لزيارتكم	Thank you for your visit
 شكرا لك	Thank you
@@ -4969,6 +4990,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 طباعة للموردين	Print for suppliers
 طباعة محضر التحقيق	Print investigation minutes
 طباعة ورقة العد	Print count sheet
+طرف خارجي	external party
 طريقة الأقساط	Instalment method
 طريقة الاحتساب	How it is counted
 طريقة التحقيق	Investigation method
@@ -5351,6 +5373,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فرق مُرحّل إلى	Difference posted to
 فرنسي	French
 فروع أو مشاريع أو أقسام	Branches, projects or departments
+فروق المعاملات بين الشركات	Differences between the companies' transactions
+فروق المعاملات بين الشركات (تُراجع)	Differences between the companies' transactions (to review)
 فروقات المخزون	Inventory differences
 فروقات عملة	exchange differences
 فريق المشروع	Project team
@@ -5398,6 +5422,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فواتير الموردين وأوامر الشراء والعهد والمواد المصروفة من المخزون وتكلفة ساعات الفريق	supplier invoices, purchase orders, petty cash, materials from stock and the team's hours cost
 فواتير بيئة المحاكاة للتجربة ولا يُعتدّ بها	Simulation invoices are for testing only and do not count
 فوترة الساعات المعتمدة	Invoice approved hours
+فوترها البائع	Invoiced by the seller
 في	in
 في إجازة	On leave
 في إجازة اليوم	On leave today
@@ -5777,6 +5802,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد مشاريع بعد	No projects yet
 لا توجد مصروفات مقدمة	No prepaid expenses
 لا توجد مطابقات مقترحة	No suggested matches
+لا توجد معاملات بين شركات المجموعة في الفترة	No transactions between the group's companies in the period
 لا توجد ملاحظات	No notes
 لا توجد ملاحظات بعد	No notes yet
 لا توجد ملاحظات بعد.	No notes yet.
@@ -6507,8 +6533,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مصنع الديار	Al-Diyar Factory
 مصنفة حسب الحساب المقابل	classified by the counter-account
 مضافة	Added
+مطابق	Matched
 مطابقات مقترحة	Suggested matches
 مطابقة	Matches
+مطابقة المعاملات بين الشركات	Matching between the companies
 مطابقة ثلاثية	Three-way match
 مطابقة حسابات البنك مع الكشف	Bank accounts matched with the statement
 مطابقة في منصة صحة	Matches on Seha
@@ -7097,6 +7125,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وافق على شروط الاستخدام وسياسة الخصوصية لإنشاء الحساب	Accept the Terms of Use and Privacy Policy to create the account
 واقتطاع التلفيات كذلك	and so do damage deductions
 واكتب الرمز الظاهر لحساب وعد	and type the code shown for the Waad account
+والأصول المشتراة من شركة شقيقة	and assets bought from a sister company
 والأصول غير الملموسة	intangible assets
 والإقامة لغيره	and the iqama for others
 والاستثمارات في منشآت محلية خاضعة للزكاة	investments in local zakat-paying entities
@@ -7112,6 +7141,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 والحد	and the limit is
 والخلايا الفارغة لا تمسح المحفوظ	and empty cells keep what is stored
 والدائن	and credit
+والذمم المدينة مقابل الدائنة	and receivables against payables
 والذهبي جارية	gold in progress
 والرقم الضريبي إن كنت مسجّلا	and the VAT number if registered
 والرقم الضريبي إن كنت مسجّلاً	and the VAT number if registered
@@ -7171,6 +7201,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وتُرحّل في الحسابات تلقائيا	posted to the books automatically
 وتُرحّل في الحسابات تلقائياً	posted to the books automatically
 وتُرحّل كأي فاتورة	and it posts like any invoice
+وتُستبعد المعاملات بين شركاتها	and transactions between its companies are eliminated
 وتُصحّح بإشعار دائن	they are corrected with a credit note
 وتُصرف له أيام أكتوبر في مسير نوفمبر كمستحقات الشهر السابق مع راتب نوفمبر كاملا	and is paid the October days in the November payroll as previous month's dues, with the full November wage
 وتُصرف له أيام أكتوبر في مسير نوفمبر كمستحقات الشهر السابق مع راتب نوفمبر كاملاً	and is paid the October days in the November payroll as previous month's dues, with the full November wage
@@ -7359,6 +7390,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ويسقط الأجر إذا ثبت عدم أداء الامتحان	and pay is lost if the exam was not sat
 ويصل المالك إيميل فوري بأن بياناته صُدّرت	and the owner gets an instant e-mail that his data was exported
 ويظهر ذلك في حساب نهاية الخدمة	and this shows in the end-of-service calculation
+ويظهر في الميزانية الموحدة سطرا مستقلا حتى يُصحّح	and it shows on its own line in the consolidated balance sheet until corrected
 ويعتمده المالك	approved by the owner
 ويعتمده الموارد البشرية ثم المالية ثم المدير العام	approved by HR, then finance, then the general manager
 ويعتمدها مدير المشروع	and the project manager approves them
@@ -7717,6 +7749,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يُسجّل في	is recorded in
 يُسدَّد العميل الآن	The customer is settled now
 يُسدَّد المورد الآن	The supplier is settled now
+يُسوّى يدويا	Adjusted by hand
 يُصرف خلال	Payable within
 يُصرف من مستودع	Issue from warehouse
 يُضاف لاشتراكك شهر مجاني	your subscription gets a free month

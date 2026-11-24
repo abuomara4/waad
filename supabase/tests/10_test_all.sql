@@ -4168,5 +4168,45 @@ select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenti
 select t.ok(not public.group_can(:'grp'), 'group: the owner reads the group only while managing every company in it');
 reset role;
 update public.members set role = 'owner' where company_id = :'cid4' and user_id = :'u_owner';
+-- intercompany eliminations (0142)
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok(public.group_link_parties(:'grp') = 4 and public.group_link_parties(:'grp') = 0, 'group: one click makes each company a customer and a supplier of its sister, once');
+reset role;
+select id as cust4 from public.parties where company_id = :'cid4' and kind = 'customer' and group_company_id = :'cid' \gset
+select id as sup1 from public.parties where company_id = :'cid' and kind = 'supplier' and group_company_id = :'cid4' \gset
+insert into public.items(company_id, code, name, type, sale_price) values (:'cid4', 'SRV-IC', 'خدمة إشراف', 'service', 500) returning id as itic \gset
+select t.err($$update public.parties set group_company_id = '$$ || :'cid2' || $$' where id = '$$ || :'sup1' || $$'$$, 'المجموعة نفسها', 'group: a sister company must be in the same group');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.post_sales_invoice_sn(:'cid4', jsonb_build_object('party', :'cust4', 'date', current_date, 'due', current_date, 'lines', jsonb_build_array(jsonb_build_object('item', :'itic', 'qty', 1, 'price', 500)))) as icinv \gset
+select public.post_purchase_bill(:'cid', jsonb_build_object('party', :'sup1', 'ref', 'IC-1', 'date', current_date, 'lines', jsonb_build_array(jsonb_build_object('account', '5300', 'qty', 1, 'price', 500))));
+select t.ok((select elim = -500 from public.group_income_statement(:'grp', current_date - 30, current_date) where code = '4200')
+  and (select elim = -500 from public.group_income_statement(:'grp', current_date - 30, current_date) where code = '5300')
+  and (select elim = 0 from public.group_income_statement(:'grp', current_date - 30, current_date) where section = 'net_profit'),
+  'eliminations: the sale between sisters leaves the group''s revenue and the buyer''s expense, and the group profit does not change');
+select t.ok((select amount from public.group_income_statement(:'grp', current_date - 30, current_date) where section = 'net_profit')
+    = (select sum(amount) filter (where section = 'revenue') - sum(amount) filter (where section in ('cogs','expense')) from public.group_income_statement(:'grp', current_date - 30, current_date)),
+  'eliminations: the consolidated lines still add up to the net profit');
+select t.ok((select elim = -575 from public.group_balance_sheet(:'grp', current_date) where code = '1200') and (select elim = -575 from public.group_balance_sheet(:'grp', current_date) where code = '2100')
+  and not exists(select 1 from public.group_balance_sheet(:'grp', current_date) where code = 'IC'),
+  'eliminations: the receivable and the payable between sisters (with VAT) leave the consolidated balance sheet; nothing left unmatched');
+select t.ok((select abs(sum(amount) filter (where section = 'asset') - sum(amount) filter (where section in ('liab','equity'))) < 0.01 from public.group_balance_sheet(:'grp', current_date)),
+  'eliminations: the consolidated balance sheet balances');
+select t.ok((select invoiced = 575 and recorded = 575 and receivable = 575 and payable = 575 from public.group_ic_recon(:'grp', current_date - 30, current_date) where seller = :'cid4' and buyer = :'cid'),
+  'eliminations: the matching report shows what the seller invoiced and what the buyer recorded');
+select public.post_sales_invoice_sn(:'cid4', jsonb_build_object('party', :'cust4', 'date', current_date, 'due', current_date, 'lines', jsonb_build_array(jsonb_build_object('item', :'itic', 'qty', 1, 'price', 300))));
+select t.ok((select amount = -345 from public.group_balance_sheet(:'grp', current_date) where code = 'IC')
+  and (select abs(sum(amount) filter (where section = 'asset') - sum(amount) filter (where section in ('liab','equity'))) < 0.01 from public.group_balance_sheet(:'grp', current_date))
+  and (select abs(sum(debit) - sum(credit)) < 0.01 from public.group_trial_balance(:'grp', current_date)),
+  'eliminations: an invoice the sister never recorded shows as a difference to review, and the statements still balance');
+select t.ok((select invoiced = 920 and recorded = 575 from public.group_ic_recon(:'grp', current_date - 30, current_date) where seller = :'cid4' and buyer = :'cid'),
+  'eliminations: the matching report points at the pair that differs');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.ok((select count(*) = 1 from public.group_sisters(:'cid') where id = :'cid4'), 'group: finance of a company sees its sister companies for the party form');
+select t.err($$select public.group_link_parties('$$ || :'grp' || $$')$$, '42501|لمالك', 'group: only the group owner links the companies');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.ok((select count(*) = 0 from public.group_sisters(:'cid')), 'group: another account sees no sister companies');
+reset role;
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary
