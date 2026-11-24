@@ -1288,6 +1288,12 @@ with sync_playwright() as pw:
     ok(sql("select count(*) from employees e join companies c on c.id = e.company_id where c.name = 'شركة التجارة الشقيقة'") == '0', 'groups: the sister company starts with its own empty data')
     o.select_option('#cs', cid0); o.wait_for_function("S.cid === '%s'" % cid0, timeout=15000); o.wait_for_timeout(500)
     go(o, '#/settings'); o.wait_for_selector('#grpc [data-grm]'); ok('شركة التجارة الشقيقة' in o.inner_text('#grpc'), 'groups: the owner sees the group\'s companies in the settings and switches back')
+    o.wait_for_selector('#nav a[href="#/dash/group"]', state='attached', timeout=10000); go(o, '#/dash/group'); o.wait_for_selector('#gbody table')
+    ok('شركة التجارة الشقيقة' in o.inner_text('#gbody') and o.locator('#gbody tfoot').count() == 1, 'groups: the group dashboard shows each company side by side with the group total')
+    o.select_option('.gdv', 'is'); o.wait_for_function("document.querySelector('.gdv') && document.querySelector('.gdv').value === 'is' && /صافي الربح/.test((document.querySelector('#gbody') || {}).innerText || '')", timeout=10000)
+    ok(o.locator('#gbody th').filter(has_text='شركة التجارة الشقيقة').count() == 1, 'groups: the consolidated income statement has a column for each company and the group total')
+    o.select_option('.gdv', 'tb'); o.wait_for_function("/متوازن/.test((document.querySelector('#gbody') || {}).innerText || '')", timeout=10000)
+    ok('غير متوازن' not in o.inner_text('#gbody'), 'groups: the consolidated trial balance balances'); o.evaluate("LS.set('waad.gdv', 'sum')")
     # company announcement: posted by HR, shown on the home page
     go(o, '#/announcements'); o.wait_for_selector('#annn'); o.click('#annn'); o.wait_for_selector('#dlg[open] input[name=title]')
     o.fill('#dlg input[name=title]', 'اجتماع عام الأحد'); o.fill('#dlg textarea[name=body]', 'اجتماع لكل الموظفين الساعة 10 صباحا'); sqlx("update employees set email = 'staff5001@example.com', phone = '0551234567' where emp_no = '5001'"); o.click('#mok'); o.wait_for_selector('#dlg[open] #asb a[data-mb]')

@@ -4139,5 +4139,34 @@ select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenti
 select public.group_company_remove(:'cid3');
 select t.ok((select group_id is null from public.companies where id = :'cid3') and jsonb_array_length(public.my_group()->'companies') = 1, 'the owner can take a company out of the group; it stays as it is');
 reset role;
+-- group reports (0141)
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.group_company_create(:'grp', 'شركة المقاولات', null, null, true) as cid4 \gset
+select public.post_manual_journal(:'cid4', current_date, 'إيراد اختبار', '[{"a":"1120","d":1000},{"a":"4100","c":1000}]');
+select t.ok((select amount from public.group_income_statement(:'grp', current_date - 365, current_date) where section = 'net_profit')
+    = (select sum(x.amount) from (select amount from public.income_statement(:'cid', current_date - 365, current_date) where section = 'net_profit'
+                                   union all select amount from public.income_statement(:'cid4', current_date - 365, current_date) where section = 'net_profit') x),
+  'group: the consolidated net profit is the sum of the companies'' net profits');
+select t.ok((select (by_company->>:'cid4')::numeric = 1000 from public.group_income_statement(:'grp', current_date - 365, current_date) where code = '4100'),
+  'group: each line shows every company''s share');
+select t.ok((select sum(amount) from public.group_balance_sheet(:'grp', current_date) where section = 'asset')
+    = (select sum(amount) from public.balance_sheet(:'cid', current_date) where section = 'asset') + (select sum(amount) from public.balance_sheet(:'cid4', current_date) where section = 'asset'),
+  'group: the consolidated assets are the sum of the companies'' assets');
+select t.ok((select abs(sum(debit) - sum(credit)) < 0.01 from public.group_trial_balance(:'grp', current_date)), 'group: the consolidated trial balance balances');
+select t.ok((select count(*) = 2 from public.group_summary(:'grp', current_date - 30, current_date))
+  and (select cash = 1000 and profit = 1000 from public.group_summary(:'grp', current_date - 30, current_date) where company_id = :'cid4'),
+  'group: one row per company with its cash and profit');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select * from public.group_income_statement('$$ || :'grp' || $$', current_date - 30, current_date)$$, '42501|لمالك', 'group: finance of one company cannot read the group''s statements');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.err($$select * from public.group_summary('$$ || :'grp' || $$', current_date - 30, current_date)$$, '42501|لمالك', 'group: another account cannot read the group');
+reset role;
+update public.members set role = 'employee' where company_id = :'cid4' and user_id = :'u_owner';
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok(not public.group_can(:'grp'), 'group: the owner reads the group only while managing every company in it');
+reset role;
+update public.members set role = 'owner' where company_id = :'cid4' and user_id = :'u_owner';
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

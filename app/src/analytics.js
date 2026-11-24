@@ -197,6 +197,7 @@ VIEWS['#/analytics'] = async page => {
 const DASH_P = [['m', 'هذا الشهر'], ['lastm', 'الشهر الماضي'], ['q', 'هذا الربع'], ['y', 'هذه السنة'], ['l12', 'آخر 12 شهرا']];
 async function dashSection(box, k, title) {
   if (k === 'branches') return dashBranches(box, title);
+  if (k === 'group') return dashGroup(box, title);
   const pre = LS.get('waad.odp') || 'y', [from, to] = anPreset(pre);
   box.innerHTML = `<div class="muted small" style="margin:12px 0">${esc(tr('جاري التحميل'))}…</div>`;
   const [d, lt] = await Promise.all([db.rpc('company_analytics', { p_company: S.cid, p_from: from, p_to: to }), LEAVE_TYPES().catch(() => [])]);
@@ -218,10 +219,11 @@ async function dashSection(box, k, title) {
 // which dashboards a person sees: the owner and admins all of them; otherwise the section they manage
 function dashKeys() {
   const br = S.nBranches > 0 ? ['branches'] : [];   // shown once the company has branches
-  if (has('owner', 'admin')) return ['exec', ...br, 'finance', 'sales', 'supply', 'hr', 'departments'];
+  const gr = S.group && has('owner', 'admin', 'finance') ? ['group'] : [];   // the group's owner (0141)
+  if (has('owner', 'admin')) return ['exec', ...gr, ...br, 'finance', 'sales', 'supply', 'hr', 'departments'];
   const k = [];
   if (has('hr')) k.push('hr');
-  if (has('finance', 'accountant')) k.push('finance', ...br, 'sales', 'supply');   // sales, purchasing and the warehouse all post to finance
+  if (has('finance', 'accountant')) k.push(...gr, 'finance', ...br, 'sales', 'supply');   // sales, purchasing and the warehouse all post to finance
   if (!has('hr', 'finance', 'accountant') && can('sales')) k.push('sales');
   if (!has('hr', 'finance', 'accountant') && (can('purch') || can('stock'))) k.push('supply');
   return k;
@@ -232,7 +234,7 @@ async function ownerDash(page) {
   let box = $('#odash', page); if (!box) { box = document.createElement('div'); box.id = 'odash'; const gr = $('.grid', page); (gr || $('.head', page)).after(box); }
   return dashSection(box, k);
 }
-const DASH_T = { exec: 'نظرة عامة', branches: 'الفروع', finance: 'المالية', sales: 'المبيعات', supply: 'المشتريات والمخزون', hr: 'الموارد البشرية', departments: 'الأقسام' };
+const DASH_T = { exec: 'نظرة عامة', group: 'المجموعة', branches: 'الفروع', finance: 'المالية', sales: 'المبيعات', supply: 'المشتريات والمخزون', hr: 'الموارد البشرية', departments: 'الأقسام' };
 VIEWS['#/dash'] = async (page, arg) => {
   const ks = dashKeys(), k = ks.includes(arg) ? arg : ks[0];
   if (!k) { page.innerHTML = `<div class="note">${esc(tr('لا توجد تحليلات متاحة لصلاحياتك.'))}</div>`; return; }
@@ -259,4 +261,59 @@ async function dashBranches(box, title) {
         <p class="muted small">${esc(tr('الإيرادات والمصروفات والربح من القيود المحمّلة على مركز تكلفة الفرع؛ المبيعات والمشتريات والرواتب من مستندات الفرع وموظفيه.'))}</p></div>`
       : `<div class="note">${esc(tr('لا توجد فروع بعد.'))} <a href="#/branches">${esc(tr('إدارة الفروع'))}</a></div>`}`;
   $('.dashp', box).onchange = e => { LS.set('waad.odp', e.target.value); dashBranches(box, title).catch(() => {}); };
+}
+
+// «المجموعة» (0141): the group's companies side by side, and its consolidated income statement, balance sheet and trial
+// balance — every account with each company's share and the total. Transactions between the companies are not eliminated yet.
+const GROUP_V = [['sum', 'الشركات جنبا إلى جنب'], ['is', 'قائمة الدخل الموحدة'], ['bs', 'الميزانية الموحدة'], ['tb', 'ميزان المراجعة الموحد']];
+async function dashGroup(box, title) {
+  const g = S.group; if (!g) { box.innerHTML = ''; return; }
+  const pre = LS.get('waad.odp') || 'y', [from, to] = anPreset(pre), v = GROUP_V.some(x => x[0] === LS.get('waad.gdv')) ? LS.get('waad.gdv') : 'sum';
+  box.innerHTML = `<div class="muted small" style="margin:12px 0">${esc(tr('جاري التحميل'))}…</div>`;
+  const cos = g.companies || [], cname = id => (cos.find(c => c.id === id) || {}).name || '—';
+  const by = (x, id) => n0((x.by_company || {})[id]);
+  const coCols = cos.map(c => ({ t: c.name, r: 1, h: x => by(x, c.id) ? money(by(x, c.id)) : '' }));
+  let body = '';
+  if (v === 'sum') {
+    const rows = await db.rpc('group_summary', { p_group: g.id, p_from: from, p_to: to }).catch(e => { throw e; });
+    const tot = k => rows.reduce((a, r) => a + n0(r[k]), 0);
+    body = `<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+        <div class="card"><h2>${esc(tr('المبيعات والربح حسب الشركة'))}</h2>${barChart(rows.map(r => ({ label: r.name, values: [Math.max(0, n0(r.sales)), Math.max(0, n0(r.profit))] })), [{ name: tr('المبيعات'), color: AN_C[0] }, { name: tr('صافي الربح'), color: AN_C[1] }], { fmt: x => money(x) })}</div>
+        <div class="card"><h2>${esc(tr('النقد والبنك حسب الشركة'))}</h2>${hbars(rows.map(r => ({ label: r.name, v: n0(r.cash) })), x => money(x))}</div></div>
+      <div class="card">${tbl([{ t: 'الشركة', h: r => `<b data-nt>${esc(r.name)}</b>` }, { t: 'المبيعات', r: 1, h: r => money(r.sales) }, { t: 'الفواتير', r: 1, h: r => `<span class="num">${r.sales_n}</span>` },
+        { t: 'المحصّل', r: 1, h: r => money(r.collected) }, { t: 'المشتريات', r: 1, h: r => money(r.purchases) }, { t: 'الرواتب', r: 1, h: r => money(r.payroll) }, { t: 'الموظفون', r: 1, h: r => `<span class="num">${r.headcount}</span>` },
+        { t: 'الإيرادات', r: 1, h: r => money(r.revenue) }, { t: 'المصروفات', r: 1, h: r => money(r.expense) }, { t: 'صافي الربح', r: 1, h: r => `<b class="${n0(r.profit) < 0 ? 'bad' : ''}">${money(r.profit)}</b>` }, { t: 'النقد والبنك', r: 1, h: r => money(r.cash) }], rows,
+        { foot: `<td><b>${esc(tr('المجموعة'))}</b></td>${['sales'].map(k => `<td class="r"><b>${money(tot(k))}</b></td>`).join('')}<td class="r num"><b>${tot('sales_n')}</b></td>${['collected', 'purchases', 'payroll'].map(k => `<td class="r"><b>${money(tot(k))}</b></td>`).join('')}<td class="r num"><b>${tot('headcount')}</b></td>${['revenue', 'expense', 'profit', 'cash'].map(k => `<td class="r"><b>${money(tot(k))}</b></td>`).join('')}` })}</div>`;
+  } else if (v === 'is') {
+    const ord = { revenue: 0, cogs: 1, expense: 2, net_profit: 9 }, sec = { revenue: 'الإيرادات', cogs: 'تكلفة المبيعات', expense: 'المصروفات', net_profit: '' };
+    const rows = (await db.rpc('group_income_statement', { p_group: g.id, p_from: from, p_to: to })).map((x, i) => [x, i]).sort((a, b) => ((ord[a[0].section] ?? 5) - (ord[b[0].section] ?? 5)) || a[1] - b[1]).map(x => x[0]);
+    body = `<div class="card">${tbl([{ t: 'القسم', h: x => esc(tr(sec[x.section] || '')) }, { t: 'الحساب', h: x => x.section === 'net_profit' ? `<b>${esc(tr(x.name))}</b>` : `<span class="num">${esc(x.code)}</span> ${esc(x.name)}` },
+      ...cos.map(c => ({ t: c.name, r: 1, h: x => x.section === 'net_profit' ? `<b>${money(by(x, c.id))}</b>` : by(x, c.id) ? money(by(x, c.id)) : '' })),
+      { t: 'المجموعة', r: 1, h: x => x.section === 'net_profit' ? `<b class="${n0(x.amount) < 0 ? 'bad' : 'ok'}">${money(x.amount)}</b>` : `<b>${money(x.amount)}</b>` }], rows, { empty: 'لا توجد حركات' })}</div>`;
+  } else if (v === 'bs') {
+    const sec = { asset: 'الأصول', liab: 'الخصوم', equity: 'حقوق الملكية' };
+    const rows = await db.rpc('group_balance_sheet', { p_group: g.id, p_as_of: to }), tot = k => rows.filter(x => x.section === k).reduce((a, x) => a + n0(x.amount), 0);
+    body = `<div class="card">${tbl([{ t: 'القسم', h: x => esc(tr(sec[x.section])) }, { t: 'الحساب', h: x => `${x.code ? `<span class="num">${esc(x.code)}</span> ` : ''}${esc(tr(x.name))}` }, ...coCols,
+      { t: 'المجموعة', r: 1, h: x => `<b>${money(x.amount)}</b>` }], rows, { empty: 'لا توجد أرصدة' })}
+      <p>${esc(tr('الأصول'))} <b class="num">${money(tot('asset'))}</b> · ${esc(tr('الخصوم وحقوق الملكية'))} <b class="num">${money(tot('liab') + tot('equity'))}</b></p></div>`;
+  } else {
+    const rows = await db.rpc('group_trial_balance', { p_group: g.id, p_as_of: to }), sd = rows.reduce((a, x) => a + n0(x.debit), 0), sc = rows.reduce((a, x) => a + n0(x.credit), 0);
+    body = `<div class="card">${tbl([{ t: 'الحساب', h: x => `<span class="num">${esc(x.code)}</span> ${esc(x.name)}` }, ...cos.map(c => ({ t: c.name, r: 1, h: x => by(x, c.id) ? money(by(x, c.id)) : '' })),
+      { t: 'مدين', r: 1, h: x => n0(x.debit) ? money(x.debit) : '' }, { t: 'دائن', r: 1, h: x => n0(x.credit) ? money(x.credit) : '' }], rows,
+      { empty: 'لا توجد حركات', foot: `<td colspan="${cos.length + 1}"><b>${esc(tr('الإجمالي'))}</b> ${Math.abs(sd - sc) < 0.01 ? `<span class="badge ok">${esc(tr('متوازن'))}</span>` : `<span class="badge bad">${esc(tr('غير متوازن'))}</span>`}</td><td class="r"><b>${money(sd)}</b></td><td class="r"><b>${money(sc)}</b></td>` })}
+      <p class="muted small">${esc(tr('أعمدة الشركات: الرصيد المدين بالموجب والدائن بالسالب.'))}</p></div>`;
+  }
+  if (!box.isConnected) return;
+  const vt = (GROUP_V.find(x => x[0] === v) || [])[1];
+  box.innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:${title ? '0' : '18px'} 0 6px">${title || `<h2 style="margin:0">${esc(tr('المجموعة'))}</h2>`}
+      <div class="row" style="gap:6px;flex-wrap:wrap"><select class="gdv" style="width:auto" aria-label="${esc(tr('التقرير'))}">${GROUP_V.map(([x, l]) => opt(x, tr(l), v)).join('')}</select>
+        <select class="dashp" style="width:auto" aria-label="${esc(tr('الفترة'))}">${DASH_P.map(([x, l]) => opt(x, tr(l), pre)).join('')}</select>
+        <button type="button" class="btn sm" id="gx">Excel</button><button type="button" class="btn sm" id="gp">${esc(tr('طباعة'))}</button></div></div>
+    <div class="muted small" style="margin-bottom:6px"><b data-nt>${esc(g.name)}</b> · ${v === 'bs' || v === 'tb' ? esc(tr('حتى تاريخ')) + ' ' + fdate(to) : fdate(from) + ' – ' + fdate(to)}</div>
+    <div id="gbody">${body}</div>
+    <p class="note small">${esc(tr('القوائم تجمع دفاتر شركات المجموعة حسب رمز الحساب. المعاملات بين شركات المجموعة لم تُستبعد بعد (المرحلة التالية)، فراجعها قبل الاعتماد على الأرقام الموحدة.'))}</p>`;
+  $('.gdv', box).onchange = e => { LS.set('waad.gdv', e.target.value); dashGroup(box, title).catch(() => {}); };
+  $('.dashp', box).onchange = e => { LS.set('waad.odp', e.target.value); dashGroup(box, title).catch(() => {}); };
+  $('#gx', box).onclick = () => tablesXlsx($('#gbody', box), g.name + ' — ' + tr(vt) + ' ' + to);
+  $('#gp', box).onclick = () => printBlock($('#gbody', box), g.name + ' — ' + tr(vt) + (v === 'bs' || v === 'tb' ? ' ' + tr('حتى') + ' ' + to : ' ' + from + ' – ' + to));
 }

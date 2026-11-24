@@ -140,6 +140,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أدنى راتب أساسي	Minimum basic salary
 أدوات	tools
 أرباح	Profit
+أرباح (خسائر) الفترة غير المقفلة	Profit (loss) for the open period
 أرباح القروض والعمولات البنكية	loan profit and bank charges
 أرباح فروقات العملة	Foreign exchange gains
 أردني	Jordanian
@@ -291,6 +292,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أعمال الفترة	Work this period
 أعمال منفذة	Work done
 أعمال هذه الفترة	Work this period
+أعمدة الشركات	Company columns
 أعمدة مطلوبة غير موجودة	Missing required columns
 أفغاني	Afghan
 أقر	Acknowledged
@@ -1717,6 +1719,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 التقدير	Rating
 التقديري	Estimate
 التقديم على وظيفة	Applying for a job
+التقرير	Report
 التقييم	Rating
 التقييم الذاتي	Self-review
 التقييم غير موجود	Review not found
@@ -1925,6 +1928,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الرصيد	Balance
 الرصيد الافتتاحي يكون زيادة في الكمية	Opening stock must be an increase in quantity
 الرصيد المتاح	available balance
+الرصيد المدين بالموجب والدائن بالسالب	debit balances positive, credit balances negative
 الرصيد المطابق	Cleared balance
 الرصيد الموجب	A positive balance
 الرصيد بالساعات	Balance (hours)
@@ -2067,6 +2071,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الشخص المسؤول	Contact person
 الشرط متاح لطلبات الإجازة والمبالغ فقط	The condition is for leave and money requests only
 الشرط متاح لطلبات المبالغ فقط	The rule is available for money requests only
+الشركات جنبا إلى جنب	Companies side by side
+الشركة	Company
 الشركة المصنعة	Make
 الشروط	Terms
 الشروط والأحكام	Terms and conditions
@@ -2307,6 +2313,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 القناة	Channel
 القوائم المالية	Financial statements
 القوائم الموحدة للمجموعة واستبعاد المعاملات بين شركاتها في المرحلة التالية	Consolidated statements for the group and eliminating transactions between its companies come in the next phase
+القوائم تجمع دفاتر شركات المجموعة حسب رمز الحساب	The statements add up the group companies' books by account code
 القوة القاهرة	Force majeure
 القيد	Entry
 القيد سطران على الأقل	An entry needs at least two lines
@@ -2403,6 +2410,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المبيعات شهرياً	Monthly sales
 المبيعات قبل الضريبة	Sales before VAT
 المبيعات والتسويق	Sales & Marketing
+المبيعات والربح حسب الشركة	Sales and profit by company
 المبيعات والربح حسب الفرع	Sales and profit by branch
 المبيعات والعملاء	Sales and customers
 المبيعات والمشتريات والرواتب من مستندات الفرع وموظفيه	sales, purchases and payroll from the branch's documents and staff
@@ -2422,6 +2430,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المتعلقات	Pending items
 المتوفر في المصدر	Available at source
 المتوقع	Expected
+المجموعة	Group
 المحاولات	Attempts
 المحتجز	Retention
 المحتوى طويل جدا	The content is too long
@@ -2484,6 +2493,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المرتجعات	Returns
 المرجع	Reference
 المرحلة	Stage
+المرحلة التالية	the next phase
 المرحلة الثانية	Phase 2
 المرحلة غير موجودة في هذا المشروع	The milestone is not in this project
 المرحلة لا تتبع هذا المشروع	The milestone is not part of this project
@@ -2607,6 +2617,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المظهر	Appearance
 المعادل بالريال	Equivalent in SAR
 المعادن المؤهلة	Qualifying metals
+المعاملات بين شركات المجموعة لم تُستبعد بعد	Transactions between the group's companies are not eliminated yet
 المعتاد في سياسات الجهات السعودية المنشورة	Common in published Saudi organisations' policies
 المعتاد في سياسات الجهات السعودية المنشورة: نحو 300 ريال يوميا داخل المملكة و600 خارجها للموظفين، وأعلى للمدراء (حدده في درجاتهم). وإذا أمّنت المنشأة السكن فيُخفض البدل بقدره.	Common in published Saudi organisations' policies: about SAR 300 a day inside the Kingdom and 600 outside for staff, higher for managers (set it on their grades). If the company provides accommodation, the allowance is reduced accordingly.
 المعتمد نفسه في المرحلة السابقة	same approver as the previous step
@@ -2713,6 +2724,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الموقع الرئيسي	Main website
 الموقّع	Signed by
 الميزانية	Budget
+الميزانية الموحدة	Consolidated balance sheet
 المُستلم	Received
 المُسلَّم	Delivered
 المُفوتر	Invoiced
@@ -2745,6 +2757,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 النظام الجديد	New regime
 النظام السابق	Previous regime
 النقد في البنك والصندوق	Cash at bank and on hand
+النقد والبنك	Cash and bank
+النقد والبنك حسب الشركة	Cash and bank by company
 النقدية آخر الفترة	Cash at end of period
 النقدية أول الفترة	Cash at beginning of period
 النقدية والبنوك	Cash and banks
@@ -3569,6 +3583,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تفعيل التنبيهات على هذا الجهاز	Turn on notifications on this device
 تفويض الاعتمادات	Delegate approvals
 تفويض جديد	New delegation
+تقارير المجموعة لمالك المجموعة فقط	Group reports are for the group's owner only
 تقارير الموارد البشرية	HR reports
 تقدر تعتمد الطلب أو ترفضه بدلا من المدير المباشر	You can approve or reject the request in the direct manager's place
 تقدر تعتمد الطلب أو ترفضه بدلا من المدير المباشر، ويُسجَّل باسمك مع السبب في مسار الطلب.	You can approve or reject the request in the direct manager's place; it is logged under your name with the reason in the request's journey.
@@ -5321,6 +5336,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فتنتهي في	so it ends on
 فتُباع قبل وصول فاتورة المورد	so they can be sold before the supplier bill arrives
 فتُحوَّل إلى إجازة بدون أجر وتُخصم في المسير	so it becomes unpaid leave and is deducted in payroll
+فراجعها قبل الاعتماد على الأرقام الموحدة	so review them before relying on the consolidated figures
 فرز أولي	Screening
 فرص مفتوحة	Open opportunities
 فرصة جديدة	New opportunity
@@ -5425,6 +5441,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قائمة	Active
 قائمة اختيار	Choice list
 قائمة الدخل	Income statement
+قائمة الدخل الموحدة	Consolidated income statement
 قائمة الدخل للسنة المقفلة تبقى كما هي	The closed year's income statement stays as it was
 قائمة مهام لكل موظف جديد خلال أول	A checklist for every new employee during their first
 قائمة مهام لكل موظف جديد خلال أول 120 يوما. بعضها يكتمل تلقائيا من بياناته، والباقي تعلّمه هنا.	A checklist for every new employee during their first 120 days. Some steps complete automatically from their data; you tick the rest here.
@@ -6787,6 +6804,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ميجابايت للملف	MB per file
 ميجابايت من	MB of
 ميزان المراجعة	Trial balance
+ميزان المراجعة الموحد	Consolidated trial balance
 مين عملاؤك	Who your customers are
 مُباعة	Sold
 مُدخلة بتاريخ	Entered as of

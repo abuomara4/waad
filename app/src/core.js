@@ -493,6 +493,8 @@ async function loadContext(pre) {
     S.emp ? db.get('employees', { id: 'eq.' + S.emp }) : [], S.emp ? db.get('petty_funds', { employee_id: 'eq.' + S.emp, select: 'id', limit: 1 }).catch(() => []) : [],
     S.emp ? db.get('employees', { company_id: 'eq.' + S.cid, manager_id: 'eq.' + S.emp, end_date: 'is.null', select: 'id', limit: 1 }).catch(() => []) : []]);
   S.company = co; S.sub = sub || null;
+  // the group this account owns (0140/0141): adds «المجموعة» under the dashboard once known
+  S.group = c.group_id ? await db.rpc('my_group').catch(() => null) : null;   // null unless this account owns the group
   if (typeof cfLoad === 'function') await cfLoad();
   S.perms = new Set();
   (c.perms || []).forEach(p => S.perms.add(p));
