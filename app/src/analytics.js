@@ -219,7 +219,7 @@ function dashKeys() {
   if (has('owner', 'admin')) return ['exec', 'finance', 'sales', 'supply', 'hr', 'departments'];
   const k = [];
   if (has('hr')) k.push('hr');
-  if (has('finance', 'accountant')) k.push('finance', 'supply');   // purchasing and the warehouse report to finance
+  if (has('finance', 'accountant')) k.push('finance', 'sales', 'supply');   // sales, purchasing and the warehouse all post to finance
   if (!has('hr', 'finance', 'accountant') && can('sales')) k.push('sales');
   if (!has('hr', 'finance', 'accountant') && (can('purch') || can('stock'))) k.push('supply');
   return k;
