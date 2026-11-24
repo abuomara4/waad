@@ -589,7 +589,7 @@ const MOD_ROUTES = {
   hr: ['hrdash', 'compliance', 'onboarding', 'announcements', 'surveys', 'workforce', 'employees', 'grades', 'insurance', 'trainplan', 'docs', 'att', 'attendance', 'roster', 'policies', 'leavecal', 'penalties', 'payroll', 'payslips', 'eos', 'nitaqat', 'travel', 'workflows', 'clearance', 'reviews', 'recruit', 'training', 'hrreports', 'org', 'letter', 'path', 'profile', 'requests'],
   sales: ['quotes', 'orders', 'deliveries', 'sales', 'crm', 'marketing', 'pos', 'recurring', 'agreements'],
   purch: ['purchreq', 'porders', 'receipts', 'purchases', 'rfq', 'supinbox'],
-  stock: ['items', 'warehouses', 'transfers', 'counts', 'expiry', 'reorder', 'serials'],
+  stock: ['items', 'warehouses', 'transfers', 'counts', 'expiry', 'reorder', 'serials', 'mfg'],
   finance: ['expensepolicy', 'payments', 'journal', 'reports', 'coa', 'bankrec', 'cheques', 'petty', 'mypetty', 'currencies', 'opening', 'assets', 'costcenters', 'budgets', 'periods', 'bankmatch', 'prepaid', 'monthclose', 'facilities', 'zakat', 'spend'],
   proj: ['projects', 'mytime', 'resources'] };
 const VIEW_ONLY = { employees: 'hr_emp', docs: 'hr_emp', att: 'hr_att', leavecal: 'hr_att', payroll: 'hr_pay', penalties: 'hr_disc', reviews: 'hr_disc' };
@@ -710,7 +710,7 @@ function navItems() {
   if (isFin() && (can('stock') || can('items') || can('stockadj'))) {
     g('المخزون');
     it.push({ h: '#/items', t: 'الأصناف والمخزون' }, { h: '#/warehouses', t: 'المستودعات' });
-    if (can('stock')) it.push({ h: '#/transfers', t: 'تحويلات المخزون' });
+    if (can('stock')) it.push({ h: '#/transfers', t: 'تحويلات المخزون' }, { h: '#/mfg', t: 'التصنيع وخطة المواد' });
     it.push({ h: '#/counts', t: 'الجرد' });
     if (can('stock')) it.push({ h: '#/expiry', t: 'صلاحية الأصناف' }, { h: '#/reorder', t: 'إعادة الطلب' }, { h: '#/serials', t: 'الأرقام التسلسلية' });
     fm('stock');

@@ -1724,6 +1724,17 @@ with sync_playwright() as pw:
     ok(sql(f"select difference from pos_shifts where company_id='{cid}' order by opened_at desc limit 1") == '-5.00' and 'تقرير إغلاق الوردية' in o.evaluate("document.getElementById('printarea').innerText"),
        'point of sale: the shift closes with the shortage and prints the Z report')
     ok(sql(f"select count(*) from journal_entries e join journal_lines l on l.entry_id = e.id where e.company_id='{cid}' and e.source='pos' and l.account_code='5970' and l.debit=5") == '1', 'point of sale: the shortage is posted to cash over and short')
+    # manufacturing (0145): a bill of materials, a production order completed from the screen, and the materials plan
+    comp = sql(f"select m.item_id from stock_moves m join items i on i.id = m.item_id join warehouses w on w.id = m.warehouse_id and w.is_default where m.company_id='{cid}' and i.type='stock' and not i.track_serial and not i.track_expiry group by m.item_id having sum(m.qty) >= 4 limit 1")
+    sqlx(f"insert into items(company_id, code, name, type, sale_price) values ('{cid}', 'MFG-1', 'منتج مصنّع للاختبار', 'stock', 100)")
+    fin = sql(f"select id from items where company_id='{cid}' and code='MFG-1'")
+    go(o, '#/mfg?t=bom'); o.wait_for_selector('#mbn'); o.click('#mbn'); o.wait_for_selector('#dlg[open] select[name=item]')
+    o.select_option('#dlg select[name=item]', fin); o.select_option('#dlg .bli', comp); o.fill('#dlg .blq', '2'); modal_ok(o)
+    ok(sql(f"select count(*) from boms b join bom_lines l on l.bom_id = b.id where b.item_id='{fin}' and l.item_id='{comp}' and l.qty = 2") == '1', 'mfg: a bill of materials is saved from the screen')
+    go(o, '#/mfg?t=mo'); o.wait_for_selector('#mon'); o.click('#mon'); o.wait_for_selector('#dlg[open] input[name=qty]'); o.select_option('#dlg select[name=item]', fin); o.fill('#dlg input[name=qty]', '1'); modal_ok(o)
+    o.wait_for_selector('[data-moc]'); o.click('[data-moc]'); o.wait_for_selector('#dlg[open] input[name=d]'); modal_ok(o); o.wait_for_timeout(800)
+    ok(sql(f"select status from production_orders where item_id='{fin}' order by created_at desc limit 1") == 'done', 'mfg: a production order is completed from the screen and the stock moves')
+    go(o, '#/mfg'); o.wait_for_function("/يلزم شراؤه/.test(document.body.innerText)", timeout=10000); ok('يلزم تصنيعه' in o.inner_text('body'), 'mfg: the materials plan shows what to make and what to buy')
     o.evaluate("window.print=window.__print;window.dispatchEvent(new Event('afterprint'))")
     # ---------- packages and the admin site (a separate page: waad-admin.html, published as site/admin/) ----------
     pp = new_page(b); signup(pp, 'platform@waad.test'); pp.wait_for_selector('#cf')

@@ -4284,5 +4284,50 @@ select t.err($$select public.pos_shift_summary('$$ || :'sh' || $$')$$, 'غير �
 select t.ok((select count(*) = 0 from public.pos_shifts), 'pos: another company sees no shifts');
 reset role;
 delete from public.member_perms where company_id = :'cid' and user_id = :'u_emp';
+-- manufacturing and MRP (0145)
+reset role;
+insert into public.items(company_id, code, name, type, sale_price) values (:'cid', 'MF-TBL', 'طاولة خشب', 'stock', 600) returning id as ftbl \gset
+insert into public.items(company_id, code, name, type, sale_price) values (:'cid', 'MF-WOOD', 'لوح خشب', 'stock', 0) returning id as fwood \gset
+insert into public.items(company_id, code, name, type, sale_price) values (:'cid', 'MF-SCR', 'مسمار', 'stock', 0) returning id as fscr \gset
+select id as fwh from public.warehouses where company_id = :'cid' order by is_default desc, created_at limit 1 \gset
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.post_purchase_bill_wh(:'cid', jsonb_build_object('party', :'s1', 'ref', 'MF-1', 'date', current_date, 'warehouse', :'fwh',
+  'lines', jsonb_build_array(jsonb_build_object('item', :'fwood', 'qty', 10, 'price', 50), jsonb_build_object('item', :'fscr', 'qty', 100, 'price', 1))));
+select public.bom_save(:'cid', :'ftbl', jsonb_build_object('output_qty', 1, 'extra_cost', 20, 'lines', jsonb_build_array(
+  jsonb_build_object('item', :'fwood', 'qty', 2), jsonb_build_object('item', :'fscr', 'qty', 8, 'scrap', 25))));
+select t.err($$select public.bom_save('$$ || :'cid' || $$', '$$ || :'fwood' || $$', '{"lines":[{"item":"$$ || :'ftbl' || $$","qty":1}]}')$$, 'حلقة', 'mfg: a bill of materials cannot loop back to its own item');
+select public.mo_save(:'cid', jsonb_build_object('item', :'ftbl', 'qty', 3, 'warehouse', :'fwh')) as mo1 \gset
+select t.ok((select count(*) = 2 and sum(need) filter (where item_id = :'fwood') = 6 and sum(need) filter (where item_id = :'fscr') = 30 from public.mo_needs(:'mo1')),
+  'mfg: the order needs each component for its quantity, scrap included');
+reset role;
+update public.items set reorder_level = 5 where id = :'ftbl';
+update public.items set reorder_level = 3 where id = :'fwood';
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok((select make and suggest = 2 from public.mrp_plan(:'cid') where item_id = :'ftbl')
+  and (select not make and dependent = 10 and suggest = 3 from public.mrp_plan(:'cid') where item_id = :'fwood')
+  and not exists(select 1 from public.mrp_plan(:'cid') where item_id = :'fscr'),
+  'mfg: the plan makes what is short (net of the open order), and buys components the made items and the open order will use');
+select public.mo_complete(:'mo1') as moc \gset
+select t.ok((:'moc'::jsonb->>'material')::numeric = 330 and (:'moc'::jsonb->>'extra')::numeric = 60 and (:'moc'::jsonb->>'unit_cost')::numeric = 130,
+  'mfg: completing takes the components at their average cost and adds the batch''s extra cost');
+reset role;
+select t.ok((select qty = 3 and value = 390 from public.stock_state(:'ftbl')) and (select qty = 4 from public.stock_state(:'fwood')) and (select qty = 70 from public.stock_state(:'fscr')),
+  'mfg: the finished item enters the stock at its cost and the components leave it');
+select t.ok((select count(*) = 1 from public.journal_entries e join public.journal_lines l on l.entry_id = e.id
+              where e.company_id = :'cid' and e.source = 'production' and e.source_id = :'mo1' and l.account_code = '5190' and l.credit = 60),
+  'mfg: only the extra cost is posted (Dr inventory / Cr manufacturing costs absorbed)');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.err($$select public.mo_complete('$$ || :'mo1' || $$')$$, 'ليس مفتوحا', 'mfg: an order is completed once');
+select public.mo_save(:'cid', jsonb_build_object('item', :'ftbl', 'qty', 100, 'warehouse', :'fwh')) as mo2 \gset
+select t.err($$select public.mo_complete('$$ || :'mo2' || $$')$$, 'المتوفرة', 'mfg: an order cannot use more than the warehouse holds');
+select public.mo_cancel(:'mo2');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select * from public.mrp_plan('$$ || :'cid' || $$')$$, '42501|لصلاحية', 'mfg: the plan is for stock or purchasing staff');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.err($$select * from public.mo_needs('$$ || :'mo1' || $$')$$, '42501|غير مصرح', 'mfg: another company cannot read a production order');
+select t.ok((select count(*) = 0 from public.boms) and (select count(*) = 0 from public.production_orders), 'mfg: another company sees no bills of materials or orders');
+reset role;
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

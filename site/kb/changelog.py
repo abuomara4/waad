@@ -3,6 +3,7 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('25 نوفمبر 2026', '25 November 2026', [
+  ('التصنيع وخطة المواد: قوائم مكوّنات وأوامر إنتاج بالتكلفة، وخطة تقول ما يُصنّع وما يُشترى مع أمر شراء بضغطة', 'Manufacturing and materials planning: bills of materials and costed production orders, and a plan of what to make and what to buy with a one-click purchase order'),
   ('نقطة البيع: ورديات الكاشير بعدّ الصندوق وتقرير الإغلاق، خصومات بحد تحدده الإدارة، والدفع نقدا أو بالشبكة أو بشيك أو آجل أو بأكثر من طريقة', 'Point of sale: cashier shifts with a cash count and a closing report, discounts within a limit set by management, and payment in cash, by card, by cheque, on credit or a mix'),
  ]),
  ('24 نوفمبر 2026', '24 November 2026', [

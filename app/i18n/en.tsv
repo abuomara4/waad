@@ -1,7 +1,10 @@
++ أمر إنتاج	+ Production order
 + حقل	+ Field
 + فئة	+ Category
 + فاتورة متكررة	+ Recurring invoice
 + فرع	+ Branch
++ قائمة مكوّنات	+ Bill of materials
++ مكوّن	+ Component
 + منشأة في المجموعة	+ Company in the group
 @ إشارة إلى زميل	@ Mention a colleague
 PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Word or image — up to 3 MB per file
@@ -249,6 +252,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أضف عميلاً أولاً	Add a customer first
 أضف مستودعا ثانيا لتحويل الكميات بينهما	Add a second warehouse to transfer between them
 أضف مستودعاً ثانياً لتحويل الكميات بينهما	Add a second warehouse to transfer between them
+أضف مكوّنا واحدا على الأقل	Add at least one component
 أضف موردا أولا	Add a supplier first
 أضف مورداً أولاً	Add a supplier first
 أضف موقع العمل والوردية من	Add the work site and shift from
@@ -350,6 +354,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ألغِها أولاً لإعادة الاستيراد	undo them first to import again
 ألماني	German
 أمر	order
+أمر إنتاج	Production order
+أمر الإنتاج غير موجود	The production order was not found
+أمر الإنتاج ليس مفتوحا	The production order is not open
 أمر البيع	Sales order
 أمر التغيير غير موجود	Change order not found
 أمر التغيير معتمد	The change order is approved
@@ -361,7 +368,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أمر تغيير جديد	New change order
 أمر شراء	Purchase order
 أمر شراء جديد	New purchase order
+أمر شراء للمحدد	Purchase order for the selected
 أمر شراء مباشر	Direct purchase order
+أمر شراء من خطة المواد	Purchase order from the materials plan
 أمريكي	American
 أمين مستودع	Storekeeper
 أنا	Me
@@ -422,9 +431,12 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أوافق تماما	strongly agree
 أوافق على	I agree to the
 أوافق على حفظ بيانات منشأتي وموظفيها وعملائها لدى مزوّد سحابي خارج المملكة	I agree that the data of my company, its employees and customers is stored with a cloud provider outside the Kingdom
+أوامر الإنتاج	Production orders
 أوامر البيع	Sales orders
+أوامر البيع المفتوحة غير المسلّمة	open sales orders not yet delivered
 أوامر التغيير	Change orders
 أوامر الشراء	Purchase orders
+أوامر شراء لم تُستلم وأوامر إنتاج مفتوحة	purchase orders not yet received and open production orders
 أوزان المراحل	milestone weights
 أوزبكي	Uzbek
 أوصي بشدة	highly recommend
@@ -774,11 +786,12 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إلزامية عند الرفض	required when rejecting
 إلغاء	Cancel
 إلغاء آخر إهلاك	Undo last depreciation
+إلغاء أمر الإنتاج	Cancel the production order
 إلغاء إشعار التسليم	Void delivery note
 إلغاء إهلاك	Undo depreciation
 إلغاء استلام بضاعة	Void goods receipt
 إلغاء الأرصدة الافتتاحية	Undo opening balances
-إلغاء الأمر	Cancel order
+إلغاء الأمر	Cancel the order
 إلغاء الإشعار	Void note
 إلغاء الاستلام	Void receipt
 إلغاء التأشيرة	Cancel visa
@@ -817,6 +830,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إن لم تكن لها مهام	if it has no tasks
 إن لم يكن مسجّلا	if not registered
 إن وجد	if any
+إنتاج	Production
 إنجاز المشروع في موعده	delivering the project on time
 إنجاز كل مرحلة	each milestone's progress
 إنجليزي	English
@@ -1161,6 +1175,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اشتراكها مفتوح وما أحد دخل منها من	Subscription is open and nobody has signed in for
 اشترك الآن	Subscribe now
 اشتركت	Subscribed
+اشترها أو حوّلها للمستودع أولا	buy them or transfer them to the warehouse first
 اشرح المشكلة وموضع حدوثها	Describe the problem and where it happened
 اشرح المشكلة وموضع حدوثها، وأرفق نص رسالة الخطأ إن وجدت.	Describe the problem and where it happened, and include the error message if there is one.
 اضغط	press
@@ -1421,6 +1436,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الأصناف الأكثر مبيعاً	Best-selling items
 الأصناف المخزنية تُفوتر بقدر ما استُلم فقط	stock items are billed only up to what was received
 الأصناف برموزها	items by their codes
+الأصناف ذات الأرقام التسلسلية لا تُصنّع هنا بعد	Items with serial numbers cannot be manufactured here yet
 الأصناف والمخزون	Items and inventory
 الأصول	Assets
 الأصول الثابتة	Fixed assets
@@ -1723,6 +1739,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 التسويق والحملات والفرص	Marketing, campaigns and opportunities
 التشاجر مع الزملاء أو مع الغير أو إحداث مشاغبات في مكان العمل	Quarrelling with co-workers or others, or causing disturbances at the workplace
 التصحيح بإشعار دائن	corrections are made with a credit note
+التصنيع لصلاحية المخزون أو المشتريات	Manufacturing is for stock or purchasing staff
+التصنيع وخطة المواد	Manufacturing and materials plan
 التصنيف	Category
 التصنيف الرسمي في منصة قوى	the official band is in Qiwa
 التظلم	Grievance
@@ -1756,6 +1774,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 التكرار	Repeats
 التكلفة	Cost
 التكلفة أسرع من الإنجاز	Cost ahead of progress
+التكلفة الإضافية	The extra cost
+التكلفة التقديرية	Estimated cost
 التكلفة الشهرية للفرد	Monthly cost per person
 التكلفة الفعلية	Actual cost
 التكلفة المتوقعة عند الإنجاز	Estimated cost at completion
@@ -1818,6 +1838,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الجواب بالعربية	Answer in Arabic
 الجوال	Mobile
 الجودة	Quality
+الحاجة	Need
 الحالة	Status
 الحالة الاجتماعية	Marital status
 الحالة الاجتماعية غير صحيحة	Invalid marital status
@@ -2145,8 +2166,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الصنف	Item
 الصنف أو الخدمة	Item or service
 الصنف أو الخدمة المطلوبة	Item or service needed
+الصنف المصنّع	Manufactured item
+الصنف المصنّع يكون صنفا مخزنيا	The manufactured item must be a stock item
 الصنف غير موجود أو ليس مخزنيا	Item not found or not a stock item
 الصنف غير موجود أو ليس مخزنياً	Item not found or not a stock item
+الصنف لا يكون مكوّنا لنفسه	An item cannot be its own component
 الصنف موقوف	The item is inactive
 الصورة كبيرة جدا	The image is too large
 الصورة كبيرة جداً	The image is too large
@@ -2331,6 +2355,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 القائمة	Menu
 القابل للفوترة	Billable
 القابلة للاسترداد	refundable
+القادم	incoming
 القبول كـ	Accept as
 القرار	Decision
 القروض	Loans
@@ -2474,6 +2499,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المتدربون	Trainees
 المتطلبات	Requirements
 المتعلقات	Pending items
+المتوفر	On hand
+المتوفر في المستودع	Available in the warehouse
 المتوفر في المصدر	Available at source
 المتوقع	Expected
 المجموعة	Group
@@ -2679,6 +2706,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المغادرون حسب السبب	Leavers by reason
 المفوتر	Invoiced
 المقابلة	Interview
+المقترح تصنيعه	Suggested to make
+المقترح شراؤه	Suggested to buy
 المقيّم	Reviewer
 المكافأة	Reward
 المكافأة الكاملة	Full award
@@ -2687,6 +2716,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المكتسب	Earned
 المكتوب على الشيك	written on the cheque
 المكلّف	Assignee
+المكوّن	Component
+المكوّن يكون صنفا مخزنيا من أصناف المنشأة	A component must be one of the company's stock items
+المكوّنات	Components
+المكوّنات تعود إلى الصنف نفسه	The components lead back to the item itself
+المكوّنات لكل دفعة	Components per batch
 الملاحظات	Notes
 الملاحظات والإشارات على السجلات	Notes and mentions on records
 الملاحظة	Note
@@ -3224,6 +3258,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تاريخ الإغلاق المتوقع	Expected close date
 تاريخ الإقفال الجديد قبل الحالي	The new closing date is before the current one
 تاريخ الإقفال قبل اليوم	Closing date must be before today
+تاريخ الإنتاج المخطط	Planned production date
 تاريخ الاستبعاد غير صحيح	Invalid disposal date
 تاريخ الاستحقاق	Due date
 تاريخ الاستحقاق قبل تاريخ الفاتورة	The due date is before the invoice date
@@ -3253,6 +3288,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تاريخ التصدير	Exported at
 تاريخ التظلم	Grievance date
 تاريخ التعيين	Hire date
+تاريخ التنفيذ	Completion date
 تاريخ التواصل	Contact date
 تاريخ التواصل في المستقبل	The contact date is in the future
 تاريخ التوريد المتوقع بعد تاريخ الأمر	Expected delivery must be after the order date
@@ -3677,7 +3713,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تقييم المورد	Rate supplier
 تقييم فريقي	My team's reviews
 تقييماتي	My reviews
+تكاليف تصنيع محمّلة	Manufacturing costs absorbed
 تكلفة آخر مسير	Cost of the last payroll
+تكلفة إضافية للدفعة	Extra cost per batch
 تكلفة الأقسام	Department cost
 تكلفة البضاعة المباعة	Cost of goods sold
 تكلفة التدريب	Training cost
@@ -3706,6 +3744,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تم إنشاء الحساب	Account created
 تم إنشاء المجموعة	Group created
 تم إنشاء المنشأة	Company created
+تم الإنتاج	Produced
 تم الإيقاف	Suspended
 تم الاستيراد	Imported
 تم الاطلاع	Got it
@@ -3771,6 +3810,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تنزيل القالب بأسماء الموظفين	Download template with employees
 تنزيل الملف	Download file
 تنزيل قائمة الموظفين للجهاز	Download the employee list for the device
+تنفيذ	Complete
+تنفيذ أمر الإنتاج	Complete the production order
 تنقفل كل الأقسام لين تعيد تفعيلها	All modules close until you reactivate it
 تنقلات	transport
 تواصل مع الموارد البشرية	contact HR
@@ -3839,6 +3880,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تُسجَّل محاسبياً في حساب	They are booked to the account
 تُسدد الأقدم فالأحدث	paid oldest first
 تُصدر من أمر البيع عند خروج البضاعة للعميل	Issued from the sales order when goods leave for the customer
+تُصرف المكوّنات بمتوسط تكلفتها ويدخل الصنف المصنّع بتكلفتها مضافا إليها التكلفة الإضافية للدفعات	Components leave at their average cost and the manufactured item enters at that cost plus the batches' extra cost
 تُضاف إلى صلاحيات دوره العامة في	Added to the general permissions of the role in
 تُضاف البيانات التجريبية فقط لمنشأة جديدة بلا موظفين	Sample data is only added to a new company with no employees
 تُطبَّق فقط إذا زاد المبلغ أو عدد أيام الإجازة عن الحد	applies only when the amount or the leave days exceed the limit
@@ -4073,6 +4115,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حذف العقد	Delete the contract
 حذف الفئة	Delete category
 حذف الفاتورة المتكررة	Delete recurring invoice
+حذف القائمة	Delete the list
 حذف المرحلة	Delete milestone
 حذف المرفق	Delete attachment
 حذف المستند	Delete document
@@ -4182,6 +4225,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حقوق الملكية وما في حكمها	Equity and its equivalents
 حقوق ملكية	Equity
 حقول إضافية	Additional fields
+حلقة	loop
 حلول دقيقة	Precise solutions
 حلول دقيقة.. لوعد موثوق	Precise solutions — a promise you can trust
 حلول دقيقة… لوعد موثوق	Precise solutions — a promise you can trust
@@ -4261,6 +4305,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 خطة التدريب السنوية	Annual training plan
 خطة القوى العاملة	Workforce plan
 خطة المعالجة	Mitigation plan
+خطة المواد	Materials plan
+خطة المواد لصلاحية المخزون أو المشتريات	The materials plan is for stock or purchasing staff
 خطر جديد	New risk
 خطوات تجهيز منشأتك	Your company's setup steps
 خطوات قصيرة لما تستخدمه في وعد	Short steps for what you use in Waad
@@ -4830,6 +4876,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 سياسات بانتظار إقرارك	Policies awaiting your acknowledgement
 سياسة	Policy
 سياسة الخصوصية	Privacy Policy
+سياسة المنشأة وتُحمّل على الصنف المصنّع	is company policy and is charged to the manufactured item
 سياسة جديدة	New policy
 سيدخل الموظف برمز المنشأة	The employee will sign in with the company code
 سيصدر القرار	The decision will be
@@ -4973,6 +5020,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 صرف على عدة فواتير	Pay several invoices
 صرف عهدة نقدية	Petty cash fund handed over
 صرف قيمتها تسجله المالية	Finance records its payment
+صرف لأمر الإنتاج	Issued to production order
 صرف للمشروع	Issued to project
 صرف مصروف عام	Pay a general expense
 صرف مواد للمشروع	Issue materials to the project
@@ -5190,6 +5238,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عرف عن وعد من	Heard about Waad from
 عروض أسعار تحولت لفواتير	Quotations turned into invoices
 عروض الأسعار	Quotations
+عرّف مكوّنات الصنف أولا	Define the item's components first
+عرّف مكوّنات صنف أولا من	Define an item's components first from
 عزباء	Single
 عزّز العهدة أولا	top up the fund first
 عزّز العهدة أولاً	top up the fund first
@@ -5243,6 +5293,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 على ورق المنشأة الرسمي	On the company's printed letterhead
 عليه إشعار دائن	Has a credit note
 علّم ما تريد ثم اضغط إضافة المحدد	Tick what you need and press Add selected
+عمالة أو تشغيل	labour or running
+عمالة وتشغيل	labour and running
 عماني	Omani
 عمل إضافي	Overtime
 عمل إضافي قريب من	Overtime close to
@@ -5502,6 +5554,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 في المالية	in finance
 في المجموعة منشأة بهذا الاسم	The group already has a company with this name
 في المخزون	In stock
+في المستودع	in the warehouse
 في المقابلات	In interviews
 في الملف	in the file
 في النظام	System qty
@@ -5535,10 +5588,14 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قائمة الدخل	Income statement
 قائمة الدخل الموحدة	Consolidated income statement
 قائمة الدخل للسنة المقفلة تبقى كما هي	The closed year's income statement stays as it was
+قائمة المكوّنات تقول ما تستهلكه دفعة واحدة من الصنف	The bill of materials says what one batch of the item consumes
+قائمة مكوّنات	Bill of materials
+قائمة مكوّنات جديدة	New bill of materials
 قائمة مهام لكل موظف جديد خلال أول	A checklist for every new employee during their first
 قائمة مهام لكل موظف جديد خلال أول 120 يوما. بعضها يكتمل تلقائيا من بياناته، والباقي تعلّمه هنا.	A checklist for every new employee during their first 120 days. Some steps complete automatically from their data; you tick the rest here.
 قابلة	Billable
 قابلة للفوترة	Billable
+قادم	Incoming
 قارن مع القالب المنزّل من حسابك في مدد قبل الرفع	compare with the template downloaded from your Mudad account before uploading
 قارنها	compare them
 قالب سريع	Quick template
@@ -5582,6 +5639,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قسيمة راتب	Payslip
 قسّم المشروع إلى مراحل بأوزان مجموعها	split the project into milestones whose weights total
 قطري	Qatari
+قوائم المكوّنات	Bills of materials
 قوقل	Google
 قوى	Qiwa
 قيد	Entry
@@ -5707,9 +5765,13 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كمبيوتر	Computer
 كمية أو تكلفة الصنف	Quantity or cost of item
 كمية إعادة الطلب	Reorder quantity
+كمية الإنتاج أكبر من صفر	The output quantity must be more than zero
+كمية الدفعة	Batch quantity
+كمية الشراء لا تقل عن كمية إعادة الطلب للصنف	The purchase quantity is never below the item's reorder quantity
 كمية العقد	Contract qty
 كمية المرتجع	Return quantity
 كمية المرتجع أكبر من المتاح	The return quantity exceeds what is available
+كمية المكوّن أكبر من صفر	The component quantity must be more than zero
 كندي	Canadian
 كوري	Korean
 كويتي	Kuwaiti
@@ -5762,6 +5824,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد أعضاء	No members
 لا توجد أقسام	No departments
 لا توجد أهداف لهذه الفترة بعد	No objectives for this period yet
+لا توجد أوامر إنتاج	No production orders
 لا توجد أوامر بيع	No sales orders
 لا توجد أوامر تغيير	No change orders
 لا توجد أوامر شراء	No purchase orders
@@ -5855,6 +5918,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد فواتير واردة	No incoming invoices
 لا توجد قروض	No loans
 لا توجد قسائم معتمدة بعد	No approved payslips yet
+لا توجد قوائم مكوّنات بعد	No bills of materials yet
 لا توجد قيود	No entries
 لا توجد قيود بعد	No entries yet
 لا توجد قيود في هذه الفترة	No entries in this period
@@ -5928,8 +5992,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يعتمد الشخص نفسه مرحلتين من المسير	The same person cannot sign two payroll steps
 لا يعتمد القيد من أعدّه	The person who prepared the entry cannot approve it
 لا يعتمد الموظف ساعاته بنفسه	An employee does not approve his own hours
+لا يكفي المخزون من بعض المكوّنات	There is not enough stock of some components
 لا يكون الموظف مديرا لنفسه	an employee cannot be their own manager
 لا يكون الموظف مديراً لنفسه	an employee cannot be their own manager
+لا يلزم تصنيع شيء الآن	Nothing needs to be made now
+لا يلزم شراء شيء الآن	Nothing needs to be bought now
 لا يمكن إلغاء طلب تم البت فيه	A request already decided cannot be cancelled
 لا يمكن إلغاء فاتورة عليها سداد	An invoice with payments cannot be voided
 لا يمكن اختيار أحد أفراد فريقه مديرا له حتى لا يصير التسلسل دائريا	Someone from their own team cannot be chosen as their manager, so the reporting line does not loop
@@ -6018,6 +6085,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يُحذف ولا تقل كميته عن المنفذ	it cannot be deleted or cut below the quantity done
 لا يُحذف ولا تُخفض كميته أو سعره	it cannot be deleted or have its quantity or rate cut
 لا يُحوَّل إلا عرض مفتوح أو مقبول	Only an open or accepted quotation can be converted
+لا يُستهلك في التصنيع هنا بعد	cannot be consumed in manufacturing here yet
 لا يُشدَّد الجزاء عند تكرار المخالفة إذا مضى	A repeat is not punished more heavily if
 لا يُشغّل الإهلاك لشهر مستقبلي	Depreciation cannot run for a future month
 لا يُعتدّ بالفواتير	invoices do not count
@@ -6107,11 +6175,13 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 للتأكيد اكتب اسم المنشأة كما هو	To confirm, type the company name exactly
 للتأكيد اكتب اسم المنشأة كما هو:	To confirm, type the company name exactly:
 للتحويل من سجل الحضور	To convert from attendance
+للتصنيع	For manufacturing
 للحالة	for status
 للربط الفعلي اختر	for the real link choose
 للزيادة	for increases
 للزيادة في صنف بصلاحية	for an increase in an expiry-tracked item
 للسنة الهجرية	for a Hijri year
+للصنف أوامر إنتاج مفتوحة	The item has open production orders
 للعقد بالساعة	for hourly contracts
 للعميل المحتمل	for a prospect
 للفاتورة الإلكترونية حتى يُسجّل الرقم الضريبي للمنشأة في الإعدادات	for the e-invoice until the company VAT number is set in Settings
@@ -6249,6 +6319,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ما الذي تقترح تحسينه	What do you suggest improving
 ما الذي كان سيجعل انضمامك أسهل	What would have made joining easier
 ما السبب الرئيسي لمغادرتك	What is the main reason you are leaving
+ما تحتاجه أوامر التصنيع المقترحة	what the suggested production needs
 ما تمنحه لوظيفة	What you give the job
 ما رُحّل يبقى كما هو	what was posted stays
 ما طُبع شي للحين	Nothing printed yet
@@ -6281,6 +6352,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ما يقدر يدخل اللوحة بعدها	They will no longer be able to sign in
 ما يلزم منشأتك نظاما في مكان واحد	What your company must do by law, in one place
 ما يمدّد	no extension
+ما يُصنَّع من ماذا	What is made from what
 ماجستير	Master's
 ماذا فتح	What was opened
 ماذا لو	What if
@@ -6723,6 +6795,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مكرر من نظام العمل	bis of the Labor Law
 مكررة	duplicates
 مكسوبة	Won
+مكوّن	component
 ملاحظ	notes
 ملاحظات	Notes
 ملاحظات الفريق	Team notes
@@ -6792,6 +6865,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 من ح	from a/c
 من حساب	From account
 من حساب (مدين): مخصص أو مصروف نهاية الخدمة	From account (debit): end-of-service provision or expense
+من خطة المواد	From the materials plan
 من رصيد الإجازة السنوية	from the annual leave balance
 من رصيد الإجازة السنوية أو بدون أجر	from the annual balance or unpaid
 من رصيد ساعات العمل الإضافي	from the overtime hours balance
@@ -6852,7 +6926,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 منشأتك تمنع الاعتماد النهائي لما يتجاوز الموازنة	your company blocks the final approval of what exceeds the budget
 منضمون	Joiners
 منع الاعتماد النهائي لطلبات الصرف	Block the final approval of spend requests
-منفّذ	Delivered
+منفّذ	Done
 منهم تابعون	of them dependants
 مهام مقترحة	Suggested tasks
 مهلة الإشعار	Notice period
@@ -7110,6 +7184,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 هامش الربح الإجمالي	Gross margin
 هامش صافي الربح	Net profit margin
 هجري	Hijri
+هدر	Scrap
 هدف	goal
 هدف المبيعات	Sales target
 هدف جديد	New objective
@@ -7191,6 +7266,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وأعلى للمدراء	higher for managers
 وأنه لا توجد لي أي مطالبات أخرى لدى المنشأة	and that I have no other claims on the company
 وأهم الأرقام	and the key figures
+وأوامر الإنتاج	production orders
 وإجماليها	totalling
 وإذا أمّنت المنشأة السكن فيُخفض البدل بقدره	If the company provides accommodation, the allowance is reduced accordingly
 وإذا اختلفت السنة المالية تُحسب بالأيام الفعلية	and when the financial year differs it is by actual days
@@ -7255,6 +7331,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 والمدير المباشر يُكتب برقمه الوظيفي	and the direct manager is written as their employee number
 والمرسلة قبل الربط تبقى في سلسلة المنشأة	and those sent before linking stay in the company's chain
 والمسؤولية في صحة البيانات على المنشأة	and the company is responsible for the data being correct
+والمطلوب	and the quantity needed is
 والمقياس	and scale
 والمهام	and tasks
 والموردين	and suppliers
@@ -7449,6 +7526,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وليست إيرادا للمنشأة	not company income
 وليست إيراداً للمنشأة	not company income
 وما لم يُستخدم منها يظهر في حساب المخالصة	unused tickets appear in the final settlement
+وما يلزم تصنيعه أو شراؤه	and what needs to be made or bought
 وما يُطلب بعده يُخصم منه	and leave requested after it is deducted from it
 ومجموع الحسميات لا يتجاوز نصف الأجر	and total deductions cannot exceed half the wage
 ومحتجز الضمان جزء من قيمة الفاتورة تُحسب عليه الضريبة ولا تصدر فاتورة عند استرداده	and retention is part of the invoice value, taxed, with no invoice when it is repaid
@@ -7550,6 +7628,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يبقى ما سُلّم وفُوتر كما هو	What was delivered and invoiced stays as is
 يبي باقة أكبر	wants a bigger plan
 يتبعه مباشرة	Direct reports
+يتتبع أرقاما تسلسلية أو تواريخ صلاحية	tracks serial numbers or expiry dates
 يتجاوز الحد السنوي للعمل الإضافي	Exceeds the annual overtime limit of
 يتجاوز الموازنة	Exceeds the budget
 يتجاوز الموازنة في الحساب	Over the budget on account
@@ -7669,6 +7748,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يكون تأجيل القبول قبل انتهاء الثلاثين يوماً من تقديم الاستقالة	The deferral must be made before 30 days pass from the resignation
 يلبي التوقعات	Meets expectations
 يلزم الموافقة على تخزين البيانات خارج المملكة	Consent to storing the data outside the Kingdom is required
+يلزم تصنيعه	To make
+يلزم شراؤه	To buy
 يلزم موافقة العامل الكتابية	the worker's written consent is required
 يلزم موافقة العامل الكتابية لسنة	the worker's written consent is required for year
 يلغي القديم	cancels the old one
@@ -7864,7 +7945,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يُقدَّم للعامل مكتوبا	given to the worker in writing
 يُقدَّم للعامل مكتوباً	given to the worker in writing
 يُقيد إهلاك شهر	Posts depreciation for month
+يُلغى الأمر دون أي حركة على المخزون	The order is cancelled without any stock movement
+يُنتج	Produces
 يُنسخ عند الضغط	it is copied when you press
+يُنشأ أمر الشراء مفتوحا لتراجعه وترسله للمورد	The purchase order is created open so you can review it and send it to the supplier
 يُنشأ الطرف إن لم يكن موجودا	the party is created if it does not exist
 يُنشأ الطرف إن لم يكن موجوداً	the party is created if it does not exist
 يُنشأ تقييم لكل موظف على رأس العمل	A review is created for every active employee

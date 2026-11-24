@@ -271,3 +271,90 @@ function invSheet(title, meta, cols, rows, signs, note) {
     <table class="iv-meta"><tbody><tr>${signs.map(s => `<td>${B(s[0], s[1])}</td><td style="height:14mm"></td>`).join('')}</tr></tbody></table>
     <div class="iv-foot">${B('صدر من نظام وعد · تاريخ الطباعة ' + today(), 'Issued by Waad · printed ' + today())}</div></div>`;
 }
+
+/* ===== «التصنيع وخطة المواد» (#/mfg, 0145): bills of materials, production orders (components out at average cost, the
+   finished item in at that cost + the batch's extra cost) and the materials plan — what to make and what to buy, from open
+   sales orders, reorder levels, stock on hand and what is already ordered ===== */
+const MFG_T = [['plan', 'خطة المواد'], ['mo', 'أوامر الإنتاج'], ['bom', 'قوائم المكوّنات']];
+VIEWS['#/mfg'] = async (page, arg, q) => {
+  if (!(can('stock') || can('purch'))) { page.innerHTML = `<div class="note">${esc(tr('التصنيع لصلاحية المخزون أو المشتريات.'))}</div>`; return; }
+  const t0 = q && q.get('t'), t = MFG_T.some(x => x[0] === t0) ? t0 : 'plan';
+  const [items, boms, lines] = await Promise.all([db.get('items', { company_id: 'eq.' + S.cid, type: 'eq.stock', order: 'name', select: 'id,code,name,unit,sale_price,track_serial,track_expiry,active' }),
+    db.get('boms', { company_id: 'eq.' + S.cid }).catch(() => []), db.get('bom_lines', { company_id: 'eq.' + S.cid }).catch(() => [])]);
+  const im = {}; items.forEach(i => im[i.id] = i); const iname = id => (im[id] || {}).name || '—';
+  const head = `<div class="head"><div><h1>${esc(tr('التصنيع وخطة المواد'))}</h1><div class="muted">${esc(tr('ما يُصنَّع من ماذا، وأوامر الإنتاج، وما يلزم تصنيعه أو شراؤه.'))}</div></div>
+      <div class="row" style="gap:6px;flex-wrap:wrap">${t === 'bom' ? `<button class="btn pri" id="mbn">${esc(tr('+ قائمة مكوّنات'))}</button>` : t === 'mo' ? `<button class="btn pri" id="mon">${esc(tr('+ أمر إنتاج'))}</button>` : ''}</div></div>
+    <div class="tabs" role="tablist">${MFG_T.map(([k, l]) => `<a href="#/mfg?t=${k}" class="${k === t ? 'on' : ''}" role="tab" aria-selected="${k === t}">${esc(tr(l))}</a>`).join('')}</div>`;
+  const stockOpts = (sel, skip) => items.filter(i => i.id !== skip && (i.active !== false || i.id === sel)).map(i => opt(i.id, (i.code ? i.code + ' — ' : '') + i.name, sel)).join('');
+  const moForm = async (item, qty) => { const made = boms.map(b => b.item_id), wf = await whField();
+    if (!made.length) return toast(tr('عرّف مكوّنات صنف أولا من «قوائم المكوّنات».'));
+    modal(tr('أمر إنتاج'), `<div class="fg">${field('الصنف المصنّع', `<select name="item" required>${items.filter(i => made.includes(i.id)).map(i => opt(i.id, i.name, item)).join('')}</select>`, 'wide')}
+        ${field('الكمية', inp('qty', qty || '', 'type="number" min="0.001" step="0.001" required'))}${field('تاريخ الإنتاج المخطط', `<input type="date" name="date" value="${today()}">`)}${wf}
+        ${field('ملاحظة', inp('note', ''), 'wide')}</div>`, {
+      onOk: async f => { await db.rpc('mo_save', { p_company: S.cid, p: { item: f.item, qty: +f.qty, date: f.date, warehouse: f.warehouse || null, note: f.note } }); toast(tr('تم الحفظ')); location.hash = '#/mfg?t=mo'; route(); } }); };
+  if (t === 'bom') {
+    page.innerHTML = head + tbl([{ t: 'الصنف المصنّع', h: b => `<b data-nt>${esc(iname(b.item_id))}</b>` }, { t: 'يُنتج', r: 1, h: b => `<span class="num">${+b.output_qty}</span> ${esc((im[b.item_id] || {}).unit || '')}` },
+      { t: 'المكوّنات', h: b => lines.filter(l => l.bom_id === b.id).map(l => `<span data-nt>${esc(iname(l.item_id))}</span> <span class="num">${+l.qty}</span>${+l.scrap_pct ? ` <span class="muted small num">(+${+l.scrap_pct}%)</span>` : ''}`).join('، ') },
+      { t: 'تكلفة إضافية للدفعة', r: 1, h: b => n0(b.extra_cost) ? money(b.extra_cost) : '—' }], boms, { empty: 'لا توجد قوائم مكوّنات بعد', onRow: true })
+      + `<p class="muted small">${esc(tr('قائمة المكوّنات تقول ما تستهلكه دفعة واحدة من الصنف. التكلفة الإضافية (عمالة أو تشغيل) سياسة المنشأة وتُحمّل على الصنف المصنّع.'))}</p>`;
+    const bomForm = b => { const ls = b ? lines.filter(l => l.bom_id === b.id) : [];
+      const row = l => `<div class="row bl" style="gap:6px;margin:4px 0"><select class="bli" style="flex:2">${stockOpts(l && l.item_id)}</select><input class="blq" type="number" min="0.0001" step="0.0001" placeholder="${esc(tr('الكمية'))}" value="${l ? +l.qty : ''}" style="flex:1">
+          <input class="bls" type="number" min="0" max="90" step="0.5" placeholder="${esc(tr('هدر %'))}" value="${l && +l.scrap_pct ? +l.scrap_pct : ''}" style="flex:1"><button type="button" class="btn sm blx" aria-label="${esc(tr('حذف'))}">×</button></div>`;
+      const d = modal(b ? tr('قائمة مكوّنات') + ' — ' + iname(b.item_id) : tr('قائمة مكوّنات جديدة'), `<div class="fg">${field('الصنف المصنّع', `<select name="item" required ${b ? 'disabled' : ''}>${stockOpts(b && b.item_id)}</select>`, 'wide')}
+          ${field('كمية الدفعة', inp('out', b ? +b.output_qty : 1, 'type="number" min="0.001" step="0.001" required'))}${field('تكلفة إضافية للدفعة (عمالة وتشغيل)', inp('extra', b ? +b.extra_cost : 0, 'type="number" min="0" step="0.01"'))}</div>
+        <h3 style="margin:10px 0 4px">${esc(tr('المكوّنات لكل دفعة'))}</h3><div id="bll">${(ls.length ? ls : [null]).map(row).join('')}</div><button type="button" class="btn sm" id="bla">${esc(tr('+ مكوّن'))}</button>
+        ${b ? `<p style="margin-top:12px"><button type="button" class="btn sm danger" id="bdl">${esc(tr('حذف القائمة'))}</button></p>` : ''}`, {
+        wide: true, onOk: async f => { const item = b ? b.item_id : f.item;
+          const ln = $$('.bl', d).map(r => ({ item: $('.bli', r).value, qty: n0($('.blq', r).value), scrap: n0($('.bls', r).value) })).filter(x => x.item && x.qty > 0);
+          await db.rpc('bom_save', { p_company: S.cid, p_item: item, p: { output_qty: n0(f.out) || 1, extra_cost: n0(f.extra), lines: ln } }); toast(tr('تم الحفظ')); route(); } });
+      const bind = () => $$('.blx', d).forEach(x => x.onclick = () => { x.closest('.bl').remove(); });
+      $('#bla', d).onclick = () => { $('#bll', d).insertAdjacentHTML('beforeend', row(null)); bind(); }; bind();
+      if ($('#bdl', d)) $('#bdl', d).onclick = async () => { try { await db.rpc('bom_delete', { p_company: S.cid, p_item: b.item_id }); d.close(); toast(tr('تم الحذف')); route(); } catch (er) { showErr($('#merr', d), er); } };
+    };
+    bindRows(page, boms, b => bomForm(b)); $('#mbn', page).onclick = () => bomForm(null);
+    return;
+  }
+  if (t === 'mo') {
+    const mos = await db.get('production_orders', { company_id: 'eq.' + S.cid, order: 'created_at.desc', limit: 200 });
+    const ST = { open: ['مفتوح', 'info'], done: ['منفّذ', 'ok'], cancelled: ['ملغى', ''] };
+    page.innerHTML = head + tbl([{ t: 'الرقم', h: o => `<span class="num">${esc(o.no)}</span>` }, { t: 'الصنف', h: o => `<span data-nt>${esc(iname(o.item_id))}</span>` }, { t: 'الكمية', r: 1, h: o => `<span class="num">${+o.qty}</span>` },
+      { t: 'التاريخ', h: o => fdate(o.done_on || o.planned_date) }, { t: 'الحالة', h: o => `<span class="badge ${ST[o.status][1]}">${esc(tr(ST[o.status][0]))}</span>` },
+      { t: 'تكلفة الوحدة', r: 1, h: o => o.total_cost != null ? money(r2(o.total_cost / o.qty)) : '—' },
+      { t: '', h: o => o.status === 'open' ? `<button type="button" class="btn sm pri" data-moc="${o.id}">${esc(tr('تنفيذ'))}</button> <button type="button" class="btn sm" data-mox="${o.id}">${esc(tr('إلغاء'))}</button>` : '' }], mos, { empty: 'لا توجد أوامر إنتاج' });
+    $('#mon', page).onclick = () => moForm();
+    $$('[data-mox]', page).forEach(b => b.onclick = () => modal(tr('إلغاء أمر الإنتاج'), `<p>${esc(tr('يُلغى الأمر دون أي حركة على المخزون.'))}</p>`, { ok: 'إلغاء الأمر', onOk: async () => { await db.rpc('mo_cancel', { p_id: b.dataset.mox }); route(); } }));
+    $$('[data-moc]', page).forEach(b => b.onclick = async () => { const o = mos.find(x => x.id === b.dataset.moc), need = await db.rpc('mo_needs', { p_id: o.id });
+      const short = need.filter(x => n0(x.available) < n0(x.need));
+      modal(tr('تنفيذ أمر الإنتاج') + ' ' + o.no, `<p><b data-nt>${esc(iname(o.item_id))}</b> × <span class="num">${+o.qty}</span></p>
+        ${tbl([{ t: 'المكوّن', h: x => `<span data-nt>${esc(x.name)}</span>` }, { t: 'المطلوب', r: 1, h: x => `<span class="num">${+x.need}</span> ${esc(x.unit || '')}` },
+          { t: 'المتوفر في المستودع', r: 1, h: x => `<span class="num ${n0(x.available) < n0(x.need) ? 'bad' : ''}">${+x.available}</span>` }, { t: 'التكلفة التقديرية', r: 1, h: x => money(r2(n0(x.need) * n0(x.avg_cost))) }], need, {})}
+        ${short.length ? `<p class="bad small">${esc(tr('لا يكفي المخزون من بعض المكوّنات — اشترها أو حوّلها للمستودع أولا.'))}</p>` : ''}
+        <div class="fg">${field('تاريخ التنفيذ', `<input type="date" name="d" value="${today()}" max="${today()}">`)}</div>
+        <p class="muted small">${esc(tr('تُصرف المكوّنات بمتوسط تكلفتها ويدخل الصنف المصنّع بتكلفتها مضافا إليها التكلفة الإضافية للدفعات.'))}</p>`, {
+        ok: 'تنفيذ', onOk: async f => { const r = await db.rpc('mo_complete', { p_id: o.id, p_date: f.d }); toast(tr('تم الإنتاج') + ' — ' + tr('تكلفة الوحدة') + ' ' + money(r.unit_cost)); route(); } }); });
+    return;
+  }
+  // the materials plan
+  const [rows, sups] = await Promise.all([db.rpc('mrp_plan', { p_company: S.cid }), can('purch') ? db.get('parties', { company_id: 'eq.' + S.cid, kind: 'eq.supplier', order: 'name', select: 'id,name' }).catch(() => []) : []]);
+  const mk = rows.filter(r => r.make), buy = rows.filter(r => !r.make);
+  const cols = (k) => [{ t: 'الصنف', h: r => `<b data-nt>${esc(r.name)}</b> <span class="muted small num">${esc(r.code || '')}</span>` }, { t: 'المتوفر', r: 1, h: r => `<span class="num">${+r.on_hand}</span>` },
+    { t: 'أوامر البيع', r: 1, h: r => `<span class="num">${+r.demand}</span>` }, { t: 'للتصنيع', r: 1, h: r => n0(r.dependent) ? `<span class="num">${+r.dependent}</span>` : '—' },
+    { t: 'حد إعادة الطلب', r: 1, h: r => n0(r.reorder_level) ? `<span class="num">${+r.reorder_level}</span>` : '—' }, { t: 'قادم', r: 1, h: r => n0(r.incoming) ? `<span class="num">${+r.incoming}</span>` : '—' },
+    { t: k === 'make' ? 'المقترح تصنيعه' : 'المقترح شراؤه', r: 1, h: r => `<b class="num">${+r.suggest}</b> ${esc(r.unit || '')}` },
+    { t: '', h: r => k === 'make' ? (can('stock') ? `<button type="button" class="btn sm pri" data-mk="${r.item_id}" data-q="${r.suggest}">${esc(tr('أمر إنتاج'))}</button>` : '')
+      : (can('purch') ? `<label class="row small" style="gap:4px"><input type="checkbox" data-buy="${r.item_id}" checked style="width:auto"></label>` : '') }];
+  page.innerHTML = head + `<div class="card"><h2>${esc(tr('يلزم تصنيعه'))}</h2>${tbl(cols('make'), mk, { empty: 'لا يلزم تصنيع شيء الآن' })}</div>
+    <div class="card"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center"><h2 style="margin:0">${esc(tr('يلزم شراؤه'))}</h2>
+      ${can('purch') && buy.length ? `<button type="button" class="btn sm pri" id="mpo">${esc(tr('أمر شراء للمحدد'))}</button>` : ''}</div>${tbl(cols('buy'), buy, { empty: 'لا يلزم شراء شيء الآن' })}</div>
+    <p class="muted small">${esc(tr('الحاجة = أوامر البيع المفتوحة غير المسلّمة + ما تحتاجه أوامر التصنيع المقترحة + حد إعادة الطلب − المتوفر − القادم (أوامر شراء لم تُستلم وأوامر إنتاج مفتوحة). كمية الشراء لا تقل عن كمية إعادة الطلب للصنف.'))}</p>`;
+  $$('[data-mk]', page).forEach(b => b.onclick = () => moForm(b.dataset.mk, b.dataset.q));
+  if ($('#mpo', page)) $('#mpo', page).onclick = () => { const pick = buy.filter(r => { const c = $(`[data-buy="${r.item_id}"]`, page); return c && c.checked; });
+    if (!pick.length) return toast(tr('حدد صنفا واحدا على الأقل'));
+    const hint = (pick.find(r => r.supplier_hint) || {}).supplier_hint;
+    modal(tr('أمر شراء من خطة المواد'), `<div class="fg">${field('المورد', `<select name="party" required>${sups.map(s => opt(s.id, s.name, hint)).join('')}</select>`, 'wide')}</div>
+      ${tbl([{ t: 'الصنف', h: r => `<span data-nt>${esc(r.name)}</span>` }, { t: 'الكمية', r: 1, h: r => `<span class="num">${+r.suggest}</span>` }, { t: 'سعر الوحدة', h: r => `<input type="number" min="0" step="0.01" name="p_${r.item_id}" style="width:110px" required>` }], pick, {})}
+      <p class="muted small">${esc(tr('يُنشأ أمر الشراء مفتوحا لتراجعه وترسله للمورد.'))}</p>`, {
+      wide: true, onOk: async f => { if (!f.party) throw new Error(tr('اختر المورد'));
+        const id = await db.rpc('po_save_wh', { p_company: S.cid, p_doc: { party: f.party, date: today(), note: tr('من خطة المواد'), lines: pick.map(r => ({ item: r.item_id, qty: +r.suggest, price: n0(f['p_' + r.item_id]) })) } });
+        toast(tr('أُنشئ أمر الشراء')); location.hash = '#/porders/' + id; } }); };
+};
