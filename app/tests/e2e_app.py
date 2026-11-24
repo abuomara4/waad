@@ -1269,6 +1269,14 @@ with sync_playwright() as pw:
     grp = o.eval_on_selector_all('#nav [data-grp]', "xs => xs.map(x => x.dataset.grp)")
     ok('المالية' in grp and 'الموارد البشرية' in grp and grp.index('المالية') == grp.index('الموارد البشرية') + 1, 'menu: finance comes right after human resources %s' % grp)
     go(o, '#/forms?d=finance'); o.wait_for_selector('.fcard'); ok('المالية' in o.inner_text('#page h1'), 'forms: a section opens its own forms')
+    # branches: a branch with its own cost centre and warehouse; staff and users are linked to it
+    go(o, '#/branches'); o.wait_for_selector('#brn'); o.click('#brn'); o.wait_for_selector('#dlg[open] input[name=code]')
+    o.fill('#dlg input[name=code]', 'dmm'); o.fill('#dlg input[name=name]', 'فرع الدمام'); o.fill('#dlg input[name=city]', 'الدمام'); modal_ok(o); o.wait_for_timeout(500)
+    ok(sql("select count(*) from branches b join cost_centers c on c.id = b.cost_center_id join warehouses w on w.id = b.warehouse_id where b.code = 'DMM'") == '1' and 'فرع الدمام' in o.inner_text('#page'), 'branches: the owner adds a branch with its own cost centre and warehouse')
+    go(o, '#/employees'); o.locator('tbody tr', has_text='محمد العتيبي').click(); o.wait_for_selector('#dlg select[name=branch_id]')
+    o.select_option('#dlg select[name=branch_id]', label='DMM — فرع الدمام'); modal_ok(o); o.wait_for_timeout(500)
+    ok(sql("select b.code from employees e join branches b on b.id = e.branch_id where e.full_name = 'محمد العتيبي'") == 'DMM', 'branches: an employee is placed in a branch')
+    go(o, '#/users'); o.wait_for_selector('[data-mbr]'); ok(o.locator('[data-mbr]').count() >= 1, 'branches: each user has a default branch')
     # company announcement: posted by HR, shown on the home page
     go(o, '#/announcements'); o.wait_for_selector('#annn'); o.click('#annn'); o.wait_for_selector('#dlg[open] input[name=title]')
     o.fill('#dlg input[name=title]', 'اجتماع عام الأحد'); o.fill('#dlg textarea[name=body]', 'اجتماع لكل الموظفين الساعة 10 صباحا'); sqlx("update employees set email = 'staff5001@example.com', phone = '0551234567' where emp_no = '5001'"); o.click('#mok'); o.wait_for_selector('#dlg[open] #asb a[data-mb]')

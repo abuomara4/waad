@@ -4007,5 +4007,18 @@ select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenti
 select public.delegation_end(:'dg');
 select t.ok((select count(*) from public.approval_delegations where id = :'dg') = 0, 'delegation: ending one that has not started removes it');
 reset role;
+-- branches (0136)
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.branch_save(:'cid', '{"code":"ruh","name":"فرع الرياض","city":"الرياض","is_main":true}') as br1 \gset
+select public.branch_save(:'cid', '{"code":"JED","name":"فرع جدة","city":"جدة"}') as br2 \gset
+select t.ok((select count(*) from public.branches b join public.cost_centers c on c.id = b.cost_center_id and c.branch_id = b.id join public.warehouses w on w.id = b.warehouse_id where b.company_id = :'cid') = 2
+  and (select code from public.branches where id = :'br1') = 'RUH', 'branches: each branch gets its own cost centre and warehouse');
+select t.err($$select public.branch_save('$$ || :'cid' || $$', '{"code":"bad code!","name":"x"}')$$, 'رمز', 'branches: a code is letters and digits');
+select public.member_branch_set(:'cid', :'u_owner', :'br2');
+reset role;
+select t.ok((select count(*) from public.branches where company_id = :'cid' and is_main) = 1, 'branches: one main branch');
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.branch_save('$$ || :'cid' || $$', '{"code":"X1","name":"فرع"}')$$, 'مصرح|permission|42501', 'branches: only the owner or an admin adds one');
+reset role;
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

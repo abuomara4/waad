@@ -1,6 +1,7 @@
 + حقل	+ Field
 + فئة	+ Category
 + فاتورة متكررة	+ Recurring invoice
++ فرع	+ Branch
 @ إشارة إلى زميل	@ Mention a colleague
 PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Word or image — up to 3 MB per file
 ء	ء
@@ -1092,6 +1093,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اسم العامل	Worker name
 اسم العميل	Customer name
 اسم العهدة	Item name
+اسم الفرع	Branch name
 اسم القسم	Department name
 اسم المدير	manager name
 اسم المرحلة	Milestone name
@@ -1248,6 +1250,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اكتب اسم العملة	Enter the currency name
 اكتب اسم العهدة	Enter the item name
 اكتب اسم الفئة	Write the category name
+اكتب اسم الفرع	Enter the branch name
 اكتب اسم المستند	Write the document name
 اكتب اسم المستند الآخر	Enter the name of the other document
 اكتب اسم المنشأة كما هو للتأكيد	Type the company name exactly to confirm
@@ -1878,6 +1881,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الدولة	Country
 الديانة	Religion
 الذمم والمطالبات	balances and claims
+الرئيسي	Main
 الرئيسية	Home
 الرابط	Link
 الرابط غير صالح	The link is not valid
@@ -1920,6 +1924,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الرقم الضريبي السعودي للجهات داخل المملكة فقط	A Saudi VAT number is for parties inside the Kingdom only
 الرقم الضريبي للعميل	Customer VAT No.
 الرقم الضريبي للمورد	Supplier VAT No.
+الرقم الفرعي للسجل	The branch CR number is
+الرقم الفرعي للسجل 10 أرقام	The branch CR number is 10 digits
+الرقم الفرعي للسجل التجاري	Branch CR number
+الرقم الفرعي للسجل التجاري (اختياري)	Branch CR number (optional)
 الرقم الموحد للمنشأة	Unified establishment number
 الرقم الوظيفي	Employee number
 الرقم الوظيفي أو كلمة المرور غير صحيحة	Wrong employee number or password
@@ -2224,6 +2232,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الفرص والعملاء المحتملون	Opportunities and leads
 الفرصة	Opportunity
 الفرصة غير موجودة	Opportunity not found
+الفرع	Branch
+الفرع الرئيسي	Main branch
+الفرع غير موجود	Branch not found
+الفرع لا يخص هذه المنشأة	The branch does not belong to this company
+الفرع نشط	Branch active
 الفرق	Difference
 الفرق بين سعر الفاتورة وسعر اليوم يُقيد ربحا	the difference between the invoice rate and today's rate is booked as a gain
 الفرق بين سعر الفاتورة وسعر اليوم يُقيد ربحاً	the difference between the invoice rate and today's rate is booked as a gain
@@ -2231,6 +2244,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الفرق بين مبلغ البيع والقيمة الدفترية يُقيد ربحاً	The difference between sale amount and book value is recorded as a gain
 الفرق بينهما يضاف للوعاء	the difference is added to the base
 الفرق يُحسب على الكمية في النظام لحظة الترحيل	the difference is taken against the system quantity at posting
+الفروع	Branches
 الفروقات عن أشهر معتمدة تُضاف مكافأة في المسير القادم	differences for approved months are added as a bonus in the next payroll
 الفروقات عن أشهر معتمدة تُضاف مكافأةً في المسير القادم	differences for approved months are added as a bonus in the next payroll
 الفريق	Team
@@ -2612,6 +2626,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المنشأة الداعية	Inviting company
 المنشأة المدعوة	Invited company
 المنشأة بلا اشتراك	The company has no subscription
+المنشأة تعمل كفرع واحد	the company works as a single branch
 المنشأة شغّالة	The company is live
 المنشأة شغّالة. أوقفها أولا ثم احذفها	The company is live. Suspend it first, then delete it
 المنشأة غير موجودة	Company not found
@@ -3748,6 +3763,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ثم تُقرأ ربحية كل مركز	then read the profitability of each center
 ثم حدّد ما يراه	then choose what they can see
 ثم رقمه الوظيفي وكلمة مرور مؤقتة	then their employee number and a temporary password
+ثم رمز الفرع	then the branch code
 ثم سجّل التحقيق وسماع دفاعه قبل توقيع أي جزاء	then record the investigation and the worker's defence before imposing any penalty
 ثم سجّل النتيجة هنا	then record the result here
 ثم ضع العلامة	then tick the box
@@ -3853,6 +3869,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حاولت التصدير كثيراً	Too many exports
 حاولت التصدير كثيراً — انتظر ساعة ثم أعد المحاولة	Too many exports — wait an hour and try again
 حتى	until
+حتى 12	up to 12
 حتى تاريخ	As of
 حتى تاريخه	To date
 حتى تحذفه	until you delete it
@@ -4402,6 +4419,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 رمز الصنف مطلوب	Item code is required
 رمز العملة ثلاثة أحرف إنجليزية	The currency code is three English letters
 رمز الفاتورة الإلكترونية	E-invoice QR
+رمز الفرع	Branch code
+رمز الفرع حروف إنجليزية أو أرقام	The branch code is English letters or digits
+رمز الفرع حروف إنجليزية أو أرقام (حتى 12)	The branch code is English letters or digits (up to 12)
 رمز المستودع مستخدم	Warehouse code already used
 رمز المنشأة	Company code
 رمز المنشأة غير صحيح	Wrong company code
@@ -5248,6 +5268,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فترتان مع راحة	Two periods with a break of
 فترتين	Split
 فتظهر لك خدمات الطلبات والإجازات وقسائم راتبك	so you get requests, leave and payslip services
+فتظهر نتائجه في الدفاتر والتقارير	so its results show in the books and reports
 فتعتمدها الموارد البشرية ثم المالية	HR then finance approve them
 فتنتهي في	so it ends on
 فتُباع قبل وصول فاتورة المورد	so they can be sold before the supplier bill arrives
@@ -5258,6 +5279,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فرض	Apply
 فرض وردية القسم	Apply the department shift
 فرضها على كل موظفي القسم	Apply to everyone in the department
+فرع	Branch
+فرع جديد	New branch
 فرق الربح	profit difference
 فرق الربح المعدّل عن الدفتري	Adjusted minus book profit
 فرق سعر	price difference
@@ -5654,6 +5677,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا توجد فئات بعد	No categories yet
 لا توجد فترة مقفلة	No closed period
 لا توجد فرص بعد	No opportunities yet
+لا توجد فروع بعد	No branches yet
+لا توجد فروع بعد — المنشأة تعمل كفرع واحد	No branches yet — the company works as a single branch
 لا توجد فواتير	No invoices
 لا توجد فواتير متكررة	No recurring invoices
 لا توجد فواتير مفتوحة	No open invoices
@@ -5887,6 +5912,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لكل الأصول القائمة	for all active assets
 لكل بند	for each line
 لكل حساب منشأة واحدة	Each account has one company
+لكل فرع مركز تكلفة ومستودع خاصان به	Each branch has its own cost centre and warehouse
+لكل فرع مركز تكلفة ومستودع خاصان به، فتظهر نتائجه في الدفاتر والتقارير، ويأخذ كل مستند فرع المستخدم الذي أنشأه.	Each branch has its own cost centre and warehouse, so its results show in the books and reports, and every document takes the branch of the user who created it.
 لكل قسم مع المرفقات	per section with attachments
 لكل مستودع رصيده	Each warehouse keeps its own balance
 لكل منهما	each
@@ -6240,6 +6267,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مدفوع	Paid
 مدفوعات للموردين	Payments to suppliers
 مدفوعة	Paid
+مدير الفرع	Branch manager
+مدير الفرع غير موجود	Branch manager not found
 مدير المشروع	Project manager
 مدير المشروع غير موجود	Project manager not found
 مدير الموارد البشرية	HR manager
@@ -6342,6 +6371,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مستندات وعقود تنتهي خلال	Documents and contracts expiring within
 مستندات وعقود منتهية أو تنتهي خلال	Documents and contracts expired or expiring within
 مستنداتي وعقدي	My documents and contract
+مستودع	Warehouse
 مستودع جديد	New warehouse
 مسجل سابقا	Already logged
 مسجّل	Enrolled
@@ -6873,6 +6903,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نُشر الاستبيان	Survey published
 نُقلت الفرصة إلى	Opportunity moved to
 نُكمل الباقي	we do the rest
+هاتف الفرع	Branch phone
 هاتفية	Phone
 هامش الربح	Profit margin
 هامش الربح الإجمالي	Gross margin
@@ -6913,6 +6944,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 هذه السنة	This year
 هذه الصفحة خاصة بكم	This page is private to you
 هذه الصفحة خاصة بكم؛ لا تشاركوا رابطها.	This page is private to you; do not share its link.
+هذه الصفحة لإدارة المنشأة	This page is for the company management
+هذه الصفحة لإدارة المنشأة.	This page is for the company's management.
 هذه الصفحة للإدارة والمالية	This page is for management and finance
 هذه الصفحة للمالك والإدارة والموارد البشرية والمالية	This page is for the owner, admins, HR and finance
 هذه الصفحة للمالك والإدارة والموارد البشرية والمالية.	This page is for the owner, admins, HR and finance.
@@ -7220,6 +7253,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ونسبة الضريبة	and the VAT rate
 وهذا التوزيع ينقل قسط كل شهر إلى المصروف	and this schedule moves each month's share to the expense
 ووين	and where
+ويأخذ كل مستند فرع المستخدم الذي أنشأه	and each document takes the branch of the user who created it
 ويبقى المبلغ في	and the amount stays in
 ويبقى في وعد سجل مختصر بالحذف ودفعات الاشتراك فقط	Waad keeps only a short record of the deletion and the subscription payments
 ويبقى مع بيانات المنشأة ويدخل في تصديرها	and it stays with the company data and is included in its export
@@ -7618,6 +7652,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يُنشأ قيد يومية مرحّل باسم الموظف	A posted journal entry is created in the employee's name
 يُنشأ قيد يومية مرحّل باسم الموظف. اختر الحسابين حسب سياسة منشأتك المحاسبية.	A posted journal entry is created in the employee's name. Choose both accounts by your company's accounting policy.
 يُنشأ للمشروع مركز تكلفة برقمه تلقائيا	The project gets a cost center with its number automatically
+يُنشأ مع الفرع مركز تكلفة ومستودع برمز	A cost centre and warehouse are created with the branch, coded
+يُنشأ مع الفرع مركز تكلفة ومستودع برمز BR- ثم رمز الفرع.	A cost centre and a warehouse coded BR- plus the branch code are created with the branch.
 يُنصح بجدولة إجازة	schedule some leave
 ْٰ	ْٰ
 ۓ	ۓ

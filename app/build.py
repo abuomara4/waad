@@ -78,6 +78,7 @@ html = f'''<!doctype html>
 {r('notes.js')}
 {r('portal.js')}
 {r('agreements.js')}
+{r('branches.js')}
 {r('custom.js')}
 {r('compliance.js')}
 {r('onboarding.js')}

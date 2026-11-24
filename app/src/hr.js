@@ -438,6 +438,7 @@ async function employeeForm(e, { linkMe } = {}) {
   const grades = await db.get('job_grades', { company_id: 'eq.' + S.cid, order: 'code' }).catch(() => []);
   const [shifts, ccs, sites] = await Promise.all([db.get('shifts', { company_id: 'eq.' + S.cid, order: 'name' }).catch(() => []),
     db.get('cost_centers', { company_id: 'eq.' + S.cid, order: 'code' }).catch(() => []), db.get('work_sites', { company_id: 'eq.' + S.cid, order: 'name' }).catch(() => [])]);
+  const brs = typeof branchesList === 'function' ? (await branchesList()).filter(b => b.active || b.id === (e || {}).branch_id) : [];
   const sec = t => `<div class="wide muted small" style="margin:4px 0 -4px"><b>${esc(tr(t))}</b></div>`;
   const body = `<div class="fg">
     ${field('الرقم الوظيفي', inp('emp_no', v.emp_no, 'required dir="ltr"'))}${field('الاسم الكامل', inp('full_name', v.full_name, 'required'))}${field('الاسم بالإنجليزية', inp('full_name_en', v.full_name_en, 'dir="ltr"'))}
@@ -479,7 +480,8 @@ async function employeeForm(e, { linkMe } = {}) {
     ${field('العنوان المختصر', inp('short_address', v.short_address, 'dir="ltr" maxlength="9" placeholder="RRRD2929" style="text-transform:uppercase"'))}${field('العنوان الوطني', inp('national_address', v.national_address), 'wide')}
     ${sec('جهة اتصال الطوارئ')}
     ${field('الاسم', inp('emergency_name', v.emergency_name))}${field('صلة القرابة', inp('emergency_relation', v.emergency_relation))}${field('الجوال', inp('emergency_phone', v.emergency_phone, 'dir="ltr"'))}
-    ${ccs.length || sites.length ? sec('التوزيع') : ''}
+    ${ccs.length || sites.length || brs.length ? sec('التوزيع') : ''}
+    ${brs.length ? field('الفرع', `<select name="branch_id"><option value="">—</option>${brs.map(b => opt(b.id, b.code + ' — ' + brName(b), v.branch_id)).join('')}</select>`) : ''}
     ${ccs.length ? field('مركز التكلفة — تُحمَّل عليه رواتبه', `<select name="cost_center_id"><option value="">—</option>${ccs.filter(c => c.active !== false || c.id === v.cost_center_id).map(c => opt(c.id, c.code + ' — ' + ((LANG === 'en' && c.name_en) || c.name), v.cost_center_id)).join('')}</select>`) : ''}
     ${sites.length ? field('موقع العمل — يسجّل حضوره فيه فقط', `<select name="work_site_id"><option value="">${esc(tr('أي موقع من مواقع المنشأة'))}</option>${sites.map(w => opt(w.id, (LANG === 'en' && w.name_en) || w.name, v.work_site_id)).join('')}</select>`) : ''}
     ${sec('رصيد الإجازة السنوية الافتتاحي')}
@@ -508,7 +510,7 @@ async function employeeForm(e, { linkMe } = {}) {
         leave_open_days: f.leave_open_days === '' ? null : +f.leave_open_days, leave_open_date: f.leave_open_days === '' ? null : blank(f.leave_open_date), job_title: blank(f.job_title), full_name_en: blank((f.full_name_en || '').trim()), job_title_en: blank((f.job_title_en || '').trim()),
         department_id: blank(f.department_id), manager_id: blank(f.manager_id), hire_date: f.hire_date, probation_end: blank(f.probation_end), shift_id: pickedShift, att_exempt: f.att_exempt === 'true', att_any_place: f.att_any_place === 'true', is_muslim: f.is_muslim !== 'false', ot_consent_year: f.ot_consent_year ? +f.ot_consent_year : null,
         can_request_purchase: f.can_request_purchase === 'true', ticket_every: f.ticket_every ? +f.ticket_every : null, ticket_persons: Math.max(1, +f.ticket_persons || 1), ticket_class: f.ticket_class || 'economy', ticket_dest: blank((f.ticket_dest || '').trim()), ticket_dest_en: blank((f.ticket_dest_en || '').trim()), ticket_amount: f.ticket_amount === '' ? null : +f.ticket_amount, gosi_new: f.gosi_new === '' ? null : f.gosi_new === 'true',
-        ...(grades.length ? { grade_id: blank(f.grade_id) } : {}), ...(ccs.length ? { cost_center_id: blank(f.cost_center_id) } : {}), ...(sites.length ? { work_site_id: blank(f.work_site_id) } : {}),
+        ...(grades.length ? { grade_id: blank(f.grade_id) } : {}), ...(brs.length ? { branch_id: blank(f.branch_id) } : {}), ...(ccs.length ? { cost_center_id: blank(f.cost_center_id) || ((brs.find(b => b.id === f.branch_id) || {}).cost_center_id || null) } : {}), ...(sites.length ? { work_site_id: blank(f.work_site_id) } : {}),
         basic: +f.basic, housing: +f.housing || 0, transport: +f.transport || 0, iban: f.iban ? f.iban.replace(/\s/g, '').toUpperCase() : null, phone: blank(f.phone), email: blank(f.email) };
       if (typeof cfCollect === 'function' && cfDefs('employee').length) row.custom = cfCollect(f, 'employee', e && e.custom);
       if (e) { Object.assign(row, { end_date: blank(f.end_date), end_reason: blank(f.end_reason) }); await db.upd('employees', { id: 'eq.' + e.id }, row); }
@@ -872,11 +874,13 @@ VIEWS['#/users'] = async page => {
   const admin = has('owner', 'admin');
   const mpr = isHR() ? await db.get('member_perms', { company_id: 'eq.' + S.cid }).catch(() => []) : [], mp = {}; mpr.forEach(x => (mp[x.user_id] = mp[x.user_id] || []).push(x.perm));
   const canAcc = m => isHR() && m.user_id !== S.session.user.id && m.role !== 'owner' && (has('owner', 'admin') || !rolesOf(m).some(r => r === 'hr' || r === 'admin'));
+  const brs = typeof branchesList === 'function' ? (await branchesList()).filter(b => b.active) : [];
   page.innerHTML = `<div class="head"><div><h1>المستخدمون والدعوات</h1><div class="muted small">${esc('المالك يملك كل الصلاحيات، ويعيّن الموارد البشرية. الموارد البشرية تحدد صلاحيات كل موظف من زر «الصلاحيات».')}</div></div><button class="btn pri" id="ni">دعوة مستخدم</button></div>
     <h2>الدعوات المعلّقة</h2>${tbl([{ t: 'البريد', h: i => `<span class="num">${esc(i.email)}</span>` }, { t: 'الدور', h: i => esc(ROLES[i.role]) }, { t: 'سجل الموظف', h: i => esc(i.employee_id && em[i.employee_id] ? em[i.employee_id].full_name : '—') }, { t: 'رمز الدعوة', h: i => `<span class="code">${esc(i.code)}</span>` }, { t: '', h: i => `<button class="btn sm danger" data-rv="${i.id}">سحب</button>` }], pending, { empty: 'لا توجد دعوات معلّقة', onRow: true })}
     <div style="height:18px"></div><h2>المستخدمون</h2>${tbl([{ t: 'البريد / الدخول', h: m => mail[m.user_id] ? `<span class="num">${esc(mail[m.user_id])}</span>` : m.employee_id && em[m.employee_id] ? `<span class="muted small">${esc('بالرقم الوظيفي')}</span> <span class="num">${esc(em[m.employee_id].emp_no)}</span>` : '—' },
       { t: 'الصلاحيات', h: m => { const job = jobOf(m, mp[m.user_id] || []); return job ? `<span class="badge info">${esc(tr(ACCESS_TPL_NAME[job]))}</span>` : rolesOf(m).map(r => `<span class="badge${r === 'owner' ? ' info' : ''}">${esc(ROLES[r] || r)}</span>`).join(' ') + (mp[m.user_id] ? ` <span class="small muted">${mp[m.user_id].length} ${esc('صلاحية مخصصة')}</span>` : ''); } },
       { t: 'سجل الموظف', h: m => esc(m.employee_id && em[m.employee_id] ? em[m.employee_id].full_name : '—') },
+      ...(brs.length ? [{ t: 'الفرع', h: m => `<select data-mbr="${m.user_id}" style="width:auto"><option value="">—</option>${brs.map(b => opt(b.id, b.code + ' — ' + brName(b), m.branch_id)).join('')}</select>` }] : []),
       { t: '', h: m => (canAcc(m) ? `<button class="btn sm pri" data-acc="${m.user_id}">${esc('الصلاحيات')}</button> ` : '') + (admin && (m.role !== 'owner' || has('owner')) ? `<button class="btn sm" data-ed="${m.user_id}">تعديل</button>` : '') }], mem)}`;
   bindRows(page, pending, inviteBox);
   $$('[data-rv]', page).forEach(b => b.addEventListener('click', ev => ev.stopPropagation()));
@@ -891,6 +895,7 @@ VIEWS['#/users'] = async page => {
   $$('[data-rv]', page).forEach(b => b.onclick = async () => { try { await db.rpc('revoke_invite', { p_id: b.dataset.rv }); route(); } catch (e) { toast(e.message); } });
   $$('[data-acc]', page).forEach(b => b.onclick = () => { const m = mem.find(x => x.user_id === b.dataset.acc);
     accessDialog(m, mail[m.user_id] || (m.employee_id && em[m.employee_id] ? em[m.employee_id].full_name : ''), mp[m.user_id] || []); });
+  $$('[data-mbr]', page).forEach(x => x.onchange = async () => { try { await db.rpc('member_branch_set', { p_company: S.cid, p_user: x.dataset.mbr, p_branch: blank(x.value) }); toast(tr('تم الحفظ')); } catch (er) { toast(er.message); } });
   $$('[data-ed]', page).forEach(b => b.onclick = () => {
     const m = mem.find(x => x.user_id === b.dataset.ed); const linked = new Set(mem.filter(x => x !== m).map(x => x.employee_id).filter(Boolean));
     const roles = Object.keys(ROLES).filter(r => r !== 'owner' || has('owner'));

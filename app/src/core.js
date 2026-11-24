@@ -709,7 +709,7 @@ function navItems() {
     fm('stock');
   }
   if (has('owner', 'admin', 'finance', 'hr') || can('proj') || S.myPM) { g('المشاريع'); it.push({ h: '#/projects', t: 'المشاريع وجداول الوقت' }); fm('proj'); if (!S.myPM || has('owner', 'admin', 'finance', 'hr') || can('proj')) it.push({ h: '#/resources', t: 'إشغال الفريق' }); }
-  if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); it.push({ h: '#/companydocs', t: 'مستندات المنشأة والسيارات' }); if (has('owner', 'admin')) it.push({ h: '#/accesslog', t: 'سجل الوصول' }, { h: '#/customfields', t: 'الحقول المخصصة' }); if (has('owner', 'admin', 'hr')) it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); }
+  if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); it.push({ h: '#/branches', t: 'الفروع' }, { h: '#/companydocs', t: 'مستندات المنشأة والسيارات' }); if (has('owner', 'admin')) it.push({ h: '#/accesslog', t: 'سجل الوصول' }, { h: '#/customfields', t: 'الحقول المخصصة' }); if (has('owner', 'admin', 'hr')) it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); }
   return it;
 }
 function shell() {
