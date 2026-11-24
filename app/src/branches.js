@@ -31,3 +31,50 @@ VIEWS['#/branches'] = async page => {
         cache.branches = null; toast(tr('تم الحفظ')); route(); } });
   }
 };
+
+/* ===== «مجموعة المنشآت» (0140): several companies — separate legal entities with their own VAT number, books, GOSI and ZATCA —
+   under one owner, who moves between them from one account. Each company keeps its own subscription. ===== */
+// through boot(), so a company still waiting for approval shows its waiting page (with the way back to the others)
+async function switchCompany(id, hash) { S.cid = id; LS.set('waad.cid', id); cache.branches = null; history.replaceState(null, '', hash || '#/home'); await boot(); }
+async function groupCard(el) {
+  const g = await db.rpc('my_group').catch(() => null);
+  const ST = { pending: ['بانتظار الموافقة', 'warn'], trial: ['تجريبية', 'info'], active: ['فعّال', 'ok'], suspended: ['موقوف', 'bad'] };
+  const st = c => c.status === 'trial' && c.trial_ends && c.trial_ends < today() ? ['انتهت التجربة', 'bad'] : c.status === 'active' && c.sub_ends && c.sub_ends < today() ? ['انتهى الاشتراك', 'bad'] : ST[c.status] || [c.status || '—', ''];
+  if (!g) {
+    if ((S.company || {}).group_id) { el.remove(); return; }   // in someone else's group: only its owner manages it
+    el.innerHTML = `<h2>${esc(tr('مجموعة المنشآت'))}</h2>
+      <p class="muted small">${esc(tr('إذا كان لديك أكثر من سجل تجاري مستقل (رقم ضريبي وتأمينات ودفاتر خاصة)، اجمعها في مجموعة: تنتقل بينها من حسابك نفسه، ولكل منشأة اشتراكها وبياناتها المنفصلة.'))}</p>
+      <form id="gcf" class="row" style="gap:8px;flex-wrap:wrap"><input name="name" required maxlength="120" placeholder="${esc(tr('اسم المجموعة'))}" style="max-width:280px" value="${esc((S.company || {}).name || '')}">
+        <button class="btn pri" id="gcb">${esc(tr('إنشاء مجموعة بهذه المنشأة'))}</button></form><div id="gerr"></div>`;
+    $('#gcf', el).onsubmit = async e => { e.preventDefault(); const f = formData(e.target);
+      try { await busy($('#gcb', el), async () => { await db.rpc('group_create', { p_company: S.cid, p_name: f.name }); toast(tr('تم إنشاء المجموعة')); await loadContext(); groupCard(el); }); }
+      catch (er) { showErr($('#gerr', el), er); } };
+    return;
+  }
+  el.innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h2 style="margin:0">${esc(tr('مجموعة المنشآت'))}: <span data-nt>${esc(g.name)}</span></h2>
+      <div class="row" style="gap:6px"><button type="button" class="btn sm" id="grn">${esc(tr('تغيير الاسم'))}</button><button type="button" class="btn sm pri" id="gnc">${esc(tr('+ منشأة في المجموعة'))}</button></div></div>
+    <p class="muted small">${esc(tr('كل منشأة كيان مستقل ببياناتها واشتراكها، وتنتقل بينها من قائمة المنشآت أعلى الشاشة.'))}</p>
+    ${tbl([{ t: 'المنشأة', h: c => `<b data-nt>${esc(c.name)}</b>${c.id === S.cid ? ` <span class="badge info">${esc(tr('الحالية'))}</span>` : ''}<div class="small muted num">${esc(c.vat_no || '')}</div>` },
+      { t: 'الاشتراك', h: c => `<span class="badge ${st(c)[1]}">${esc(tr(st(c)[0]))}</span>` },
+      { t: '', h: c => c.id === S.cid ? '' : `${c.member ? `<button type="button" class="btn sm" data-gop="${c.id}">${esc(tr('فتح'))}</button> ` : ''}<button type="button" class="btn sm" data-grm="${c.id}">${esc(tr('إخراج من المجموعة'))}</button>` }], g.companies, {})}
+    <p class="muted small">${esc(tr('القوائم الموحدة للمجموعة واستبعاد المعاملات بين شركاتها في المرحلة التالية.'))}</p>`;
+  $('#grn', el).onclick = () => modal(tr('اسم المجموعة'), `<div class="fg">${field('الاسم', inp('name', g.name, 'required maxlength="120"'))}</div>`, {
+    onOk: async f => { await db.rpc('group_rename', { p_group: g.id, p_name: f.name }); await loadContext(); shell(); route(); } });
+  $$('[data-gop]', el).forEach(b => b.onclick = () => switchCompany(b.dataset.gop, '#/settings'));
+  $$('[data-grm]', el).forEach(b => b.onclick = () => { const c = g.companies.find(x => x.id === b.dataset.grm);
+    modal(tr('إخراج من المجموعة'), `<p><b data-nt>${esc(c.name)}</b></p><p class="muted small">${esc(tr('تبقى المنشأة كما هي ببياناتها واشتراكها، وتخرج فقط من المجموعة.'))}</p>`, {
+      ok: 'إخراج', onOk: async () => { await db.rpc('group_company_remove', { p_company: c.id }); await loadContext(); shell(); route(); } }); });
+  $('#gnc', el).onclick = () => modal(tr('منشأة جديدة في المجموعة'), `<div class="fg">${field('اسم المنشأة', inp('name', '', 'required maxlength="120"'))}
+      ${field('الرقم الضريبي', inp('vat', '', 'dir="ltr" inputmode="numeric" maxlength="15"'))}${field('السجل التجاري', inp('cr', '', 'dir="ltr" inputmode="numeric" maxlength="10"'))}
+      <label class="row small wide" style="gap:6px;align-items:flex-start"><input type="checkbox" name="xfer" style="width:auto;margin-top:4px"> <span>${esc(tr('أوافق على حفظ بيانات منشأتي وموظفيها وعملائها لدى مزوّد سحابي خارج المملكة (اليابان)، وأتحمّل إبلاغهم بذلك، كما في'))} <a href="#/privacy">${esc(tr('سياسة الخصوصية'))}</a>.</span></label></div>
+    <p class="muted small">${esc(tr('تبدأ المنشأة الجديدة فارغة باشتراكها الخاص، مثل أي منشأة جديدة في وعد.'))}</p>`, {
+    ok: 'إنشاء', onOk: async f => {
+      if ((f.name || '').trim().length < 3) throw new Error('اسم المنشأة 3 أحرف على الأقل');
+      if (f.vat && !/^3\d{13}3$/.test(f.vat)) throw new Error('الرقم الضريبي 15 رقما يبدأ وينتهي بـ 3');
+      if (f.cr && !/^\d{10}$/.test(f.cr)) throw new Error('السجل التجاري 10 أرقام');
+      if (!f.xfer) throw new Error('وافق على حفظ البيانات خارج المملكة لإكمال إنشاء المنشأة');
+      const cid = await db.rpc('group_company_create', { p_group: g.id, p_name: f.name.trim(), p_vat: blank(f.vat), p_cr: blank(f.cr), p_consent: true });
+      const co = S.company || {};   // the owner's details carry over (phone, size, sector)
+      await db.upd('companies', { id: 'eq.' + cid }, { owner_phone: co.owner_phone || null, size_band: co.size_band || null, industry: co.industry || null, heard_from: co.heard_from || null }).catch(() => {});
+      toast(tr('تم إنشاء المنشأة')); await switchCompany(cid, '#/home'); } });
+}

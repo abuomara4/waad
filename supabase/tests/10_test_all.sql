@@ -4107,5 +4107,37 @@ reset role;
 select t.ok((select not enabled from public.zatca_units where branch_id = :'br1'), 'with nothing waiting, the owner can stop a branch unit');
 update public.members set branch_id = null where company_id = :'cid' and user_id = :'u_fin';
 update public.zatca_settings set enabled = false where company_id = :'cid';
+-- company groups (0140)
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.group_create(:'cid', 'مجموعة الاختبار') as grp \gset
+select t.ok((select group_id = :'grp' from public.companies where id = :'cid'), 'the owner starts a group with the company');
+select t.err($$select public.group_create('$$ || :'cid' || $$', 'ثانية')$$, 'بالفعل', 'one group per account');
+select t.err($$update public.companies set group_id = null where id = '$$ || :'cid' || $$'$$, 'غير مصرح', 'a company''s group changes only through the group functions');
+select t.err($$select public.create_company('منشأة مباشرة')$$, 'منشأة واحدة', 'outside a group the rule stays: one account, one company');
+select t.err($$select public.group_company_create('$$ || :'grp' || $$', 'شركة التجارة')$$, 'الموافقة', 'a new company needs the consent to storage outside the Kingdom');
+select public.group_company_create(:'grp', 'شركة التجارة', '311111111100003', null, true) as cid3 \gset
+select t.ok((select group_id = :'grp' and xfer_consent_at is not null from public.companies where id = :'cid3')
+  and exists(select 1 from public.members where company_id = :'cid3' and user_id = :'u_owner' and role = 'owner')
+  and exists(select 1 from public.company_subscriptions where company_id = :'cid3') and exists(select 1 from public.accounts where company_id = :'cid3'),
+  'the group owner creates a sister company: own subscription, own chart of accounts, and is its owner');
+select t.ok((select count(*) = 2 from public.my_companies() where group_name = 'مجموعة الاختبار') and jsonb_array_length(public.my_group()->'companies') = 2,
+  'the owner moves between the group''s companies from one account');
+select t.err($$select public.group_company_create('$$ || :'grp' || $$', 'شركة التجارة', null, null, true)$$, 'بهذا الاسم', 'two companies of a group never share a name');
+select t.ok((select count(*) = 0 from public.employees where company_id = :'cid3'), 'a sister company starts empty: nothing is copied from the other company');
+select public.group_rename(:'grp', 'مجموعة الفوزان');
+select t.ok((select name = 'مجموعة الفوزان' from public.company_groups where id = :'grp'), 'the owner renames the group');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select public.group_company_create('$$ || :'grp' || $$', 'دخيلة', null, null, true)$$, '42501|لمالك', 'only the group owner adds companies to it');
+select t.ok(public.my_group() is null and not exists(select 1 from public.my_companies() where company_id = :'cid3'), 'finance of one company does not see the sister company');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.ok((select count(*) = 0 from public.company_groups) and public.my_group() is null, 'another account sees nothing of the group');
+select t.err($$select public.group_company_remove('$$ || :'cid3' || $$')$$, '42501|غير مصرح', 'another account cannot take a company out of the group');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.group_company_remove(:'cid3');
+select t.ok((select group_id is null from public.companies where id = :'cid3') and jsonb_array_length(public.my_group()->'companies') = 1, 'the owner can take a company out of the group; it stays as it is');
+reset role;
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

@@ -607,9 +607,11 @@ function pendingView() {
   $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><h2>${esc(tr('وصلنا طلبك'))}</h2>
     <p>${esc(tr('سجّلنا منشأتك'))} «<b>${esc(S.company ? S.company.name : '')}</b>»${esc(tr('، وفريق وعد يراجع الطلب ويفعّل لك التجربة قريبا. بنتواصل معك على إيميلك.'))}</p>
     <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn pri" id="pchk">${esc(tr('تحقق مرة ثانية'))}</button>
-      <a class="btn" href="${SITE_URL}contact.html#contact" target="_blank" rel="noopener">${esc(tr('تواصل معنا'))}</a><button class="btn" id="lo">${esc(tr('تسجيل الخروج'))}</button></div></div>
+      <a class="btn" href="${SITE_URL}contact.html#contact" target="_blank" rel="noopener">${esc(tr('تواصل معنا'))}</a><button class="btn" id="lo">${esc(tr('تسجيل الخروج'))}</button></div>
+    ${S.companies.length > 1 ? `<p class="small" style="margin:12px 0 0">${esc(tr('منشآتك الأخرى'))}: ${S.companies.filter(c => c.company_id !== S.cid).map(c => `<button type="button" class="btn sm" data-pco="${c.company_id}">${esc(c.name)}</button>`).join(' ')}</p>` : ''}</div>
     <p class="muted small" style="text-align:center">${langBtn('linkbtn')}</p></div></div>`;
   $('#pchk').onclick = () => boot();
+  document.querySelectorAll('[data-pco]').forEach(b => b.onclick = () => switchCompany(b.dataset.pco, '#/home'));
   $('#lo').onclick = async () => { await authApi.signOut(); authView(); };
   $('#lg').onclick = () => setLang(LANG === 'en' ? 'ar' : 'en');
 }
@@ -714,13 +716,19 @@ function navItems() {
   if (has('owner', 'admin', 'hr', 'finance')) { g('الإعدادات'); it.push({ h: '#/branches', t: 'الفروع' }, { h: '#/companydocs', t: 'مستندات المنشأة والسيارات' }); if (has('owner', 'admin')) it.push({ h: '#/accesslog', t: 'سجل الوصول' }, { h: '#/customfields', t: 'الحقول المخصصة' }); if (has('owner', 'admin', 'hr')) it.push({ h: '#/users', t: 'المستخدمون والدعوات' }); if (has('owner', 'admin', 'finance')) it.push({ h: '#/settings', t: 'إعدادات المنشأة' }); }
   return it;
 }
+// the company switcher: a group's companies under the group's name (0140), the others after them
+function csOpts() {
+  const gs = [...new Set(S.companies.filter(c => c.group_name).map(c => c.group_name))];
+  return gs.map(g => `<optgroup label="${esc(g)}">${S.companies.filter(c => c.group_name === g).map(c => opt(c.company_id, c.name, S.cid)).join('')}</optgroup>`).join('')
+    + S.companies.filter(c => !c.group_name).map(c => opt(c.company_id, c.name, S.cid)).join('');
+}
 function shell() {
   const multi = S.companies.length > 1; // one account = one company (subscription); the switcher only appears for someone invited into more than one
   $('#app').innerHTML = `<div class="shell"><aside class="side" id="side">${brand()}<nav class="nav" id="nav"></nav></aside>
     <div class="main"><header class="top"><button class="btn sm menu" id="mb" aria-label="القائمة"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       <a href="#/home" class="tlogo" aria-label="وعد Waad"><img class="wlogo wl-d" src="${LOGO_D}" alt="وعد Waad"><img class="wlogo wl-l" src="${LOGO_L}" alt="وعد Waad"></a>
       <div class="cname"><b>${esc(S.company ? S.company.name : '')}</b> <span class="badge info">${esc(ROLES[S.role] || S.role)}</span></div><div class="sp"></div>
-      ${multi ? `<select id="cs" style="width:auto;min-height:32px">${S.companies.map(c => opt(c.company_id, c.name, S.cid)).join('')}</select>` : ''}
+      ${multi ? `<select id="cs" style="width:auto;min-height:32px" aria-label="${esc(tr('المنشأة'))}">${csOpts()}</select>` : ''}
       ${ADMIN ? '' : '<button class="btn sm" id="gsb" aria-label="بحث" title="بحث (Ctrl+K)"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span class="bt">بحث</span></button><button class="btn sm" id="hb" aria-label="مساعدة" title="مساعدة" style="min-width:34px">؟</button>'}
       <div class="umw"><button class="btn sm um" id="um" aria-haspopup="true" aria-expanded="false" aria-label="حسابي" title="حسابي"><svg class="bi" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"/></svg><span class="bt">${esc(S.myEmp ? S.myEmp.full_name.split(' ')[0] : tr('حسابي'))}</span><span class="brole small muted">${esc(tr(ROLES[S.role] || ''))}</span><span class="bdot" id="bcnt" hidden></span></button>
         <div class="umenu" id="umenu" role="menu" hidden>
@@ -763,7 +771,7 @@ function shell() {
   }
   if ($('#gsb')) $('#gsb').onclick = () => searchOpen();
   $('#lo').onclick = async () => { await authApi.signOut(); authView(); };
-  if (multi) $('#cs').onchange = async e => { S.cid = e.target.value; LS.set('waad.cid', S.cid); await loadContext(); shell(); location.hash = '#/home'; route(); };
+  if (multi) $('#cs').onchange = e => switchCompany(e.target.value, '#/home');
   refreshCounts(); drawAnn(); drawSubBar();
 }
 // Arabic day counts: يوم واحد / يومان / 3–10 أيام / 11+ يوما

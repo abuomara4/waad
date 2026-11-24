@@ -1279,6 +1279,15 @@ with sync_playwright() as pw:
     go(o, '#/users'); o.wait_for_selector('[data-mbr]'); ok(o.locator('[data-mbr]').count() >= 1 and o.locator('[data-mbrs]').count() >= 1, 'branches: each user has a default branch and allowed branches')
     go(o, '#/dash/branches'); o.wait_for_selector('#dsec table'); ok('فرع الدمام' in o.inner_text('#dsec') and o.locator('#nav a[href="#/dash/branches"]').count() == 1, 'branches: the dashboard compares the branches side by side')
     go(o, '#/settings'); o.wait_for_selector('#zunits'); ok('فرع الدمام' in o.inner_text('#zunits') and o.locator('#zunits [data-zub]').count() >= 1, 'branches: each branch can be linked to Fatoora as its own e-invoicing unit')
+    # group of companies (0140): the owner gathers a second legal entity under a group and moves between them
+    cid0 = o.evaluate('S.cid'); o.wait_for_selector('#gcf'); o.fill('#gcf input[name=name]', 'مجموعة الاختبار'); o.click('#gcb'); o.wait_for_selector('#gnc')
+    o.click('#gnc'); o.wait_for_selector('#dlg[open] input[name=name]'); o.fill('#dlg input[name=name]', 'شركة التجارة الشقيقة'); o.check('#dlg input[name=xfer]'); o.click('#mok')
+    o.wait_for_function("S.cid && S.cid !== '%s' && document.querySelector('#cs optgroup')" % cid0, timeout=15000)
+    ok(o.evaluate("S.company.name") == 'شركة التجارة الشقيقة' and o.locator('#cs optgroup option').count() == 2
+       and sql("select count(*) from companies c join company_groups g on g.id = c.group_id where g.name = 'مجموعة الاختبار'") == '2', 'groups: a sister company is created in the group and opened, with both in the switcher')
+    ok(sql("select count(*) from employees e join companies c on c.id = e.company_id where c.name = 'شركة التجارة الشقيقة'") == '0', 'groups: the sister company starts with its own empty data')
+    o.select_option('#cs', cid0); o.wait_for_function("S.cid === '%s'" % cid0, timeout=15000); o.wait_for_timeout(500)
+    go(o, '#/settings'); o.wait_for_selector('#grpc [data-grm]'); ok('شركة التجارة الشقيقة' in o.inner_text('#grpc'), 'groups: the owner sees the group\'s companies in the settings and switches back')
     # company announcement: posted by HR, shown on the home page
     go(o, '#/announcements'); o.wait_for_selector('#annn'); o.click('#annn'); o.wait_for_selector('#dlg[open] input[name=title]')
     o.fill('#dlg input[name=title]', 'اجتماع عام الأحد'); o.fill('#dlg textarea[name=body]', 'اجتماع لكل الموظفين الساعة 10 صباحا'); sqlx("update employees set email = 'staff5001@example.com', phone = '0551234567' where emp_no = '5001'"); o.click('#mok'); o.wait_for_selector('#dlg[open] #asb a[data-mb]')

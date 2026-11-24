@@ -1008,6 +1008,7 @@ VIEWS['#/settings'] = async page => {
      <div id="lgerr"></div><p class="muted small">يظهر أعلى الخطابات المطبوعة. يفضّل PNG بخلفية شفافة؛ نصغّر الصورة تلقائيا.</p></div>` : ''}
    ${admin && S.sub ? `<div class="card"><h2>${esc(tr('الاشتراك'))}</h2><p>${esc(tr('الباقة'))}: <b>${esc(S.sub.plan === 'trial' ? tr('تجريبية') : S.sub.plan)}</b> · <span class="badge ${subState(S.sub)[1]}">${esc(tr(subState(S.sub)[0]))}</span>${S.sub.status === 'trial' && S.sub.trial_ends ? ` · ${esc(tr('تنتهي التجربة'))} <span class="num">${esc(S.sub.trial_ends)}</span>` : ''}${S.sub.status === 'active' && S.sub.sub_ends ? ` · ${esc(tr('ينتهي الاشتراك'))} <span class="num">${esc(S.sub.sub_ends)}</span>` : ''}${S.sub.max_users ? ` · ${esc(tr('الحد الأعلى للمستخدمين'))} <span class="num">${S.sub.max_users}</span>` : ''}${S.sub.max_employees ? ` · ${esc(tr('الحد الأعلى للموظفين'))} <span class="num">${S.sub.max_employees}</span>` : ''}</p>
      <p>${Object.entries(MODULES).map(([k, t]) => `<span class="badge ${modOn(k) ? 'ok' : ''}">${esc(tr(t))}${modOn(k) ? '' : ' — ' + esc(tr('غير مفعّل'))}</span>`).join(' ')}</p>${IN_APP ? '' : `<p class="muted small">${esc(tr('لتغيير الباقة أو فتح قسم تواصل مع إدارة وعد.'))}</p>`}</div>` : ''}
+   ${has('owner') && !IN_APP ? '<div class="card" id="grpc"></div>' : ''}
    ${admin && !IN_APP ? '<div class="card" id="refc"></div>' : ''}
    ${admin && !IN_APP ? '<div class="card" id="winvs"></div>' : ''}
    ${admin && (modOn('finance') || modOn('sales')) ? '<div class="card" id="zcard"></div>' : ''}
@@ -1028,6 +1029,7 @@ VIEWS['#/settings'] = async page => {
   if ($('#lgf', page)) $('#lgf', page).onchange = async ev => { const f = ev.target.files[0]; if (!f) return; try { await setLogo(await imgToLogo(f)); } catch (er) { showErr($('#lgerr', page), er); } };
   if ($('#lgd', page)) $('#lgd', page).onclick = () => setLogo(null);
   if ($('#zcard', page)) zatcaCard($('#zcard', page));
+  if ($('#grpc', page)) groupCard($('#grpc', page)).catch(() => {});
   if ($('#refc', page)) db.rpc('my_referrals', { p_company: S.cid }).catch(() => null).then(r => { const el = $('#refc', page); if (!el) return; if (!r || !r.code) { el.remove(); return; }
     const link = SITE_URL + '?ref=' + r.code, msg = tr('أستخدم «وعد» لإدارة الموارد البشرية والمالية في منشأتي، جرّبه 14 يوما مجانا:') + ' ' + link;
     el.innerHTML = `<h2>${esc(tr('ادعُ منشأة واحصل على شهر مجاني'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('أرسل رابطك لمنشأة تعرفها. إذا سجّلت منه ثم اشتركت، يُضاف لاشتراكك شهر مجاني (30 يوما) عن كل منشأة.'))}</p>

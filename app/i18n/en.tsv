@@ -2,6 +2,7 @@
 + فئة	+ Category
 + فاتورة متكررة	+ Recurring invoice
 + فرع	+ Branch
++ منشأة في المجموعة	+ Company in the group
 @ إشارة إلى زميل	@ Mention a colleague
 PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Word or image — up to 3 MB per file
 ء	ء
@@ -564,6 +565,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إجمالي المشتريات المرحّلة	Total posted purchases
 إجمالي المصروفات	Total expenses
 إجمالي تكلفة المخزون	Total stock cost
+إخراج	Remove
+إخراج من المجموعة	Remove from the group
 إخفاء	Dismiss
 إخفاء الفريق	hide team
 إخفاء كلمة المرور	Hide password
@@ -603,6 +606,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إذا كان الشخص نفسه في مرحلتين متتاليتين يعتمد مرة واحدة	If the same person holds two consecutive steps, one approval covers both
 إذا كان في أي سطر خطأ لا يُحدَّث شيء	If any row has an error nothing is updated
 إذا كان في أي سطر خطأ لا يُستورد شيء	If any row has an error, nothing is imported
+إذا كان لديك أكثر من سجل تجاري مستقل	If you have more than one separate commercial registration
 إذا كان للموظف مستند من النوع نفسه يُحدَّث بدل تكراره	if the employee already has a document of that type it is updated instead of duplicated
 إذا كانت منشأتك تستخدم جهاز بصمة	If your company uses a fingerprint device
 إذا كانت نهاية الدوام قبل بدايته فالوردية ليلية تنتهي صباح اليوم التالي	If the end time is before the start time, it is a night shift that ends the next morning
@@ -684,6 +688,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إضافة مرشح	Add candidate
 إضافة مرفق	Add attachment
 إضافة من الفرص	Add from opportunities
+إضافة منشأة للمجموعة لمالك المجموعة فقط	Only the group's owner adds companies to it
 إضافة موظف	Add employee
 إضافة وحذف وكلمات المرور	add, remove, passwords
 إضافة وردية أخرى بعد الحفظ	Add another shift after saving
@@ -812,6 +817,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إنشاء دخول	Create sign-in
 إنشاء دخول للموظف	Create employee sign-in
 إنشاء فاتورة متكررة	Create a recurring invoice
+إنشاء مجموعة بهذه المنشأة	Create a group with this company
 إنشاء ورقة الجرد	Create count sheet
 إنهاء	End
 إنهاء خلال فترة التجربة	Termination during probation
@@ -891,6 +897,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اجتماع	Meeting
 اجعله الافتراضي	Make default
 اجمالي	Total
+اجمعها في مجموعة	gather them in a group
 احتفظ بأصول الفواتير لتسليمها للمالية	keep the original invoices to hand over to finance
 احتفظ بهذا الرمز	Keep this code
 احذف المستخدم بدلا منها	remove the user instead
@@ -1099,6 +1106,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اسم العهدة	Item name
 اسم الفرع	Branch name
 اسم القسم	Department name
+اسم المجموعة	Group name
 اسم المدير	manager name
 اسم المرحلة	Milestone name
 اسم المستخدم	Username
@@ -1256,8 +1264,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اكتب اسم العهدة	Enter the item name
 اكتب اسم الفئة	Write the category name
 اكتب اسم الفرع	Enter the branch name
+اكتب اسم المجموعة	Enter the group's name
 اكتب اسم المستند	Write the document name
 اكتب اسم المستند الآخر	Enter the name of the other document
+اكتب اسم المنشأة	Enter the company's name
 اكتب اسم المنشأة كما هو للتأكيد	Type the company name exactly to confirm
 اكتب اسم الوحدة وكم تساوي من الوحدة الأساسية	Type the unit name and how many base units it equals
 اكتب اسم من اعتمد من طرف العميل	Write the name of the customer's approver
@@ -1783,6 +1793,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الحالة الاجتماعية غير صحيحة	Invalid marital status
 الحالة بعد التغيير	Status after the change
 الحالي	current
+الحالية	Current
 الحد	Limit
 الحد الأعلى	Upper limit
 الحد الأعلى للمستخدمين	User limit
@@ -2295,6 +2306,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 القطيف	Qatif
 القناة	Channel
 القوائم المالية	Financial statements
+القوائم الموحدة للمجموعة واستبعاد المعاملات بين شركاتها في المرحلة التالية	Consolidated statements for the group and eliminating transactions between its companies come in the next phase
 القوة القاهرة	Force majeure
 القيد	Entry
 القيد سطران على الأقل	An entry needs at least two lines
@@ -2645,6 +2657,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المنشأة شغّالة	The company is live
 المنشأة شغّالة. أوقفها أولا ثم احذفها	The company is live. Suspend it first, then delete it
 المنشأة غير موجودة	Company not found
+المنشأة في مجموعة بالفعل	The company is already in a group
 المنشأة ليست منتهية	The company has not ended
 المنشأة موقوفة أو لم تُقبل بعد	The company is suspended or not yet accepted
 المنشأة موقوفة أو لم تُقبل بعد، فيمكن حذفها عند طلب المالك.	The company is suspended or not yet accepted, so it can be deleted when the owner asks.
@@ -2898,6 +2911,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بانتظار المالية	Waiting for finance
 بانتظار المراجعة	Awaiting review
 بانتظار الموارد البشرية	Waiting for HR
+بانتظار الموافقة	Awaiting approval
 بانتظار توقيعك	Awaiting your signature
 بانتظار رأيك	Waiting for your opinion
 بانتظار صرف البدل من المالية	Waiting for finance to pay the allowance
@@ -3230,7 +3244,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تبادل	Tabadul
 تبدأ إجازة العدة من تاريخ الوفاة	Iddah leave starts on the date of death
 تبدأ الإجازة من تاريخ الواقعة أو بعده	The leave starts on or after the event date
+تبدأ المنشأة الجديدة فارغة باشتراكها الخاص	The new company starts empty with its own subscription
 تبدأ من تاريخ الوفاة ولا تقل عن	Starts on the date of death and is not less than
+تبقى المنشأة كما هي ببياناتها واشتراكها	The company stays as it is, with its data and subscription
 تبقى ملتزما بالعمل خلال هذه المدة	You remain bound to work during this period
 تبقى ملتزماً بالعمل خلال هذه المدة	You remain bound to work during this period
 تبوك	Tabuk
@@ -3534,6 +3550,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تعيين جدول ورديات	Assign a shift roster
 تعيين وإنشاء سجل موظف	Hire and create employee record
 تغيير	Change
+تغيير الاسم	Rename
 تغيير الحالة	Change status
 تغيير الشعار	Change logo
 تغيير كلمة المرور	Change password
@@ -3609,6 +3626,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تم	Done
 تم إخلاء الطرف	Approved
 تم إنشاء الحساب	Account created
+تم إنشاء المجموعة	Group created
+تم إنشاء المنشأة	Company created
 تم الإيقاف	Suspended
 تم الاستيراد	Imported
 تم الاطلاع	Got it
@@ -3660,6 +3679,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تنبيه: ما تمنحه لوظيفة «موظف» يصل لكل الموظفين.	Note: what you give the «Employee» job reaches every employee.
 تنبيهات	Alerts
 تنبيهات خلال	Alerts within
+تنتقل بينها من حسابك نفسه	move between them from your own account
 تنتهي	Expiring:
 تنتهي التجربة	Trial ends
 تنتهي خلال	expiring within
@@ -4404,6 +4424,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 رقم رخصة القيادة	driving licence number
 رقم شهادة الميلاد	Birth certificate number
 رقم شهادة الوفاة	Death certificate number
+رقم ضريبي وتأمينات ودفاتر خاصة	its own VAT number, GOSI and books
 رقم عقد النكاح	Marriage contract number
 رقم غير صحيح	invalid number
 رقم فاتورة	invoice number
@@ -5275,6 +5296,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فالمنضم بعد الإقفال يتأخر أول راتب له	so a joiner after the cutoff gets the first wage later
 فبعض البنوك تطلب ترتيب أعمدة مختلفا	as some banks require a different column order
 فبعض البنوك تطلب ترتيب أعمدة مختلفاً	as some banks require a different column order
+فتح	Open
 فتح الاستعلام في منصة صحة	Open the Seha inquiry
 فتح الرسالة	Open the message
 فتح الشخص لبياناته هو لا يُسجل	A person opening their own data is not logged
@@ -5324,6 +5346,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فصيلة الدم	blood type
 فعالية	Event
 فعلي	live
+فعّال	Active
 فعّالة	Active
 فعّل	turn on
 فعّل التحقق بخطوتين	Turn on two-step verification
@@ -5369,6 +5392,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 في الشهر السابق إلى يوم	of the previous month to day
 في الكشف	in the statement
 في المالية	in finance
+في المجموعة منشأة بهذا الاسم	The group already has a company with this name
 في المخزون	In stock
 في المقابلات	In interviews
 في الملف	in the file
@@ -5551,6 +5575,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كل فاتورة مبيعات وإشعار دائن أو مدين يُرسل تلقائياً بعد ترحيله	Every sales invoice, credit note and debit note is sent automatically once posted
 كل ما يُقيَّد على مركز تكلفة المشروع	Everything booked on the project's cost center
 كل مسحة تزيد المعدود	each scan adds to the count
+كل منشأة كيان مستقل ببياناتها واشتراكها	Each company is a separate entity with its own data and subscription
 كل موظف برسالة مستقلة	each employee gets a separate message
 كل وردية تستخدم وقت رمضان المحدد لها	Each shift uses its own Ramadan time
 كلمة المرور	Password
@@ -5920,6 +5945,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لديك طلب استقالة قيد المعالجة	You already have a resignation in progress
 لديك طلب تعديل بيانات قيد المراجعة	You already have a data-change request under review
 لديك طلب نسيان بصمة لهذا اليوم قيد المراجعة	You already have a forgotten-fingerprint request for this day under review
+لديك مجموعة منشآت بالفعل	You already have a group of companies
 لذلك لا تذكر سبب انتهاء الخدمة ولا أي ملاحظات	so it states no end reason and no notes
 لذلك لا تظهر لك خدمات الإجازات والطلبات	so leave and request services are not shown to you
 لست ضمن فريق أي مشروع جارٍ	You are not on any active project's team
@@ -6205,6 +6231,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مثال يوم	Example, day
 مثبّت	Pinned
 مثل	such as
+مثل أي منشأة جديدة في وعد	like any new company in Waad
 مثل إيجار سنة	such as a year's rent
 مثل العمولات	such as charges
 مثل القروض طويلة الأجل ومخصص نهاية الخدمة	such as long-term loans and the end-of-service provision
@@ -6237,6 +6264,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مجموع الشهر	Month total
 مجموع المدفوع	Total paid
 مجموع ساعات اليوم يتجاوز	The day's hours exceed
+مجموعة المنشآت	Group of companies
 مجموعة روابي	Rawabi Group
 مجمّعة حسب الرسالة	grouped by message
 مجهول الهوية	Anonymous
@@ -6686,7 +6714,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 منشآت دخلت آخر	Companies signed in, last
 منشآت ما دخلت من أسبوعين	Companies inactive for two weeks
 منشآت مشتركة	Subscribed companies
+منشآتك الأخرى	Your other companies
 منشأة جديدة	New company
+منشأة جديدة في المجموعة	New company in the group
+منشأة في المجموعة	company in the group
 منشأتك تحتوي بيانات تجريبية	Your company contains sample data
 منشأتك تمنع اعتماد ما يتجاوز الموازنة	Your company blocks approving anything over budget
 منشأتك تمنع اعتماد ما يتجاوزها	your company blocks approving what exceeds it
@@ -7103,10 +7134,12 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وتبقى ملتزما بأداء عملك خلالها	and you remain bound to perform your work during it
 وتبقى ملتزماً بأداء عملك خلالها	and you remain bound to perform your work during it
 وتتحول المعتمدة إلى وظيفة شاغرة	and the approved ones become job openings
+وتخرج فقط من المجموعة	and only leaves the group
 وتصل نتيجتك لمالك المنشأة والموارد البشرية	your result goes to the company owner and HR
 وتضغط أنت	and you press
 وتكرار الفتح خلال	and opening again within
 وتمر على مديره ثم المالية ثم المدير العام	go to their manager, then finance, then the GM
+وتنتقل بينها من قائمة المنشآت أعلى الشاشة	and you move between them from the company list at the top of the screen
 وتنتهي العلاقة بانتهائها	and employment ends when it ends
 وتنتهي العلاقة من تاريخ قبولها	and employment ends on the date it is accepted
 وتنتهي في	ending on
@@ -7267,6 +7300,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ولا يُحسب ربحا أو خسارة	and is not counted as profit or loss
 ولا يُحسب ربحاً أو خسارة	and is not counted as profit or loss
 ولا يُحسم من الأجر للغرامات أكثر من أجر خمسة أيام في الشهر	and no more than five days' wage a month is deducted for fines
+ولكل منشأة اشتراكها وبياناتها المنفصلة	and each company has its own subscription and separate data
 وللوافدين إقامة ورخصة عمل	and expatriates have an iqama and work permit
 ولمسح قيمة اكتب	to clear a value write
 وليست إيرادا للمنشأة	not company income
@@ -7490,6 +7524,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يكون تأجيل القبول قبل انتهاء الثلاثين يوما من تقديم الاستقالة	The deferral must be made before 30 days pass from the resignation
 يكون تأجيل القبول قبل انتهاء الثلاثين يوماً من تقديم الاستقالة	The deferral must be made before 30 days pass from the resignation
 يلبي التوقعات	Meets expectations
+يلزم الموافقة على تخزين البيانات خارج المملكة	Consent to storing the data outside the Kingdom is required
 يلزم موافقة العامل الكتابية	the worker's written consent is required
 يلزم موافقة العامل الكتابية لسنة	the worker's written consent is required for year
 يلغي القديم	cancels the old one
