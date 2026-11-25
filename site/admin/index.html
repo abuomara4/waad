@@ -16,10 +16,10 @@
 <style>
 /* the Saudi riyal sign (U+20C1, SAMA 2025): a one-glyph font drawn from the official symbol, used only for that character */
 @font-face{font-family:WaadSAR;src:url(data:font/ttf;base64,AAEAAAAKAIAAAwAgT1MvMkp6aW4AAAEoAAAAYGNtYXBBc9/cAAABlAAAADxnbHlmBDP6KQAAAdgAAACUaGVhZDNQEdwAAACsAAAANmhoZWENUARgAAAA5AAAACRobXR4C9IAbgAAAYgAAAAMbG9jYQAAAEoAAAHQAAAACG1heHAABgArAAABCAAAACBuYW1lLCp8YAAAAmwAAABgcG9zdDmtspwAAALMAAAAMAABAAAAAQAAILOIBV8PPPUAAwgAAAAAAOcr46UAAAAA5yvjpQBuAAAFdAWaAAAAAwACAAAAAAAAAAEAAAds/gwAAAXiAG4AbgV0AAEAAAAAAAAAAAAAAAAAAAADAAEAAAADACkAAgAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAwPxAZAABQAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAgAAAAAAAAAAPz8/PwAAACAgwQds/gwAAAdsAfQAAAAAAAAAAAAAAAAAAAAgAAAD6AAAAggAAAXiAG4AAAACAAAAAwAAABQAAwABAAAAFAAEACgAAAAGAAQAAQACACAgwf//AAAAICDB////4d9BAAEAAAAAAAAAAAAAAAAASgACAG4AAAV0BZoAIgAoAAABEQUGByUVBQYHJTY3NzY1NTcRJTY3BTUlNjcFEQYHEQcRBgEGByU2NwI0/q4kCQF//mYkCAGwNh1ODJcB5x8M/oUBUB8M/oVTRJdSARYlCAHnHwwFGv2nSE1XUsJZTFZbDSxzFBiqIP7LZ0xZUZpITFhQAiwuUv40IAK3MPs3TFVjTVgAAAAEADYAAQAAAAAAAQAHAAAAAQAAAAAAAgAHAAcAAwABBAkAAQAOAA4AAwABBAkAAgAOABxXYWFkU0FSUmVndWxhcgBXAGEAYQBkAFMAQQBSAFIAZQBnAHUAbABhAHIAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAwECB3VuaTIwQzE=) format('truetype');unicode-range:U+20C1;font-display:block}
-:root{--bg:#f5f7fb;--surface:#fff;--side:#fff;--gold:#8a641f;--ink:#0f172a;--muted:#56657a;--line:#e2e8f0;--line2:#cbd5e1;--line3:#f1f5f9;--accent:#1B6CC9;--accent-ink:#fff;--soft:#eff4ff;--soft2:#f1f5f9;--ok:#0f766e;--okbg:rgba(13,148,136,.10);--bad:#b91c1c;--badbg:rgba(239,68,68,.10);--wait:#b45309;--waitbg:rgba(245,158,11,.12);--prim:#142039;--prim-h:#1e293b;--prim-ink:#fff;--sh1:0 1px 3px 0 rgba(15,23,42,.04),0 1px 2px -1px rgba(15,23,42,.04);--sh2:0 10px 15px -3px rgba(15,23,42,.06),0 4px 6px -4px rgba(15,23,42,.04);color-scheme:light}
-@media(prefers-color-scheme:dark){:root[data-theme="auto-dark"]{--bg:#131b29;--surface:#1c2636;--side:#182131;--ink:#e8edf4;--muted:#8d9bb0;--line:#29364a;--line2:#34435a;--line3:#222d3f;--accent:#4c8df6;--accent-ink:#0b1220;--soft:rgba(76,141,246,.15);--soft2:#172030;--ok:#3fc392;--okbg:rgba(63,195,146,.15);--bad:#f87171;--badbg:rgba(239,68,68,.16);--wait:#e0b45e;--waitbg:rgba(224,180,94,.15);--prim:#2f6fe8;--prim-h:#2563eb;--prim-ink:#fff;--gold:#C9B27B;--sh1:0 1px 2px 0 rgba(0,0,0,.35);--sh2:0 12px 28px -6px rgba(0,0,0,.55);color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#131b29;--surface:#1c2636;--side:#182131;--ink:#e8edf4;--muted:#8d9bb0;--line:#29364a;--line2:#34435a;--line3:#222d3f;--accent:#4c8df6;--accent-ink:#0b1220;--soft:rgba(76,141,246,.15);--soft2:#172030;--ok:#3fc392;--okbg:rgba(63,195,146,.15);--bad:#f87171;--badbg:rgba(239,68,68,.16);--wait:#e0b45e;--waitbg:rgba(224,180,94,.15);--prim:#2f6fe8;--prim-h:#2563eb;--prim-ink:#fff;--gold:#C9B27B;--sh1:0 1px 2px 0 rgba(0,0,0,.35);--sh2:0 12px 28px -6px rgba(0,0,0,.55);color-scheme:dark}
-@media(prefers-color-scheme:dark){:root:not([data-theme]){--bg:#131b29;--surface:#1c2636;--side:#182131;--ink:#e8edf4;--muted:#8d9bb0;--line:#29364a;--line2:#34435a;--line3:#222d3f;--accent:#4c8df6;--accent-ink:#0b1220;--soft:rgba(76,141,246,.15);--soft2:#172030;--ok:#3fc392;--okbg:rgba(63,195,146,.15);--bad:#f87171;--badbg:rgba(239,68,68,.16);--wait:#e0b45e;--waitbg:rgba(224,180,94,.15);--prim:#2f6fe8;--prim-h:#2563eb;--prim-ink:#fff;--gold:#C9B27B;--sh1:0 1px 2px 0 rgba(0,0,0,.35);--sh2:0 12px 28px -6px rgba(0,0,0,.55);color-scheme:dark}}
+:root{--acc-txt:#1B6CC9;--bg:#f5f7fb;--surface:#fff;--side:#fff;--gold:#8a641f;--ink:#0f172a;--muted:#56657a;--line:#e2e8f0;--line2:#cbd5e1;--line3:#f1f5f9;--accent:#1B6CC9;--accent-ink:#fff;--soft:#eff4ff;--soft2:#f1f5f9;--ok:#0f766e;--okbg:rgba(13,148,136,.10);--bad:#b91c1c;--badbg:rgba(239,68,68,.10);--wait:#b45309;--waitbg:rgba(245,158,11,.12);--prim:#142039;--prim-h:#1e293b;--prim-ink:#fff;--sh1:0 1px 3px 0 rgba(15,23,42,.04),0 1px 2px -1px rgba(15,23,42,.04);--sh2:0 10px 15px -3px rgba(15,23,42,.06),0 4px 6px -4px rgba(15,23,42,.04);color-scheme:light}
+@media(prefers-color-scheme:dark){:root[data-theme="auto-dark"]{--bg:#131b29;--surface:#1c2636;--side:#182131;--ink:#e8edf4;--muted:#8d9bb0;--line:#29364a;--line2:#34435a;--line3:#222d3f;--accent:#4c8df6;--acc-txt:#9cc2ff;--accent-ink:#0b1220;--soft:rgba(76,141,246,.15);--soft2:#172030;--ok:#3fc392;--okbg:rgba(63,195,146,.15);--bad:#f87171;--badbg:rgba(239,68,68,.16);--wait:#e0b45e;--waitbg:rgba(224,180,94,.15);--prim:#2f6fe8;--prim-h:#2563eb;--prim-ink:#fff;--gold:#C9B27B;--sh1:0 1px 2px 0 rgba(0,0,0,.35);--sh2:0 12px 28px -6px rgba(0,0,0,.55);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#131b29;--surface:#1c2636;--side:#182131;--ink:#e8edf4;--muted:#8d9bb0;--line:#29364a;--line2:#34435a;--line3:#222d3f;--accent:#4c8df6;--acc-txt:#9cc2ff;--accent-ink:#0b1220;--soft:rgba(76,141,246,.15);--soft2:#172030;--ok:#3fc392;--okbg:rgba(63,195,146,.15);--bad:#f87171;--badbg:rgba(239,68,68,.16);--wait:#e0b45e;--waitbg:rgba(224,180,94,.15);--prim:#2f6fe8;--prim-h:#2563eb;--prim-ink:#fff;--gold:#C9B27B;--sh1:0 1px 2px 0 rgba(0,0,0,.35);--sh2:0 12px 28px -6px rgba(0,0,0,.55);color-scheme:dark}
+@media(prefers-color-scheme:dark){:root:not([data-theme]){--bg:#131b29;--surface:#1c2636;--side:#182131;--ink:#e8edf4;--muted:#8d9bb0;--line:#29364a;--line2:#34435a;--line3:#222d3f;--accent:#4c8df6;--acc-txt:#9cc2ff;--accent-ink:#0b1220;--soft:rgba(76,141,246,.15);--soft2:#172030;--ok:#3fc392;--okbg:rgba(63,195,146,.15);--bad:#f87171;--badbg:rgba(239,68,68,.16);--wait:#e0b45e;--waitbg:rgba(224,180,94,.15);--prim:#2f6fe8;--prim-h:#2563eb;--prim-ink:#fff;--gold:#C9B27B;--sh1:0 1px 2px 0 rgba(0,0,0,.35);--sh2:0 12px 28px -6px rgba(0,0,0,.55);color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{min-height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:WaadSAR,"Inter","IBM Plex Sans Arabic",system-ui,Tahoma,Arial,sans-serif;line-height:1.7;font-size:15px}
@@ -76,7 +76,7 @@ td.r,th.r{text-align:end}
 tfoot td{font-weight:700;background:var(--soft2)}
 .empty{padding:28px;text-align:center;color:var(--muted)}
 .badge{display:inline-block;border-radius:99px;padding:0 10px;font-size:12px;line-height:22px;background:var(--soft2);color:var(--muted)}
-.badge.ok{background:var(--okbg);color:var(--ok)}.badge.bad{background:var(--badbg);color:var(--bad)}.badge.wait{background:var(--waitbg);color:var(--wait)}.badge.info{background:var(--soft);color:var(--accent)}
+.badge.ok{background:var(--okbg);color:var(--ok)}.badge.bad{background:var(--badbg);color:var(--bad)}.badge.wait{background:var(--waitbg);color:var(--wait)}.badge.info{background:var(--soft);color:var(--acc-txt)}
 /* forms */
 label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
 input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;min-height:40px}
@@ -109,7 +109,7 @@ input[type=checkbox]{width:auto;min-height:0}
 dialog{border:0;border-radius:14px;padding:0;width:min(620px,calc(100vw - 32px));background:var(--surface);color:var(--ink);box-shadow:var(--sh2)}
 dialog::backdrop{background:rgba(15,23,42,.45)}
 .dh{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
-.db{padding:18px;max-height:70vh;overflow:auto}
+.db{padding:18px;max-height:70vh;overflow:auto;overscroll-behavior:contain}
 .df{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line)}
 .x{border:0;background:none;font-size:22px;cursor:pointer;color:var(--muted)}
 #toast{position:fixed;bottom:20px;inset-inline-start:50%;transform:translateX(50%);background:var(--prim);color:var(--prim-ink);padding:10px 18px;border-radius:10px;box-shadow:var(--sh2);z-index:50;font-size:14px}
@@ -251,7 +251,7 @@ body.printing #printarea .pdoc{display:block;background:#fff;color:#111;font-siz
 .org li.col>ul{display:none}
 .onode{position:relative;display:flex;align-items:center;gap:8px;min-width:170px;max-width:220px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);box-shadow:var(--sh1);cursor:pointer;text-align:start;line-height:1.45}
 html[dir=rtl] .onode{direction:rtl}
-.onode:hover,.onode:focus{border-color:var(--accent);outline:none}
+.onode:hover,.onode:focus{border-color:var(--accent);outline:none}.onode:focus-visible{box-shadow:0 0 0 3px rgba(33,127,225,.45)}
 .onode.ohead{border-top:3px solid var(--accent)}
 .onode.ohit{box-shadow:0 0 0 3px var(--soft);border-color:var(--accent)}
 .onode b{display:block;font-size:13.5px}
@@ -700,7 +700,11 @@ function tbl(cols, rows, { empty = 'لا توجد بيانات', onRow, foot } =
 }
 function bindRows(root, rows, fn) { $$('tr[data-row]', root).forEach(tr => tr.onclick = () => fn(rows[+tr.dataset.row])); }
 const opt = (v, t, sel) => `<option value="${esc(v)}"${String(sel) === String(v) ? ' selected' : ''}>${esc(t)}</option>`;
-const field = (label, input, cls = '') => `<div class="${cls}"><label>${esc(label)}${/\srequired(?=[\s>="])/.test(input) ? ' <span class="req" aria-hidden="true">*</span>' : ''}</label>${input}</div>`;
+// a field: its label is tied to its control (for / id), so screen readers announce what each input is (WCAG 1.3.1, 4.1.2)
+let FIELD_N = 0;
+const field = (label, input, cls = '') => { input = String(input); let id = (input.match(/<(?:input|select|textarea)\b[^>]*\sid="([^"]+)"/) || [])[1];
+  if (!id && /<(?:input|select|textarea)\b/.test(input)) { id = 'fld' + (++FIELD_N); input = input.replace(/<(input|select|textarea)\b/, m => m + ` id="${id}"`); }
+  return `<div class="${cls}"><label${id ? ` for="${id}"` : ''}>${esc(label)}${/\srequired(?=[\s>="])/.test(input) ? ' <span class="req" aria-hidden="true">*</span>' : ''}</label>${input}</div>`; };
 const inp = (name, v = '', extra = '') => `<input name="${name}" value="${esc(v == null ? '' : v)}" ${extra}>`;
 // password field with a show/hide eye toggle (used on login and wherever a password is typed)
 const pwInput = (name, ac = 'current-password', extra = 'required') => `<div class="pwrap"><input name="${name}" type="password" autocomplete="${ac}" dir="ltr" ${extra}><button type="button" class="peye" tabindex="-1" aria-label="إظهار كلمة المرور" title="إظهار كلمة المرور"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/><line class="pe-slash" x1="4" y1="20" x2="20" y2="4"/></svg></button></div>`;
