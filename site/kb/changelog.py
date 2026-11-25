@@ -3,6 +3,7 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('25 نوفمبر 2026', '25 November 2026', [
+  ('الدخول بحساب Google أو Microsoft للإدارة (عند تفعيله)', 'Sign in with Google or Microsoft for management (once switched on)'),
   ('الربط البرمجي (API): مفاتيح قراءة لربط متجرك أو أداة التقارير أو نظام آخر ببيانات منشأتك، بصلاحيات تحددها وتلغيها متى شئت', 'API: read keys to connect your store, a reporting tool or another system to your company\'s data, with scopes you choose and can revoke at any time'),
   ('التصنيع وخطة المواد: قوائم مكوّنات وأوامر إنتاج بالتكلفة، وخطة تقول ما يُصنّع وما يُشترى مع أمر شراء بضغطة', 'Manufacturing and materials planning: bills of materials and costed production orders, and a plan of what to make and what to buy with a one-click purchase order'),
   ('نقطة البيع: ورديات الكاشير بعدّ الصندوق وتقرير الإغلاق، خصومات بحد تحدده الإدارة، والدفع نقدا أو بالشبكة أو بشيك أو آجل أو بأكثر من طريقة', 'Point of sale: cashier shifts with a cash count and a closing report, discounts within a limit set by management, and payment in cash, by card, by cheque, on credit or a mix'),

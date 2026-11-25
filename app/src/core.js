@@ -366,11 +366,12 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
   app.innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="atag">${esc(tr('حلول دقيقة.. لوعد موثوق'))}</div><div class="card">
     ${tab !== 'staff' ? `<h2>${tab === 'in' ? 'دخول الإدارة بالبريد' : 'حساب جديد بالبريد'}</h2>` : ''}
     ${msg ? `<div class="note">${esc(msg)}</div>` : ''}
-    <form id="af" novalidate>${body}<div id="aerr"></div><div style="height:12px"></div><button class="btn pri full" id="ab">${btn}</button>${foot}</form></div>
+    <form id="af" novalidate>${body}<div id="aerr"></div><div style="height:12px"></div><button class="btn pri full" id="ab">${btn}</button>${foot}</form>${tab !== 'staff' ? '<div id="sso"></div>' : ''}</div>
     <p class="muted small" style="text-align:center">${links}</p>
     <p class="muted small" style="text-align:center"><a href="#" id="theme" data-theme-btn="text"></a> · ${langBtn('linkbtn')}</p>
     <p class="muted small afoot"><a href="${SITE_URL}" id="tosite">← الموقع الرئيسي</a> · نظام وعد السحابي لإدارة المنشآت © ${new Date().getFullYear()} · <a href="#/privacy">سياسة الخصوصية</a> · <a href="#/terms">الشروط والأحكام</a></p></div></div>`;
   $('#lg').onclick = () => setLang(LANG === 'en' ? 'ar' : 'en');
+  if ($('#sso')) ssoButtons($('#sso'), tab).catch(() => {});
   $$('[data-go]', app).forEach(a => a.onclick = e => { e.preventDefault(); authView(a.dataset.go); });
   $('#theme').onclick = e => { e.preventDefault(); toggleTheme(); }; applyTheme(curTheme());
   if ($('#chg')) $('#chg').onclick = e => { e.preventDefault(); LS.set('waad.ccode', null); LS.set('waad.cname', null); LS.set('waad.empno', null); authView('staff'); };
@@ -508,6 +509,22 @@ async function loadContext(pre) {
   if (isFin()) Promise.all([db.get('zatca_settings', { company_id: 'eq.' + S.cid, select: 'enabled' }), db.get('zatca_units', { company_id: 'eq.' + S.cid, enabled: 'is.true', select: 'branch_id' }).catch(() => [])])
     .then(([r, u]) => { S.zatcaOn = !!(r[0] && r[0].enabled) || u.length > 0; if (S.zatcaOn) zatcaKick(); }).catch(() => {});
   return true;
+}
+// Google / Microsoft sign-in for owners and admins (e-mail accounts, not staff numbers). The buttons appear only for the providers
+// switched on in Supabase (Authentication → Providers, docs/SSO.md); Supabase returns to the app with #access_token=…, which
+// authFromLink below already takes. Not inside the iPhone shell: Google refuses sign-in in embedded web views.
+async function ssoButtons(el, tab) {
+  if (ADMIN || window.Capacitor) return;
+  const r = await fetch(CFG.url + '/auth/v1/settings', { headers: { apikey: CFG.key } }).catch(() => null);
+  const st = r && r.ok ? await r.json().catch(() => null) : null, ex = (st && st.external) || {};
+  const ps = [['google', 'Google', '<path d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4a4.6 4.6 0 0 1-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z" fill="#4285F4"/><path d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3.1v2.6A10 10 0 0 0 12 22z" fill="#34A853"/><path d="M6.4 14c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V7.4H3.1a10 10 0 0 0 0 9.2z" fill="#FBBC05"/><path d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.8-2.8A10 10 0 0 0 3.1 7.4L6.4 10c.8-2.3 3-4.1 5.6-4.1z" fill="#EA4335"/>'],
+    ['azure', 'Microsoft', '<path d="M3 3h8.5v8.5H3z" fill="#F25022"/><path d="M12.5 3H21v8.5h-8.5z" fill="#7FBA00"/><path d="M3 12.5h8.5V21H3z" fill="#00A4EF"/><path d="M12.5 12.5H21V21h-8.5z" fill="#FFB900"/>']].filter(p => ex[p[0]]);
+  if (!ps.length || !el.isConnected) return;
+  const back = location.origin + location.pathname;
+  el.innerHTML = `<div class="row" style="align-items:center;gap:8px;margin:14px 0 10px"><span style="flex:1;border-top:1px solid var(--line)"></span><span class="muted small">${esc(tr('أو'))}</span><span style="flex:1;border-top:1px solid var(--line)"></span></div>
+    ${ps.map(([k, n, svg]) => `<a class="btn full" data-sso="${k}" href="${esc(CFG.url + '/auth/v1/authorize?provider=' + k + (k === 'azure' ? '&scopes=email' : '') + '&redirect_to=' + encodeURIComponent(back))}" style="margin-top:6px;gap:8px;justify-content:center">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">${svg}</svg>${esc(tr('المتابعة بحساب'))} ${n}</a>`).join('')}
+    ${tab === 'up' ? `<p class="muted small" style="margin:8px 0 0">${esc(tr('بالمتابعة توافق على الشروط والأحكام وسياسة الخصوصية.'))}</p>` : ''}`;
 }
 // links from auth emails (password recovery, sign-up confirmation) come back as #access_token=…&type=… or #error=…
 async function authFromLink() {
