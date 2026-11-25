@@ -4369,5 +4369,43 @@ reset role;
 select t.ok((select ip = '203.0.113.7' and ua like 'Mozilla/5.0 (iPhone)%' from public.access_log where company_id = :'cid' and ref = 'ip-test' order by at desc limit 1),
   'access log: each entry keeps the IP address and device of the request, taken on the server');
 select set_config('request.headers', '', false);
+-- customer 360 (0148)
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.customer_360(:'cid', :'c1') as c360 \gset
+reset role;
+select t.ok((:'c360'::jsonb->>'balance')::numeric = public.party_balance(:'c1')
+  and (:'c360'::jsonb->>'invoices_n')::int = (select count(*) from public.sales_invoices where party_id = :'c1' and status = 'posted' and not is_opening)
+  and jsonb_array_length(:'c360'::jsonb->'trend') = 12
+  and (:'c360'::jsonb->'aging'->>'current')::numeric + (:'c360'::jsonb->'aging'->>'d30')::numeric + (:'c360'::jsonb->'aging'->>'d60')::numeric + (:'c360'::jsonb->'aging'->>'d90')::numeric + (:'c360'::jsonb->'aging'->>'over90')::numeric
+      = (:'c360'::jsonb->>'open')::numeric,
+  'customer 360: balance, invoices, 12 months of sales, and the aging adds up to what is still owed');
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((public.customer_360(:'cid', :'c1')->'party'->>'id') = :'c1', 'customer 360: the customer''s own sales rep opens his file');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.err($$select public.customer_360('$$ || :'cid' || $$', '$$ || :'c1' || $$')$$, 'غير موجود|42501', 'customer 360: another company cannot open it');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.err($$select public.customer_360('$$ || :'cid' || $$', '$$ || :'s1' || $$')$$, 'غير موجود', 'customer 360: a supplier is not a customer file');
+reset role;
+-- employee 360 (0149)
+reset role;
+select manager_id is not distinct from :'e_mgr' as mgr_ok from public.employees where id = :'e_emp' \gset
+update public.employees set manager_id = :'e_mgr' where id = :'e_emp';
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.ok((public.employee_360(:'cid', :'e_emp')->'pay') is not null and (public.employee_360(:'cid', :'e_emp')->'penalties') is not null
+  and (public.employee_360(:'cid', :'e_emp')->'profile'->>'emp_no') is not null, 'employee 360: HR sees the whole file with pay and penalties');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.ok(jsonb_typeof(public.employee_360(:'cid', :'e_emp')->'pay') = 'null' and jsonb_typeof(public.employee_360(:'cid', :'e_emp')->'penalties') = 'null'
+  and (public.employee_360(:'cid', :'e_emp')->'attendance') is not null, 'employee 360: the manager sees attendance and requests, never pay or penalties');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((public.employee_360(:'cid', :'e_emp')->'pay') is not null, 'employee 360: the employee sees his own pay');
+select t.err($$select public.employee_360('$$ || :'cid' || $$', '$$ || :'e_fin' || $$')$$, '42501|ملف الموظف', 'employee 360: an employee cannot open a colleague''s file');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.err($$select public.employee_360('$$ || :'cid' || $$', '$$ || :'e_emp' || $$')$$, 'غير موجود|42501', 'employee 360: another company cannot open it');
+reset role;
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

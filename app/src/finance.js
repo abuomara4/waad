@@ -31,7 +31,7 @@ VIEWS['#/parties'] = async (page, kind) => {
       { t: 'المدينة', h: p => esc(p.city || '—') + (p.country && p.country !== 'SA' ? ` <span class="muted num">${esc(p.country)}</span>` : '') }, { t: 'مدة السداد', h: p => p.terms_days ? `<span class="num">${p.terms_days}</span> ${esc(tr('يوما'))}` : '—' },
       ...(cust ? [{ t: 'حد الائتمان', r: 1, h: p => p.credit_limit != null ? money(p.credit_limit) : '—' }] : [{ t: 'التقييم', h: p => { const x = scm[p.id]; return x && x.ratings ? `★ <span class="num">${x.overall}</span> <span class="small muted">(${x.ratings})</span>` : '—'; } },
         { t: 'الالتزام بالمواعيد', r: 1, h: p => { const x = scm[p.id]; return x && x.on_time_pct != null ? `<span class="num">${x.on_time_pct}%</span>` : '—'; } }]),
-      { t: '', h: p => `<a class="btn sm" href="#/statement/${p.id}" data-st>${esc(tr('كشف حساب'))}</a>` }], rows, { empty: 'لا يوجد ' + T[0], onRow: true })}`;
+      { t: '', h: p => (cust ? `<a class="btn sm pri" href="#/customer/${p.id}" data-st>${esc(tr('الملف'))}</a> ` : '') + `<a class="btn sm" href="#/statement/${p.id}" data-st>${esc(tr('كشف حساب'))}</a>` }], rows, { empty: 'لا يوجد ' + T[0], onRow: true })}`;
   $$('[data-st]', page).forEach(a => a.addEventListener('click', e => e.stopPropagation()));
   const form = p => {
     const saudi = !p || !p.country || p.country === 'SA';
@@ -456,4 +456,39 @@ VIEWS['#/reports'] = async (page, arg, q) => {
     rb.innerHTML = tbl([{ t: r === 'ar' ? 'العميل' : 'المورد', k: 'party' }, { t: 'غير مستحق', r: 1, h: x => money(x.not_due) }, { t: '1–30', r: 1, h: x => money(x.d1_30) }, { t: '31–60', r: 1, h: x => money(x.d31_60) }, { t: '61–90', r: 1, h: x => money(x.d61_90) }, { t: '+90', r: 1, h: x => money(x.d90_plus) }, { t: 'دفعات غير مخصصة', r: 1, h: x => money(x.unallocated) }, { t: 'الصافي', r: 1, h: x => '<b>' + money(x.net) + '</b>' }], rows, { empty: 'لا توجد أرصدة مفتوحة' }); }
   if (r === 'ledger') { const code = q.get('code') || '1120'; const rows = await db.rpc('account_ledger', { p_company: S.cid, p_code: code, p_from: from, p_to: to });
     rb.innerHTML = tbl([{ t: 'التاريخ', h: x => fdate(x.date) }, { t: 'القيد', h: x => `<span class="num">${esc(x.no || '')}</span>` }, { t: 'البيان', k: 'memo' }, { t: 'مدين', r: 1, h: x => n0(x.debit) ? money(x.debit) : '' }, { t: 'دائن', r: 1, h: x => n0(x.credit) ? money(x.credit) : '' }, { t: 'الرصيد', r: 1, h: x => money(x.balance) }], rows); }
+};
+
+/* ===== ملف العميل الشامل (#/customer/<id>, 0148): balance, overdue and aging, sales and how fast he pays, open quotations and
+   orders, latest invoices and receipts, opportunities, contracts, cheques and his sales rep — on one page ===== */
+VIEWS['#/customer'] = async (page, id) => {
+  const r = await db.rpc('customer_360', { p_company: S.cid, p_party: id }), p = r.party, ag = r.aging;
+  const kpi = (t, v, cls = '', s = '') => `<div class="card kpi"><div class="muted small">${esc(tr(t))}</div><div class="v num ${cls}">${v}</div>${s ? `<div class="muted small">${s}</div>` : ''}</div>`;
+  const OST = { open: 'مفتوح', accepted: 'مقبول' };
+  page.innerHTML = `<div class="head"><div><a href="#/parties/customer" class="small back">${esc(tr('العملاء'))}</a><h1 data-nt>${esc((LANG === 'en' && p.name_en) || p.name)}${p.active === false ? ` <span class="badge">${esc(tr('موقوف'))}</span>` : ''}${p.sister ? ` <span class="badge info">${esc(tr('شركة شقيقة'))}</span>` : ''}</h1>
+      <div class="muted small">${[p.vat_no && tr('الرقم الضريبي') + ' ' + p.vat_no, p.cr_no && tr('السجل التجاري') + ' ' + p.cr_no, p.phone, p.email, p.city].filter(Boolean).map(esc).join(' · ')}</div>
+      <div class="small" style="margin-top:4px">${esc(tr('المندوب'))}: ${p.rep ? `<a href="#/rep/${p.rep.id}" data-nt>${esc(p.rep.name)}</a>` : '—'}${p.terms_days ? ` · ${esc(tr('مدة السداد'))} <span class="num">${p.terms_days}</span> ${esc(tr('يوما'))}` : ''}${p.credit_limit != null ? ` · ${esc(tr('حد الائتمان'))} ${money(p.credit_limit)}` : ''}</div></div>
+      <div class="row" style="gap:6px;flex-wrap:wrap"><a class="btn" href="#/statement/${p.id}">${esc(tr('كشف حساب'))}</a>${can('sales') ? `<a class="btn pri" href="#/sales/new">${esc(tr('فاتورة جديدة'))}</a>` : ''}</div></div>
+    <div class="grid" style="margin-bottom:14px">${kpi('الرصيد المستحق', money(r.open), n0(r.open) ? '' : 'ok')}${kpi('المتأخر', money(r.overdue), n0(r.overdue) ? 'bad' : 'ok')}
+      ${kpi('مبيعات هذه السنة', money(r.sales_ytd), '', `${esc(tr('كل الفترة'))} ${money(r.sales_all)}`)}${kpi('الفواتير', String(r.invoices_n), '', r.last_sale ? `${esc(tr('آخر فاتورة'))} ${fdate(r.last_sale)}` : '')}
+      ${kpi('متوسط أيام السداد', r.pay_days == null ? '—' : String(r.pay_days), r.pay_days != null && p.terms_days && r.pay_days > p.terms_days ? 'bad' : '', p.terms_days ? `${esc(tr('المتفق عليه'))} <span class="num">${p.terms_days}</span>` : '')}
+      ${kpi('المرتجعات', money(r.returns))}</div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+      <div class="card"><h2>${esc(tr('المبيعات آخر 12 شهرا'))}</h2>${barChart(r.trend.map(x => ({ label: x.month.slice(5), values: [Math.max(0, n0(x.sales))] })), [{ name: tr('المبيعات'), color: AN_C[0] }], { fmt: x => money(x) })}</div>
+      <div class="card"><h2>${esc(tr('أعمار الديون'))}</h2>${hbars([[tr('غير مستحق بعد'), ag.current], [tr('متأخر حتى 30 يوما'), ag.d30], [tr('31 إلى 60 يوما'), ag.d60], [tr('61 إلى 90 يوما'), ag.d90], [tr('أكثر من 90 يوما'), ag.over90]].map(([l, v]) => ({ label: l, v: n0(v) })), x => money(x))}</div></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
+      <div class="card"><h2>${esc(tr('آخر الفواتير'))}</h2>${tbl([{ t: 'الرقم', h: x => `<a class="num" href="#/sales/${x.id}">${esc(x.no)}</a>${x.doc_type === 'debit' ? ` <span class="badge">${esc(tr('إشعار مدين'))}</span>` : ''}` }, { t: 'التاريخ', h: x => fdate(x.date) },
+        { t: 'الإجمالي', r: 1, h: x => money(x.total) }, { t: 'المتبقي', r: 1, h: x => n0(x.rem) ? `<span class="${x.due_date < today() ? 'bad' : ''}">${money(x.rem)}</span>` : `<span class="badge ok">${esc(tr('مسدد'))}</span>` }], r.invoices, { empty: 'لا توجد فواتير' })}</div>
+      <div class="card"><h2>${esc(tr('آخر سندات القبض'))}</h2>${tbl([{ t: 'الرقم', h: x => `<span class="num">${esc(x.no)}</span>` }, { t: 'التاريخ', h: x => fdate(x.date) }, { t: 'مقابل', h: x => `<span class="num">${esc(x.inv_no || '—')}</span>` },
+        { t: 'المبلغ', r: 1, h: x => money(x.amount) }], r.payments, { empty: 'لا توجد سندات' })}</div></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
+      <div class="card"><h2>${esc(tr('عروض الأسعار وأوامر البيع المفتوحة'))}</h2>${tbl([{ t: 'الرقم', h: x => `<a class="num" href="#/${x.kind === 'quote' ? 'quotes' : 'orders'}/${x.id}">${esc(x.no)}</a>` }, { t: 'النوع', h: x => esc(tr(x.kind === 'quote' ? 'عرض سعر' : 'أمر بيع')) },
+        { t: 'التاريخ', h: x => fdate(x.date) }, { t: 'الحالة', h: x => esc(tr(OST[x.status] || x.status)) }, { t: 'الإجمالي', r: 1, h: x => money(x.total) }], r.orders, { empty: 'لا يوجد' })}</div>
+      <div class="card"><h2>${esc(tr('الفرص المفتوحة'))}</h2>${tbl([{ t: 'الفرصة', h: x => `<span class="num">${esc(x.no)}</span> <span data-nt>${esc(x.title)}</span>` }, { t: 'المرحلة', h: x => typeof crmBadge === 'function' ? crmBadge(x.stage) : esc(x.stage) },
+        { t: 'القيمة', r: 1, h: x => x.value != null ? money(x.value) : '—' }], r.leads, { empty: 'لا توجد فرص مفتوحة' })}<p class="muted small">${esc(tr('فرص مكسوبة'))}: <b class="num">${r.won}</b></p></div></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
+      <div class="card"><h2>${esc(tr('العقود القائمة'))}</h2>${tbl([{ t: 'العقد', h: x => `<span class="num">${esc(x.no || '')}</span> <span data-nt>${esc(x.title)}</span>` }, { t: 'ينتهي', h: x => x.end_date ? fdate(x.end_date) : '—' },
+        { t: 'القيمة', r: 1, h: x => x.value != null ? money(x.value) : '—' }], r.agreements, { empty: 'لا توجد عقود قائمة' })}</div>
+      <div class="card"><h2>${esc(tr('شيكات لم تُحصّل'))}</h2>${tbl([{ t: 'رقم الشيك', h: x => `<span class="num">${esc(x.no)}</span> <span class="small muted">${esc(x.bank || '')}</span>` }, { t: 'الاستحقاق', h: x => fdate(x.due_date) },
+        { t: 'المبلغ', r: 1, h: x => money(x.amount) }], r.cheques, { empty: 'لا توجد' })}</div></div>`;
+  if (typeof accessNote === 'function') accessNote('report', { ref: 'customer:' + p.id, label: 'ملف العميل' });
 };

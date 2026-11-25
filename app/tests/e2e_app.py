@@ -10,6 +10,9 @@ PW = 'Passw0rd!x'
 results = []
 def ok(c, name):
     results.append((bool(c), name)); print(('PASS ' if c else 'FAIL ') + name, flush=True)
+def inmenu(p, h):   # a screen is in the menu: its own entry, or a tab of a merged cycle (NAV_TABS)
+    return p.locator('#nav a[href="' + h + '"]').count() == 1 or p.evaluate('h => Object.keys(NAV_TABS).includes(h)', h)
+
 def amt(t):   # an amount as shown, without the riyal sign and its isolate marks (app money())
     return t.replace('\u2066', '').replace('\u2069', '').replace('\u20c1', '').replace('\u00a0', '').strip()
 
@@ -75,7 +78,7 @@ with sync_playwright() as pw:
     o.fill('#dlg input[name=full_name]', 'عبدالله الراشد'); o.fill('#dlg input[name=emp_no]', '1000'); o.fill('#dlg input[name=job_title]', 'المدير العام')
     o.fill('#dlg input[name=hire_date]', '2018-01-01'); o.fill('#dlg input[name=basic]', '25000'); o.fill('#dlg input[name=housing]', '6250'); o.fill('#dlg input[name=national_id]', '1021098767')
     o.fill('#dlg input[name=iban]', 'SA0380000000608010167519'); modal_ok(o)
-    o.wait_for_selector('#nav a[href="#/requests"]'); ok(True, 'owner linked to own employee record → self-service menu appears')
+    o.wait_for_selector('#nav a[href="#/requests"]', state='attached'); ok(True, 'owner linked to own employee record → self-service menu appears')
     ok(sql("select count(*) from accounts") == '34', 'chart of accounts seeded (incl. business travel 5230 and vehicles 5240)')
 
     def add_emp(no, name, basic, mgr=None, gender='m', hire='2023-03-01', nid=None):
@@ -110,7 +113,7 @@ with sync_playwright() as pw:
     e.fill('#jf input[name=code]', 'BADCODE1'); e.click('#jb'); e.wait_for_selector('#jerr .err')
     ok('غير صحيح' in e.inner_text('#jerr'), 'wrong invite code rejected in UI')
     e.fill('#jf input[name=code]', code_emp.lower()); e.click('#jb')
-    e.wait_for_selector('#nav a[href="#/requests"]'); ok(True, 'employee joins with code')
+    e.wait_for_selector('#nav a[href="#/requests"]', state='attached'); ok(True, 'employee joins with code')
     ok(e.locator('#nav a[href="#/employees"]').count() == 0 and e.locator('#nav a[href="#/sales"]').count() == 0, 'employee sees no HR/finance menus')
     go(e, '#/requests'); ok('21' in e.inner_text('.head'), 'leave balance 21 days shown')
     e.click('#nr'); e.select_option('#rk', 'leave'); e.select_option('#dlg select[name=sub]', 'annual')
@@ -132,7 +135,7 @@ with sync_playwright() as pw:
     # ---------- manager approves ----------
     m = new_page(b)
     signup(m, 'khalid@waad.test'); m.wait_for_selector('#jf'); m.fill('#jf input[name=code]', code_mgr); m.click('#jb')
-    m.wait_for_selector('#nav a[href="#/approvals"]')
+    m.wait_for_selector('#nav a[href="#/approvals"]', state='attached')
     m.wait_for_timeout(500); ok('2' in m.inner_text('#nav a[href="#/approvals"]'), 'manager sees 2 pending approvals badge')
     go(m, '#/approvals'); m.wait_for_selector('#adlg'); m.click('#adlg'); m.wait_for_selector('#dlg[open] select[name=to]')
     m.select_option('#dlg select[name=to]', index=1); modal_ok(m); m.wait_for_timeout(500)
@@ -258,10 +261,10 @@ with sync_playwright() as pw:
     ok('غير صحيحة' in st.inner_text('#aerr'), 'wrong password → clear Arabic error')
     st.fill('input[name=password]', temp); st.click('#ab'); st.wait_for_selector('#pf'); ok(True, 'first sign-in forces a new password')
     st.fill('input[name=p1]', 'MyOwnPass9'); st.fill('input[name=p2]', 'MyOwnPass9'); st.click('#pb')
-    st.wait_for_selector('#nav a[href="#/requests"]'); ok('سارة' in st.inner_text('h1'), 'employee lands on her home page with her data')
+    st.wait_for_selector('#nav a[href="#/requests"]', state='attached'); ok('سارة' in st.inner_text('h1'), 'employee lands on her home page with her data')
     um(st, '#lo'); st.wait_for_selector('input[name=emp]'); ok(st.locator('input[name=code]').count() == 0, 'company code remembered — next time goes straight to number + password')
     st.fill('input[name=emp]', '5002'); st.fill('input[name=password]', temp); st.click('#ab'); st.wait_for_selector('#aerr .err'); ok(True, 'temporary password stops working after the change')
-    st.fill('input[name=password]', 'MyOwnPass9'); st.click('#ab'); st.wait_for_selector('#nav a[href="#/requests"]'); ok(True, 'employee signs in with number + own password')
+    st.fill('input[name=password]', 'MyOwnPass9'); st.click('#ab'); st.wait_for_selector('#nav a[href="#/requests"]', state='attached'); ok(True, 'employee signs in with number + own password')
     st.wait_for_selector('#gwel'); ok('أهلا بك في وعد' in st.inner_text('#gwel'), 'guide: a new employee gets a welcome card on the home page')
     st.click('#gwx'); go(st, '#/home'); st.wait_for_timeout(500); ok(st.locator('#gwel').count() == 0, 'guide: once closed, the welcome card stays closed')
     go(st, '#/guide'); st.wait_for_selector('.gsec'); t = st.inner_text('#page')
@@ -380,7 +383,7 @@ with sync_playwright() as pw:
     modal_ok(o); o.wait_for_timeout(400)
     ok(sql("select role||'|'||array_to_string(extra_roles,',') from members where user_id='%s'" % uemp) == 'storekeeper|employee' and sql("select string_agg(perm, ',' order by perm) from member_perms where user_id='%s'" % uemp) == 'items,stock,stockadj', 'the employee now also has the storekeeper role with chosen permissions')
     ok('أمين مستودع' in o.inner_text('tr:has([data-acc="%s"])' % uemp), 'the users list shows all roles of a person')
-    e.reload(); e.wait_for_selector('#nav'); ok('الأصناف والمخزون' in e.inner_text('#nav') and 'طلباتي' in e.inner_text('#nav'), 'after the change the employee sees stock and still has self-service')
+    e.reload(); e.wait_for_selector('#nav'); ok('الأصناف والمخزون' in e.text_content('#nav') and 'طلباتي' in e.text_content('#nav'), 'after the change the employee sees stock and still has self-service')
     o.click('[data-acc="%s"]' % uemp); o.wait_for_selector('#atpl'); o.select_option('#atpl', 'employee'); modal_ok(o); o.wait_for_timeout(400)
     ok(sql("select role||'|'||array_to_string(extra_roles,',') from members where user_id='%s'" % uemp) == 'employee|', 'HR takes the extra role back')
     e.reload(); e.wait_for_selector('#nav')
@@ -501,7 +504,7 @@ with sync_playwright() as pw:
     ok(o.input_value('#dlg input[name=c0]') == '2027-03-22' and o.input_value('#dlg input[name=c1]') == '2027-03-23', 'holiday days on Fri/Sat get compensation days suggested after the holiday (Reg. Art. 24/1)')
     o.click('#mok'); o.wait_for_timeout(600)
     ok(sql("select count(*) from holidays where name like 'تعويض عن%'") == '2' and sql("select count(*) from holidays where name = 'عيد الفطر'") == '4', 'holiday and its compensation days saved')
-    e.reload(); e.wait_for_selector('#nav a[href="#/attendance"]'); ok(True, 'employee menu shows attendance once enabled')
+    e.reload(); e.wait_for_selector('#nav a[href="#/attendance"]', state='attached'); ok(True, 'employee menu shows attendance once enabled')
     go(e, '#/attendance'); e.wait_for_selector('#clk'); ok('تسجيل الحضور' in e.inner_text('#clk'), 'check-in button shown')
     e.click('#clk'); e.wait_for_selector('#clk:has-text("تسجيل الانصراف")')
     ok(sql("select count(*) from attendance a join employees x on x.id=a.employee_id where x.emp_no='5000' and a.in_site is not null") == '1', 'employee checks in from inside the work site')
@@ -724,7 +727,7 @@ with sync_playwright() as pw:
     ok(not o.evaluate("getComputedStyle(document.getElementById('printhead')).display==='block'"), 'letterhead hidden on screen')
 
     # ---------- sales cycle: quotation → order → delivery note → invoice ----------
-    ok(all(o.locator('#nav a[href="' + h + '"]').count() == 1 for h in ['#/quotes', '#/orders', '#/deliveries', '#/sales']), 'sales menu: quotations, orders, deliveries, invoices')
+    ok(all(inmenu(o, h) for h in ['#/quotes', '#/orders', '#/deliveries', '#/sales']), 'sales menu: quotations, orders, deliveries, invoices')
     go(o, '#/quotes/new'); o.wait_for_selector('#sf'); o.select_option('#lb tr:nth-child(1) select[data-f=item]', label='IT-001 — طابعة ليزر')
     o.fill('#lb tr:nth-child(1) input[data-f=qty]', '2'); o.fill('#lb tr:nth-child(1) input[data-f=disc]', '10'); o.fill('#lb tr:nth-child(1) input[data-f=desc]', 'مع كابل الشبكة')
     ok(amt(o.inner_text('#td')) == '50.00' and amt(o.inner_text('#tt')) == '517.50', 'quotation form: 10% line discount live (500 → 450 + VAT = 517.50) ' + o.inner_text('#tt'))
@@ -759,7 +762,7 @@ with sync_playwright() as pw:
     rid = sql("select id from requests where kind='purchase' order by created_at desc limit 1")
     ok(sql("select amount::text||'|'||('f' = any(route))::text from requests where id='" + rid + "'") == '750.00|true', 'request estimate computed server-side, route includes finance')
     sqlx("update requests set status='approved' where id='" + rid + "'")
-    ok(all(o.locator('#nav a[href="' + h + '"]').count() == 1 for h in ['#/purchreq', '#/porders', '#/receipts', '#/purchases']), 'purchasing menu: requests, POs, receipts, bills')
+    ok(all(inmenu(o, h) for h in ['#/purchreq', '#/porders', '#/receipts', '#/purchases']), 'purchasing menu: requests, POs, receipts, bills')
     go(o, '#/purchreq'); o.wait_for_selector('#page a[href^="#/porders/new?req="]'); ok('حبر طابعة أسود' in o.inner_text('#page'), 'approved purchase request waits for a PO')
     o.click('#page a[href^="#/porders/new?req="]'); o.wait_for_selector('#pf'); ok(o.input_value('#lb tr:nth-child(1) input[data-f=desc]') == 'حبر طابعة أسود', 'PO prefilled from the request lines')
     o.select_option('#lb tr:nth-child(1) select[data-f=what]', label='IT-001 — طابعة ليزر'); o.fill('#lb tr:nth-child(1) input[data-f=price]', '120')
@@ -852,7 +855,7 @@ with sync_playwright() as pw:
     ok(o.locator('#dlg tbody tr').count() >= 1, 'VAT return: a figure opens the invoices behind it'); o.click('#mx')
 
     # ---------- inventory: warehouses, transfers, counts, expiry, reorder ----------
-    ok(all(o.locator('#nav a[href="' + h + '"]').count() == 1 for h in ['#/items', '#/warehouses', '#/transfers', '#/counts', '#/expiry', '#/reorder']), 'inventory menu: items, warehouses, transfers, counts, expiry, reorder')
+    ok(all(inmenu(o, h) for h in ['#/items', '#/warehouses', '#/transfers', '#/counts', '#/expiry', '#/reorder']), 'inventory menu: items, warehouses, transfers, counts, expiry, reorder')
     go(o, '#/sales/new'); o.wait_for_selector('#df'); ok(o.locator('#df select[name=warehouse]').count() == 0, 'single warehouse: no warehouse picker on documents')
     go(o, '#/warehouses'); o.wait_for_selector('#nw'); ok('المستودع الرئيسي' in o.inner_text('#page'), 'default main warehouse exists')
     o.click('#nw'); o.fill('#dlg input[name=code]', 'jed'); o.fill('#dlg input[name=name]', 'مستودع جدة'); o.fill('#dlg input[name=name_en]', 'Jeddah warehouse'); modal_ok(o); o.wait_for_timeout(500)
@@ -878,7 +881,7 @@ with sync_playwright() as pw:
 
     # ---------- finance: cost centers, budgets, cash flow, bank reconciliation, fixed assets, period closing ----------
     CO = "(select id from companies where name='شركة وعد التجريبية')"
-    ok(all(o.locator('#nav a[href="' + h + '"]').count() == 1 for h in ['#/bankrec', '#/assets', '#/costcenters', '#/budgets', '#/periods']), 'finance menu: bank reconciliation, fixed assets, cost centers, budgets, period closing')
+    ok(all(inmenu(o, h) for h in ['#/bankrec', '#/assets', '#/costcenters', '#/budgets', '#/periods']), 'finance menu: bank reconciliation, fixed assets, cost centers, budgets, period closing')
     go(o, '#/costcenters'); o.wait_for_selector('#nc'); o.click('#nc'); o.fill('#dlg input[name=code]', 'ruh'); o.fill('#dlg input[name=name]', 'فرع الرياض'); o.fill('#dlg input[name=name_en]', 'Riyadh branch'); modal_ok(o); o.wait_for_timeout(600)
     ok('RUH' in o.inner_text('#page') and 'فرع الرياض' in o.inner_text('#page'), 'cost center RUH created')
     go(o, '#/sales/new'); o.wait_for_selector('#df select[name=cost_center]'); o.select_option('#df select[name=cost_center]', label='RUH — فرع الرياض')
@@ -915,7 +918,7 @@ with sync_playwright() as pw:
     ok('لا توجد فترة مقفلة' in o.inner_text('#page') and 'تصحيح قيد إهلاك' in o.inner_text('#page'), 'owner reopens the period with a logged reason')
 
     # ---------- finance 2: currencies, foreign invoice, cheques, petty cash, opening balances, year-end ----------
-    ok(all(o.locator('#nav a[href="' + h + '"]').count() == 1 for h in ['#/cheques', '#/petty', '#/currencies', '#/opening']), 'finance menu: cheques, petty cash, currencies, opening balances')
+    ok(all(inmenu(o, h) for h in ['#/cheques', '#/petty', '#/currencies', '#/opening']), 'finance menu: cheques, petty cash, currencies, opening balances')
     go(o, '#/currencies'); o.wait_for_selector('#ncu'); o.click('#ncu'); o.fill('#dlg input[name=code]', 'USD'); o.fill('#dlg input[name=name]', 'دولار أمريكي'); o.fill('#dlg input[name=name_en]', 'US dollar'); o.fill('#dlg input[name=rate]', '3.75'); modal_ok(o); o.wait_for_timeout(500)
     ok('USD' in o.inner_text('#page') and '3.75' in o.inner_text('#page'), 'currency USD added at 3.75')
     go(o, '#/sales/new'); o.wait_for_selector('#dcur'); o.select_option('#dcur', 'USD'); o.wait_for_timeout(150)
@@ -979,7 +982,7 @@ with sync_playwright() as pw:
     d1 = sql("select ((now() at time zone 'Asia/Riyadh')::date + 70)::text"); d2 = sql("select ((now() at time zone 'Asia/Riyadh')::date + 72)::text")
     sqlx("insert into requests(company_id,employee_id,kind,sub,from_date,to_date,days,status,route) select company_id,id,'leave','annual','%s','%s',3,'approved','{m,p,g}' from employees where id='%s'" % (d1, d2, mate))
     sqlx("insert into requests(company_id,employee_id,kind,sub,from_date,to_date,days,status,route,step) select company_id,id,'leave','annual','%s','%s',3,'pending','{m,p,g}',0 from employees where emp_no='5000'" % (d1, d2))
-    m.reload(); m.wait_for_selector('#nav'); ok(m.locator('#nav a[href="#/leavecal"]').count() == 1, 'manager has the team leave calendar')
+    m.reload(); m.wait_for_selector('#nav'); ok(m.locator('#nav a[href="#/leavecal"]').count() == 1 or m.evaluate("(NAV_TABS['#/att'] || []).some(t => t[0] === '#/leavecal')"), 'manager has the team leave calendar')
     go(m, '#/approvals'); m.wait_for_selector('#page tbody tr'); m.locator('#page tbody tr', has_text='محمد العتيبي').last.click(); m.wait_for_selector('#dlg[open]')
     ok('في إجازة خلال نفس الفترة من الفريق' in m.inner_text('#dlg'), 'approver sees who else in the team is off in the same period'); m.click('#mx')
     go(m, '#/leavecal?m=' + d1[:7]); m.wait_for_selector('.lcal')
@@ -1332,6 +1335,13 @@ with sync_playwright() as pw:
     so = sql(f"select o.id from sales_orders o where o.company_id='{cid_q}' and o.kind='order' and o.status='closed' and o.reason is null and exists(select 1 from sales_order_lines l where l.order_id=o.id and l.delivered < l.qty) limit 1")
     if so:
         go(o, '#/orders/' + so); o.wait_for_selector('h1 .badge'); ok('بانتظار التسليم' in o.inner_text('h1'), 'sales order: invoiced in full but not delivered is not shown as complete')
+    # customer and employee 360 files; related screens share one menu entry with tabs inside the page
+    go(o, '#/parties/customer'); o.wait_for_selector('a[href^="#/customer/"]'); o.locator('a[href^="#/customer/"]').first.click()
+    o.wait_for_function("/أعمار الديون/.test(document.body.innerText)", timeout=15000); ok('الرصيد المستحق' in o.inner_text('body') and 'متوسط أيام السداد' in o.inner_text('body'), 'customer file: balance, aging, sales and how fast he pays on one page')
+    go(o, '#/employees'); o.wait_for_selector('a[href^="#/emp/"]'); o.locator('a[href^="#/emp/"]').first.click()
+    o.wait_for_function("/رصيد الإجازة السنوية/.test(document.body.innerText)", timeout=15000); ok('الحضور آخر 30 يوما' in o.inner_text('body') and 'آخر الطلبات' in o.inner_text('body'), 'employee file: pay, leave balance, attendance and requests on one page')
+    go(o, '#/orders'); o.wait_for_selector('.ctabs'); ok(o.locator('.ctabs a').count() >= 3 and o.locator('.ctabs a.on').inner_text() == 'أوامر البيع' and o.locator('#nav a', has_text='دورة البيع').count() == 1, 'menu: the sales cycle is one entry with tabs inside the page')
+    ok(o.locator('#nav .nitems:not([hidden])').count() <= 3, 'menu: only the open section stays unfolded')
     # Google / Microsoft sign-in: the buttons follow the providers switched on in Supabase (none in the dev server)
     ok(o.evaluate("typeof ssoButtons") == 'function', 'sso: the sign-in buttons are part of the app')
     sp = new_page(b); sp.route('**/auth/v1/settings', lambda r: r.fulfill(status=200, content_type='application/json', body='{"external":{"google":true,"azure":false}}'))
@@ -1388,7 +1398,7 @@ with sync_playwright() as pw:
     item = o.input_value('#dlg input[name=name]'); o.fill('#dlg input[name=name_en]', 'Laser Printer'); modal_ok(o)
     sqlx("update shifts set name_en='Morning shift' where company_id=(select id from companies where name='شركة وعد التجريبية')")
     go(o, '#/employees'); um(o, '#lg'); o.wait_for_selector('#nav'); o.wait_for_timeout(600)
-    ok(o.evaluate('document.documentElement.dir') == 'ltr' and 'Employees' in o.inner_text('#nav') and 'الموظفون' not in o.inner_text('#nav'), 'English switch: LTR layout and translated menu')
+    ok(o.evaluate('document.documentElement.dir') == 'ltr' and 'Employees' in o.text_content('#nav') and 'الموظفون' not in o.text_content('#nav'), 'English switch: LTR layout and translated menu')
     go(o, '#/employees'); o.click('#ne'); o.fill('#dlg input[name=emp_no]', '5000'); o.fill('#dlg input[name=full_name]', 'Test Person'); o.fill('#dlg input[name=basic]', '1'); o.click('#mok')
     o.wait_for_selector('#merr .err'); ok('already used' in o.inner_text('#merr'), 'server error shown in English: ' + o.inner_text('#merr')); o.click('#mx')
     ok('Mohammed Alotaibi' in o.inner_text('#page') and 'محمد العتيبي' not in o.inner_text('#page') and 'Software Developer' in o.inner_text('#page'), 'English mode shows the stored English name and job title')
@@ -1419,9 +1429,9 @@ with sync_playwright() as pw:
         left = [r for r in set(ARX.findall(txt)) if not all(w in typed for w in r.split())]
         if left: leftovers[h] = left[:12]
     ok(not leftovers, 'English mode: no untranslated Arabic on any screen ' + json.dumps(leftovers, ensure_ascii=False)[:1500])
-    um(o, '#lg'); o.wait_for_selector('#nav'); o.wait_for_timeout(500); ok(o.evaluate('document.documentElement.dir') == 'rtl' and 'الرئيسية' in o.inner_text('#nav') and o.locator('#nav a[href="#/employees"]').count() == 1, 'switch back to Arabic')
+    um(o, '#lg'); o.wait_for_selector('#nav'); o.wait_for_timeout(500); ok(o.evaluate('document.documentElement.dir') == 'rtl' and 'الرئيسية' in o.text_content('#nav') and o.locator('#nav a[href="#/employees"]').count() == 1, 'switch back to Arabic')
     # ---------- statements, item master, barcode entry, legal pages, error log ----------
-    go(o, '#/parties/customer'); o.locator('#page tbody tr', has_text='مؤسسة النخبة').locator('[data-st]').click(); o.wait_for_selector('#stf')
+    go(o, '#/parties/customer'); o.locator('#page tbody tr', has_text='مؤسسة النخبة').locator('a[href^="#/statement/"]').click(); o.wait_for_selector('#stf')
     ok('#/statement/' + cust_id in o.url and 'فاتورة مبيعات' in o.inner_text('#page') and 'رصيد أول المدة' in o.inner_text('#page'), 'customer statement opens from the customer list with invoices and opening balance')
     o.wait_for_selector('#pfile'); ok('ملف العميل' in o.inner_text('#pfile') and 'العقود والاتفاقيات' in o.inner_text('#pfile'), 'the customer file shows contact details and contracts above the statement')
     o.fill('#stf input[name=from]', '2000-01-01'); o.click('#stf button'); o.wait_for_timeout(700)
@@ -1675,16 +1685,18 @@ with sync_playwright() as pw:
     ok(n_all > 1 and o.locator('#dlg select[name=who] option').count() == 1 and o.input_value('#dlg select[name=who]') != '', 'forms: the employee list is searched by employee number')
     o.fill('#dlg #whoq', 'لا يوجد أحد بهذا'); o.wait_for_timeout(200); ok('لا توجد نتائج' in o.inner_text('#dlg select[name=who]'), 'forms: a search with no match says so'); o.click('#mx'); o.wait_for_timeout(300)
     o.evaluate("window.__print=window.print;window.print=()=>{};0")
-    o.locator('.fcard', has_text='مباشرة عمل').click(); o.wait_for_selector('#dlg select[name=who]'); modal_ok(o); o.wait_for_timeout(800)
+    fi0 = int(sql("select count(*) from form_issues"))
+    o.locator('.fcard', has_text='مباشرة عمل').click(); o.wait_for_selector('#dlg select[name=who]'); modal_ok(o); o.wait_for_selector('#fpv')
+    ok(int(sql("select count(*) from form_issues")) == fi0, 'forms: a preview inside the system comes first; nothing is numbered until printing'); modal_ok(o); o.wait_for_timeout(800)
     sheet = o.evaluate("document.getElementById('printarea').innerText")
     ok('مباشرة عمل' in sheet and re.search(r'F-\d{4}-\d{4}', sheet) is not None and 'التوقيع' in sheet, 'forms: the sheet is filled, numbered and has signature lines')
     ok('Joining Report' in sheet and 'Approvals' in sheet and o.locator('#printarea .gsheet table').count() >= 2, 'forms: a procedural form prints as a bilingual table')
     o.evaluate("window.dispatchEvent(new Event('afterprint'))")
-    o.locator('.fcard', has_text='لفت نظر').click(); o.wait_for_selector('#dlg select[name=who]'); ok(o.locator('#dlg select[name=lang]').count() == 0, 'forms: a library form has no language choice (it prints in both)'); modal_ok(o); o.wait_for_timeout(800)
+    o.locator('.fcard', has_text='لفت نظر').click(); o.wait_for_selector('#dlg select[name=who]'); ok(o.locator('#dlg select[name=lang]').count() == 0, 'forms: a library form has no language choice (it prints in both)'); modal_ok(o); o.wait_for_selector('#fpv'); modal_ok(o); o.wait_for_timeout(800)
     sheet2 = o.evaluate("document.getElementById('printarea').innerText"); o.emulate_media(media='print'); fill_h = o.evaluate("(() => { const p = document.querySelector('#printarea .gpage'); return p ? p.getBoundingClientRect().height : 0; })()"); o.emulate_media(media='screen')
     ok('لفت نظر' in sheet2 and 'Notice of Attention' in sheet2 and o.locator('#printarea .gtx .gxe').count() == 1 and o.locator('#printarea .gnotes').count() == 1 and fill_h > 900, 'forms: an ordinary form prints Arabic and English side by side on a full A4 page (%d px)' % fill_h)
     o.evaluate("window.dispatchEvent(new Event('afterprint'))")
-    o.locator('.fcard', has_text='إخلاء طرف').click(); o.wait_for_selector('#dlg select[name=who]'); modal_ok(o); o.wait_for_timeout(800)
+    o.locator('.fcard', has_text='إخلاء طرف').click(); o.wait_for_selector('#dlg select[name=who]'); modal_ok(o); o.wait_for_selector('#fpv'); modal_ok(o); o.wait_for_timeout(800)
     sheet = o.evaluate("document.getElementById('printarea').innerText")
     ok('Clearance data' in sheet and sheet.count('Not approved') == 6, 'forms: the clearance form has an approve / not-approve row per department')
     o.evaluate("window.print=window.__print;window.dispatchEvent(new Event('afterprint'))")
@@ -1780,11 +1792,11 @@ with sync_playwright() as pw:
     pp.locator('#ppage tbody tr', has_text='شركة وعد التجريبية').click(); pp.wait_for_selector('#csub'); pp.click('#csub'); pp.wait_for_selector('#dlg input[name=m_sales]')
     pp.uncheck('#dlg input[name=m_sales]'); pp.fill('#dlg input[name=plan]', 'الموارد والمالية'); pp.select_option('#dlg select[name=status]', 'active'); modal_ok(pp); pp.wait_for_timeout(600)
     ok(sql("select plan||'|'||array_to_string(modules,',')||'|'||status from company_subscriptions s join companies c on c.id=s.company_id where c.name='شركة وعد التجريبية'") == 'الموارد والمالية|hr,finance,purch,stock,proj|active', 'platform admin changes a company package')
-    o.reload(); o.wait_for_selector('#nav'); ok(o.locator('#nav a[href="#/sales"]').count() == 0 and o.locator('#nav a[href="#/payroll"]').count() == 1, 'a closed module disappears from the menu')
+    o.reload(); o.wait_for_selector('#nav'); ok(o.locator('#nav a[href="#/sales"], #nav a[href="#/quotes"]').count() == 0 and o.locator('#nav a[href="#/payroll"]').count() == 1, 'a closed module disappears from the menu')
     go(o, '#/sales'); o.wait_for_timeout(500); ok('غير مشمول في باقة' in o.inner_text('#page'), 'opening a closed module explains it is not in the plan')
     go(o, '#/settings'); o.wait_for_timeout(600); ok('الموارد والمالية' in o.inner_text('#page'), 'owner sees the package in settings')
     pp.wait_for_selector('#csub'); pp.click('#csub'); pp.wait_for_selector('#dlg input[name=m_sales]'); pp.check('#dlg input[name=m_sales]'); modal_ok(pp); pp.wait_for_timeout(500)
-    o.reload(); o.wait_for_selector('#nav'); ok(o.locator('#nav a[href="#/sales"]').count() == 1, 'reopened module is back with its data')
+    o.reload(); o.wait_for_selector('#nav'); ok(o.locator('#nav a[href="#/sales"], #nav a[href="#/quotes"]').count() == 1, 'reopened module is back with its data')
     # a company that ended 61 days ago waits for the admin's decision; deleting needs its exact name
     sqlx("insert into companies(name) values ('منشأة غادرت')")
     sqlx("update company_subscriptions set status = 'active', sub_ends = current_date - 20 where company_id = (select id from companies where name = 'منشأة غادرت')")

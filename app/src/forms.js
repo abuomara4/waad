@@ -104,8 +104,16 @@ async function formFill(t) {
       deps.emps = emps;
       const vals = {}; t.fields.forEach(([k]) => { vals[k] = f['f_' + k] || ''; });
       const title = en ? (t.title_en || t.title_ar) : t.title_ar, whoName = who ? (en && who.full_name_en ? who.full_name_en : en && who.name_en ? who.name_en : who.full_name || who.name) : '';
-      const no = await db.rpc('form_issue', { p_company: S.cid, p_template: t.key, p_title: title, p_subject: whoName || null, p_lang: en ? 'en' : 'ar' });
-      setTimeout(() => { window.addEventListener('afterprint', () => route(), { once: true }); formPrint(t, { en, no, who, vals, deps }); }, 120);
+      // an inside preview first; the number is issued (and logged) only when the user prints
+      const run = no => formPrint(t, { en, no, who, vals, deps });
+      FORM_PREVIEW = (w, css) => { FORM_PREVIEW = null; setTimeout(() => {
+        const pv = modal(tr('معاينة النموذج'), `<p class="muted small" style="margin-top:0">${esc(tr('هكذا يُطبع النموذج. يُعطى رقمه ويُسجّل عند الطباعة.'))}</p>
+          <iframe id="fpv" title="${esc(tr('معاينة النموذج'))}" style="width:100%;height:70vh;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>`, {
+          wide: true, ok: 'طباعة', onOk: async () => {
+            const no = await db.rpc('form_issue', { p_company: S.cid, p_template: t.key, p_title: title, p_subject: whoName || null, p_lang: en ? 'en' : 'ar' });
+            setTimeout(() => { window.addEventListener('afterprint', () => route(), { once: true }); run(no); }, 120); } });
+        $('#fpv', pv).srcdoc = `<!doctype html><html dir="${en ? 'ltr' : 'rtl'}"><head><meta charset="utf-8"><style>body{margin:0;padding:8mm;background:#fff;color:#111}${css}</style></head><body>${w.outerHTML}</body></html>`; }, 80); };
+      run(tr('يُرقّم عند الطباعة'));
     } });
   if ($('#fedit', d)) $('#fedit', d).onclick = () => { d.close(); setTimeout(() => formEdit(t.row), 50); };
   // values from the system go into empty fields (or ones it filled before); a small note says where they came from
@@ -162,6 +170,9 @@ const FORM_CSS = `@page{size:A4 portrait;margin:14mm}
     .fsheet .fco{font-size:15pt;font-weight:700;color:#1f3b57}.fsheet .fid,.fsheet .fmeta{font-size:9pt;color:#444}.fsheet .fmeta{text-align:end;white-space:nowrap}
     .fsheet .ft{text-align:center;font-size:17pt;margin:0 0 8mm;color:#1f3b57}.fsheet .fb p{margin:0 0 4mm;text-align:justify}
     .fsheet .fblank{color:#888}.fsheet .fsl{font-weight:700;margin-bottom:6mm}.fsheet .fsn{font-size:10pt;color:#333;margin-top:3mm}`;
+// the sheet goes to the printer, or to the preview (FORM_PREVIEW set by the form dialog)
+let FORM_PREVIEW = null;
+const formOut = (w, css) => FORM_PREVIEW ? FORM_PREVIEW(w, css) : printWith(w, css);
 // the A4 sheet: letterhead, title + number + dates, the filled text, signature lines
 function formPrint(t, { en, no, who, vals, deps }) {
   if (t.lib || t.body_en) return formPrintGrid(t, { no, who, vals, deps });
@@ -173,7 +184,7 @@ function formPrint(t, { en, no, who, vals, deps }) {
       <div class="fmeta"><div>${en ? 'No.' : 'الرقم'}: <b class="num">${esc(no)}</b></div><div>${en ? 'Date' : 'التاريخ'}: <span class="num">${esc(d0)}</span></div>${V.hijri ? `<div>${esc(V.hijri)}</div>` : ''}</div></div>
     <h1 class="ft">${esc(title)}</h1><div class="fb">${body}</div>
     ${(t.sigs || []).length ? `<div class="fsig">${t.sigs.map(s => `<div><div class="fsl">${esc(en ? s[1] || s[0] : s[0])}</div><div class="fsn">${en ? 'Name' : 'الاسم'}: ..................</div><div class="fsn">${en ? 'Signature' : 'التوقيع'}: ..............</div></div>`).join('')}</div>` : ''}`;
-  printWith(w, FORM_CSS + `.fsheet .fsig{display:grid;grid-template-columns:repeat(${Math.min((t.sigs || []).length, 3) || 1},1fr);gap:8mm;margin-top:16mm}`);
+  formOut(w, FORM_CSS + `.fsheet .fsig{display:grid;grid-template-columns:repeat(${Math.min((t.sigs || []).length, 3) || 1},1fr);gap:8mm;margin-top:16mm}`);
   toast(tr('النموذج') + ' ' + no);
 }
 // the same form as a bilingual table (Arabic + English on one sheet): details grid, item table, approve / not-approve rows,
@@ -216,7 +227,7 @@ function formPrintGrid(t, { no, who, vals, deps }) {
     <div class="gnh">${L('ملاحظات', 'Notes')}</div><div class="gnotes"></div>
     ${sg.length ? '<div class="gsec">' + H('الاعتماد', 'Approvals') + `<table class="gt gs"><tr>${sg.map(s => `<th>${L(s[0], s[1] || s[0])}</th>`).join('')}</tr>
       ${[['الاسم', 'Name'], ['التوقيع والتاريخ', 'Signature & date']].map(([a, b]) => `<tr>${sg.map(() => `<td><span class="gsl">${L(a, b)}</span></td>`).join('')}</tr>`).join('')}</table></div>` : ''}</div>`;
-  printWith(w, FORM_CSS + `@page{size:A4 portrait;margin:10mm}.gsheet{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  formOut(w, FORM_CSS + `@page{size:A4 portrait;margin:10mm}.gsheet{-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .gsheet .gpage{display:flex;flex-direction:column;min-height:270mm;box-sizing:border-box}
     .gsheet .fhx{text-align:center;border-bottom:1.2pt solid #1f3b57;padding-bottom:2mm;margin-bottom:3mm}.gsheet .fhx .flogo{display:block;margin:0 auto 1.5mm;max-height:20mm;max-width:60mm;object-fit:contain}
     .gsheet .fhx .fco{font-size:14pt}.gsheet .fmrow{display:flex;justify-content:center;gap:8mm;font-size:9pt;color:#444;margin-top:1mm}

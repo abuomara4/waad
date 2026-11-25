@@ -399,7 +399,7 @@ VIEWS['#/employees'] = async (page, arg, q) => {
   const pend = {}; probs.forEach(p => pend[p.employee_id] = p.effective_end);
   const showEnded = q.get('all') === '1';
   const rows = cache.emps.filter(e => showEnded || !e.end_date || e.end_date >= today());
-  const cols = [{ t: 'الرقم', k: 'emp_no' }, { t: 'الاسم', h: e => esc(e.full_name) }, { t: 'المسمى', h: e => esc(e.job_title || e.job_title_en || '') }, { t: 'القسم', h: e => esc(dm[e.department_id] || '—') }, { t: 'المدير', h: e => esc(e.manager_id && em[e.manager_id] ? em[e.manager_id].full_name : '—') },
+  const cols = [{ t: 'الرقم', k: 'emp_no' }, { t: 'الاسم', h: e => `${esc(e.full_name)} <a class="btn sm" href="#/emp/${e.id}" data-st onclick="event.stopPropagation()">${esc(tr('الملف'))}</a>` }, { t: 'المسمى', h: e => esc(e.job_title || e.job_title_en || '') }, { t: 'القسم', h: e => esc(dm[e.department_id] || '—') }, { t: 'المدير', h: e => esc(e.manager_id && em[e.manager_id] ? em[e.manager_id].full_name : '—') },
       { t: 'الإجمالي', r: 1, h: e => money(n0(e.basic) + n0(e.housing) + n0(e.transport) + n0(alSum[e.id])) },
       { t: 'الدخول', h: e => { const l = cache.logins[e.id]; return !l ? '<span class="badge">بدون حساب</span>' : l.by_number ? '<span class="badge info">بالرقم الوظيفي</span>' + (l.must_change_password ? ' <span class="badge wait" title="' + esc(tr('لم يغيّر كلمة المرور بعد')) + '">' + esc(tr('كلمة مرور مؤقتة')) + '</span>' : '') : '<span class="badge info">بالبريد</span>'; } }, { t: 'الحالة', h: e => e.end_date && e.end_date < today() ? '<span class="badge bad">منتهية</span>' : e.end_date ? '<span class="badge wait">آخر يوم ' + fdate(e.end_date) + '</span>' : (pend[e.id] || e.probation_end) && (pend[e.id] || e.probation_end) >= today() ? '<span class="badge info">تحت التجربة حتى ' + fdate(pend[e.id] || e.probation_end) + '</span>' : '<span class="badge ok">على رأس العمل</span>' }];
   // one search box over everything: employee number, name (ar/en), job title, department, manager, national id, mobile
@@ -1152,3 +1152,38 @@ async function apiCard(el) {
   $$('[data-apr]', el).forEach(b => b.onclick = () => modal(tr('إلغاء المفتاح'), `<p>${esc(tr('يتوقف النظام المرتبط بهذا المفتاح عن القراءة فورا.'))}</p>`, {
     ok: 'إلغاء المفتاح', onOk: async () => { await db.rpc('api_key_revoke', { p_id: b.dataset.apr }); toast(tr('أُلغي المفتاح')); apiCard(el); } }));
 }
+
+/* ===== ملف الموظف الشامل (#/emp/<id>, 0149): profile, pay, contract, attendance (30 days), leave balance, requests, penalties,
+   reviews, custody and documents on one page — for HR, the employee himself and his manager (pay never to the manager) ===== */
+const REQ_K = { leave: 'إجازة', loan: 'سلفة', expense: 'مصروف', letter: 'خطاب', resign: 'استقالة', overtime: 'عمل إضافي', permit: 'استئذان', trip: 'رحلة عمل', purchase: 'طلب شراء', ticket: 'تذكرة سفر' };
+VIEWS['#/emp'] = async (page, id) => {
+  const r = await db.rpc('employee_360', { p_company: S.cid, p_emp: id || S.emp }), p = r.profile, c = r.can;
+  const kpi = (t, v, cls = '', s = '') => `<div class="card kpi"><div class="muted small">${esc(tr(t))}</div><div class="v num ${cls}">${v}</div>${s ? `<div class="muted small">${s}</div>` : ''}</div>`;
+  const td = today(), soon = addDays(td, 60), docSt = d => !d.expiry ? '' : d.expiry < td ? `<span class="badge bad">${esc(tr('منتهي'))}</span>` : d.expiry <= soon ? `<span class="badge wait">${esc(tr('ينتهي قريبا'))}</span>` : '';
+  const at = r.attendance || {}, pay = r.pay, gross = pay ? n0(pay.basic) + n0(pay.housing) + n0(pay.transport) + n0(pay.allowances) : 0;
+  page.innerHTML = `<div class="head"><div>${c.hr ? `<a href="#/employees" class="small back">${esc(tr('الموظفون'))}</a>` : ''}<h1 data-nt>${esc((LANG === 'en' && p.name_en) || p.name)} <span class="muted num" style="font-size:.6em">${esc(p.emp_no)}</span>${p.end_date ? ` <span class="badge">${esc(tr('انتهت خدمته'))}</span>` : ''}</h1>
+      <div class="muted">${[(LANG === 'en' && p.job_en) || p.job, p.department, p.branch].filter(Boolean).map(esc).join(' · ')}</div>
+      <div class="small" style="margin-top:4px">${esc(tr('المدير'))}: ${p.manager ? `<span data-nt>${esc(p.manager.name)}</span>` : '—'} · ${esc(tr('تاريخ المباشرة'))} ${fdate(p.hire_date)} (<span class="num">${p.years}</span> ${esc(tr('سنة'))})${p.team ? ` · ${esc(tr('فريقه'))} <span class="num">${p.team}</span>` : ''}${p.phone ? ` · <span class="num" dir="ltr">${esc(p.phone)}</span>` : ''}</div></div>
+      <div class="row" style="gap:6px;flex-wrap:wrap">${c.hr ? `<a class="btn" href="#/docs/${p.id}">${esc(tr('المستندات والعقود والخطابات'))}</a>` : ''}</div></div>
+    <div class="grid" style="margin-bottom:14px">${pay ? kpi('إجمالي الراتب الشهري', money(gross), '', `${esc(tr('الأساسي'))} ${money(pay.basic)}`) : ''}
+      ${kpi('رصيد الإجازة السنوية', r.leave_balance == null ? '—' : String(+n0(r.leave_balance).toFixed(1)), '', esc(tr('يوم')))}
+      ${kpi('الحضور آخر 30 يوما', String(at.days || 0), '', `${esc(tr('ساعات العمل'))} <span class="num">${at.worked_hours || 0}</span>`)}
+      ${kpi('أيام التأخير', String(at.late_days || 0), at.late_days ? 'bad' : '', `<span class="num">${at.late_min || 0}</span> ${esc(tr('دقيقة'))}`)}
+      ${kpi('العمل الإضافي (ساعة)', String(at.ot_hours || 0))}
+      ${r.contract ? kpi('العقد', esc(tr(r.contract.type === 'fixed' ? 'محدد المدة' : r.contract.type === 'indefinite' ? 'غير محدد المدة' : r.contract.type || '—')), '', r.contract.end ? `${esc(tr('ينتهي'))} ${fdate(r.contract.end)}` : '') : ''}
+      ${p.probation_end && p.probation_end >= td ? kpi('نهاية التجربة', fdate(p.probation_end), 'bad') : ''}</div>
+    ${pay ? `<div class="card"><h2>${esc(tr('آخر مسيرات الراتب'))}</h2>${tbl([{ t: 'الشهر', h: x => `<span class="num">${x.month}/${x.year}</span>` }, { t: 'الإجمالي', r: 1, h: x => money(x.gross) }, { t: 'الاستقطاعات', r: 1, h: x => money(x.deductions) },
+        { t: 'الصافي', r: 1, h: x => `<b>${money(x.net)}</b>` }, { t: 'الحالة', h: x => badge(x.status) }], pay.slips, { empty: 'لا توجد مسيرات' })}</div>` : ''}
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
+      <div class="card"><h2>${esc(tr('آخر الطلبات'))}</h2>${tbl([{ t: 'الطلب', h: x => esc(tr(REQ_K[x.kind] || x.kind)) }, { t: 'الفترة', h: x => x.from_date ? fdate(x.from_date) + (x.to_date && x.to_date !== x.from_date ? ' – ' + fdate(x.to_date) : '') : fdate(String(x.created_at).slice(0, 10)) },
+        { t: 'المدة / المبلغ', r: 1, h: x => x.days ? `<span class="num">${x.days}</span> ${esc(tr('يوم'))}` : x.amount ? money(x.amount) : '—' }, { t: 'الحالة', h: x => badge(x.status) }], r.requests, { empty: 'لا توجد طلبات' })}</div>
+      <div class="card"><h2>${esc(tr('العهد التي بحوزته'))}</h2>${tbl([{ t: 'العهدة', h: x => `<span data-nt>${esc(x.name)}</span>${x.serial ? ` <span class="small muted num">${esc(x.serial)}</span>` : ''}` }, { t: 'منذ', h: x => fdate(x.issued_on) },
+        { t: 'القيمة', r: 1, h: x => x.value != null ? money(x.value) : '—' }], r.custody, { empty: 'لا توجد عهد' })}</div></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
+      <div class="card"><h2>${esc(tr('المستندات'))}</h2>${tbl([{ t: 'المستند', h: x => `<span data-nt>${esc(x.title || x.type)}</span>${x.no ? ` <span class="small muted num">${esc(x.no)}</span>` : ''}` },
+        { t: 'ينتهي', h: x => x.expiry ? fdate(x.expiry) + ' ' + docSt(x) : '—' }], r.documents, { empty: 'لا توجد مستندات' })}</div>
+      <div class="card"><h2>${esc(tr('تقييم الأداء'))}</h2>${tbl([{ t: 'الدورة', h: x => `<span data-nt>${esc(x.cycle || '—')}</span>` }, { t: 'التقييم', r: 1, h: x => x.overall != null ? `<b class="num">${x.overall}</b>` : '—' }, { t: 'الحالة', h: x => badge(x.status) }], r.reviews, { empty: 'لا توجد تقييمات' })}
+        ${r.penalties ? `<h2 style="margin-top:14px">${esc(tr('الجزاءات'))}</h2>${tbl([{ t: 'التاريخ', h: x => fdate(x.occurred_on) }, { t: 'الإجراء', h: x => esc(typeof penLabel === 'function' ? penLabel(x.action) : x.action) },
+          { t: 'الغرامة', r: 1, h: x => n0(x.fine) ? money(x.fine) : '—' }, { t: 'الحالة', h: x => badge(x.status) }], r.penalties, { empty: 'لا توجد جزاءات' })}` : ''}</div></div>`;
+  if (!c.self && typeof accessNote === 'function') accessNote('employee', { emp: p.id, label: 'ملف الموظف' });
+};

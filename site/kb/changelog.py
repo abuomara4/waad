@@ -3,6 +3,7 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('25 نوفمبر 2026', '25 November 2026', [
+  ('ملف شامل لكل عميل وكل موظف، ومعاينة النماذج قبل طباعتها، وقائمة جانبية أبسط تجمع الشاشات المتقاربة في تبويبات', 'A 360 file for every customer and employee, form preview before printing, and a simpler menu that groups related screens into tabs'),
   ('رمز الريال السعودي الرسمي بجانب كل مبلغ في النظام والفواتير والطباعة والموقع', 'The official Saudi riyal sign next to every amount in the system, invoices, prints and the website'),
   ('رقم الفاتورة في السندات، وأرصدة دليل الحسابات، والإدخال اليدوي للأرصدة الافتتاحية، وحالة المستخدمين وآخر دخول، وعنوان IP والجهاز في سجل الوصول', 'Invoice numbers on vouchers, chart-of-accounts balances, manual opening balances, user status and last sign-in, IP and device in the access log'),
   ('الدخول بحساب Google أو Microsoft للإدارة (عند تفعيله)', 'Sign in with Google or Microsoft for management (once switched on)'),

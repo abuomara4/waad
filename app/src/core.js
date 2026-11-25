@@ -608,7 +608,7 @@ const profileRow = f => Object.assign({ owner_phone: (f.owner_phone || '').repla
 const MODULES = { hr: 'الموارد البشرية', finance: 'المالية والمحاسبة', sales: 'المبيعات', purch: 'المشتريات', stock: 'المخزون', proj: 'المشاريع' };
 const MOD_ROUTES = {
   hr: ['hrdash', 'compliance', 'onboarding', 'announcements', 'surveys', 'workforce', 'employees', 'grades', 'insurance', 'trainplan', 'docs', 'att', 'attendance', 'roster', 'policies', 'leavecal', 'penalties', 'payroll', 'payslips', 'eos', 'nitaqat', 'travel', 'workflows', 'clearance', 'reviews', 'recruit', 'training', 'hrreports', 'org', 'letter', 'path', 'profile', 'requests'],
-  sales: ['quotes', 'orders', 'deliveries', 'sales', 'crm', 'marketing', 'pos', 'recurring', 'agreements'],
+  sales: ['customer', 'quotes', 'orders', 'deliveries', 'sales', 'crm', 'marketing', 'pos', 'recurring', 'agreements'],
   purch: ['purchreq', 'porders', 'receipts', 'purchases', 'rfq', 'supinbox'],
   stock: ['items', 'warehouses', 'transfers', 'counts', 'expiry', 'reorder', 'serials', 'mfg'],
   finance: ['expensepolicy', 'payments', 'journal', 'reports', 'coa', 'bankrec', 'cheques', 'petty', 'mypetty', 'currencies', 'opening', 'assets', 'costcenters', 'budgets', 'periods', 'bankmatch', 'prepaid', 'monthclose', 'facilities', 'zakat', 'spend'],
@@ -649,7 +649,7 @@ function navItems() {
   it.push({ h: '#/home', t: 'الرئيسية' });
   if (typeof GUIDE !== 'undefined') it.push({ h: '#/guide', t: 'دليل الاستخدام' });
   if (S.emp) { g('خدماتي'); if (S.company && S.company.att_enabled && !(S.myEmp && S.myEmp.att_exempt)) it.push({ h: '#/attendance', t: 'حضوري' });
-    it.push({ h: '#/requests', t: 'طلباتي' }, { h: '#/sign', t: 'توقيعاتي', pill: NAVC.sign }, { h: '#/payslips', t: 'قسائم الراتب' }, ...(S.myTime ? [{ h: '#/mytime', t: 'ساعات عملي', pill: NAVC.time }] : []), { h: '#/reviews', t: 'تقييم الأداء' }, ...(isHR() ? [] : [{ h: '#/okrs', t: 'أهدافي (OKRs)' }]), { h: '#/surveys', t: 'الاستبيانات' }, { h: '#/profile', t: 'ملفي' });
+    it.push({ h: '#/emp', t: 'ملفي' }, { h: '#/requests', t: 'طلباتي' }, { h: '#/sign', t: 'توقيعاتي', pill: NAVC.sign }, { h: '#/payslips', t: 'قسائم الراتب' }, ...(S.myTime ? [{ h: '#/mytime', t: 'ساعات عملي', pill: NAVC.time }] : []), { h: '#/reviews', t: 'تقييم الأداء' }, ...(isHR() ? [] : [{ h: '#/okrs', t: 'أهدافي (OKRs)' }]), { h: '#/surveys', t: 'الاستبيانات' }, { h: '#/profile', t: 'ملفي' });
     if (S.hasPetty) it.push({ h: '#/mypetty', t: 'عهدتي النقدية' });
     if (!isHR()) it.push({ h: '#/policies', t: 'السياسات واللوائح' });
     const ov = (S.company && S.company.org_visibility) || 'all';
@@ -833,17 +833,41 @@ const NAV_IC = { home: 'home', analytics: 'chart', attendance: 'clock', att: 'cl
   hrdash: 'chart', compliance: 'shield', permissions: 'shield', onboarding: 'users', announcements: 'doc', surveys: 'chart', workforce: 'users', expensepolicy: 'money', employees: 'users', docs: 'doc', roster: 'cal', leavecal: 'cal', penalties: 'shield', payroll: 'money', eos: 'money', nitaqat: 'chart', travel: 'plane', workflows: 'flow', recruit: 'search', training: 'grad',
   hrreports: 'chart', forms: 'doc', crm: 'users', rfq: 'doc', serials: 'check', grades: 'chart', insurance: 'shield', trainplan: 'cal', platform: 'gear', sales: 'cart', quotes: 'doc', orders: 'cart', deliveries: 'truck', purchreq: 'doc', porders: 'box', receipts: 'truck', warehouses: 'box', transfers: 'swap', counts: 'check', expiry: 'cal', reorder: 'cart', parties: 'users', purchases: 'box', payments: 'swap', items: 'box', journal: 'book', reports: 'chart', coa: 'book', bankrec: 'check', cheques: 'doc', petty: 'money', mypetty: 'money', currencies: 'swap', opening: 'book', assets: 'box', costcenters: 'org', budgets: 'chart', periods: 'shield', users: 'users', settings: 'gear' };
 const navIcon = h => `<svg class="ni" viewBox="0 0 24 24" aria-hidden="true"><path d="${NI[NAV_IC[h.split('/')[1]]] || NI.doc}"/></svg>`;
+// related screens share one menu entry and show tabs to each other inside the page (a cycle)
+const NAV_CYCLES = [['دورة البيع', ['#/quotes', '#/orders', '#/deliveries', '#/sales']], ['دورة الشراء', ['#/purchreq', '#/rfq', '#/porders', '#/receipts', '#/purchases']],
+  ['الحضور والورديات', ['#/att', '#/roster', '#/leavecal']], ['الرواتب ونهاية الخدمة', ['#/payroll', '#/eos']], ['البنك', ['#/bankrec', '#/bankmatch']],
+  ['الإقفال', ['#/monthclose', '#/periods']], ['التوظيف والتدريب', ['#/recruit', '#/training', '#/trainplan']]];
+let NAV_TABS = {};   // route → [[route, title], …] of its cycle, as the menu built it for this person
+function navMerge(items) {
+  NAV_TABS = {};
+  NAV_CYCLES.forEach(([title, hs]) => {
+    const mem = items.filter(i => !i.g && hs.includes(i.h));
+    if (mem.length < 2) return;
+    const tabs = mem.map(i => [i.h, i.t]); tabs.forEach(([h]) => NAV_TABS[h] = tabs);
+    const k = items.indexOf(mem[0]);
+    items.splice(k, 1, { h: mem[0].h, t: title, cyc: tabs.map(x => x[0]), pill: mem.reduce((a, i) => a + (+i.pill || 0), 0) || '' });
+    mem.slice(1).forEach(m => items.splice(items.indexOf(m), 1));
+  });
+  return items;
+}
+// the tabs of a cycle at the top of each of its pages
+function cycleTabs(page, key) {
+  const tabs = NAV_TABS[key]; if (!tabs || $('.ctabs', page)) return;
+  page.insertAdjacentHTML('afterbegin', `<nav class="tabs ctabs" aria-label="${esc(tr('أقسام هذه الدورة'))}" style="margin-bottom:12px;flex-wrap:wrap">${tabs.map(([h, t]) => `<a href="${h}" class="${h === key ? 'on' : ''}"${h === key ? ' aria-current="page"' : ''}>${esc(tr(t))}</a>`).join('')}</nav>`);
+}
 function drawNav() {
   const cur = location.hash.split('?')[0] || '#/home', opened = LS.get('waad.navopen');
-  const isOn = i => cur === i.h || (cur.startsWith(i.h + '/') && i.h !== '#/home');
-  const groups = [{ g: null, items: [] }]; navItems().filter(i => i.g || modOn(routeModule(i.h))).forEach(i => i.g ? groups.push({ g: i.g, items: [] }) : groups[groups.length - 1].items.push(i));
-  // a long menu (owner, finance: 50+ items) starts with its module groups folded; «my services» and the group of the open screen stay open
-  const long = groups.reduce((a, x) => a + x.items.length, 0) > 30;
-  $('#nav').innerHTML = groups.filter(x => x.items.length).map(x => { const open = !x.g || !long || x.g === 'خدماتي' || (opened || []).includes(x.g) || x.items.some(isOn);
+  const isOn = i => cur === i.h || (cur.startsWith(i.h + '/') && i.h !== '#/home') || (i.cyc || []).some(h => cur === h || cur.startsWith(h + '/'));
+  const groups = [{ g: null, items: [] }]; navMerge(navItems().filter(i => i.g || modOn(routeModule(i.h)))).forEach(i => i.g ? groups.push({ g: i.g, items: [] }) : groups[groups.length - 1].items.push(i));
+  // only the section of the open screen is unfolded (and the one the person opened last); the others stay folded
+  const multi = groups.filter(x => x.g && x.items.length).length > 1;
+  $('#nav').innerHTML = groups.filter(x => x.items.length).map(x => { const open = !x.g || !multi || x.items.some(isOn) || (opened || [])[0] === x.g;
     return `${x.g ? `<button type="button" class="grp" data-grp="${esc(x.g)}" aria-expanded="${open}">${esc(x.g)}<span class="chev">▾</span></button>` : ''}<div class="nitems" ${open ? '' : 'hidden'}>${x.items.map(i =>
       `<a href="${i.h}" class="${isOn(i) ? 'on' : ''}">${navIcon(i.h)}<span class="nt">${esc(i.t)}</span>${i.pill ? `<span class="pill">${i.pill}</span>` : ''}</a>`).join('')}</div>`; }).join('');
-  $$('[data-grp]', $('#nav')).forEach(b => b.onclick = () => { const g = b.dataset.grp, s = new Set(LS.get('waad.navopen') || []), box = b.nextElementSibling, open = box.hidden;
-    box.hidden = !open; b.setAttribute('aria-expanded', open); open ? s.add(g) : s.delete(g); LS.set('waad.navopen', [...s]); });
+  // opening a section folds the others (the section of the open screen stays open)
+  $$('[data-grp]', $('#nav')).forEach(b => b.onclick = () => { const g = b.dataset.grp, box = b.nextElementSibling, open = box.hidden;
+    if (open) $$('[data-grp]', $('#nav')).forEach(o => { if (o !== b && !o.nextElementSibling.querySelector('a.on')) { o.nextElementSibling.hidden = true; o.setAttribute('aria-expanded', 'false'); } });
+    box.hidden = !open; b.setAttribute('aria-expanded', open); LS.set('waad.navopen', open ? [g] : []); });
   $$('a', $('#nav')).forEach(a => a.addEventListener('click', () => $('#side') && $('#side').classList.remove('open')));
 }
 async function refreshCounts() { try { NAVC.approvals = (await pendingForMe()).length; if (isHR()) { NAVC.docs = await docAlertCount(); NAVC.pen = (await db.get('penalties', { company_id: 'eq.' + S.cid, status: 'eq.open', select: 'id' }).catch(() => [])).length; } drawNav(); } catch (e) {} drawBell(); }
@@ -929,7 +953,7 @@ async function route() {
   const page = document.createElement('div'); page.innerHTML = '<div class="muted">جاري التحميل…</div>';
   $('#page').replaceChildren(page);
   if (!modOn(routeModule(path))) { page.innerHTML = `<div class="note">${esc(tr('هذا القسم غير مشمول في باقة منشأتك.'))} ${IN_APP ? '' : has('owner') ? esc(tr('لتفعيله تواصل مع إدارة وعد.')) : esc(tr('راجع مالك المنشأة.'))}</div>`; return; }
-  try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); if (!arg && LIST_SEARCH.has(key) && page.isConnected) listSearch(page); if (viewOnlyPage(path) && page.isConnected) { page.classList.add('viewonly'); const h = $('.head', page); h && h.insertAdjacentHTML('afterend', `<div class="note small">${esc(tr('صلاحيتك في هذه الصفحة: عرض فقط.'))}</div>`); } setTimeout(() => page.isConnected && markWide(page), 60); if (key === '#/home' && typeof guideWelcome === 'function') guideWelcome(page); }
+  try { await VIEWS[key](page, arg, new URLSearchParams(q || '')); if (!arg && page.isConnected) cycleTabs(page, key); if (!arg && LIST_SEARCH.has(key) && page.isConnected) listSearch(page); if (viewOnlyPage(path) && page.isConnected) { page.classList.add('viewonly'); const h = $('.head', page); h && h.insertAdjacentHTML('afterend', `<div class="note small">${esc(tr('صلاحيتك في هذه الصفحة: عرض فقط.'))}</div>`); } setTimeout(() => page.isConnected && markWide(page), 60); if (key === '#/home' && typeof guideWelcome === 'function') guideWelcome(page); }
   catch (e) { if (e.status === 401 && !S.session) { if (!$('#af')) authView('in', 'انتهت الجلسة — سجّل الدخول مجددا'); return; } /* a late answer from a page left behind never replaces a sign-in screen already shown */ if (page.isConnected) page.innerHTML = `<div class="err">${esc(e.message)}</div><p style="margin-top:10px"><button type="button" class="btn" onclick="history.length > 1 ? history.back() : (location.hash = '#/home')">${esc(tr('رجوع'))}</button> <a class="btn" href="#/home">${esc(tr('الرئيسية'))}</a></p>`; }
 }
 window.addEventListener('hashchange', () => /(^#|&)(access_token|error_code)=/.test(location.hash) ? boot() : !S.session && legalHash() ? legalView(legalHash()) : !S.session && $('#lback') ? authView() : ADMIN ? (S.platform && $('#ppage') ? platformView() : null) : S.platform && /^#\/platform/.test(location.hash) ? (location.href = ADMIN_URL) : S.platform && !$('#page') ? boot() : route());
