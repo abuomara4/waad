@@ -1012,6 +1012,7 @@ VIEWS['#/settings'] = async page => {
    ${admin && !IN_APP ? '<div class="card" id="refc"></div>' : ''}
    ${admin && !IN_APP ? '<div class="card" id="winvs"></div>' : ''}
    ${admin && (modOn('finance') || modOn('sales')) ? '<div class="card" id="zcard"></div>' : ''}
+   ${admin ? '<div class="card" id="apic"></div>' : ''}
    ${admin && seeded ? `<div class="card"><h2>${esc(tr('بيانات تجريبية'))}</h2>
      ${seeded
        ? `<p class="muted small">${esc(tr('منشأتك تحتوي بيانات تجريبية. يمكنك مسحها لتبدأ بإدخال بياناتك الحقيقية.'))}</p><button type="button" class="btn danger" id="democlear">${esc(tr('مسح البيانات التجريبية'))}</button>`
@@ -1030,6 +1031,7 @@ VIEWS['#/settings'] = async page => {
   if ($('#lgd', page)) $('#lgd', page).onclick = () => setLogo(null);
   if ($('#zcard', page)) zatcaCard($('#zcard', page));
   if ($('#grpc', page)) groupCard($('#grpc', page)).catch(() => {});
+  if ($('#apic', page)) apiCard($('#apic', page)).catch(() => {});
   if ($('#refc', page)) db.rpc('my_referrals', { p_company: S.cid }).catch(() => null).then(r => { const el = $('#refc', page); if (!el) return; if (!r || !r.code) { el.remove(); return; }
     const link = SITE_URL + '?ref=' + r.code, msg = tr('أستخدم «وعد» لإدارة الموارد البشرية والمالية في منشأتي، جرّبه 14 يوما مجانا:') + ' ' + link;
     el.innerHTML = `<h2>${esc(tr('ادعُ منشأة واحصل على شهر مجاني'))}</h2><p class="muted small" style="margin-top:0">${esc(tr('أرسل رابطك لمنشأة تعرفها. إذا سجّلت منه ثم اشتركت، يُضاف لاشتراكك شهر مجاني (30 يوما) عن كل منشأة.'))}</p>
@@ -1112,4 +1114,36 @@ async function delegDialog() {
     ok: tr('حفظ التفويض'), onOk: async f => { if (!f.to) throw new Error(tr('اختر الزميل'));
       await db.rpc('delegation_set', { p_company: S.cid, p_to: f.to, p_from: f.from, p_until: f.until, p_note: blank(f.note), p_for: blank(f.who) }); toast(tr('حُفظ التفويض')); route(); } });
   $$('[data-dend]', m).forEach(b => b.onclick = async () => { try { await db.rpc('delegation_end', { p_id: b.dataset.dend }); toast(tr('انتهى التفويض')); m.close(); route(); } catch (e) { toast(e.message); } });
+}
+
+// «الربط البرمجي (API)» (0146): read-only keys for another system; the key is shown once, only its hash is kept
+const API_SCOPES = { hr: 'الموارد البشرية (الموظفون والأقسام)', sales: 'المبيعات (العملاء وفواتير المبيعات)', purch: 'المشتريات (الموردون وفواتير المشتريات)', stock: 'المخزون (الأصناف والرصيد)', finance: 'المالية (المدفوعات والحسابات وميزان المراجعة)' };
+const API_RES = 'employees, departments, customers, suppliers, items, sales_invoices, purchase_bills, payments, accounts, trial_balance';
+async function apiCard(el) {
+  const keys = await db.get('api_keys', { company_id: 'eq.' + S.cid, order: 'created_at.desc', select: 'id,name,prefix,scopes,expires_at,created_at,last_used_at,uses,revoked_at' }).catch(() => []);
+  const live = k => !k.revoked_at && (!k.expires_at || k.expires_at > new Date().toISOString());
+  el.innerHTML = `<div class="row" style="justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h2 style="margin:0">${esc(tr('الربط البرمجي (API)'))}</h2>
+      <div class="row" style="gap:6px"><button type="button" class="btn sm" id="apd">${esc(tr('طريقة الربط'))}</button><button type="button" class="btn sm pri" id="apn">${esc(tr('+ مفتاح'))}</button></div></div>
+    <p class="muted small">${esc(tr('لربط نظام آخر (متجر إلكتروني، أداة تقارير، نظام محاسبة) بقراءة بيانات منشأتك. المفتاح للقراءة فقط، ويرى ما تحدده من صلاحيات فقط، ولا تظهر فيه رواتب الموظفين أو هوياتهم أو حساباتهم البنكية.'))}</p>
+    ${tbl([{ t: 'الاسم', h: k => `<b data-nt>${esc(k.name)}</b><div class="small muted num" dir="ltr">${esc(k.prefix)}…</div>` }, { t: 'الصلاحيات', h: k => k.scopes.map(s => `<span class="badge">${esc(tr((API_SCOPES[s] || s).split(' (')[0]))}</span>`).join(' ') },
+      { t: 'آخر استخدام', h: k => k.last_used_at ? `<span class="num">${esc(String(k.last_used_at).slice(0, 16).replace('T', ' '))}</span> · <span class="num">${k.uses}</span>` : '—' },
+      { t: 'الحالة', h: k => k.revoked_at ? `<span class="badge">${esc(tr('ملغى'))}</span>` : !live(k) ? `<span class="badge bad">${esc(tr('منتهي'))}</span>` : `<span class="badge ok">${esc(tr('فعّال'))}</span>${k.expires_at ? ` <span class="small muted">${esc(tr('حتى'))} ${fdate(String(k.expires_at).slice(0, 10))}</span>` : ''}` },
+      { t: '', h: k => live(k) ? `<button type="button" class="btn sm danger" data-apr="${k.id}">${esc(tr('إلغاء'))}</button>` : '' }], keys, { empty: 'لا توجد مفاتيح' })}`;
+  $('#apn', el).onclick = () => modal(tr('مفتاح ربط جديد'), `<div class="fg">${field('اسم يدلّ على النظام المرتبط', inp('n', '', 'required maxlength="80" placeholder="' + esc(tr('مثال: المتجر الإلكتروني')) + '"'), 'wide')}
+      <div class="wide">${Object.entries(API_SCOPES).map(([k, t]) => `<label class="row small" style="gap:6px;margin:4px 0"><input type="checkbox" name="s_${k}" style="width:auto"> ${esc(tr(t))}</label>`).join('')}</div>
+      ${field('المدة (يوم)', inp('d', '365', 'type="number" min="1" max="730" required'))}</div>`, {
+    ok: 'إنشاء', onOk: async f => { const sc = Object.keys(API_SCOPES).filter(k => f['s_' + k]); if (!sc.length) throw new Error(tr('اختر صلاحية واحدة على الأقل'));
+      const r = await db.rpc('api_key_create', { p_company: S.cid, p_name: f.n, p_scopes: sc, p_days: +f.d });
+      setTimeout(() => { const d = modal(tr('انسخ المفتاح الآن'), `<p class="small">${esc(tr('يظهر المفتاح هذه المرة فقط. احفظه في النظام المرتبط، ولا ترسله في رسالة أو بريد.'))}</p>
+        <div class="row" style="gap:6px"><input id="apk" readonly dir="ltr" value="${esc(r.key)}" style="flex:1;font-family:monospace"><button type="button" class="btn" id="apc">${esc(tr('نسخ'))}</button></div>`, { ok: 'تم' });
+        $('#apc', d).onclick = () => { navigator.clipboard && navigator.clipboard.writeText(r.key); toast(tr('نُسخ')); };
+        d.addEventListener('close', () => apiCard(el), { once: true }); }, 50); } });
+  $('#apd', el).onclick = () => modal(tr('طريقة الربط'), `<p class="small">${esc(tr('طلب POST إلى العنوان التالي، مع المفتاح العام للخدمة في الترويسة apikey، ومفتاحك في جسم الطلب:'))}</p>
+    <pre dir="ltr" style="white-space:pre-wrap;font-size:12px;background:var(--bg2,#f4f4f5);padding:10px;border-radius:8px">curl -X POST '${esc(CFG.url)}/rest/v1/rpc/api_get' \\
+  -H 'apikey: ${esc(CFG.key)}' -H 'Content-Type: application/json' \\
+  -d '{"p_key": "waad_…", "p_resource": "customers", "p_since": null, "p_limit": 100, "p_offset": 0}'</pre>
+    <p class="small">${esc(tr('الموارد'))}: <span dir="ltr" class="num">${esc(API_RES)}</span></p>
+    <p class="small">${esc(tr('الرد: count و data و next_offset للصفحة التالية. p_since يعيد ما أُنشئ بعد تاريخ معيّن. الحد 500 سجل في الطلب و1000 طلب في الساعة لكل مفتاح.'))}</p>`, { ok: 'تم', wide: true });
+  $$('[data-apr]', el).forEach(b => b.onclick = () => modal(tr('إلغاء المفتاح'), `<p>${esc(tr('يتوقف النظام المرتبط بهذا المفتاح عن القراءة فورا.'))}</p>`, {
+    ok: 'إلغاء المفتاح', onOk: async () => { await db.rpc('api_key_revoke', { p_id: b.dataset.apr }); toast(tr('أُلغي المفتاح')); apiCard(el); } }));
 }

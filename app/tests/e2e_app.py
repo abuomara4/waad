@@ -1307,6 +1307,12 @@ with sync_playwright() as pw:
     ok(sql("select count(*) from sales_targets where amount = 50000 and commission_pct = 1.5") == '1', 'reps: a monthly target with a commission rate is set for a rep')
     o.wait_for_selector('tbody tr.click'); o.locator('tbody tr.click').first.click(); o.wait_for_function("location.hash.startsWith('#/rep/') && /العمولة التقديرية/.test(document.body.innerText)", timeout=15000)
     ok('آخر 12 شهرا' in o.inner_text('body') and '50,000' in o.inner_text('body'), 'reps: the rep file shows the target, the estimated commission and 12 months of sales against target')
+    # API (0146): a key made in the settings reads the company's customers from outside (anon key + the API key)
+    go(o, '#/settings'); o.wait_for_selector('#apn'); o.click('#apn'); o.wait_for_selector('#dlg[open] input[name=n]'); o.fill('#dlg input[name=n]', 'متجر الاختبار'); o.check('#dlg input[name=s_sales]'); o.click('#mok')
+    o.wait_for_selector('#apk'); key = o.input_value('#apk')
+    res = o.evaluate("async k => { const r = await fetch(CFG.url + '/rest/v1/rpc/api_get', { method: 'POST', headers: { apikey: CFG.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_key: k, p_resource: 'customers' }) }); return [r.status, await r.json()]; }", key)
+    ok(key.startswith('waad_') and res[0] == 200 and res[1].get('resource') == 'customers' and isinstance(res[1].get('data'), list), 'api: a key created in the settings reads the customers from outside')
+    o.click('#mx'); o.wait_for_timeout(500); ok(o.locator('#apic [data-apr]').count() >= 1, 'api: the new key is listed as active with a revoke button')
     # company announcement: posted by HR, shown on the home page
     go(o, '#/announcements'); o.wait_for_selector('#annn'); o.click('#annn'); o.wait_for_selector('#dlg[open] input[name=title]')
     o.fill('#dlg input[name=title]', 'اجتماع عام الأحد'); o.fill('#dlg textarea[name=body]', 'اجتماع لكل الموظفين الساعة 10 صباحا'); sqlx("update employees set email = 'staff5001@example.com', phone = '0551234567' where emp_no = '5001'"); o.click('#mok'); o.wait_for_selector('#dlg[open] #asb a[data-mb]')

@@ -2159,7 +2159,7 @@ select t.err($$select * from public.code_lookups$$, 'permission denied', 'anon c
 select t.err($$select public.riyadh_today()$$, 'permission denied', 'anon cannot call helper functions');
 reset role;
 select t.ok((select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'
-  and has_function_privilege('anon', p.oid, 'execute') and p.proname not in ('company_by_code', 'ping', 'site_hit', 'site_content', 'portal_view', 'careers_view', 'careers_apply', 'co_view', 'co_decide', 'staff_password_help')) = 0, 'anon can call only company_by_code, the health check, the website counter/texts, the customer portal, the careers page and change-order links');
+  and has_function_privilege('anon', p.oid, 'execute') and p.proname not in ('company_by_code', 'ping', 'site_hit', 'site_content', 'portal_view', 'careers_view', 'careers_apply', 'co_view', 'co_decide', 'staff_password_help', 'api_get')) = 0, 'anon can call only company_by_code, the health check, the website counter/texts, the customer portal, the careers page, change-order links and the API (with a key)');
 select t.ok(has_function_privilege('authenticated', 'public.riyadh_today()', 'execute'), 'signed-in users keep helper functions');
 delete from public.code_lookups;
 select set_config('request.headers', '{"cf-connecting-ip":"203.0.113.7"}', false);
@@ -4328,6 +4328,32 @@ reset role;
 select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
 select t.err($$select * from public.mo_needs('$$ || :'mo1' || $$')$$, '42501|غير مصرح', 'mfg: another company cannot read a production order');
 select t.ok((select count(*) = 0 from public.boms) and (select count(*) = 0 from public.production_orders), 'mfg: another company sees no bills of materials or orders');
+reset role;
+-- API v1 (0146)
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.api_key_create(:'cid', 'المتجر الإلكتروني', array['sales','stock'], 30) as ak \gset
+select t.ok(left(:'ak'::jsonb->>'key', 5) = 'waad_' and length(:'ak'::jsonb->>'key') = 69, 'api: a key is created and shown once');
+select t.err($$select key_hash from public.api_keys$$, 'permission denied', 'api: the key hash is never readable from the app');
+reset role;
+select t.ok((select key_hash <> (:'ak'::jsonb->>'key') and prefix = left(:'ak'::jsonb->>'key', 12) from public.api_keys where id = (:'ak'::jsonb->>'id')::uuid), 'api: only the hash and a short prefix are stored');
+select set_config('request.jwt.claim.sub', '', false); set role anon;
+select public.api_get(:'ak'::jsonb->>'key', 'customers', null, 2, 0) as ag \gset
+select t.ok((:'ag'::jsonb->>'count')::int between 1 and 2 and (:'ag'::jsonb->'data'->0->>'name') is not null, 'api: an outside system reads the customers with the key');
+select t.ok((public.api_get(:'ak'::jsonb->>'key', 'items')->>'count')::int >= 1, 'api: and the items with their stock');
+select t.err($$select public.api_get('$$ || (:'ak'::jsonb->>'key') || $$', 'employees')$$, 'صلاحية', 'api: a key reads only its scopes');
+select t.err($$select public.api_get('waad_wrong', 'customers')$$, 'غير صالح', 'api: a wrong key is refused');
+select t.err($$select public.api_get('$$ || (:'ak'::jsonb->>'key') || $$', 'secrets')$$, 'غير معروف', 'api: an unknown resource is refused');
+select t.err($$select count(*) from public.api_keys$$, 'permission denied', 'api: anonymous callers cannot list keys');
+reset role;
+select t.ok((select uses >= 2 and last_used_at is not null from public.api_keys where id = (:'ak'::jsonb->>'id')::uuid), 'api: each call is counted on the key');
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.err($$select public.api_key_create('$$ || :'cid' || $$', 'مفتاح', array['finance'])$$, '42501|لمالك', 'api: only the owner or an admin creates keys');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.api_key_revoke((:'ak'::jsonb->>'id')::uuid);
+reset role;
+select set_config('request.jwt.claim.sub', '', false); set role anon;
+select t.err($$select public.api_get('$$ || (:'ak'::jsonb->>'key') || $$', 'customers')$$, 'غير صالح', 'api: a revoked key stops working at once');
 reset role;
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary
