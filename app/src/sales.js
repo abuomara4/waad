@@ -5,8 +5,10 @@ const SK = {
   order: { h: '#/orders', t: 'أوامر البيع', one: 'أمر بيع', newT: 'أمر بيع جديد' },
 };
 const soExpired = o => o.kind === 'quote' && o.status === 'open' && o.valid_until < today();
-const soBadge = o => {
+// p = the order's quantities { q, d } (ordered, delivered): an order invoiced in full but not delivered is not «مكتمل» yet
+const soBadge = (o, p) => {
   if (soExpired(o)) return '<span class="badge bad">منتهي</span>';
+  if (o.kind === 'order' && o.status === 'closed' && !o.reason && p && n0(p.d) < n0(p.q)) return `<span class="badge wait">${esc(tr('مفوتر — بانتظار التسليم'))}</span>`;
   const m = { open: [o.kind === 'quote' ? 'مفتوح' : 'قيد التنفيذ', 'wait'], accepted: ['مقبول', 'ok'], rejected: ['مرفوض', 'bad'], converted: ['حُوّل إلى أمر بيع', 'ok'],
     closed: [o.reason ? 'مغلق' : 'مكتمل', o.reason ? '' : 'ok'], cancelled: ['ملغى', ''] }[o.status] || [o.status, ''];
   return `<span class="badge ${m[1]}">${esc(m[0])}</span>`;
@@ -34,7 +36,7 @@ function soList(kind) {
     page.innerHTML = `<div class="head"><div><h1>${K.t}</h1><div class="muted small">${kind === 'quote' ? 'العرض يُرسل للعميل، وعند قبوله يتحول إلى أمر بيع بضغطة' : 'من الأمر تُصدر إشعارات التسليم ثم الفاتورة الضريبية، كاملة أو على دفعات'}</div></div>${can('sales') ? `<a class="btn pri" href="${K.h}/new">${K.newT}</a>` : ''}</div>
       ${tbl([{ t: 'الرقم', h: d => `<span class="num">${esc(d.no)}</span>` }, { t: 'التاريخ', h: d => fdate(d.date) }, { t: 'العميل', h: d => esc((L.pm[d.party_id] || {}).name || '—') },
         ...(kind === 'quote' ? [{ t: 'صالح حتى', h: d => fdate(d.valid_until) }] : [{ t: 'التسليم', h: d => pct((prog[d.id] || {}).d, (prog[d.id] || {}).q) }, { t: 'الفوترة', h: d => pct((prog[d.id] || {}).i, (prog[d.id] || {}).q) }]),
-        { t: 'الإجمالي', r: 1, h: d => money(d.total) }, { t: 'الحالة', h: soBadge }], docs, { empty: kind === 'quote' ? 'لا توجد عروض أسعار' : 'لا توجد أوامر بيع', onRow: true })}`;
+        { t: 'الإجمالي', r: 1, h: d => money(d.total) }, { t: 'الحالة', h: d => soBadge(d, prog[d.id]) }], docs, { empty: kind === 'quote' ? 'لا توجد عروض أسعار' : 'لا توجد أوامر بيع', onRow: true })}`;
     bindRows(page, docs, d => location.hash = `${K.h}/${d.id}`);
   };
 }
@@ -117,7 +119,7 @@ async function soView(page, kind, id) {
   if (party && can('sales')) btns.push(`<button class="btn" id="ssend">${esc(tr('إرسال للعميل'))}</button>`);
   btns.push('<button class="btn" id="sprint">طباعة</button>');
   const nm = l => esc((L.im[l.item_id] || {}).name || '') + (l.description ? `<div class="small muted">${esc(l.description)}</div>` : '');
-  page.innerHTML = `<div class="head"><div><a href="${K.h}" class="small back">${K.t}</a><h1>${K.one} <span class="num">${esc(doc.no)}</span> ${soBadge(doc)}</h1>
+  page.innerHTML = `<div class="head"><div><a href="${K.h}" class="small back">${K.t}</a><h1>${K.one} <span class="num">${esc(doc.no)}</span> ${soBadge(doc, { q: lines.reduce((a, l) => a + n0(l.qty), 0), d: lines.reduce((a, l) => a + n0(l.delivered), 0) })}</h1>
       <div class="muted">${esc(party ? party.name : '')} · ${fdate(doc.date)}${kind === 'quote' ? ' · صالح حتى ' + fdate(doc.valid_until) : ''}${whTxt}${linked.length ? ` · ${kind === 'quote' ? 'أمر البيع' : 'من عرض السعر'} <a href="${kind === 'quote' ? '#/orders/' : '#/quotes/'}${linked[0].id}" class="num">${esc(linked[0].no)}</a>` : ''}</div></div>
       <div class="row">${btns.join('')}</div></div>
     <div class="card">${tbl([{ t: 'البند', h: nm }, { t: 'الكمية', r: 1, h: l => qtyTxt(l.qty) }, ...(kind === 'order' ? [{ t: 'المُسلَّم', r: 1, h: l => qtyTxt(l.delivered) }, { t: 'المُفوتر', r: 1, h: l => qtyTxt(l.invoiced) }] : []),

@@ -354,12 +354,16 @@ async function paymentForm({ dir, party, doc, amount }) {
 
 /* ===== journal ===== */
 const SRC = { manual: 'يدوي', reversal: 'عكس', sales: 'مبيعات', purchase: 'مشتريات', receipt: 'قبض', payment: 'صرف', stock: 'مخزون', payroll: 'رواتب', payroll_pay: 'صرف رواتب', advance: 'سلفة', expense: 'مصروفات', opening: 'افتتاحي', sales_return: 'مرتجع مبيعات', purchase_return: 'مرتجع مشتريات', asset: 'أصول ثابتة', depreciation: 'إهلاك', trip: 'بدل انتداب', cheque: 'شيكات', closing: 'إقفال السنة', petty: 'عهدة نقدية', vehicle: 'سيارات', prepaid: 'مصروف مقدم', bank: 'كشف البنك', loan: 'قرض', guarantee: 'خطاب ضمان', zakat: 'زكاة' };
-VIEWS['#/journal'] = async page => {
-  const [jes, acc] = await Promise.all([db.get('journal_entries', Object.assign(C(), { order: 'date.desc,created_at.desc', limit: 200 })), accounts()]);
+VIEWS['#/journal'] = async (page, arg, q) => {
+  const jf = q.get('from') || '', jt0 = q.get('to') || '', js = q.get('src') || '';   // filters: a date range and the source
+  const jq = Object.assign(C(), { order: 'date.desc,created_at.desc', limit: 500 }); if (jf && jt0) jq.and = `(date.gte.${jf},date.lte.${jt0})`; else if (jf) jq.date = 'gte.' + jf; else if (jt0) jq.date = 'lte.' + jt0; if (js) jq.source = 'eq.' + js;
+  const [jes, acc] = await Promise.all([db.get('journal_entries', jq), accounts()]);
   const am = {}; acc.forEach(a => am[a.code] = a.name);
   const reversed = new Set(jes.filter(j => j.reverses).map(j => j.reverses)), jt = {};
   if (jes.length) (await db.get('journal_lines', { entry_id: 'in.(' + jes.map(j => j.id).join(',') + ')', select: 'entry_id,debit' }).catch(() => [])).forEach(l => jt[l.entry_id] = n0(jt[l.entry_id]) + n0(l.debit));
-  page.innerHTML = `<div class="head"><div><h1>القيود اليومية</h1><div class="muted">آخر 200 قيد — القيود لا تُعدّل، تُعكس فقط</div></div><div class="row">${can('ledger') || can('je') ? `<button class="btn" id="jx">${esc(tr('تصدير القيود'))}</button>` : ''}${can('jepost') ? '<button class="btn pri" id="nj">قيد يدوي</button>' : ''}</div></div>
+  page.innerHTML = `<div class="head"><div><h1>القيود اليومية</h1><div class="muted">${esc(tr(jf || jt0 || js ? 'حتى 500 قيد حسب التصفية' : 'آخر 500 قيد'))} — ${esc(tr('القيود لا تُعدّل، تُعكس فقط'))}</div></div><div class="row">${can('ledger') || can('je') ? `<button class="btn" id="jx">${esc(tr('تصدير القيود'))}</button>` : ''}${can('jepost') ? '<button class="btn pri" id="nj">قيد يدوي</button>' : ''}</div></div>
+    <form id="jfl" class="row card" style="padding:10px;gap:6px;flex-wrap:wrap;align-items:center"><label style="margin:0">${esc(tr('من'))}</label><input type="date" name="from" value="${esc(jf)}" style="width:auto"><label style="margin:0">${esc(tr('إلى'))}</label><input type="date" name="to" value="${esc(jt0)}" style="width:auto">
+      <select name="src" style="width:auto" aria-label="${esc(tr('المصدر'))}"><option value="">${esc(tr('كل المصادر'))}</option>${Object.keys(SRC).map(k => opt(k, tr(SRC[k]), js)).join('')}</select><button class="btn sm">${esc(tr('تصفية'))}</button>${jf || jt0 || js ? `<a class="btn sm" href="#/journal">${esc(tr('إلغاء التصفية'))}</a>` : ''}</form>
     ${tbl([{ t: 'الرقم', h: j => `<span class="num">${esc(j.no)}</span>` }, { t: 'التاريخ', h: j => fdate(j.date) }, { t: 'البيان', k: 'memo' }, { t: 'المبلغ', r: 1, h: j => jt[j.id] != null ? money(jt[j.id]) : '—' }, { t: 'المصدر', h: j => `<span class="badge">${esc(SRC[j.source] || j.source)}</span>` + (reversed.has(j.id) ? ' <span class="badge bad">معكوس</span>' : '') }], jes, { empty: 'لا توجد قيود', onRow: true })}`;
   bindRows(page, jes, async j => {
     const ls = await db.get('journal_lines', { entry_id: 'eq.' + j.id, order: 'id' });
@@ -367,6 +371,7 @@ VIEWS['#/journal'] = async page => {
       ${j.source === 'manual' && !reversed.has(j.id) && can('jepost') ? '<button type="button" class="btn danger sm" id="rv" style="margin-top:12px">عكس القيد</button>' : ''}`);
     if ($('#rv', d)) $('#rv', d).onclick = async () => { try { await db.rpc('reverse_journal', { p_entry: j.id, p_date: today() }); d.close(); toast('عُكس القيد'); route(); } catch (e) { showErr($('#merr', d), e); } };
   });
+  $('#jfl', page).onsubmit = e => { e.preventDefault(); const f = formData(e.target); location.hash = '#/journal?' + qs(Object.fromEntries(Object.entries(f).filter(([, v]) => v))); };
   if ($('#jx', page)) $('#jx', page).onclick = () => journalExport();
   if (can('je')) { page.insertAdjacentHTML('beforeend', '<div class="card" id="jdbox" style="margin-top:14px"></div>'); journalDrafts($('#jdbox', page), acc).catch(() => {}); }
   if ($('#nj', page)) $('#nj', page).onclick = async () => {

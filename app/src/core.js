@@ -910,7 +910,7 @@ function markWide(root = document) {
   });
 }
 window.addEventListener('resize', () => { clearTimeout(markWide.t); markWide.t = setTimeout(() => markWide(), 250); });
-const LIST_SEARCH = new Set(['#/users', '#/parties', '#/sales', '#/purchases', '#/items', '#/payments', '#/warehouses', '#/quotes', '#/orders', '#/porders', '#/receipts', '#/deliveries', '#/costcenters', '#/cheques', '#/assets', '#/journal']);
+const LIST_SEARCH = new Set(['#/users', '#/petty', '#/facilities', '#/parties', '#/sales', '#/purchases', '#/items', '#/payments', '#/warehouses', '#/quotes', '#/orders', '#/porders', '#/receipts', '#/deliveries', '#/costcenters', '#/cheques', '#/assets', '#/journal']);
 function listSearch(page) {
   const tw = $('.tw', page), rows = tw ? $$('tbody tr', tw) : []; if (rows.length < 8 || $('.lsq', page)) return;
   tw.insertAdjacentHTML('beforebegin', `<input type="search" class="lsq" placeholder="${esc(tr('بحث في القائمة'))}" aria-label="${esc(tr('بحث في القائمة'))}" style="margin-bottom:10px;max-width:360px">`);

@@ -12,6 +12,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ء	ء
 آجل	Credit
 آخر	Last
+آخر 500 قيد	Latest 500 entries
 آخر إهلاك	Last depreciation
 آخر استخدام	Last used
 آخر الدفعات	Latest payments
@@ -170,6 +171,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أرسله للعميل فقط	send it to the customer only
 أرصدة إجازات متراكمة	Accumulated leave balances
 أرصدة افتتاحية	Opening balances
+أرصدة العهد لدى الموظفين	Petty cash held by employees
 أرفض	I reject
 أرفق التأشيرة	Attach the visa
 أرفق التذكرة	Attach the ticket
@@ -218,6 +220,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أصدر إشعاراً دائناً عليه ثم فاتورة صحيحة جديدة	issue a credit note on it, then a new correct invoice
 أصدر له شهادة خدمة	issue a service certificate instead
 أصل	asset(s)
+أصل القروض المتبقي	Loan principal outstanding
 أصل جديد	New asset
 أصل وربح	principal and profit
 أصناف	Items
@@ -319,6 +322,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أقرب موقع	nearest site
 أقررت	Acknowledged
 أقساط	installments
+أقساط خلال	Instalments within
+أقساط خلال 30 يوما	Instalments within 30 days
 أقساط على الأقل	installments at minimum
 أقساط قروض مستحقة أو قريبة	loan instalments due or coming up
 أقساط متساوية	equal instalments
@@ -803,6 +808,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إلغاء التأشيرة	Cancel visa
 إلغاء التذكرة	Cancel ticket
 إلغاء التسوية	Cancel reconciliation
+إلغاء التصفية	Clear filters
 إلغاء التعديل والرجوع للوردية المعتادة	Remove the change and use the usual shift
 إلغاء التغطية	End cover
 إلغاء الجرد	Cancel count
@@ -2425,6 +2431,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 القيود الآلية تُعكس بإلغاء مستندها	Automatic entries are reversed by voiding their document
 القيود اليومية	Journal entries
 القيود لا تُعدّل	entries are never edited
+القيود لا تُعدّل، تُعكس فقط	entries are never edited, only reversed
 الكامل للحصول عليها	file to get them
 الكاميرا	Camera
 الكتابة على جدران المنشأة أو لصق إعلانات عليها	Writing on or posting notices on the company's walls
@@ -3048,6 +3055,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بانتظار الإرسال إلى زاتكا	Waiting to be sent to ZATCA
 بانتظار الإصدار	Awaiting issue
 بانتظار الاعتماد	Pending approval
+بانتظار التسليم	awaiting delivery
 بانتظار التفعيل	Waiting to be applied
 بانتظار التوقيع	Awaiting signature
 بانتظار الرد	Awaiting reply
@@ -3597,6 +3605,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تصدير خدمات	Export of services
 تصدير سلع	Export of goods
 تصريح الحج	Hajj permit
+تصفية	Filter
 تصميم الواجهات	UI design
 تصير خانة تُعبّأ وقت الطباعة	becomes a field filled in when printing
 تضاف في حدود الأصول المحسومة فقط	added only up to the deducted assets
@@ -3624,6 +3633,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تعديل	Edit
 تعديل أصل	Edit asset
 تعديل أمر الشراء	Edit purchase order
+تعديل أو إيقاف	Edit or stop
+تعديل أو تفعيل	Edit or reactivate
 تعديل الأجر	Change wage
 تعديل الإعلان	Edit announcement
 تعديل الاشتراك	Edit subscription
@@ -4076,6 +4087,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حاولت التصدير كثيراً — انتظر ساعة ثم أعد المحاولة	Too many exports — wait an hour and try again
 حتى	until
 حتى 12	up to 12
+حتى 500 قيد حسب التصفية	Up to 500 entries by the filter
 حتى تاريخ	As of
 حتى تاريخه	To date
 حتى تحذفه	until you delete it
@@ -4345,6 +4357,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 خطابات الضمان	Letters of guarantee
 خطابات الضمان للمشروع	Project letters of guarantee
 خطابات ضمان تنتهي خلال	letters of guarantee expiring within
+خطابات ضمان قائمة	Live letters of guarantee
 خطاباتي	My letters
 خطة التدريب السنوية	Annual training plan
 خطة القوى العاملة	Workforce plan
@@ -5403,6 +5416,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عنوان المهمة	Task title
 عنوان النموذج	Form title
 عنيزة	Unaizah
+عهد قائمة	Active petty cash funds
 عهد لم تُسلَّم	Items not returned
 عهدة	items
 عهدة بقيمة	items worth
@@ -5703,6 +5717,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قيد التحقيق	Under investigation
 قيد التنفيذ	In progress
 قيد العد	Counting
+قيد حسب التصفية	entries by the filter
 قيد سريع	Quick entry
 قيد سريع للحركة البنكية	Quick entry for the bank line
 قيد غير متوازن	Unbalanced entry
@@ -5767,6 +5782,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كل المالية واعتماد المسير والقيود	all finance, approving payroll and journal entries
 كل المبالغ في الدفاتر بالريال	All amounts in the books are in riyals
 كل المستندات والعقود سارية	all documents and contracts are valid
+كل المصادر	All sources
 كل المعاملات بالريال	all transactions are in riyals
 كل المندوبين	All reps
 كل المنشآت نشطة	All companies are active
@@ -6822,6 +6838,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مفعّلة	Active
 مفقودة	Lost
 مفقودة أو تالفة	Lost or damaged
+مفوتر	Invoiced
+مفوتر — بانتظار التسليم	Invoiced — awaiting delivery
 مفوترة	Billable
 مقابل	against
 مقابل فاتورة	Against invoice
