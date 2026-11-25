@@ -336,6 +336,21 @@ def weekly():
             n += body is not None; skip += body is None
     print('weekly: sent %d, nothing to report %d, of %d due' % (n, skip, len(rows)))
 
+def approval_reminders():
+    # requests waiting at an approver's step longer than the company's deadline (3 days by default): one e-mail per approver and company
+    rows = json.loads(psql("select coalesce(json_agg(x), '[]') from (select * from public.approval_reminders_due() limit 500) x"))
+    n = 0
+    for r in rows:
+        if not r.get('email'): continue
+        lines = ['• ' + x for x in r['lines']]
+        body = ('السلام عليكم،\n\nهذه الطلبات في «%s» تنتظر اعتمادك منذ أيام:\n\n%s\n\nللاعتماد أو الرفض: %sapp/#/approvals\n\nفريق وعد\n\n— — —\n'
+                'These requests at «%s» have been waiting for your approval for days:\n%s\nApprove or reject: %sapp/#/approvals') % (
+            r['company'], '\n'.join(lines), SITE, r['company'], '\n'.join(lines), SITE)
+        if mail(r['email'], 'وعد: %d طلب متأخر بانتظار اعتمادك' % len(lines), body):
+            psql("select public.approval_reminders_mark('%s', array[%s]::text[])" % (r['user_id'], ','.join(sqlq(k) for k in r['keys'])))
+            n += 1
+    print('approval reminders: %d e-mails of %d due' % (n, len(rows)))
+
 team()
 if not TEST:
-    remind(); support_team(); support_replies(); welcome(); monthly(); weekly(); purge_notices(); export_notices(); push_notices()
+    remind(); support_team(); support_replies(); welcome(); monthly(); weekly(); purge_notices(); export_notices(); push_notices(); approval_reminders()

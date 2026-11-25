@@ -213,7 +213,7 @@ const arCount = (n, u) => { const f = AR_PL[u]; n = +n || 0; if (!f) return n + 
 const fdate = d => d ? String(d).slice(0, 10) : '—';
 const ROLES = { owner: 'المالك / المدير العام', admin: 'مدير النظام', hr: 'الموارد البشرية', finance: 'المدير المالي', accountant: 'محاسب', storekeeper: 'أمين مستودع', manager: 'مدير قسم', employee: 'موظف' };
 const STEP = { m: 'المدير المباشر', b: 'مسؤول المشتريات', p: 'الموارد البشرية', h: 'مدير الموارد البشرية', f: 'المالية', g: 'المدير العام' };
-const KIND = { leave: 'إجازة', permit: 'استئذان', cert: 'تعريف بالراتب', advance: 'سلفة', resign: 'استقالة', settle: 'مخالصة', expense: 'مطالبة مصروفات', update: 'تحديث بيانات', punch: 'نسيان بصمة', ticket: 'تذكرة سفر', visa: 'تأشيرة خروج وعودة', purchase: 'طلب شراء', trip: 'رحلة عمل (انتداب)' };
+const KIND = { leave: 'إجازة', permit: 'استئذان', cert: 'تعريف بالراتب', advance: 'سلفة', resign: 'استقالة', settle: 'مخالصة', expense: 'مطالبة مصروفات', update: 'تحديث بيانات', punch: 'نسيان بصمة', ticket: 'تذكرة سفر', visa: 'تأشيرة خروج وعودة', purchase: 'طلب شراء', trip: 'رحلة عمل (انتداب)', overtime: 'عمل إضافي', remote: 'عمل عن بعد', move: 'نقل أو ترقية' };
 const STATUS = { pending: ['بانتظار', 'wait'], approved: ['معتمد', 'ok'], rejected: ['مرفوض', 'bad'], cancelled: ['ملغى', ''], draft: ['مسودة', 'wait'], paid: ['مصروف', 'ok'], posted: ['مرحّلة', 'ok'], void: ['ملغاة', 'bad'] };
 const badge = s => { const [t, c] = STATUS[s] || [s, '']; return `<span class="badge ${c}">${esc(t)}</span>`; };
 const has = (...roles) => roles.some(r => (S.roles || new Set([S.role])).has(r));
@@ -1050,6 +1050,20 @@ window.addEventListener('unhandledrejection', e => { const r = e.reason || {}; i
 const docLabel = l => (LANG === 'en' && l.doc_label_en) || l.doc_label || '';
 const refLabel = l => (LANG === 'en' && l.ref_label_en) || l.ref_label || '';
 const blobB64 = b => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1] || ''); fr.onerror = () => rej(new Error('تعذّر قراءة الملف')); fr.readAsDataURL(b); });
+// phones and tablets: next to every picture upload, a button that opens the camera directly; the photo joins that field's files
+const CAM_OK = (() => { try { return matchMedia('(pointer:coarse)').matches && !!new DataTransfer(); } catch (e) { return false; } })();
+function camify(root) {
+  $$('input[type=file]:not([data-cam]):not([capture])', root).forEach(inp => {
+    inp.dataset.cam = 1; if (!/image/.test(inp.accept || '')) return;
+    const lb = document.createElement('label'); lb.className = 'btn sm cam'; lb.style.marginTop = '6px';
+    lb.innerHTML = `📷 ${esc(tr('تصوير بالكاميرا'))}<input type="file" accept="image/*" capture="environment" hidden data-cam="1">`;
+    (inp.closest('label') || inp).insertAdjacentElement('afterend', lb);
+    lb.querySelector('input').onchange = ev => { const f = ev.target.files[0]; if (!f) return; const dt = new DataTransfer();
+      if (inp.multiple) [...inp.files].forEach(x => dt.items.add(x)); dt.items.add(f); inp.files = dt.files; ev.target.value = '';
+      inp.dispatchEvent(new Event('change', { bubbles: true })); toast(tr('أُضيفت الصورة')); };
+  });
+}
+if (CAM_OK) { let camQ = false; new MutationObserver(() => { if (camQ) return; camQ = true; requestAnimationFrame(() => { camQ = false; camify(document); }); }).observe(document.documentElement, { childList: true, subtree: true }); }
 async function readAttachment(file) {
   const pdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
   if (pdf) { if (file.size > 3 * 1048576) throw new Error(tr('حجم الملف أكبر من 3 ميجابايت') + ': ' + file.name); return { name: file.name, mime: 'application/pdf', data: await blobB64(file) }; }

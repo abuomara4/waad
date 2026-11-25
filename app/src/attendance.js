@@ -77,7 +77,8 @@ function bindClock(page) {
   b.onclick = () => busy(b, async () => {
     $('#clkerr', page).innerHTML = '';
     let pos = null;
-    if (!(S.myEmp && S.myEmp.att_any_place)) try { pos = await new Promise((res, rej) => navigator.geolocation ? navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }) : rej(new Error('no geolocation'))); }
+    const remote = S.myEmp && !S.myEmp.att_any_place ? await db.rpc('my_remote_today', { p_company: S.cid }).catch(() => false) : false;
+    if (!(S.myEmp && S.myEmp.att_any_place) && remote !== true) try { pos = await new Promise((res, rej) => navigator.geolocation ? navigator.geolocation.getCurrentPosition(res, rej, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }) : rej(new Error('no geolocation'))); }
     catch (e) { pos = null; }
     try {
       const r = await db.rpc('clock', pos ? { p_company: S.cid, p_lat: +pos.coords.latitude.toFixed(6), p_lng: +pos.coords.longitude.toFixed(6), p_acc: Math.round(pos.coords.accuracy) } : { p_company: S.cid });

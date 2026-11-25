@@ -800,6 +800,24 @@ with sync_playwright() as pw:
     e.fill('#dlg input[name=trfrom]', (datetime.date.today() + datetime.timedelta(days=5)).isoformat()); e.fill('#dlg input[name=trto]', (datetime.date.today() + datetime.timedelta(days=6)).isoformat()); e.wait_for_timeout(700)
     ok('600.00' in e.inner_text('#trph'), 'business trip form: per diem 300 × 2 days shown before sending')
     modal_ok(e); e.wait_for_timeout(500); ok(sql("select amount::text || ':' || days from requests where kind = 'trip' order by created_at desc limit 1") == '600.00:2', 'business trip request sent with its per diem')
+    # ---------- overtime in advance, remote work, transfer / promotion (0151) ----------
+    go(e, '#/requests'); e.wait_for_selector('#nr'); e.click('#nr'); e.select_option('#rk', 'overtime'); e.fill('#dlg input[name=othours]', '3'); e.fill('#dlg input[name=otwhy]', 'جرد المستودع')
+    e.fill('#dlg input[name=otday]', (datetime.date.today() + datetime.timedelta(days=2)).isoformat()); modal_ok(e); e.wait_for_timeout(500)
+    ok(sql("select (payload->>'hours')::numeric::text || ':' || array_to_string(route, '') from requests where kind = 'overtime' order by created_at desc limit 1") in ('3:mp', '3:p'), 'overtime request: the employee asks for the hours in advance')
+    e.click('#nr'); e.select_option('#rk', 'remote'); e.fill('#dlg input[name=rmwhy]', 'ظرف عائلي'); e.fill('#dlg input[name=rmplace]', 'المنزل')
+    e.fill('#dlg input[name=rmto]', (datetime.date.today() + datetime.timedelta(days=1)).isoformat()); modal_ok(e); e.wait_for_timeout(500)
+    ok(sql("select (to_date - from_date)::text || ':' || (payload->>'place') from requests where kind = 'remote' order by created_at desc limit 1") == '1:المنزل', 'remote work request: two days from home')
+    ok(e.locator('tbody tr', has_text='عمل عن بعد').count() >= 1, 'my requests list shows the remote work request')
+    mv_emp = sql("select employee_id from requests where kind = 'remote' order by created_at desc limit 1")
+    go(o, '#/emp/' + mv_emp); o.wait_for_selector('#emove'); o.click('#emove'); o.wait_for_selector('#dlg input[name=job]')
+    o.fill('#dlg input[name=job]', 'أخصائي أول'); o.fill('#dlg textarea[name=why]', 'أداء متميز'); modal_ok(o); o.wait_for_timeout(500)
+    ok(sql("select payload->>'type' || ':' || (payload->'new'->>'job_title') || ':' || status from requests where kind = 'move' order by created_at desc limit 1") == 'promotion:أخصائي أول:pending',
+       'transfer / promotion: raised from the employee file, waiting for approval')
+    mv_id = sql("select id from requests where kind = 'move' order by created_at desc limit 1")
+    go(e, '#/home'); go(e, '#/requests'); e.wait_for_selector('#nr'); e.wait_for_timeout(400); mrow = e.locator('tbody tr', has_text='نقل أو ترقية')
+    ok(mrow.count() == 1 and mrow.locator('[data-cancel]').count() == 0, 'transfer / promotion: the employee sees it but cannot cancel it')
+    mrow.click(); e.wait_for_selector('#dlg[open]'); ok('أخصائي أول' in e.inner_text('#dlg') and 'أداء متميز' in e.inner_text('#dlg'), 'transfer / promotion: the detail shows current → new and the reason'); e.click('#mx')
+    sqlx("update requests set status = 'cancelled' where id = '%s'" % mv_id)
 
     # ---------- OKRs and fingerprint devices (0118) ----------
     go(o, '#/okrs'); o.wait_for_selector('#okn'); o.click('#okn'); o.wait_for_selector('#dlg input[name=t]')

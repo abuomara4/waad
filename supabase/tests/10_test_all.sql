@@ -1330,7 +1330,7 @@ select t.ok((select ok from public.clearance_status(:'e_emp') where step = 'cust
 reset role;
 select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
 select t.ok((select count(*) from public.custody_items where employee_id = :'e_emp') = 1, 'the employee sees own custody');
-select t.err($$select public.clearance_status('$$ || :'e_emp' || $$')$$, '42501|غير مصرح', 'the employee cannot sign the clearance');
+select t.err($$select public.clearance_mark('$$ || :'e_emp' || $$', 'hr', true, null)$$, '42501|غير مصرح', 'the employee cannot sign the clearance');
 reset role;
 select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
 select public.clearance_mark(:'e_emp', 'manager', true, 'سلّم المهام');
@@ -4406,6 +4406,77 @@ select t.err($$select public.employee_360('$$ || :'cid' || $$', '$$ || :'e_fin' 
 reset role;
 select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
 select t.err($$select public.employee_360('$$ || :'cid' || $$', '$$ || :'e_emp' || $$')$$, 'غير موجود|42501', 'employee 360: another company cannot open it');
+reset role;
+-- request kinds: overtime in advance, remote work, transfer / promotion (0151)
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.submit_request('$$ || :'cid' || $$', 'overtime', null, current_date + 3, null, null, '{"hours":2}')$$, 'سبب', 'overtime request: a reason is required');
+select t.err($$select public.submit_request('$$ || :'cid' || $$', 'overtime', null, current_date + 3, null, null, '{"hours":13,"reason":"جرد"}')$$, '12', 'overtime request: up to 12 hours');
+select public.submit_request(:'cid', 'overtime', null, current_date + 3, null, null, '{"hours":2,"reason":"جرد نهاية الشهر"}') as otr \gset
+select t.err($$select public.submit_request('$$ || :'cid' || $$', 'overtime', null, current_date + 3, null, null, '{"hours":1,"reason":"جرد"}')$$, 'لهذا اليوم', 'overtime request: one per day');
+select t.err($$select public.submit_request('$$ || :'cid' || $$', 'remote', null, current_date + 1, current_date + 40, null, '{"reason":"ظرف عائلي"}')$$, '30', 'remote work: up to 30 days a request');
+select public.submit_request(:'cid', 'remote', null, current_date, current_date + 2, null, '{"reason":"ظرف عائلي","place":"المنزل"}') as rmt \gset
+select t.err($$select public.submit_request('$$ || :'cid' || $$', 'move', null, current_date, null, null, '{"job_title":"مدير"}')$$, 'يرفعه', 'move: an employee cannot raise his own transfer or promotion');
+select t.ok(not public.my_remote_today(:'cid'), 'remote work: not before it is approved');
+reset role;
+select t.ok((select route = array['m','p'] and to_date = from_date from public.requests where id = :'otr'), 'overtime request: route manager then HR, one day');
+update public.requests set status = 'approved' where id in (:'otr', :'rmt');
+select public.on_request_approved(:'otr'); select public.on_request_approved(:'rmt');
+delete from public.attendance where employee_id = :'e_emp' and day = current_date + 3;
+insert into public.attendance(company_id, employee_id, day, check_in, extra_min) values (:'cid', :'e_emp', current_date + 3, now(), 180) returning id as otatt \gset
+select t.eq((select ot_min from public.attendance where id = :'otatt'), 120, 'overtime request: the approved hours become the day''s approved overtime (2 of 3 hours worked)');
+update public.attendance set extra_min = 60 where id = :'otatt';
+select t.eq((select ot_min from public.attendance where id = :'otatt'), 60, 'overtime request: never above the overtime actually worked');
+delete from public.attendance where id = :'otatt';
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok(public.my_remote_today(:'cid'), 'remote work: an approved day skips the work-site check');
+reset role;
+-- transfer / promotion
+select grade_id as e_grade, basic as e_basic, job_title as e_job from public.employees where id = :'e_emp' \gset
+update public.employees set grade_id = null, manager_id = :'e_mgr' where id = :'e_emp';
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.request_file('$$ || :'cid' || $$', '$$ || :'e_fin' || $$', 'move', current_date, '{"job_title":"x","reason":"y"}')$$, '42501|يرفع', 'move: an employee cannot raise one about a colleague');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.err($$select public.request_file('$$ || :'cid' || $$', '$$ || :'e_emp' || $$', 'move', current_date, '{"job_title":"x","reason":"y"}')$$, '42501|يرفع', 'move: another company cannot raise one');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.err($$select public.request_file('$$ || :'cid' || $$', '$$ || :'e_emp' || $$', 'move', current_date, '{"basic":1,"reason":"y"}')$$, 'لا يخفض', 'move: never lowers the wage');
+select t.err($$select public.request_file('$$ || :'cid' || $$', '$$ || :'e_emp' || $$', 'move', current_date, '{"reason":"y"}')$$, 'حدد ما يتغير', 'move: something must change');
+select public.request_file(:'cid', :'e_emp', 'move', current_date, jsonb_build_object('type', 'promotion', 'job_title', 'أخصائي أول', 'basic', :'e_basic'::numeric + 500, 'reason', 'أداء متميز')) as mv \gset
+select t.ok(public.move_options(:'cid', :'e_emp') ? 'managers', 'move: the manager gets the choices of the form');
+reset role;
+select t.ok((select not ('m' = any(route)) and 'p' = any(route) and payload->'new'->>'job_title' = 'أخصائي أول' and (payload->'old'->>'basic')::numeric = :'e_basic'::numeric from public.requests where id = :'mv'),
+  'move: raised by the direct manager, his step is done; old and new values kept');
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.cancel_request('$$ || :'mv' || $$')$$, '42501|مصرح', 'move: the employee cannot cancel a request raised about him');
+reset role;
+update public.requests set status = 'approved' where id = :'mv';
+select public.on_request_approved(:'mv');
+select t.ok((select job_title = 'أخصائي أول' and basic = :'e_basic'::numeric + 500 from public.employees where id = :'e_emp')
+  and exists(select 1 from public.salary_history where employee_id = :'e_emp' and reason like 'ترقية%' and effective_on = current_date and basic = :'e_basic'::numeric + 500),
+  'move: the final approval applies the change and the salary history takes the effective date and reason');
+update public.employees set grade_id = nullif(:'e_grade', '')::uuid, basic = :'e_basic'::numeric, job_title = :'e_job' where id = :'e_emp';
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((select count(*) = 6 and not bool_or(can_mark) from public.clearance_status(:'e_emp')), 'clearance: the employee follows his own checklist, read only');
+select t.err($$select * from public.clearance_status('$$ || :'e_fin' || $$')$$, '42501|مصرح', 'clearance: not a colleague''s');
+reset role;
+-- approver reminders after 3 days at a step (0152)
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select public.submit_request(:'cid', 'permit', null, current_date + 9, current_date + 9, null, '{"hours":1}') as remreq \gset
+reset role;
+update public.companies set request_sla_days = null where id = :'cid';
+select t.ok(not exists(select 1 from public.approval_reminders_due() d where d.user_id = :'u_mgr' and exists(select 1 from unnest(d.keys) k where k like 'rem:' || :'remreq' || '%')), 'reminders: none before 3 days');
+update public.requests set step_at = now() - interval '3 days 1 hour' where id = :'remreq';
+select (select k from public.approval_reminders_due() d, unnest(d.keys) k where d.user_id = :'u_mgr' and k like 'rem:' || :'remreq' || '%') as remkey \gset
+select t.ok(:'remkey' <> '', 'reminders: after 3 days the approver at the current step is reminded');
+select t.ok(not exists(select 1 from public.approval_reminders_due() d where d.user_id = :'u_emp' and exists(select 1 from unnest(d.keys) k where k like 'rem:' || :'remreq' || '%')), 'reminders: never the employee himself');
+select public.approval_reminders_mark(:'u_mgr', array[:'remkey']);
+select t.ok(not exists(select 1 from public.approval_reminders_due() d, unnest(d.keys) k where d.user_id = :'u_mgr' and k = :'remkey'), 'reminders: once per period');
+update public.requests set step_at = now() - interval '6 days 1 hour' where id = :'remreq';
+select t.ok(exists(select 1 from public.approval_reminders_due() d, unnest(d.keys) k where d.user_id = :'u_mgr' and k like 'rem:' || :'remreq' || '%' and k <> :'remkey'), 'reminders: again after another 3 days of waiting');
+update public.requests set status = 'cancelled' where id = :'remreq';
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.err($$select * from public.approval_reminders_due()$$, 'permission|42501', 'reminders: not callable by company users');
 reset role;
 -- RLS performance (0150): auth.uid() is computed once per statement in every policy
 select t.ok((select count(*) = 0 from pg_policies where schemaname = 'public' and (coalesce(qual, '') || coalesce(with_check, '')) ~ '(?<!SELECT )auth\.uid\(\)'),

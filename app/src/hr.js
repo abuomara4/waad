@@ -64,7 +64,7 @@ VIEWS['#/requests'] = async page => {
     ${tbl([{ t: 'النوع', h: r => esc(KIND[r.kind] + (r.sub ? ' — ' + leaveLbl(r, ltn) : '')) }, { t: 'من', h: r => fdate(r.from_date) }, { t: 'إلى', h: r => fdate(r.to_date) },
       { t: 'أيام/مبلغ', r: 1, h: r => r.amount != null ? money(r.amount) : (r.days || (r.payload && r.payload.hours ? r.payload.hours + ' س' : '—')) },
       { t: 'الحالة', h: r => badge(r.status) + (r.status === 'pending' ? ` <span class="muted small">${esc(tr('عند'))} ${esc(tr(STEP[r.route[r.step]] || ''))} · ${esc(waitTxt(r.step_at))}</span>` : '') },
-      { t: '', h: r => r.status === 'pending' && !(r.kind === 'resign' && (Date.now() - new Date(r.created_at)) > 7 * 864e5) ? `<button class="btn sm" data-cancel="${r.id}">${r.kind === 'resign' ? 'العدول عن الاستقالة' : 'إلغاء'}</button>` : '' }], rs, { empty: 'لا توجد طلبات بعد', onRow: true })}`;
+      { t: '', h: r => r.status === 'pending' && r.kind !== 'move' && !(r.kind === 'resign' && (Date.now() - new Date(r.created_at)) > 7 * 864e5) ? `<button class="btn sm" data-cancel="${r.id}">${r.kind === 'resign' ? 'العدول عن الاستقالة' : 'إلغاء'}</button>` : '' }], rs, { empty: 'لا توجد طلبات بعد', onRow: true })}`;
   bindRows(page, rs, r => requestDetail(r));
   $$('[data-cancel]', page).forEach(b => b.onclick = async ev => { ev.stopPropagation(); if (!await confirmBox('إلغاء الطلب', 'هل تريد إلغاء هذا الطلب؟', 'إلغاء الطلب')) return; try { await db.rpc('cancel_request', { p_id: b.dataset.cancel }); toast('أُلغي الطلب'); route(); } catch (e) { toast(e.message); } });
   $('#nr', page).onclick = () => newRequest(lt);
@@ -90,7 +90,7 @@ const EVENT_LEAVES = { marriage: 'تُحتسب 5 أيام من تاريخ الز
 function newRequest(lt) {
   const g = S.myEmp && S.myEmp.gender;
   const leaveOpts = lt.filter(l => !l.gender || l.gender === g).map(l => opt(l.code, l.name_ar + (l.article ? ' (' + l.article + ')' : '')) + (l.code === 'annual' ? opt('annual_out', tr('إجازة سنوية خارجية') + ' (' + l.article + ')') : '')).join('');
-  modal('طلب جديد', `<div class="fg">${field('نوع الطلب', `<select name="kind" id="rk">${Object.entries(Object.assign({ leave: 'إجازة', permit: 'استئذان' }, S.company && S.company.att_enabled ? { punch: 'نسيان بصمة' } : {}, { advance: 'سلفة', expense: 'مطالبة مصروفات' }, S.canPR ? { purchase: 'طلب شراء' } : {}, { trip: 'رحلة عمل (انتداب)' }, { cert: 'تعريف بالراتب' }, S.myEmp && S.myEmp.ticket_every ? { ticket: 'تذكرة سفر' } : {}, S.myEmp && S.myEmp.is_saudi === false ? { visa: 'تأشيرة خروج وعودة' } : {}, { resign: 'استقالة' })).map(([k, t]) => opt(k, t)).join('')}</select>`)}
+  modal('طلب جديد', `<div class="fg">${field('نوع الطلب', `<select name="kind" id="rk">${Object.entries(Object.assign({ leave: 'إجازة', permit: 'استئذان' }, S.company && S.company.att_enabled ? { punch: 'نسيان بصمة' } : {}, { advance: 'سلفة', expense: 'مطالبة مصروفات' }, S.canPR ? { purchase: 'طلب شراء' } : {}, { trip: 'رحلة عمل (انتداب)' }, { overtime: 'عمل إضافي (موافقة مسبقة)', remote: 'عمل عن بعد' }, { cert: 'تعريف بالراتب' }, S.myEmp && S.myEmp.ticket_every ? { ticket: 'تذكرة سفر' } : {}, S.myEmp && S.myEmp.is_saudi === false ? { visa: 'تأشيرة خروج وعودة' } : {}, { resign: 'استقالة' })).map(([k, t]) => opt(k, t)).join('')}</select>`)}
     <div data-k="leave">${field('نوع الإجازة', `<select name="sub">${leaveOpts}</select>`)}</div>
     <div data-k="leave permit">${field('من / التاريخ', `<input type="date" name="from" value="${today()}">`)}</div>
     <div data-k="punch">${field('يوم البصمة المنسية', `<input type="date" name="pday" value="${today()}" max="${today()}">`)}</div>
@@ -129,6 +129,14 @@ function newRequest(lt) {
     <div data-k="trip">${field('التنقل', `<select name="ttrans">${opt('none', tr('لا يحتاج'))}${opt('ticket', tr('تذكرة تحجزها المنشأة'))}${opt('car', tr('سيارة المنشأة أو سيارتي'))}</select>`)}</div>
     <div data-k="trip"><label class="row small" style="gap:6px;margin-top:26px"><input type="checkbox" name="tabroad" style="width:auto"> ${esc(tr('خارج المملكة'))}</label></div>
     <div data-k="trip" class="wide"><p class="small" id="trph" style="margin:0"></p></div>
+    <div data-k="overtime">${field('يوم العمل الإضافي', `<input type="date" name="otday" value="${today()}">`)}</div>
+    <div data-k="overtime">${field('عدد الساعات', `<input name="othours" type="number" step="0.5" min="0.5" max="12" value="2">`)}</div>
+    <div data-k="overtime" class="wide">${field('سبب العمل الإضافي', inp('otwhy', '', 'maxlength="300"'))}<p class="muted small" style="margin:4px 0 0">${esc(tr('يُطلب قبل العمل أو خلال 7 أيام بعده. بعد اعتماده يُحتسب إضافي ذلك اليوم تلقائيا بقدر هذه الساعات، ولا يزيد على ما سجّلته في الحضور. أجر الساعة الإضافية = أجر الساعة الفعلي + 50% من أجر الساعة الأساسي (م107).'))}</p></div>
+    <div data-k="remote">${field('من', `<input type="date" name="rmfrom" value="${today()}" min="${today()}">`)}</div>
+    <div data-k="remote">${field('إلى', `<input type="date" name="rmto" value="${today()}" min="${today()}">`)}</div>
+    <div data-k="remote">${field('مكان العمل', inp('rmplace', '', `maxlength="120" placeholder="${esc(tr('المنزل، مدينة أخرى…'))}"`))}</div>
+    <div data-k="remote">${field('السبب', inp('rmwhy', '', 'maxlength="300"'))}</div>
+    <div data-k="remote" class="wide"><p class="muted small" style="margin:0">${esc(tr('حتى 30 يوما في الطلب. في الأيام المعتمدة تسجّل حضورك من «حضوري» دون التحقق من موقع العمل.'))}</p></div>
     <div data-k="advance expense">${field('المبلغ', `<input name="amount" type="number" step="0.01" min="0">`)}</div>
     <div data-k="expense">${field('فئة المصروف', `<select name="ecat"><option value="">${esc(tr('عام'))}</option>${(S.ecats || []).map(c => opt(c.category, c.category + (c.per_claim ? ' — ' + tr('حتى') + ' ' + c.per_claim : ''), '')).join('')}</select>`)}</div>
     <div data-k="advance">${field('عدد الأقساط', `<input name="inst" type="number" min="1" max="24" value="1">`)}</div>
@@ -156,6 +164,8 @@ function newRequest(lt) {
         Object.assign(a, { p_from: blank(f.pneed), p_payload: { lines: ls } }); }
       if (k === 'trip') { if (!(f.tdest || '').trim()) throw new Error(tr('اكتب وجهة الرحلة')); if (!(f.tpurp || '').trim()) throw new Error(tr('اكتب الغرض من الرحلة'));
         Object.assign(a, { p_from: f.trfrom, p_to: f.trto, p_payload: { dest: f.tdest.trim(), purpose: f.tpurp.trim(), abroad: !!f.tabroad, transport: f.ttrans } }); }
+      if (k === 'overtime') { if (!(f.otwhy || '').trim()) throw new Error(tr('اكتب سبب العمل الإضافي')); Object.assign(a, { p_from: f.otday, p_payload: { hours: +f.othours, reason: f.otwhy.trim() } }); }
+      if (k === 'remote') { if (!(f.rmwhy || '').trim()) throw new Error(tr('اكتب سبب العمل عن بعد')); Object.assign(a, { p_from: f.rmfrom, p_to: f.rmto, p_payload: { reason: f.rmwhy.trim(), place: (f.rmplace || '').trim() } }); }
       if (k === 'advance' || k === 'expense') { if (!(+f.amount > 0)) throw new Error('أدخل المبلغ'); a.p_amount = +f.amount; if (k === 'advance') a.p_payload = { inst: +f.inst || 1 }; if (k === 'expense' && f.ecat) a.p_payload = { cat: f.ecat }; }
       await db.rpc('submit_request', a); toast('أُرسل الطلب'); route();
     }
@@ -220,6 +230,8 @@ async function requestDetail(r, { decide } = {}) {
     ${r.kind === 'trip' && r.payload ? `<div class="card" style="margin:10px 0;padding:10px 12px"><b class="small">${esc(tr('رحلة العمل'))}</b><div class="small">${esc(tr('الوجهة'))}: <b>${esc(r.payload.dest || '')}</b>${r.payload.abroad ? ' · ' + esc(tr('خارج المملكة')) : ''} · ${esc(tr('الغرض'))}: ${esc(r.payload.purpose || '')}</div>
       <div class="small">${esc(tr('بدل الانتداب'))}: <span class="num">${money(r.payload.rate || 0)}</span> × <span class="num">${r.days || 0}</span> = <b class="num">${money(r.amount || 0)}</b>${r.payload.transport && r.payload.transport !== 'none' ? ' · ' + esc(tr('التنقل')) + ': ' + esc(tr({ ticket: 'تذكرة تحجزها المنشأة', car: 'سيارة المنشأة أو سيارتي' }[r.payload.transport] || '')) : ''}</div>
       <div class="muted small">${esc(tr('مصاريف الرحلة الفعلية (السكن والمواصلات) تُقدَّم بعد العودة كمطالبة مصروفات.'))}</div></div>` : ''}
+    ${['overtime', 'remote'].includes(r.kind) && r.payload ? `<div class="card" style="margin:10px 0;padding:10px 12px"><b class="small">${esc(tr(KIND[r.kind]))}</b>${r.payload.place ? `<div class="small">${esc(tr('مكان العمل'))}: <b data-nt>${esc(r.payload.place)}</b></div>` : ''}<div class="small">${esc(tr('السبب'))}: <span data-nt>${esc(r.payload.reason || '')}</span></div></div>` : ''}
+    ${r.kind === 'move' ? moveBox(r) : ''}
     ${['expense', 'purchase', 'trip', 'ticket'].includes(r.kind) ? await budgetBox(r) : ''}
     ${r.note ? `<p>${esc(r.note)}</p>` : ''}${r.kind === 'expense' && typeof expenseInfo === 'function' ? await expenseInfo(r, decide) : ''}
     ${!atts.length && !canAttach && lt.find(l => l.code === r.sub && l.doc_label) ? `<p class="muted small">${esc(tr('المرفق المطلوب') + ': ' + docLabel(lt.find(l => l.code === r.sub)))} — ${esc('تراه الموارد البشرية فقط')}</p>` : ''}
@@ -1155,7 +1167,6 @@ async function apiCard(el) {
 
 /* ===== ملف الموظف الشامل (#/emp/<id>, 0149): profile, pay, contract, attendance (30 days), leave balance, requests, penalties,
    reviews, custody and documents on one page — for HR, the employee himself and his manager (pay never to the manager) ===== */
-const REQ_K = { leave: 'إجازة', loan: 'سلفة', expense: 'مصروف', letter: 'خطاب', resign: 'استقالة', overtime: 'عمل إضافي', permit: 'استئذان', trip: 'رحلة عمل', purchase: 'طلب شراء', ticket: 'تذكرة سفر' };
 VIEWS['#/emp'] = async (page, id) => {
   const r = await db.rpc('employee_360', { p_company: S.cid, p_emp: id || S.emp }), p = r.profile, c = r.can;
   const kpi = (t, v, cls = '', s = '') => `<div class="card kpi"><div class="muted small">${esc(tr(t))}</div><div class="v num ${cls}">${v}</div>${s ? `<div class="muted small">${s}</div>` : ''}</div>`;
@@ -1164,7 +1175,8 @@ VIEWS['#/emp'] = async (page, id) => {
   page.innerHTML = `<div class="head"><div>${c.hr ? `<a href="#/employees" class="small back">${esc(tr('الموظفون'))}</a>` : ''}<h1 data-nt>${esc((LANG === 'en' && p.name_en) || p.name)} <span class="muted num" style="font-size:.6em">${esc(p.emp_no)}</span>${p.end_date ? ` <span class="badge">${esc(tr('انتهت خدمته'))}</span>` : ''}</h1>
       <div class="muted">${[(LANG === 'en' && p.job_en) || p.job, p.department, p.branch].filter(Boolean).map(esc).join(' · ')}</div>
       <div class="small" style="margin-top:4px">${esc(tr('المدير'))}: ${p.manager ? `<span data-nt>${esc(p.manager.name)}</span>` : '—'} · ${esc(tr('تاريخ المباشرة'))} ${fdate(p.hire_date)} (<span class="num">${p.years}</span> ${esc(tr('سنة'))})${p.team ? ` · ${esc(tr('فريقه'))} <span class="num">${p.team}</span>` : ''}${p.phone ? ` · <span class="num" dir="ltr">${esc(p.phone)}</span>` : ''}</div></div>
-      <div class="row" style="gap:6px;flex-wrap:wrap">${c.hr ? `<a class="btn" href="#/docs/${p.id}">${esc(tr('المستندات والعقود والخطابات'))}</a>` : ''}</div></div>
+      <div class="row" style="gap:6px;flex-wrap:wrap">${!c.self && !p.end_date ? `<button class="btn" id="emove">${esc(tr('طلب نقل أو ترقية'))}</button>` : ''}${c.hr ? `<a class="btn" href="#/docs/${p.id}">${esc(tr('المستندات والعقود والخطابات'))}</a>` : ''}</div></div>
+    ${p.end_date ? '<div id="eclr" style="margin-bottom:14px"></div>' : ''}
     <div class="grid" style="margin-bottom:14px">${pay ? kpi('إجمالي الراتب الشهري', money(gross), '', `${esc(tr('الأساسي'))} ${money(pay.basic)}`) : ''}
       ${kpi('رصيد الإجازة السنوية', r.leave_balance == null ? '—' : String(+n0(r.leave_balance).toFixed(1)), '', esc(tr('يوم')))}
       ${kpi('الحضور آخر 30 يوما', String(at.days || 0), '', `${esc(tr('ساعات العمل'))} <span class="num">${at.worked_hours || 0}</span>`)}
@@ -1175,7 +1187,7 @@ VIEWS['#/emp'] = async (page, id) => {
     ${pay ? `<div class="card"><h2>${esc(tr('آخر مسيرات الراتب'))}</h2>${tbl([{ t: 'الشهر', h: x => `<span class="num">${x.month}/${x.year}</span>` }, { t: 'الإجمالي', r: 1, h: x => money(x.gross) }, { t: 'الاستقطاعات', r: 1, h: x => money(x.deductions) },
         { t: 'الصافي', r: 1, h: x => `<b>${money(x.net)}</b>` }, { t: 'الحالة', h: x => badge(x.status) }], pay.slips, { empty: 'لا توجد مسيرات' })}</div>` : ''}
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
-      <div class="card"><h2>${esc(tr('آخر الطلبات'))}</h2>${tbl([{ t: 'الطلب', h: x => esc(tr(REQ_K[x.kind] || x.kind)) }, { t: 'الفترة', h: x => x.from_date ? fdate(x.from_date) + (x.to_date && x.to_date !== x.from_date ? ' – ' + fdate(x.to_date) : '') : fdate(String(x.created_at).slice(0, 10)) },
+      <div class="card"><h2>${esc(tr('آخر الطلبات'))}</h2>${tbl([{ t: 'الطلب', h: x => esc(tr(KIND[x.kind] || x.kind)) }, { t: 'الفترة', h: x => x.from_date ? fdate(x.from_date) + (x.to_date && x.to_date !== x.from_date ? ' – ' + fdate(x.to_date) : '') : fdate(String(x.created_at).slice(0, 10)) },
         { t: 'المدة / المبلغ', r: 1, h: x => x.days ? `<span class="num">${x.days}</span> ${esc(tr('يوم'))}` : x.amount ? money(x.amount) : '—' }, { t: 'الحالة', h: x => badge(x.status) }], r.requests, { empty: 'لا توجد طلبات' })}</div>
       <div class="card"><h2>${esc(tr('العهد التي بحوزته'))}</h2>${tbl([{ t: 'العهدة', h: x => `<span data-nt>${esc(x.name)}</span>${x.serial ? ` <span class="small muted num">${esc(x.serial)}</span>` : ''}` }, { t: 'منذ', h: x => fdate(x.issued_on) },
         { t: 'القيمة', r: 1, h: x => x.value != null ? money(x.value) : '—' }], r.custody, { empty: 'لا توجد عهد' })}</div></div>
@@ -1185,5 +1197,43 @@ VIEWS['#/emp'] = async (page, id) => {
       <div class="card"><h2>${esc(tr('تقييم الأداء'))}</h2>${tbl([{ t: 'الدورة', h: x => `<span data-nt>${esc(x.cycle || '—')}</span>` }, { t: 'التقييم', r: 1, h: x => x.overall != null ? `<b class="num">${x.overall}</b>` : '—' }, { t: 'الحالة', h: x => badge(x.status) }], r.reviews, { empty: 'لا توجد تقييمات' })}
         ${r.penalties ? `<h2 style="margin-top:14px">${esc(tr('الجزاءات'))}</h2>${tbl([{ t: 'التاريخ', h: x => fdate(x.occurred_on) }, { t: 'الإجراء', h: x => esc(typeof penLabel === 'function' ? penLabel(x.action) : x.action) },
           { t: 'الغرامة', r: 1, h: x => n0(x.fine) ? money(x.fine) : '—' }, { t: 'الحالة', h: x => badge(x.status) }], r.penalties, { empty: 'لا توجد جزاءات' })}` : ''}</div></div>`;
+  if ($('#emove', page)) $('#emove', page).onclick = () => moveRequest(p);
+  if ($('#eclr', page) && typeof clearanceCard === 'function') clearanceCard($('#eclr', page), { id: p.id, end_date: p.end_date, full_name: p.name }).catch(() => $('#eclr', page).remove());
   if (!c.self && typeof accessNote === 'function') accessNote('employee', { emp: p.id, label: 'ملف الموظف' });
 };
+/* ----- transfer / promotion (0151): raised about an employee by his direct manager or HR, applied on the final approval ----- */
+const MOVE_T = { transfer: 'نقل', promotion: 'ترقية', title: 'تغيير المسمى', raise: 'زيادة في الأجر' };
+async function moveRequest(p) {
+  let o; try { o = await db.rpc('move_options', { p_company: S.cid, p_emp: p.id }); } catch (e) { toast(e.message); return; }
+  const cur = o.current, sel = (name, list, v, none) => `<select name="${name}"><option value="">${esc(tr(none))}</option>${list.map(x => opt(x.id, x.name + (x.no ? ' — ' + x.no : ''), '')).join('')}</select>`;
+  const nm = (list, id) => (list.find(x => x.id === id) || {}).name || '—';
+  modal(tr('طلب نقل أو ترقية') + ' — ' + cur.name, `<div class="fg">${field('نوع الطلب', `<select name="type">${Object.entries(MOVE_T).map(([k, t]) => opt(k, tr(t), 'promotion')).join('')}</select>`)}
+    ${field('تاريخ السريان', `<input type="date" name="eff" value="${today()}">`)}
+    ${field('الإدارة الجديدة', sel('dept', o.departments, '', 'بدون تغيير') + `<div class="muted small">${esc(tr('الحالية'))}: ${esc(nm(o.departments, cur.department_id))}</div>`)}
+    ${field('المسمى الوظيفي الجديد', inp('job', '', `maxlength="120" placeholder="${esc(cur.job_title || '')}"`))}
+    ${field('المسمى بالإنجليزية', inp('job_en', '', `maxlength="120" dir="ltr" placeholder="${esc(cur.job_title_en || '')}"`))}
+    ${field('المدير المباشر الجديد', sel('mgr', o.managers, '', 'بدون تغيير') + `<div class="muted small">${esc(tr('الحالي'))}: ${esc(nm(o.managers, cur.manager_id))}</div>`)}
+    ${o.branches.length ? field('الفرع الجديد', sel('br', o.branches, '', 'بدون تغيير') + `<div class="muted small">${esc(tr('الحالي'))}: ${esc(nm(o.branches, cur.branch_id))}</div>`) : ''}
+    ${o.grades.length ? field('الدرجة الجديدة', sel('gr', o.grades, '', 'بدون تغيير') + `<div class="muted small">${esc(tr('الحالية'))}: ${esc(nm(o.grades, cur.grade_id))}</div>`) : ''}
+    ${field('الراتب الأساسي الجديد', `<input name="basic" type="number" step="0.01" min="${n0(cur.basic)}" placeholder="${moneyN(cur.basic)}">`)}
+    ${field('بدل السكن الجديد', `<input name="housing" type="number" step="0.01" min="${n0(cur.housing)}" placeholder="${moneyN(cur.housing)}">`)}
+    ${field('بدل النقل الجديد', `<input name="transport" type="number" step="0.01" min="${n0(cur.transport)}" placeholder="${moneyN(cur.transport)}">`)}
+    ${field('سبب الطلب', `<textarea name="why" rows="2" maxlength="500"></textarea>`, 'wide')}
+    <p class="muted small wide" style="margin:0">${esc(tr('اترك الحقل فارغا إذا لم يتغير. الطلب لا يخفض الأجر، ويمر على الموارد البشرية ثم الاعتماد حسب مسار المنشأة، ويُطبَّق على ملف الموظف عند الاعتماد النهائي.'))}</p></div>`,
+    { ok: 'إرسال', onOk: async f => {
+      if (!(f.why || '').trim()) throw new Error(tr('اكتب سبب الطلب'));
+      const num = v => v === '' || v == null ? null : +v;
+      await db.rpc('request_file', { p_company: S.cid, p_emp: p.id, p_kind: 'move', p_from: f.eff, p_note: null, p_payload: { type: f.type, department_id: blank(f.dept), job_title: blank(f.job), job_title_en: blank(f.job_en), manager_id: blank(f.mgr),
+        branch_id: blank(f.br), grade_id: blank(f.gr), basic: num(f.basic), housing: num(f.housing), transport: num(f.transport), reason: f.why.trim() } });
+      toast(tr('أُرسل الطلب')); route(); } });
+}
+// the request detail: before → after
+function moveBox(r) {
+  const p = r.payload || {}, n = p.new || {}, o = p.old || {}, nm = p.names || {};
+  const rows = [['department_id', 'الإدارة', nm.old_department, nm.department], ['job_title', 'المسمى الوظيفي', o.job_title, n.job_title], ['manager_id', 'المدير المباشر', nm.old_manager, nm.manager],
+    ['branch_id', 'الفرع', nm.old_branch, nm.branch], ['grade_id', 'الدرجة', nm.old_grade, nm.grade], ['basic', 'الراتب الأساسي', money(o.basic), money(n.basic)],
+    ['housing', 'بدل السكن', money(o.housing), money(n.housing)], ['transport', 'بدل النقل', money(o.transport), money(n.transport)]].filter(x => x[0] in n);
+  return `<div class="card" style="margin:10px 0;padding:10px 12px"><b class="small">${esc(tr(MOVE_T[p.type] || 'نقل'))}</b> <span class="muted small">${esc(tr('تاريخ السريان'))} ${fdate(r.from_date)}${p.by ? ' · ' + esc(tr('رفعه')) + ' <span data-nt>' + esc(p.by) + '</span>' : ''}</span>
+    <div class="tw"><table><thead><tr><th></th><th>${esc(tr('الحالي'))}</th><th>${esc(tr('الجديد'))}</th></tr></thead><tbody>${rows.map(([k, t, a, b]) => `<tr><td class="muted">${esc(tr(t))}</td><td${k === 'job_title' ? ' data-nt' : ''}>${['basic', 'housing', 'transport'].includes(k) ? a : esc(a || '—')}</td><td${k === 'job_title' ? ' data-nt' : ''}><b>${['basic', 'housing', 'transport'].includes(k) ? b : esc(b || '—')}</b></td></tr>`).join('')}</tbody></table></div>
+    ${p.reason ? `<div class="small">${esc(tr('السبب'))}: <span data-nt>${esc(p.reason)}</span></div>` : ''}<div class="muted small">${esc(tr('يُطبَّق على ملف الموظف عند الاعتماد النهائي، ويُسجَّل تغيير الأجر في سجل الرواتب بتاريخ السريان.'))}</div></div>`;
+}

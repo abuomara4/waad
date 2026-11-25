@@ -54,8 +54,8 @@ function travelBox(r, tl) {
 const badgeT = (t, c) => `<span class="badge ${c || ''}">${esc(tr(t))}</span>`;
 
 /* ----- approval settings: routes per request type, HR manager, deadline ----- */
-const WF_KINDS = ['leave', 'permit', 'punch', 'advance', 'expense', 'purchase', 'trip', 'cert', 'update', 'ticket', 'visa', 'resign', 'settle'];
-const DEF_ROUTE = { leave: 'mphg', permit: 'mp', cert: 'p', punch: 'mp', advance: 'mphfg', resign: 'mphgf', settle: 'phfg', expense: 'mfg', ticket: 'mphf', visa: 'mph', update: 'p', purchase: 'mfg', trip: 'mpf' };
+const WF_KINDS = ['leave', 'permit', 'punch', 'advance', 'expense', 'purchase', 'trip', 'cert', 'update', 'ticket', 'visa', 'resign', 'settle', 'overtime', 'remote', 'move'];
+const DEF_ROUTE = { leave: 'mphg', permit: 'mp', cert: 'p', punch: 'mp', advance: 'mphfg', resign: 'mphgf', settle: 'phfg', expense: 'mfg', ticket: 'mphf', visa: 'mph', update: 'p', purchase: 'mfg', trip: 'mpf', overtime: 'mp', remote: 'mp', move: 'mphfg' };
 VIEWS['#/workflows'] = async page => {
   if (!isHR()) { page.innerHTML = '<div class="note">هذه الصفحة للموارد البشرية.</div>'; return; }
   const [wf, mem, em] = await Promise.all([db.get('workflows', { company_id: 'eq.' + S.cid }), db.get('members', { company_id: 'eq.' + S.cid }), employeesMap(true)]);
@@ -68,7 +68,7 @@ VIEWS['#/workflows'] = async page => {
       <div class="card"><h2>${esc(tr('مدير الموارد البشرية'))}</h2><select id="whm" ${admin ? '' : 'disabled'}><option value="">${esc(tr('غير معيّن — تُتخطى مرحلته'))}</option>${hrUsers.map(m => opt(m.user_id, mn(m), S.company.hr_manager || '')).join('')}</select>
         <p class="muted small">${esc(tr('يعيّنه المالك أو مدير النظام. إذا كان الشخص نفسه في مرحلتين متتاليتين يعتمد مرة واحدة.'))}</p></div>
       <div class="card"><h2>${esc(tr('مهلة كل مرحلة'))}</h2><div class="row"><input type="number" id="wsla" min="1" max="30" style="width:90px" value="${S.company.request_sla_days || ''}" placeholder="—"><span class="small">${esc(tr('يوم'))}</span><button class="btn sm" id="wslb">${esc(tr('حفظ'))}</button></div>
-        <p class="muted small">${esc(tr('الطلب الذي يتأخر عند مرحلة أكثر من المهلة يظهر «متأخر» عند المعتمد وفي مسار الطلب. اتركها فارغة لإلغائها.'))}</p></div>
+        <p class="muted small">${esc(tr('الطلب الذي يتأخر عند مرحلة أكثر من المهلة يظهر «متأخر» عند المعتمد وفي مسار الطلب، ويُذكَّر المعتمد تلقائيا بإشعار على جواله وبالإيميل، ثم كل مهلة مثلها ما دام ينتظر. إذا تُركت فارغة يكون التذكير بعد 3 أيام.'))}</p></div>
       <div class="card"><h2>${esc(tr('من يرفع طلب الشراء'))}</h2><div class="row"><select id="wpr" style="flex:1">${[['managers', 'مدراء الأقسام فقط'], ['selected', 'المدراء وموظفون محددون'], ['all', 'جميع الموظفين']].map(([k, t]) => opt(k, tr(t), S.company.purchase_requesters || 'managers')).join('')}</select><button class="btn sm" id="wprb">${esc(tr('حفظ'))}</button></div>
         <p class="muted small">${esc(tr('المدراء: من له موظفون تحته، والمالك والمالية. الموظفون المحددون: تُفعّل «يرفع طلبات الشراء» في ملف الموظف.'))}</p></div></div>
     <div class="card"><div class="tw"><table><thead><tr><th>${esc(tr('نوع الطلب'))}</th>${steps.map(s => `<th class="c">${esc(tr(STEP[s]))}</th>`).join('')}<th></th></tr></thead><tbody>
