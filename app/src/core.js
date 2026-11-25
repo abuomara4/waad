@@ -196,7 +196,10 @@ const authApi = {
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const NOTANWEEN = /[\u064B-\u064D]/g;
 const esc = v => String(v == null ? '' : v).replace(NOTANWEEN, '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const money = v => (v == null || v === '' ? '—' : Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+// amounts carry the Saudi riyal sign (U+20C1, SAMA guidelines: left of the number with a space, left of a minus sign) inside an LTR isolate;
+// moneyN is the number alone (inputs, calculations)
+const moneyN = v => (v == null || v === '' ? '—' : Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+const money = v => (v == null || v === '' ? '—' : '\u2066\u20C1\u00A0' + moneyN(v) + '\u2069');
 const n0 = v => Number(v || 0);
 const r2 = v => Math.round((n0(v) + Number.EPSILON) * 100) / 100;
 const today = () => new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10);   // Riyadh (UTC+3, no DST), like the database
@@ -293,7 +296,7 @@ async function waadInvoicePrint(id) {
     <table class="ptbl"><thead><tr><th>${esc(tr('البيان'))}</th><th>${esc(tr('المدة'))}</th><th>${esc(tr('المبلغ'))}</th></tr></thead>
       <tbody><tr><td>${esc(tr('اشتراك نظام وعد'))}${v.plan ? ' — ' + esc(v.plan) : ''}</td><td>${v.days ? `<span class="num">${v.days}</span> ${esc(tr('يوم'))}` : '—'}</td><td class="num">${m(v.net)}</td></tr></tbody>
       <tfoot>${v.tax ? `<tr><td colspan="2">${esc(tr('الإجمالي قبل الضريبة'))}</td><td class="num">${m(v.net)}</td></tr><tr><td colspan="2">${esc(tr('ضريبة القيمة المضافة'))} <span class="num">${+v.rate}%</span></td><td class="num">${m(v.vat)}</td></tr>` : ''}
-      <tr><td colspan="2"><b>${esc(tr('الإجمالي'))}</b></td><td class="num"><b>${m(v.total)} ${esc(tr('ريال'))}</b></td></tr></tfoot></table>
+      <tr><td colspan="2"><b>${esc(tr('الإجمالي'))}</b></td><td class="num"><b>${m(v.total)}</b></td></tr></tfoot></table>
     <div class="row" style="justify-content:space-between;align-items:flex-end;margin-top:14px"><div class="small">${esc(tr('حالة الدفع'))}: ${esc(tr('مدفوعة'))}${v.note ? '<br>' + esc(v.note) : ''}${v.tax ? '' : '<br>' + esc(tr('غير خاضعة لضريبة القيمة المضافة'))}</div>${qr}</div>`;
   printWith(n, '@page{size:A4 portrait;margin:14mm}');
 }
@@ -366,7 +369,7 @@ function authView(tab = LS.get('waad.authtab') || 'staff', msg = '') {
   app.innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="atag">${esc(tr('حلول دقيقة.. لوعد موثوق'))}</div><div class="card">
     ${tab !== 'staff' ? `<h2>${tab === 'in' ? 'دخول الإدارة بالبريد' : 'حساب جديد بالبريد'}</h2>` : ''}
     ${msg ? `<div class="note">${esc(msg)}</div>` : ''}
-    <form id="af" novalidate>${body}<div id="aerr"></div><div style="height:12px"></div><button class="btn pri full" id="ab">${btn}</button>${foot}</form>${tab !== 'staff' ? '<div id="sso"></div>' : ''}</div>
+    <form id="af" novalidate>${body}<div id="aerr"></div><div style="height:12px"></div><button class="btn pri full" id="ab">${btn}</button>${foot}</form><div id="sso"></div></div>
     <p class="muted small" style="text-align:center">${links}</p>
     <p class="muted small" style="text-align:center"><a href="#" id="theme" data-theme-btn="text"></a> · ${langBtn('linkbtn')}</p>
     <p class="muted small afoot"><a href="${SITE_URL}" id="tosite">← الموقع الرئيسي</a> · نظام وعد السحابي لإدارة المنشآت © ${new Date().getFullYear()} · <a href="#/privacy">سياسة الخصوصية</a> · <a href="#/terms">الشروط والأحكام</a></p></div></div>`;
@@ -510,7 +513,8 @@ async function loadContext(pre) {
     .then(([r, u]) => { S.zatcaOn = !!(r[0] && r[0].enabled) || u.length > 0; if (S.zatcaOn) zatcaKick(); }).catch(() => {});
   return true;
 }
-// Google / Microsoft sign-in for owners and admins (e-mail accounts, not staff numbers). The buttons appear only for the providers
+// Google / Microsoft sign-in for owners and admins (e-mail accounts, not staff numbers; on the staff screen too, labelled «دخول الإدارة»).
+// The buttons appear only for the providers
 // switched on in Supabase (Authentication → Providers, docs/SSO.md); Supabase returns to the app with #access_token=…, which
 // authFromLink below already takes. Not inside the iPhone shell: Google refuses sign-in in embedded web views.
 async function ssoButtons(el, tab) {
@@ -523,7 +527,7 @@ async function ssoButtons(el, tab) {
   const back = location.origin + location.pathname;
   el.innerHTML = `<div class="row" style="align-items:center;gap:8px;margin:14px 0 10px"><span style="flex:1;border-top:1px solid var(--line)"></span><span class="muted small">${esc(tr('أو'))}</span><span style="flex:1;border-top:1px solid var(--line)"></span></div>
     ${ps.map(([k, n, svg]) => `<a class="btn full" data-sso="${k}" href="${esc(CFG.url + '/auth/v1/authorize?provider=' + k + (k === 'azure' ? '&scopes=email' : '') + '&redirect_to=' + encodeURIComponent(back))}" style="margin-top:6px;gap:8px;justify-content:center">
-      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">${svg}</svg>${esc(tr('المتابعة بحساب'))} ${n}</a>`).join('')}
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">${svg}</svg>${esc(tr(tab === 'staff' ? 'دخول الإدارة بحساب' : 'المتابعة بحساب'))} ${n}</a>`).join('')}
     ${tab === 'up' ? `<p class="muted small" style="margin:8px 0 0">${esc(tr('بالمتابعة توافق على الشروط والأحكام وسياسة الخصوصية.'))}</p>` : ''}`;
 }
 // links from auth emails (password recovery, sign-up confirmation) come back as #access_token=…&type=… or #error=…
@@ -906,7 +910,7 @@ function markWide(root = document) {
   });
 }
 window.addEventListener('resize', () => { clearTimeout(markWide.t); markWide.t = setTimeout(() => markWide(), 250); });
-const LIST_SEARCH = new Set(['#/parties', '#/sales', '#/purchases', '#/items', '#/payments', '#/warehouses', '#/quotes', '#/orders', '#/porders', '#/receipts', '#/deliveries', '#/costcenters', '#/cheques', '#/assets', '#/journal']);
+const LIST_SEARCH = new Set(['#/users', '#/parties', '#/sales', '#/purchases', '#/items', '#/payments', '#/warehouses', '#/quotes', '#/orders', '#/porders', '#/receipts', '#/deliveries', '#/costcenters', '#/cheques', '#/assets', '#/journal']);
 function listSearch(page) {
   const tw = $('.tw', page), rows = tw ? $$('tbody tr', tw) : []; if (rows.length < 8 || $('.lsq', page)) return;
   tw.insertAdjacentHTML('beforebegin', `<input type="search" class="lsq" placeholder="${esc(tr('بحث في القائمة'))}" aria-label="${esc(tr('بحث في القائمة'))}" style="margin-bottom:10px;max-width:360px">`);

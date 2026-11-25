@@ -156,7 +156,7 @@ function formFillText(s, V, vals, skip, en) {
     .replace(/\{([a-z]+(?:\.[a-z]+)?)\}/g, (m, k) => k in V ? (V[k] ? `<b>${esc(V[k])}</b>` : FBLANK) : m);
 }
 const FORM_CSS = `@page{size:A4 portrait;margin:14mm}
-    .fsheet{font-family:"IBM Plex Sans Arabic",Tahoma,Arial,sans-serif;color:#111;font-size:12pt;line-height:1.9}
+    .fsheet{font-family:WaadSAR,"IBM Plex Sans Arabic",Tahoma,Arial,sans-serif;color:#111;font-size:12pt;line-height:1.9}
     .fsheet .fh{display:flex;justify-content:space-between;gap:8mm;border-bottom:1.2pt solid #1f3b57;padding-bottom:4mm;margin-bottom:8mm}
     .fsheet .fhb{display:flex;align-items:center;gap:4mm}.fsheet .fhb img{max-height:18mm;max-width:50mm;object-fit:contain}
     .fsheet .fco{font-size:15pt;font-weight:700;color:#1f3b57}.fsheet .fid,.fsheet .fmeta{font-size:9pt;color:#444}.fsheet .fmeta{text-align:end;white-space:nowrap}

@@ -195,7 +195,7 @@ function candidateText(c, o, k, lang, x) {
     else { if (c.interview_link) L.push(`${T('رابط المقابلة')}: ${c.interview_link}`); if (c.interview_place) L.push(`${T('المكان')}: ${c.interview_place}`); }
     return { s: `${T('دعوة')} ${label} — ${job} — ${co}`, b: `${hi}${T('يسرّنا دعوتك إلى')} ${label} ${T('لوظيفة')} «${job}» ${T('في')} ${co}.\n${L.join('\n')}\n${T('نرجو تأكيد حضورك بالرد على هذه الرسالة.')}${bye}` };
   }
-  if (k === 'offer') { const L = [x.salary ? `${T('الراتب الشهري')}: ${money(x.salary)} ${T('ريال')}` : '', x.start ? `${T('تاريخ المباشرة')}: ${day(x.start)}` : '', x.until ? `${T('نرجو الرد قبل')}: ${day(x.until)}` : ''].filter(Boolean);
+  if (k === 'offer') { const L = [x.salary ? `${T('الراتب الشهري')}: ${money(x.salary)}` : '', x.start ? `${T('تاريخ المباشرة')}: ${day(x.start)}` : '', x.until ? `${T('نرجو الرد قبل')}: ${day(x.until)}` : ''].filter(Boolean);
     return { s: `${T('عرض وظيفي')} — ${job} — ${co}`, b: `${hi}${T('يسرّنا أن نقدم لك عرضا وظيفيا لوظيفة')} «${job}» ${T('في')} ${co}.${L.length ? '\n' + L.join('\n') : ''}\n${T('يخضع العرض لاستكمال المتطلبات وتوقيع العقد. نرجو إبلاغنا بقرارك بالرد على هذه الرسالة.')}${bye}` }; }
   if (k === 'docs') return { s: `${T('طلب مستندات')} — ${job} — ${co}`, b: `${hi}${T('لاستكمال طلبك لوظيفة')} «${job}»${en ? ',' : '،'} ${T('نرجو تزويدنا بنسخة من الهوية والمؤهلات وشهادات الخبرة.')}${bye}` };
   if (k === 'regret') return { s: `${T('بشأن طلبك لوظيفة')} ${job} — ${co}`, b: `${hi}${T('نشكرك على اهتمامك بوظيفة')} «${job}» ${T('في')} ${co}. ${T('بعد دراسة الطلبات قررنا عدم المضي في طلبك حاليا، ونتمنى لك التوفيق.')}${bye}` };
@@ -301,7 +301,7 @@ async function expenseInfo(r, decide) {
 /* ----- workforce plan ----- */
 const HC_ST = { submitted: ['بانتظار الموارد البشرية', 'wait'], hr_ok: ['بانتظار المالية', 'info'], approved: ['معتمد', 'ok'], rejected: ['مرفوض', 'bad'], hired: ['تحوّل إلى وظيفة شاغرة', 'ok'] };
 VIEWS['#/workforce'] = async page => {
-  const y0 = +(LS.get('waad.hcy') || new Date().getFullYear() + 1);
+  const y0 = +(LS.get('waad.hcy') || new Date().getFullYear() + (new Date().getMonth() >= 9 ? 1 : 0));
   const [rows, deps] = await Promise.all([db.get('headcount_plans', { company_id: 'eq.' + S.cid, year: 'eq.' + y0, order: 'created_at.desc' }).catch(() => []), db.get('departments', { company_id: 'eq.' + S.cid, order: 'name' }).catch(() => [])]);
   const dn = {}; deps.forEach(d => dn[d.id] = d.name);
   const months = h => 13 - (h.start_month || 1), annual = h => n0(h.monthly_cost) * h.positions * months(h);

@@ -155,7 +155,7 @@ function posZ(s) {
       ${ln('شبكة Card', money(s.card))}${ln('شيكات Cheques', money(s.cheque))}${ln('آجل Credit', money(s.credit))}${ln('نقد البداية Float', money(s.opening_float))}${ln('نقدا Cash', money(s.cash))}</div>
     <div style="border-top:1px dashed #000;margin-top:2mm;padding-top:2mm;font-weight:700">${ln('المتوقع Expected', money(s.expected_cash))}${ln('المعدود Counted', money(s.counted_cash))}${ln('الفرق Difference', money(s.difference))}</div>
     ${s.note ? `<div style="margin-top:2mm">${esc(s.note)}</div>` : ''}<div style="margin-top:8mm">توقيع الكاشير ____________</div><div style="margin-top:6mm">توقيع المستلم ____________</div>`;
-  printWith(w, '@page{size:80mm auto;margin:4mm}.rcpt{font-family:"IBM Plex Sans Arabic",Tahoma,Arial,sans-serif;font-size:9.5pt;color:#000;width:72mm}');
+  printWith(w, '@page{size:80mm auto;margin:4mm}.rcpt{font-family:WaadSAR,"IBM Plex Sans Arabic",Tahoma,Arial,sans-serif;font-size:9.5pt;color:#000;width:72mm}');
 }
 // the shifts: the cashier's own, or every cashier's for management; a closed one reprints its Z report
 async function posHistory() {
@@ -183,9 +183,9 @@ async function posReceipt(id, lines, pay) {
       <div>${esc(doc.no)} · <span class="num">${esc(String(doc.created_at || '').slice(0, 16).replace('T', ' '))}</span></div></div>
     <table style="width:100%;border-collapse:collapse;margin-top:2mm">${lines.map(l => `<tr><td>${esc(l.it.name)}<br><span class="num">${+l.qty} × ${money(l.price)}</span>${n0(l.disc) ? ` <span class="num">(−${n0(l.disc)}%)</span>` : ''}</td><td class="num" style="text-align:end;vertical-align:bottom">${money(r2(l.qty * l.price))}</td></tr>`).join('')}</table>
     <div style="border-top:1px dashed #000;margin-top:2mm;padding-top:2mm">
-      ${pay.disc ? ln('الخصم Discount', money(pay.disc)) : ''}${ln('الإجمالي قبل الضريبة', money(doc.subtotal))}${ln('ضريبة القيمة المضافة', money(doc.vat))}${ln('الإجمالي Total', money(doc.total) + ' SAR', 1)}
+      ${pay.disc ? ln('الخصم Discount', money(pay.disc)) : ''}${ln('الإجمالي قبل الضريبة', money(doc.subtotal))}${ln('ضريبة القيمة المضافة', money(doc.vat))}${ln('الإجمالي Total', money(doc.total), 1)}
       ${how ? `<div>${how}</div>` : parts.map(x => ln(x[1], money(x[0]))).join('') + (rest > 0 ? ln('آجل Credit', money(rest)) : '')}
       ${pay.got && pay.got >= doc.total ? ln('المستلم Received', money(pay.got)) + ln('الباقي Change', money(r2(pay.got - doc.total))) : ''}</div>
     <div style="text-align:center;margin-top:3mm">${zatcaQr(doc, 150)}</div><div style="text-align:center">شكرا لزيارتكم · Thank you</div>`;
-  printWith(w, '@page{size:80mm auto;margin:4mm}.rcpt{font-family:"IBM Plex Sans Arabic",Tahoma,Arial,sans-serif;font-size:9.5pt;color:#000;width:72mm}');
+  printWith(w, '@page{size:80mm auto;margin:4mm}.rcpt{font-family:WaadSAR,"IBM Plex Sans Arabic",Tahoma,Arial,sans-serif;font-size:9.5pt;color:#000;width:72mm}');
 }

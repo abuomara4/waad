@@ -3,6 +3,8 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('25 نوفمبر 2026', '25 November 2026', [
+  ('رمز الريال السعودي الرسمي بجانب كل مبلغ في النظام والفواتير والطباعة والموقع', 'The official Saudi riyal sign next to every amount in the system, invoices, prints and the website'),
+  ('رقم الفاتورة في السندات، وأرصدة دليل الحسابات، والإدخال اليدوي للأرصدة الافتتاحية، وحالة المستخدمين وآخر دخول، وعنوان IP والجهاز في سجل الوصول', 'Invoice numbers on vouchers, chart-of-accounts balances, manual opening balances, user status and last sign-in, IP and device in the access log'),
   ('الدخول بحساب Google أو Microsoft للإدارة (عند تفعيله)', 'Sign in with Google or Microsoft for management (once switched on)'),
   ('الربط البرمجي (API): مفاتيح قراءة لربط متجرك أو أداة التقارير أو نظام آخر ببيانات منشأتك، بصلاحيات تحددها وتلغيها متى شئت', 'API: read keys to connect your store, a reporting tool or another system to your company\'s data, with scopes you choose and can revoke at any time'),
   ('التصنيع وخطة المواد: قوائم مكوّنات وأوامر إنتاج بالتكلفة، وخطة تقول ما يُصنّع وما يُشترى مع أمر شراء بضغطة', 'Manufacturing and materials planning: bills of materials and costed production orders, and a plan of what to make and what to buy with a one-click purchase order'),

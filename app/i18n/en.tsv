@@ -1,5 +1,6 @@
 + أمر إنتاج	+ Production order
 + حقل	+ Field
++ سطر	+ Line
 + فئة	+ Category
 + فاتورة متكررة	+ Recurring invoice
 + فرع	+ Branch
@@ -248,6 +249,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أضف سؤالاً	Add a question
 أضف سجلات الموظفين ورواتبهم ومديريهم المباشرين	Add employee records, salaries and direct managers
 أضف سطرا لكل مستند آخر للموظف نفسه	add a row for every other document of the same employee
+أضف سطرا واحدا على الأقل	Add at least one line
 أضف سطراً لكل مستند آخر للموظف نفسه	add a row for every other document of the same employee
 أضف عطلتي عيد الفطر وعيد الأضحى بتواريخهما كل سنة حسب إعلان وزارة الموارد البشرية	Add the Eid al-Fitr and Eid al-Adha holidays each year with the dates announced by the Ministry of Human Resources
 أضف عميلا أولا	Add a customer first
@@ -610,8 +612,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إدارة الفريق وصلاحياته لمالك المنصة	Managing the team and its permissions is for the platform owner
 إدارة الفريق وصلاحياته لمالك المنصة.	Managing the team and its permissions is for the platform owner.
 إدارة الورديات	Manage shifts
+إدخال الأرصدة يدويا	Enter the balances by hand
 إدخال عرض مورد	Enter a supplier offer
-إدخال يدوي	Enter manually
+إدخال يدوي	Manual entry
 إذا أرسلت لك الموارد البشرية رمز دعوة	If HR sent you an invitation code
 إذا أنشأت الحساب للتو	If you just created the account
 إذا استمر الطرفان بعد نهايته يتحوّل إلى غير محدد المدة	if both parties continue after its end, it becomes indefinite
@@ -1006,6 +1009,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اختر كلمة مرور خاصة بك لا يعرفها غيرك	Choose your own password that nobody else knows
 اختر لكل بند الصنف أو حساب المصروف	Choose an item or expense account for each line
 اختر ما يقدر يعدّله	choose what they can change
+اختر ما يُسمح له بتعديله	Choose what they may change
 اختر مرحلة اعتماد واحدة على الأقل	Choose at least one approval step
 اختر مستودعين مختلفين	Choose two different warehouses
 اختر ملفا	Choose a file
@@ -1838,6 +1842,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الجنس	Gender
 الجنسية	Nationality
 الجنسية غير معروفة	Unknown nationality
+الجهاز	Device
 الجهة	Provider
 الجهة المرسل إليها	Addressee
 الجهة المقدمة	Provider
@@ -1884,6 +1889,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الحساب مرتبط مسبقا	The account is already linked
 الحساب مرتبط مسبقاً	The account is already linked
 الحسابات	accounts
+الحسابات من دليل الحسابات	accounts from the chart of accounts
 الحسابات والأجهزة	accounts and devices
 الحسم مقابل الفقد أو التلف يكون بخطأ العامل وبعد التحقيق	A deduction for loss or damage requires the worker's fault and an investigation
 الحسم من الراتب	Deducted from salary
@@ -1992,6 +1998,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الرد على طلبات الدعم	Replying to support requests
 الرصيد	Balance
 الرصيد الافتتاحي يكون زيادة في الكمية	Opening stock must be an increase in quantity
+الرصيد الحالي	Current balance
 الرصيد المتاح	available balance
 الرصيد المدين بالموجب والدائن بالسالب	debit balances positive, credit balances negative
 الرصيد المطابق	Cleared balance
@@ -2180,6 +2187,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الصنف أو الخدمة المطلوبة	Item or service needed
 الصنف المصنّع	Manufactured item
 الصنف المصنّع يكون صنفا مخزنيا	The manufactured item must be a stock item
+الصنف بكميته وتكلفة الوحدة	an item with its quantity and unit cost
 الصنف غير موجود أو ليس مخزنيا	Item not found or not a stock item
 الصنف غير موجود أو ليس مخزنياً	Item not found or not a stock item
 الصنف لا يكون مكوّنا لنفسه	An item cannot be its own component
@@ -2262,6 +2270,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 العميل	Customer
 العميل أو المورد	Customer or supplier
 العميل غير موجود	Customer not found
+العميل مدين والمورد دائن	A customer is a debit and a supplier a credit
 العميل والمورد	Customer and supplier
 العنوان	Address
 العنوان المختصر	Short address
@@ -2975,7 +2984,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 انتهت تجربتك المجانية	Your free trial has ended
 انتهت خدمتك	Your employment has ended
 انتهت خدمتك في المنشأة	Your service with the company has ended
-انتهت خدمته	service ended
+انتهت خدمته	Service ended
 انتهت صلاحية الرابط أو استُخدم من قبل	The link has expired or was already used
 انتهت صلاحية العرض	The quotation has expired
 انتهت في	Ended on
@@ -3125,6 +3134,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بدون حد	No limit
 بدون حساب	No account
 بدون راتب	without salary
+بدون صلاحيات يرى اللوحة فقط	Without permissions they only view the panel
 بدون فوترة دورية	No periodic billing
 بدون قبض	no payment now
 بدون قسم	No department
@@ -3184,6 +3194,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بلا آيبان	without IBAN
 بلا تغيير	unchanged
 بلا تكليف	Unassigned
+بلا تمديد	no extension
 بلا حد	No limit
 بلا حد لدورك	No limit for your role
 بلا حملة	No campaign
@@ -3949,6 +3960,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ثلاث خطوات وتبدأ	Three steps and you're ready
 ثم	then
 ثم أعد المحاولة	then try again
+ثم ادخل من هنا	then sign in here
 ثم اربطها هنا	then link it here
 ثم افتحه من أيقونته وفعّل التنبيهات	then open it from its icon and turn notifications on
 ثم تُربط بفاتورة الشراء المرحّلة	then it is linked to the posted purchase bill
@@ -4274,6 +4286,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 حُذفت	Deleted
 حُذفت المنشأة نهائيا	The company was deleted permanently
 حُذفت المهمة	Task deleted
+حُسمت في مسيرات معتمدة	deducted in approved payrolls
 حُفظ التفويض	Delegation saved
 حُفظ التقييم	rating saved
 حُفظ الرد الجاهز على هذا الجهاز	Ready reply saved on this device
@@ -4361,7 +4374,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 دخلت بكلمة مرور مؤقتة من الموارد البشرية	You signed in with a temporary password from HR
 دخول	Sign in
 دخول أسرع	Faster sign-in
+دخول الإدارة	Management sign-in
 دخول الإدارة بالبريد	Management sign-in by email
+دخول الإدارة بحساب	Management sign-in with
 دخول الموظفين	Employee sign-in
 دخول بالبريد	sign in by email
 دخول منافسة	bid
@@ -4561,6 +4576,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 رقم الحجز	Booking no.
 رقم الحجز أو التذكرة	Booking or ticket number
 رقم الحساب	Account number
+رقم الحساب أو اسم العميل أو المورد أو رمز الصنف	Account number, customer or supplier name, or item code
 رقم الحساب يبدأ بالرقم	The account number must start with
 رقم الخطاب	Guarantee no.
 رقم الشهادة	Certificate no.
@@ -4588,6 +4604,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 رقم الوثيقة	Policy no.
 رقم تصريح الحج	Hajj permit number
 رقم جوال الطوارئ غير صحيح	Invalid emergency phone number
+رقم حساب غير موجود	Account number not found
 رقم رخصة القيادة	driving licence number
 رقم شهادة الميلاد	Birth certificate number
 رقم شهادة الوفاة	Death certificate number
@@ -5187,6 +5204,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 طلبك	your request
 طوبقت	Matched
 طي	collapse
+طي الفرع	Fold the branch
 طُبّق الحد الأعلى	Upper limit applied
 طُبّقت م	applied Art.
 ظاهر	Shown
@@ -5372,6 +5390,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 عند موعدها تصدرها بضغطة	when due, issue it with one click
 عند موعدها تصدرها من	When due, issue it from
 عند نقل الموظف	When moving the employee
+عنوان	Address
+عنوان IP	IP address
 عنوان البرنامج	Programme title
 عنوان البريد	E-mail subject
 عنوان الدورة	Course title
@@ -6023,6 +6043,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يرى القسم	does not see the department
 لا يستطيع أن يغير أدوار الأشخاص	They cannot change people's roles
 لا يشمل التقدير ذوي الإعاقة والطلاب والعمل الجزئي والمرن	The estimate does not cover disabled, student, part-time or flexible workers
+لا يصبح الحساب مشرفا إلا بعد تفعيله	The account becomes an admin only after it is activated
 لا يصح تحديد تاريخ مؤجل للاستقالة	A resignation cannot carry a deferred date
 لا يطبق عليه	Does not apply
 لا يعتمد الشخص نفسه مرحلتين من المسير	The same person cannot sign two payroll steps
@@ -6271,12 +6292,14 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لم يحن موعدها بعد	Not due yet
 لم يختبر أحد بعد	Nobody has taken it yet
 لم يختبر أحد بعد. يظهر الاختبار في آخر دليل الموظف ودليل المدير.	Nobody has taken it yet. The quiz is at the end of the employee and manager guides.
+لم يدخل بعد	Not signed in yet
 لم يسجّل بعد	Not in yet
 لم يسجّلوا بعد	Not in yet
 لم يصدر خطاب بعد	No letters issued yet
 لم يصل بعد	not reached yet
 لم يعتمد مدير الموارد البشرية المسير بعد	The HR manager has not approved the payroll yet
 لم يعد	Did not return
+لم يغيّر كلمة المرور المؤقتة	Has not changed the temporary password
 لم يغيّر كلمة المرور بعد	Hasn't changed the password yet
 لم يقر بعد	Not acknowledged yet
 لم يكتمل الاعتماد	approval not complete
@@ -6795,6 +6818,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مفعّل	Enabled
 مفعّل في	is enabled in
 مفعّل منذ	Enabled since
+مفعّلا	active
 مفعّلة	Active
 مفقودة	Lost
 مفقودة أو تالفة	Lost or damaged
@@ -7421,6 +7445,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وتُصحّح بإشعار دائن	they are corrected with a credit note
 وتُصرف له أيام أكتوبر في مسير نوفمبر كمستحقات الشهر السابق مع راتب نوفمبر كاملا	and is paid the October days in the November payroll as previous month's dues, with the full November wage
 وتُصرف له أيام أكتوبر في مسير نوفمبر كمستحقات الشهر السابق مع راتب نوفمبر كاملاً	and is paid the October days in the November payroll as previous month's dues, with the full November wage
+وتُضاف المدة بعد تاريخ نهايته الحالي	and the period is added after its current end date
 وتُضاف لرصيد الإجازة التعويضية للموظف	and are added to the employee's compensatory leave balance
 وتُطبع بترويسة منشأتك وبرقم مسلسل	printed on your letterhead with a serial number
 وتُعطى دون مقابل	is free of charge
@@ -7746,6 +7771,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يسرّنا دعوتك لمقابلة وظيفة	We are pleased to invite you to an interview for
 يسقط الأجر إذا ثبت عدم أداء الامتحان	Pay is lost if the exam was not sat
 يسقط الأجر عن إجازة الاختبارات إذا ثبت أن العامل لم يؤدِّ الامتحان	exam leave pay is lost if the worker did not sit the exam
+يصبح الاشتراك	the subscription becomes
+يصبح مشرفا بعد التفعيل	It becomes an admin after activation
 يصدر الخطاب بعد اعتماد طلب التعريف بالراتب	The letter is issued after the salary certificate request is approved
 يصدر النموذج لـ	Form issued to
 يصل إلى	Goes to
@@ -7996,6 +8023,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يُفترض وجود إقامة ورخصة عمل سارية	a valid iqama and work permit are expected
 يُفضّل أن يكون	it should be
 يُفضّل إضافة السجل التجاري في	Better add the commercial registration in
+يُفعَّل عندما يضيفه مشرف من	it is activated when an admin adds it from
 يُقدَّم للعامل مكتوبا	given to the worker in writing
 يُقدَّم للعامل مكتوباً	given to the worker in writing
 يُقيد إهلاك شهر	Posts depreciation for month

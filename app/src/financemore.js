@@ -92,7 +92,7 @@ VIEWS['#/opening'] = async page => {
         <button class="btn danger" id="obu">${esc(tr('إلغاء الأرصدة الافتتاحية'))}</button> <span class="muted small">${esc(tr('متاح فقط قبل تسجيل أي عملية أخرى.'))}</span></div>`
     : `<div class="card"><ol class="small" style="line-height:2"><li>${esc(tr('نزّل القالب واملأه: سطر لكل حساب أو عميل أو مورد أو صنف.'))}</li><li>${esc(tr('العملاء والموردون بأسمائهم — يُنشأ الطرف إن لم يكن موجودا. الأصناف برموزها (يجب أن تكون معرّفة).'))}</li>
         <li>${esc(tr('لا تكتب أرصدة العملاء (1200) والموردين (2100) والمخزون (1300) كأرقام حسابات — تُحسب من التفاصيل.'))}</li><li>${esc(tr('تاريخ الأرصدة يسبق أول عملية في النظام، وعادة نهاية السنة السابقة.'))}</li></ol>
-        <div class="row"><button class="btn" id="obt">تنزيل القالب</button><label class="btn pri" style="margin:0;color:var(--prim-ink)">اختيار الملف<input type="file" id="obf" accept=".xlsx,.csv" hidden></label></div></div><div id="obp"></div>`}`;
+        <div class="row"><button class="btn" id="obm">${esc(tr('إدخال يدوي'))}</button><button class="btn" id="obt">تنزيل القالب</button><label class="btn pri" style="margin:0;color:var(--prim-ink)">اختيار الملف<input type="file" id="obf" accept=".xlsx,.csv" hidden></label></div></div><div id="obp"></div>`}`;
   if ($('#obu', page)) $('#obu', page).onclick = async () => { if (!await confirmBox('إلغاء الأرصدة الافتتاحية', tr('يُعكس القيد وحركات المخزون، وتُلغى أرصدة العملاء والموردين الافتتاحية.'), 'إلغاء')) return;
     try { await db.rpc('opening_undo', { p_company: S.cid }); toast('تم'); route(); } catch (e) { toast(e.message); } };
   if (!$('#obt', page)) return;
@@ -100,6 +100,44 @@ VIEWS['#/opening'] = async page => {
       [tr('حساب'), '1120', '50000', '', '', '', '', '', '', ''], [tr('حساب'), '3100', '', '100000', '', '', '', '', '', ''],
       [tr('عميل'), tr('مؤسسة مثال'), '', '', '12000', '2026-01-31', 'INV-88', '', '', ''], [tr('مورد'), tr('مورد مثال'), '', '', '4000', '', '', '', '', ''], [tr('صنف'), 'P-001', '', '', '', '', '', '20', '150', '']]));
     a.download = 'waad-opening-balances.xlsx'; document.body.appendChild(a); a.click(); a.remove(); };
+  // the review before posting (from the file or the manual entry): totals and the balance check
+  const preview = rows => {
+    const dr = rows.reduce((a, r) => a + (r.t === 'acc' ? r.d : r.t === 'cust' ? r.amount : r.t === 'item' ? r.qty * r.cost : 0), 0), cr = rows.reduce((a, r) => a + (r.t === 'acc' ? r.c : r.t === 'supp' ? r.amount : 0), 0), diff = r2(dr - cr);
+    const lastYear = (+today().slice(0, 4) - 1) + '-12-31', p = $('#obp', page);
+    p.innerHTML = `<div class="card"><h2>${esc(tr('مراجعة قبل الترحيل'))}</h2>
+      ${tbl([{ t: 'النوع', h: r => esc(tr({ acc: 'حساب', cust: 'عميل', supp: 'مورد', item: 'صنف' }[r.t])) }, { t: 'الرمز أو الاسم', h: r => esc(r.a || r.name || r.code) }, { t: 'مدين', r: 1, h: r => money(r.t === 'acc' ? r.d : r.t === 'cust' ? r.amount : r.t === 'item' ? r.qty * r.cost : 0) }, { t: 'دائن', r: 1, h: r => money(r.t === 'acc' ? r.c : r.t === 'supp' ? r.amount : 0) }], rows,
+        { foot: `<td colspan="2">${esc(tr('الإجمالي'))} ${Math.abs(diff) < 0.005 ? `<span class="badge ok">${esc(tr('متوازن'))}</span>` : `<span class="badge bad">${esc(tr('الفرق'))} ${money(diff)}</span>`}</td><td class="r num">${money(dr)}</td><td class="r num">${money(cr)}</td>` })}
+      <div class="fg" style="margin-top:12px">${field('تاريخ الأرصدة', `<input type="date" id="obd" value="${lastYear}" max="${today()}">`)}${Math.abs(diff) >= 0.005 ? `<label class="row small wide" style="gap:6px"><input type="checkbox" id="obe" style="width:auto">${esc(tr('رحّل الفرق إلى حساب «أرصدة افتتاحية» 3900 لمراجعته لاحقا'))}</label>` : ''}</div>
+      <div class="row" style="margin-top:12px"><button class="btn pri" id="obg">${esc(tr('ترحيل الأرصدة'))}</button></div></div>`;
+    $('#obg', p).onclick = async ev => { try { await busy(ev.target, () => db.rpc('opening_post', { p_company: S.cid, p_date: $('#obd', p).value, p_rows: rows, p_to_equity: !!($('#obe', p) && $('#obe', p).checked) })); toast(tr('رُحّلت الأرصدة الافتتاحية')); route(); } catch (er) { toast(er.message); } };
+  };
+  $('#obm', page).onclick = async () => {
+    const acc = (await accounts()).filter(a => !a.is_header && !['1200', '2100', '1300'].includes(a.code)), p = $('#obp', page);
+    const T = [['acc', 'حساب'], ['cust', 'عميل'], ['supp', 'مورد'], ['item', 'صنف']];
+    const line = () => `<tr><td><select class="obk" style="width:auto">${T.map(([k, t]) => opt(k, tr(t))).join('')}</select></td><td><input class="obn" list="obacc" placeholder="${esc(tr('رقم الحساب أو اسم العميل أو المورد أو رمز الصنف'))}"></td>
+      <td><input class="obdr" type="number" min="0" step="0.01" style="width:110px"></td><td><input class="obcr" type="number" min="0" step="0.01" style="width:110px"></td>
+      <td><input class="obq" type="number" min="0" step="0.001" style="width:80px" disabled></td><td><input class="obc" type="number" min="0" step="0.01" style="width:100px" disabled></td><td><button type="button" class="btn sm obx" aria-label="${esc(tr('حذف'))}">×</button></td></tr>`;
+    p.innerHTML = `<div class="card"><h2>${esc(tr('إدخال الأرصدة يدويا'))}</h2><datalist id="obacc">${acc.map(a => `<option value="${esc(a.code)}">${esc(a.code + ' — ' + a.name)}</option>`).join('')}</datalist>
+      <div class="tw"><table><thead><tr><th>${esc(tr('النوع'))}</th><th>${esc(tr('الرمز أو الاسم'))}</th><th class="r">${esc(tr('مدين'))}</th><th class="r">${esc(tr('دائن'))}</th><th class="r">${esc(tr('الكمية'))}</th><th class="r">${esc(tr('تكلفة الوحدة'))}</th><th></th></tr></thead>
+      <tbody id="obl">${line()}${line()}</tbody><tfoot><tr><td colspan="2"><span id="obbal"></span></td><td class="r num" id="obsd"></td><td class="r num" id="obsc"></td><td colspan="3"></td></tr></tfoot></table></div>
+      <p class="muted small">${esc(tr('العميل مدين والمورد دائن. الصنف بكميته وتكلفة الوحدة. الحسابات من دليل الحسابات.'))}</p>
+      <div class="row" style="gap:6px"><button type="button" class="btn" id="obadd">${esc(tr('+ سطر'))}</button><button type="button" class="btn pri" id="obrv">${esc(tr('مراجعة قبل الترحيل'))}</button></div><div id="oberr"></div></div>`;
+    const sync = () => { let d = 0, c = 0; $$('#obl tr', p).forEach(tr => { const k = $('.obk', tr).value, it = k === 'item';
+        $('.obq', tr).disabled = $('.obc', tr).disabled = !it; $('.obdr', tr).disabled = it || k === 'supp'; $('.obcr', tr).disabled = it || k === 'cust';
+        $('.obn', tr).setAttribute('list', k === 'acc' ? 'obacc' : '');
+        d += it ? n0($('.obq', tr).value) * n0($('.obc', tr).value) : k !== 'supp' ? n0($('.obdr', tr).value) : 0; c += !it && k !== 'cust' ? n0($('.obcr', tr).value) : 0; });
+      const df = r2(d - c); $('#obsd', p).textContent = money(d); $('#obsc', p).textContent = money(c);
+      $('#obbal', p).innerHTML = Math.abs(df) < 0.005 ? `<span class="badge ok">${esc(tr('متوازن'))}</span>` : `<span class="badge bad">${esc(tr('الفرق'))} ${money(df)}</span>`; };
+    const bind = () => { $$('#obl tr', p).forEach(tr => { tr.oninput = tr.onchange = sync; $('.obx', tr).onclick = () => { tr.remove(); sync(); }; }); sync(); };
+    $('#obadd', p).onclick = () => { $('#obl', p).insertAdjacentHTML('beforeend', line()); bind(); }; bind();
+    $('#obrv', p).onclick = () => { try {
+      const rows = $$('#obl tr', p).map(tr => { const k = $('.obk', tr).value, n = $('.obn', tr).value.trim(); if (!n) return null;
+        return k === 'acc' ? { t: k, a: n, d: n0($('.obdr', tr).value), c: n0($('.obcr', tr).value) } : k === 'cust' ? { t: k, name: n, amount: n0($('.obdr', tr).value), due: null, ref: null }
+          : k === 'supp' ? { t: k, name: n, amount: n0($('.obcr', tr).value), due: null, ref: null } : { t: k, code: n, qty: n0($('.obq', tr).value), cost: n0($('.obc', tr).value), expiry: null }; }).filter(Boolean);
+      if (!rows.length) throw new Error(tr('أضف سطرا واحدا على الأقل'));
+      const bad = rows.find(r => r.t === 'acc' && !acc.some(a => a.code === r.a)); if (bad) throw new Error(tr('رقم حساب غير موجود') + ': ' + bad.a);
+      preview(rows); } catch (er) { showErr($('#oberr', p), er); } };
+  };
   $('#obf', page).onchange = async e => {
     const file = e.target.files[0]; if (!file) return; const buf = await file.arrayBuffer();
     try {
@@ -113,14 +151,7 @@ VIEWS['#/opening'] = async page => {
         const l = rows[rows.length - 1]; if (Object.values(l).some(x => typeof x === 'number' && isNaN(x))) { rows.pop(); bad.push((i + 2) + ': ' + tr('رقم غير صحيح')); } });
       if (bad.length) throw new Error(bad.slice(0, 8).join(' · '));
       if (!rows.length) throw new Error('الملف فارغ');
-      const dr = rows.reduce((a, r) => a + (r.t === 'acc' ? r.d : r.t === 'cust' ? r.amount : r.t === 'item' ? r.qty * r.cost : 0), 0), cr = rows.reduce((a, r) => a + (r.t === 'acc' ? r.c : r.t === 'supp' ? r.amount : 0), 0), diff = r2(dr - cr);
-      const lastYear = (+today().slice(0, 4) - 1) + '-12-31', p = $('#obp', page);
-      p.innerHTML = `<div class="card"><h2>${esc(tr('مراجعة قبل الترحيل'))}</h2>
-        ${tbl([{ t: 'النوع', h: r => esc(tr({ acc: 'حساب', cust: 'عميل', supp: 'مورد', item: 'صنف' }[r.t])) }, { t: 'الرمز أو الاسم', h: r => esc(r.a || r.name || r.code) }, { t: 'مدين', r: 1, h: r => money(r.t === 'acc' ? r.d : r.t === 'cust' ? r.amount : r.t === 'item' ? r.qty * r.cost : 0) }, { t: 'دائن', r: 1, h: r => money(r.t === 'acc' ? r.c : r.t === 'supp' ? r.amount : 0) }], rows,
-          { foot: `<td colspan="2">${esc(tr('الإجمالي'))} ${Math.abs(diff) < 0.005 ? `<span class="badge ok">${esc(tr('متوازن'))}</span>` : `<span class="badge bad">${esc(tr('الفرق'))} ${money(diff)}</span>`}</td><td class="r num">${money(dr)}</td><td class="r num">${money(cr)}</td>` })}
-        <div class="fg" style="margin-top:12px">${field('تاريخ الأرصدة', `<input type="date" id="obd" value="${lastYear}" max="${today()}">`)}${Math.abs(diff) >= 0.005 ? `<label class="row small wide" style="gap:6px"><input type="checkbox" id="obe" style="width:auto">${esc(tr('رحّل الفرق إلى حساب «أرصدة افتتاحية» 3900 لمراجعته لاحقا'))}</label>` : ''}</div>
-        <div class="row" style="margin-top:12px"><button class="btn pri" id="obg">${esc(tr('ترحيل الأرصدة'))}</button></div></div>`;
-      $('#obg', p).onclick = async ev => { try { await busy(ev.target, () => db.rpc('opening_post', { p_company: S.cid, p_date: $('#obd', p).value, p_rows: rows, p_to_equity: !!($('#obe', p) && $('#obe', p).checked) })); toast(tr('رُحّلت الأرصدة الافتتاحية')); route(); } catch (er) { toast(er.message); } };
+      preview(rows);
     } catch (er) { $('#obp', page).innerHTML = `<div class="err">${esc(er.message)}</div>`; }
   };
 };

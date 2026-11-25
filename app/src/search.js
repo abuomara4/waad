@@ -34,7 +34,7 @@ document.addEventListener('keydown', ev => { if ((ev.ctrlKey || ev.metaKey) && e
 /* ===== «إرسال للعميل»: a sales invoice or a quote by WhatsApp or e-mail, with its PDF saved from the print window ===== */
 function sendDocDialog({ title, no, party, total, rem, due, printBtn }) {
   const co = (S.company || {}).name || '';
-  const msg = `${tr('السادة')} ${party.name}${tr('،')}\n${tr('تحية طيبة،')}\n${title} ${tr('رقم')} ${no} ${tr('بمبلغ')} ${money(total)} ${tr('ريال')}${rem != null && rem > 0.001 && rem !== total ? ` (${tr('المتبقي')} ${money(rem)} ${tr('ريال')})` : ''}${due ? `${tr('، تاريخ الاستحقاق')} ${due}` : ''}.\n${tr('مرفق نسخة PDF.')}\n${co}`;
+  const msg = `${tr('السادة')} ${party.name}${tr('،')}\n${tr('تحية طيبة،')}\n${title} ${tr('رقم')} ${no} ${tr('بمبلغ')} ${money(total)}${rem != null && rem > 0.001 && rem !== total ? ` (${tr('المتبقي')} ${money(rem)} ${tr('ريال')})` : ''}${due ? `${tr('، تاريخ الاستحقاق')} ${due}` : ''}.\n${tr('مرفق نسخة PDF.')}\n${co}`;
   const mail = party.email ? `mailto:${encodeURIComponent(party.email)}?subject=${encodeURIComponent(title + ' ' + no + ' — ' + co)}&body=${encodeURIComponent(msg)}` : '';
   const d = modal(tr('إرسال للعميل') + ' — ' + no, `<ol class="small" style="padding-inline-start:20px;margin-top:0"><li>${esc(tr('احفظ المستند PDF من زر «حفظ PDF» (اختر «حفظ بصيغة PDF» في نافذة الطباعة).'))}</li><li>${esc(tr('افتح الواتساب أو البريد برسالة جاهزة، وأرفق ملف PDF.'))}</li></ol>
     <textarea id="sdm" rows="6" data-nt>${esc(msg)}</textarea>

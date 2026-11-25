@@ -35,7 +35,8 @@
 html{scroll-behavior:smooth}
 section[id]{scroll-margin-top:72px}
 .topnote{background:var(--gold);color:#fff;text-align:center;padding:8px 0;font-size:14px;font-weight:500}  /* menu links land below the sticky header */
-body{margin:0;font-family:"Inter","IBM Plex Sans Arabic",system-ui,Tahoma,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
+@font-face{font-family:WaadSAR;src:url(data:font/ttf;base64,AAEAAAAKAIAAAwAgT1MvMkp6aW4AAAEoAAAAYGNtYXBBc9/cAAABlAAAADxnbHlmBDP6KQAAAdgAAACUaGVhZDNQEdwAAACsAAAANmhoZWENUARgAAAA5AAAACRobXR4C9IAbgAAAYgAAAAMbG9jYQAAAEoAAAHQAAAACG1heHAABgArAAABCAAAACBuYW1lLCp8YAAAAmwAAABgcG9zdDmtspwAAALMAAAAMAABAAAAAQAAILOIBV8PPPUAAwgAAAAAAOcr46UAAAAA5yvjpQBuAAAFdAWaAAAAAwACAAAAAAAAAAEAAAds/gwAAAXiAG4AbgV0AAEAAAAAAAAAAAAAAAAAAAADAAEAAAADACkAAgAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAwPxAZAABQAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAgAAAAAAAAAAPz8/PwAAACAgwQds/gwAAAdsAfQAAAAAAAAAAAAAAAAAAAAgAAAD6AAAAggAAAXiAG4AAAACAAAAAwAAABQAAwABAAAAFAAEACgAAAAGAAQAAQACACAgwf//AAAAICDB////4d9BAAEAAAAAAAAAAAAAAAAASgACAG4AAAV0BZoAIgAoAAABEQUGByUVBQYHJTY3NzY1NTcRJTY3BTUlNjcFEQYHEQcRBgEGByU2NwI0/q4kCQF//mYkCAGwNh1ODJcB5x8M/oUBUB8M/oVTRJdSARYlCAHnHwwFGv2nSE1XUsJZTFZbDSxzFBiqIP7LZ0xZUZpITFhQAiwuUv40IAK3MPs3TFVjTVgAAAAEADYAAQAAAAAAAQAHAAAAAQAAAAAAAgAHAAcAAwABBAkAAQAOAA4AAwABBAkAAgAOABxXYWFkU0FSUmVndWxhcgBXAGEAYQBkAFMAQQBSAFIAZQBnAHUAbABhAHIAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAwECB3VuaTIwQzE=) format('truetype');unicode-range:U+20C1;font-display:block}
+body{margin:0;font-family:WaadSAR,"Inter","IBM Plex Sans Arabic",system-ui,Tahoma,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.7;-webkit-font-smoothing:antialiased}
 html[lang=en] .ar,html[lang=ar] .en{display:none!important}
 a{color:inherit}
 .wrap{max-width:1140px;margin:0 auto;padding:0 20px}
@@ -209,7 +210,7 @@ footer{background:#0d1424;color:#94a3b8;padding:40px 0;font-size:14px}
 .tourch{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}.tourch button{font:inherit;font-size:14px;border:1px solid rgba(20,32,57,.18);background:#fff;color:#142039;border-radius:999px;padding:6px 14px;cursor:pointer}.tourch button:hover,.tourch button:focus-visible{border-color:#8a641f;color:#8a641f}
 .pquiz{max-width:640px;margin:0 auto}.pquiz label.row{flex-direction:row;align-items:center;gap:10px;font-weight:500;cursor:pointer}.pquiz label.row input{width:18px;height:18px;padding:0;margin:0;accent-color:var(--blue)}.pquiz .tout p{margin:4px 0}
 /* Waad brand guidelines (2026) */
-h1,h2,h3,.kicker{font-family:"Plus Jakarta Sans","Noto Kufi Arabic","IBM Plex Sans Arabic",system-ui,sans-serif;letter-spacing:0}
+h1,h2,h3,.kicker{font-family:WaadSAR,"Plus Jakarta Sans","Noto Kufi Arabic","IBM Plex Sans Arabic",system-ui,sans-serif;letter-spacing:0}
 .btn{transition:background-color .15s,border-color .15s,color .15s,box-shadow .15s,transform .15s}
 .card{border-radius:12px;box-shadow:0 4px 16px rgba(20,32,57,.08)}
 :focus-visible{outline:2px solid #217FE1;outline-offset:2px}
@@ -347,7 +348,7 @@ main{animation:wfade .25s cubic-bezier(.22,1,.36,1)}@keyframes wfade{from{opacit
 <script>
 (function () {
   var ar = function () { return document.documentElement.lang !== 'en'; };
-  var fmt = function (n) { return Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+  var fmt = function (n) { return '\u2066\u20C1\u00A0' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '\u2069'; };   // amounts with the Saudi riyal sign
   var row = function (a, e, v) { return '<div class="trow"><span>' + (ar() ? a : e) + '</span><b class="num">' + v + '</b></div>'; };
   var $ = function (id) { return document.getElementById(id); }, out = function (f, h) { f.querySelector('.tout').innerHTML = h; };
   var iso = function (d) { return d.toISOString().slice(0, 10); }, todayIso = iso(new Date());

@@ -8,7 +8,7 @@ const subEnd = c => c.status === 'trial' ? c.trial_ends : c.status === 'active' 
 const daysLeft = d => d ? Math.round((new Date(d + 'T12:00:00Z') - new Date(today() + 'T12:00:00Z')) / 864e5) : null;
 const PTABS = [['home', 'الرئيسية'], ['companies', 'المنشآت'], ['support', 'طلبات الدعم'], ['billing', 'الإيرادات والباقات'], ['system', 'أرقام النظام'], ['errors', 'أخطاء النظام'], ['site', 'زوار الموقع'], ['content', 'محتوى الموقع'], ['news', 'الإعلانات'], ['team', 'فريق وعد']];
 const PV = {};   // tab id -> async (page, arg) => void   (#/company/<id> opens one company)
-const money0 = n => Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+const money0 = n => '\u2066\u20C1\u00A0' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 }) + '\u2069';   // with the riyal sign (core.js money)
 const MONTH0 = () => today().slice(0, 8) + '01';
 const PAY_M = { transfer: 'تحويل بنكي', card: 'بطاقة', cash: 'نقدا', other: 'أخرى' };
 const CH_N = { email: ['إيميل', '✉'], whatsapp: ['واتساب', '💬'], call: ['اتصال', '📞'], meeting: ['مقابلة حضورية', '🤝'], other: ['أخرى', '📝'] };
@@ -78,7 +78,7 @@ function adminAuthView(msg = '') {
   const setup = new URLSearchParams(location.search).has('setup');
   $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card">
     <h2>${esc(tr(setup ? 'إنشاء حساب لفريق وعد' : 'لوحة إدارة وعد'))}</h2>
-    <p class="muted small" style="margin-top:0">${esc(tr(setup ? 'الحساب ما يصير أدمن إلا بعد تفعيله.' : 'لفريق وعد فقط.'))}</p>
+    <p class="muted small" style="margin-top:0">${esc(tr(setup ? 'لا يصبح الحساب مشرفا إلا بعد تفعيله.' : 'لفريق وعد فقط.'))}</p>
     ${msg ? `<div class="note">${esc(msg)}</div>` : ''}
     <form id="af" novalidate>${field('اسم المستخدم', '<input name="user" required dir="ltr" autocapitalize="none" autocomplete="username" spellcheck="false">')}<div style="height:10px"></div>
       ${field('كلمة المرور', pwInput('password', setup ? 'new-password' : 'current-password'))}
@@ -98,7 +98,7 @@ function adminAuthView(msg = '') {
         const r = await authApi.createStaff(adminEmail(u), f.password);
         if (r.existed) throw new Error('اسم المستخدم محجوز، اختر اسما آخر');
         history.replaceState(null, '', location.pathname);
-        return adminAuthView(tr('تم إنشاء الحساب') + ': ' + u + '. ' + tr('يصير أدمن بعد التفعيل، وبعدها ادخل من هنا.'));
+        return adminAuthView(tr('تم إنشاء الحساب') + ': ' + u + '. ' + tr('يصبح مشرفا بعد التفعيل، ثم ادخل من هنا.'));
       }
       await authApi.signIn(u.includes('@') ? u : adminEmail(u), f.password); return boot(); }); }
     catch (er) { showErr('#aerr', er); } };
@@ -114,7 +114,7 @@ function adminMfaView() {
 }
 function notAdminView() {
   $('#app').innerHTML = `<div class="auth"><div class="abox">${brand()}<div class="card"><h2>${esc(tr('هذا الحساب غير مفعّل في لوحة الإدارة'))}</h2>
-    <p class="muted">${esc(tr('اللوحة لفريق وعد فقط. إذا أنشأت الحساب للتو، يتفعّل لما يضيفه أدمن من «فريق وعد».'))}</p>
+    <p class="muted">${esc(tr('اللوحة لفريق وعد فقط. إذا أنشأت الحساب للتو، يُفعَّل عندما يضيفه مشرف من «فريق وعد».'))}</p>
     <div class="row" style="gap:8px"><button class="btn" id="plo">${esc(tr('تسجيل الخروج'))}</button></div></div></div></div>`;
   $('#plo').onclick = async () => { await authApi.signOut(); authView(); };
 }
@@ -344,9 +344,9 @@ function annForm(a) {
   const d = modal(a.id ? tr('تعديل الإعلان') : tr('إعلان جديد'), `<div class="fg">
       ${field('النص بالعربية', `<textarea name="body_ar" rows="2" maxlength="400" required>${esc(a.body_ar || '')}</textarea>`, 'wide')}
       ${field('النص بالإنجليزية (اختياري)', `<textarea name="body_en" rows="2" maxlength="400" dir="ltr">${esc(a.body_en || '')}</textarea>`, 'wide')}
-      ${field('النوع', `<select name="level">${opt('info', tr('معلومة'), a.level)}${opt('warn', tr('تنبيه مهم'), a.level)}</select>`)}
+      <div class="wide" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">${field('النوع', `<select name="level">${opt('info', tr('معلومة'), a.level)}${opt('warn', tr('تنبيه مهم'), a.level)}</select>`)}
       ${field('يبدأ', `<input type="date" name="starts_at" value="${esc(a.starts_at || today())}">`)}
-      ${field('ينتهي (فارغ = حتى تحذفه)', `<input type="date" name="ends_at" value="${esc(a.ends_at || '')}">`)}</div>
+      ${field('ينتهي (فارغ = حتى تحذفه)', `<input type="date" name="ends_at" value="${esc(a.ends_at || '')}">`)}</div></div>
     ${a.id ? `<button type="button" class="btn sm" id="anndel" style="margin-top:10px">${esc(tr('حذف الإعلان'))}</button>` : ''}`, {
     onOk: async f => {
       await db.rpc('platform_save_announcement', { p_id: a.id || null, p_body_ar: f.body_ar, p_body_en: f.body_en || null, p_level: f.level, p_starts: f.starts_at || null, p_ends: f.ends_at || null });
@@ -367,14 +367,15 @@ PV.team = async page => {
     ${tbl([{ t: 'اسم المستخدم', h: a => `<b dir="ltr">${esc(a.username || a.email)}</b>` + (a.is_me ? ` <span class="badge info">${esc(tr('أنت'))}</span>` : '') },
       { t: 'آخر دخول', h: a => a.last_sign_in ? `<span class="num">${esc(String(a.last_sign_in).slice(0, 10))}</span>` : '—' },
       { t: 'الصلاحيات', h: a => a.is_super ? `<span class="badge info">${esc(tr('مالك المنصة: كل الصلاحيات'))}</span>`
-          : (a.perms || []).length ? PPERMS.filter(([k]) => a.perms.includes(k)).map(([, t]) => `<span class="badge">${esc(tr(t))}</span>`).join(' ') : `<span class="muted small">${esc(tr('عرض فقط'))}</span>` },
+          : (a.perms || []).length ? `<div class="row" style="gap:4px;flex-wrap:wrap;max-width:420px">${PPERMS.filter(([k]) => a.perms.includes(k)).map(([, t]) => `<span class="badge" style="white-space:normal">${esc(tr(t))}</span>`).join('')}</div>` : `<span class="muted small">${esc(tr('عرض فقط'))}</span>` },
       { t: 'التحقق بخطوتين', h: a => `<span class="badge ${a.mfa ? 'ok' : 'wait'}">${esc(tr(a.mfa ? 'مفعّل' : 'غير مفعّل'))}</span>` },
       { t: 'كلمة المرور', h: a => a.must_change ? `<span class="badge wait">${esc(tr('مؤقتة'))}</span>` : `<span class="muted small">${esc(tr('خاصة به'))}</span>` }], rows, { empty: 'لا يوجد أعضاء', onRow: true })}
     <p class="muted small">${esc(tr((S.pme || {}).super ? 'اضغط على عضو لتحديد صلاحياته أو إعادة تعيين كلمة مروره أو حذفه من الفريق.' : pcan('team') ? 'اضغط على عضو لإعادة تعيين كلمة مروره أو حذفه من الفريق. الصلاحيات يحددها مالك المنصة.' : 'إدارة الفريق وصلاحياته لمالك المنصة.'))}</p>`;
   if ($('#tadd', page)) $('#tadd', page).onclick = () => {
     const pw = tempPw();
     modal(tr('إضافة عضو لفريق وعد'), `<div class="fg">${field('اسم المستخدم (إنجليزي، بدون مسافات)', '<input name="user" required dir="ltr" autocapitalize="none" spellcheck="false" placeholder="sara">')}
-        ${field('كلمة المرور المؤقتة', `<input name="pw" required dir="ltr" value="${esc(pw)}">`)}</div>`, {
+        ${field('كلمة المرور المؤقتة', `<input name="pw" required dir="ltr" value="${esc(pw)}">`)}</div>
+        ${(S.pme || {}).super ? `<h3 style="margin:12px 0 6px">${esc(tr('الصلاحيات'))}</h3><div style="display:grid;gap:6px">${PPERMS.map(([k, t]) => `<label class="row" style="gap:8px"><input type="checkbox" name="pp_${k}" style="width:auto"> ${esc(tr(t))}</label>`).join('')}</div><p class="muted small">${esc(tr('بدون صلاحيات يرى اللوحة فقط.'))}</p>` : ''}`, {
       ok: 'إضافة', onOk: async f => {
         const u = (f.user || '').trim().toLowerCase();
         if (!/^[a-z0-9._-]{3,30}$/.test(u)) throw new Error('اسم المستخدم من ٣ إلى ٣٠ حرفا إنجليزيا أو رقما');
@@ -382,6 +383,7 @@ PV.team = async page => {
         const r = await authApi.createStaff(adminEmail(u), f.pw);
         if (r.existed) throw new Error('اسم المستخدم محجوز، اختر اسما آخر');
         await db.rpc('platform_add_admin', { p_username: u });
+        const pp = PPERMS.map(([k]) => k).filter(k => f['pp_' + k]); if (pp.length && (S.pme || {}).super) await db.rpc('platform_set_perms', { p_username: u, p_perms: pp });
         setTimeout(() => { modal(tr('تمت إضافة العضو'), credsBox(u, f.pw)); platformView(); }, 0);
       } });
   };
@@ -392,7 +394,7 @@ PV.team = async page => {
     if (!a.username) return toast(tr('هذا الحساب يدخل بالبريد'));
     const pw = tempPw();
     const d = modal(tr('عضو الفريق') + ': ' + a.username, `<div class="fg">${field('كلمة مرور مؤقتة جديدة', `<input name="pw" required dir="ltr" value="${esc(pw)}">`)}</div>
-      ${(S.pme || {}).super ? `<h3 style="margin:14px 0 6px">${esc(tr('الصلاحيات'))}</h3><div class="muted small" style="margin-bottom:6px">${esc(tr('كل الأعضاء يرون المنشآت ويسجلون التواصل معها. اختر ما يقدر يعدّله.'))}</div>
+      ${(S.pme || {}).super ? `<h3 style="margin:14px 0 6px">${esc(tr('الصلاحيات'))}</h3><div class="muted small" style="margin-bottom:6px">${esc(tr('كل الأعضاء يرون المنشآت ويسجلون التواصل معها. اختر ما يُسمح له بتعديله.'))}</div>
         <div style="display:grid;gap:6px">${PPERMS.map(([k, t]) => `<label class="row" style="gap:8px"><input type="checkbox" data-pp="${k}"${(a.perms || []).includes(k) ? ' checked' : ''}> ${esc(tr(t))}</label>`).join('')}</div>
         <button type="button" class="btn sm pri" id="tpp" style="margin-top:8px">${esc(tr('حفظ الصلاحيات'))}</button>` : ''}
       <div class="row" style="gap:6px;margin-top:12px;flex-wrap:wrap"><button type="button" class="btn sm danger" id="trm">${esc(tr('حذف من الفريق'))}</button></div>`, {
@@ -473,7 +475,7 @@ PV.home = async page => {
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('الرئيسية'))}</h1><div class="muted">${esc(tr('ما يحتاج متابعتك اليوم، وأهم الأرقام.'))}</div></div></div>
     ${tks.length ? `<a class="note" href="#/support" style="display:block">${esc(tr('طلبات دعم تنتظر ردك'))}: <b class="num">${tks.length}</b></a>` : ''}
     <div class="grid" style="margin-bottom:14px">${pkpi('بانتظار القبول', pending.length)}${pkpi('طلبات دعم مفتوحة', tks.length)}${pkpi('منشآت مشتركة', rows.filter(c => c.status === 'active' && subState(c)[1] !== 'bad').length)}
-      ${pkpi('تجارب شغّالة', rows.filter(c => c.status === 'trial' && subState(c)[1] !== 'bad').length)}${pkpi('إيرادات هذا الشهر', money0(sum(pays, 'amount')), 'ريال')}
+      ${pkpi('تجارب شغّالة', rows.filter(c => c.status === 'trial' && subState(c)[1] !== 'bad').length)}${pkpi('إيرادات هذا الشهر', money0(sum(pays, 'amount')))}
       ${pkpi('زيارات الموقع (٧ أيام)', sum(visits, 'visits'))}${pkpi('ضغطات «جرّبه» (٧ أيام)', sum(visits, 'cta'))}</div>
     <div class="g2p">
       ${list('طلبات تنتظر قبولك', 'اقبلها كتجربة بضغطة، أو افتح المنشأة لتختار اشتراك ومدة.', pending, [nameCol, { t: 'التسجيل', h: c => `<span class="num">${esc(String(c.created_at).slice(0, 10))}</span>` }, actCol])}
@@ -508,13 +510,13 @@ PV.company = async (page, id) => {
       ${!pcan('subs') ? '' : c.status === 'suspended' ? `<button class="btn" data-q="resume" data-c="${esc(id)}">${esc(tr('إعادة تفعيل'))}</button>` : c.status !== 'pending' ? `<button class="btn" data-q="suspend" data-c="${esc(id)}">${esc(tr('إيقاف'))}</button>` : ''}</div>
     <div class="g2p">
       <div class="card"><h2>${esc(tr('الاشتراك'))}</h2><dl class="pdl">
-        <dt>${esc(tr('الباقة'))}</dt><dd>${esc(plan ? plan.name : c.plan)}${plan ? ` · <span class="num">${money0(plan.price)}</span> ${esc(tr('ريال'))} / <span class="num">${plan.period_days}</span> ${esc(tr('يوم'))}` : ''}</dd>
+        <dt>${esc(tr('الباقة'))}</dt><dd>${esc(plan ? plan.name : c.plan)}${plan ? ` · <span class="num">${money0(plan.price)}</span> / <span class="num">${plan.period_days}</span> ${esc(tr('يوم'))}` : ''}</dd>
         <dt>${esc(tr('ينتهي'))}</dt><dd>${e ? `<span class="num">${esc(e)}</span>` + (n >= 0 ? ` · ${esc(tr('باقي'))} <span class="num">${n}</span> ${esc(tr('يوم'))}` : ` · ${esc(tr('انتهى'))}`) : esc(tr('بدون نهاية'))}</dd>
         <dt>${esc(tr('الأقسام'))}</dt><dd>${(c.modules || []).map(m => `<span class="badge">${esc(tr(MODULES[m] || m))}</span>`).join(' ')}</dd>
         <dt>${esc(tr('المستخدمون'))}</dt><dd class="num">${c.users}${c.max_users ? ' / ' + c.max_users : ''}</dd>
         <dt>${esc(tr('آخر دخول'))}</dt><dd class="num">${c.last_sign_in ? esc(String(c.last_sign_in).slice(0, 10)) : '—'}</dd>
         <dt>${esc(tr('التسجيل'))}</dt><dd class="num">${esc(String(c.created_at).slice(0, 10))}</dd>
-        <dt>${esc(tr('مجموع المدفوع'))}</dt><dd><span class="num">${money0(paid)}</span> ${esc(tr('ريال'))}</dd></dl>
+        <dt>${esc(tr('مجموع المدفوع'))}</dt><dd><span class="num">${money0(paid)}</span></dd></dl>
         <h2 style="margin-top:18px">${esc(tr('عن المنشأة'))}</h2><dl class="pdl">
         <dt>${esc(tr('جوال المالك'))}</dt><dd>${c.owner_phone ? `<span class="num" dir="ltr">${esc(c.owner_phone)}</span>` : '—'}</dd>
         <dt>${esc(tr('المدينة'))}</dt><dd>${esc(c.city || '—')}</dd>
@@ -566,9 +568,9 @@ function platPayForm(c, plans) {
       ${field('المبلغ (ريال)', '<input name="amount" type="number" min="0.01" step="0.01" required>')}
       ${field('تاريخ الدفع', `<input name="paid_on" type="date" value="${today()}">`)}
       ${field('الطريقة', `<select name="method">${Object.entries(PAY_M).map(([k, t]) => opt(k, tr(t), 'transfer')).join('')}</select>`)}
-      ${field('يمدّد الاشتراك بالأيام (فارغ = ما يمدّد)', '<input name="days" type="number" min="1" max="3660">')}
+      ${field('يمدّد الاشتراك بالأيام (فارغ = بلا تمديد)', '<input name="days" type="number" min="1" max="3660">')}
       ${field('ملاحظة', '<input name="note" maxlength="300">', 'wide')}</div>
-    <p class="muted small">${esc(tr('إذا حددت مدة أو باقة، يصير الاشتراك «مفعّل» وتنضاف المدة بعد تاريخ نهايته الحالي.'))}</p>`, {
+    <p class="muted small">${esc(tr('إذا حددت مدة أو باقة، يصبح الاشتراك «مفعّلا» وتُضاف المدة بعد تاريخ نهايته الحالي.'))}</p>`, {
     onOk: async f => {
       await db.rpc('platform_add_payment', { p_company: c.company_id, p_amount: +f.amount, p_paid_on: f.paid_on || null, p_method: f.method,
         p_plan: f.plan || null, p_days: f.days ? +f.days : null, p_note: f.note || null });
@@ -587,8 +589,8 @@ PV.billing = async page => {
   const paying = rows.filter(c => c.status === 'active' && subState(c)[1] !== 'bad').length;
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('الإيرادات والباقات'))}</h1><div class="muted">${esc(tr('سجّل كل دفعة من صفحة المنشأة، وتنحسب هنا.'))}</div></div>
       <div class="row">${pcan('billing') ? `<button class="btn" id="pinvs">${esc(tr('بيانات فواتير وعد'))}</button>` : ''}<button class="btn pri" id="padd">${esc(tr('باقة جديدة'))}</button></div></div>
-    <div class="grid" style="margin-bottom:14px">${pkpi('هذا الشهر', money0(sumIf(p => p.paid_on >= m0)), 'ريال')}${pkpi('الشهر الماضي', money0(sumIf(p => p.paid_on >= lm && p.paid_on < m0)), 'ريال')}
-      ${pkpi('هذه السنة', money0(sumIf(p => p.paid_on >= y0)), 'ريال')}${pkpi('منشآت مشتركة', paying)}</div>
+    <div class="grid" style="margin-bottom:14px">${pkpi('هذا الشهر', money0(sumIf(p => p.paid_on >= m0)))}${pkpi('الشهر الماضي', money0(sumIf(p => p.paid_on >= lm && p.paid_on < m0)))}
+      ${pkpi('هذه السنة', money0(sumIf(p => p.paid_on >= y0)))}${pkpi('منشآت مشتركة', paying)}</div>
     <div class="card" style="margin-bottom:14px"><h2>${esc(tr('الإيرادات شهريا (آخر 12 شهرا)'))}</h2>${pbars(months.map(k => ({ k, v: Math.round(sumIf(p => p.paid_on.slice(0, 7) === k)) })), 'الإيرادات شهريا (آخر 12 شهرا)')}</div>
     <div class="card" id="cplans" style="margin-bottom:14px"><h2>${esc(tr('الباقات والأسعار'))}</h2><p class="muted small" style="margin-top:-4px">${esc(tr('اضغط أي باقة لتعديل اسمها أو سعرها أو مدتها أو أقسامها أو حد الموظفين.'))}</p>
       ${tbl([{ t: 'الباقة', h: p => `<b>${esc(p.name)}</b>` + (p.active ? '' : ` <span class="badge">${esc(tr('موقوفة'))}</span>`) }, { t: 'السعر', r: 1, h: p => money0(p.price) },
@@ -638,7 +640,7 @@ function printReceipt(c, p, plan) {
   const w = document.createElement('div'); w.className = 'rcpt'; w.setAttribute('data-nt', '');
   w.innerHTML = `<div class="rh"><div>${brand()}</div><div class="rt"><b>إيصال استلام دفعة</b><div class="en">Payment receipt</div><div class="num">${esc(no)}</div></div></div>
     <table>${row('التاريخ', 'Date', `<span class="num">${esc(p.paid_on)}</span>`)}${row('استلمنا من', 'Received from', esc(c.name))}
-      ${row('المبلغ', 'Amount', `<b class="num">${money0(p.amount)}</b> ريال · SAR`)}${row('طريقة الدفع', 'Method', esc(M) + ' · ' + esc(M_EN))}
+      ${row('المبلغ', 'Amount', `<b class="num">${money0(p.amount)}</b>`)}${row('طريقة الدفع', 'Method', esc(M) + ' · ' + esc(M_EN))}
       ${plan ? row('الباقة', 'Plan', esc(plan.name)) : ''}${p.days ? row('مدة الاشتراك', 'Period', `<span class="num">${p.days}</span> يوم · days`) : ''}
       ${p.note ? row('ملاحظة', 'Note', esc(p.note)) : ''}</table>
     <p class="rf">هذا إيصال استلام وليس فاتورة ضريبية.<br><span class="en">This is a receipt of payment, not a tax invoice.</span></p>

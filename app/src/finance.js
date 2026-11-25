@@ -246,7 +246,7 @@ async function docView(page, key, id) {
   const [ref] = doc.ref_id ? await db.get('sales_invoices', { id: 'eq.' + doc.ref_id, select: 'id,no' }).catch(() => []) : [], isDn = doc.doc_type === 'debit';
   const paid = pays.reduce((a, p) => a + n0(p.amount), 0) + cns.reduce((a, c) => a + n0(c.total), 0), rem = r2(n0(doc.total) - paid);
   const wmm = await whMap(), whTxt = Object.keys(wmm).length > 1 && doc.warehouse_id ? ' · ' + esc(whName(wmm[doc.warehouse_id])) : '';
-  const fxRem = doc.currency ? r2(n0(doc.fx_total) * rem / n0(doc.total)) : 0, fxTxt = doc.currency ? `<p>${esc(tr('العملة'))} <b>${esc(doc.currency)}</b> · ${esc(tr('سعر الصرف'))} <span class="num">${+doc.fx_rate}</span> · ${esc(tr('الإجمالي'))} <b class="num">${money(doc.fx_total)} ${esc(doc.currency)}</b> · ${esc(tr('المتبقي'))} <b class="num">${money(fxRem)} ${esc(doc.currency)}</b></p>` : '';
+  const fxRem = doc.currency ? r2(n0(doc.fx_total) * rem / n0(doc.total)) : 0, fxTxt = doc.currency ? `<p>${esc(tr('العملة'))} <b>${esc(doc.currency)}</b> · ${esc(tr('سعر الصرف'))} <span class="num">${+doc.fx_rate}</span> · ${esc(tr('الإجمالي'))} <b class="num">${moneyN(doc.fx_total)} ${esc(doc.currency)}</b> · ${esc(tr('المتبقي'))} <b class="num">${moneyN(fxRem)} ${esc(doc.currency)}</b></p>` : '';
   const ccTxt = doc.cost_center_id ? ' · ' + esc(ccName((await ccList()).find(c => c.id === doc.cost_center_id))) : '';
   const co = S.company, [so] = doc.order_id ? await db.get(key === 'sales' ? 'sales_orders' : 'purchase_orders', { id: 'eq.' + doc.order_id, select: 'id,no' }) : [];
   page.innerHTML = `<div class="head"><div><a href="#/${key}" class="small back">${D.t}</a><h1>${isDn ? esc(tr('إشعار مدين')) : D.one} <span class="num">${esc(doc.no)}</span> ${badge(doc.status)}</h1><div class="muted">${esc(party ? party.name : '')} · ${fdate(doc.date)}${ref ? ` · ${esc(tr('على الفاتورة'))} <a href="#/sales/${ref.id}" class="num">${esc(ref.no)}</a>` : ''}${doc.reason ? ' · ' + esc(doc.reason) : ''}${doc.supplier_ref ? ' · رقم المورد ' + esc(doc.supplier_ref) : ''}${whTxt}${ccTxt}${so ? ` · ${key === 'sales' ? 'أمر البيع' : 'أمر الشراء'} <a href="#/${key === 'sales' ? 'orders' : 'porders'}/${so.id}" class="num">${esc(so.no)}</a>` : ''}</div></div>
@@ -314,8 +314,12 @@ function debitNoteForm(doc, items) {
 VIEWS['#/payments'] = async page => {
   const [pays, parties] = await Promise.all([db.get('payments', Object.assign(C(), { order: 'date.desc,no.desc', limit: 300 })), db.get('parties', Object.assign(C(), { select: 'id,name' }))]);
   const pm = {}; parties.forEach(p => pm[p.id] = p.name);
+  // the number of the invoice / bill each voucher settles (fetched in small batches of ids)
+  const nos = {}, ids = k => [...new Set(pays.map(p => p[k]).filter(Boolean))], chunks = a => a.reduce((r, x, i) => (i % 60 ? r[r.length - 1].push(x) : r.push([x]), r), []);
+  await Promise.all([...chunks(ids('invoice_id')).map(c => db.get('sales_invoices', { id: 'in.(' + c.join(',') + ')', select: 'id,no' }).catch(() => [])),
+    ...chunks(ids('bill_id')).map(c => db.get('purchase_bills', { id: 'in.(' + c.join(',') + ')', select: 'id,no' }).catch(() => []))]).then(rs => rs.flat().forEach(r => nos[r.id] = r.no));
   page.innerHTML = `<div class="head"><div><h1>سندات القبض والصرف</h1></div><div class="row">${can('sales') ? '<button class="btn" id="pin">سند قبض</button>' : ''}${can('purch') ? '<button class="btn" id="pout">سند صرف</button>' : ''}${can('jepost') ? `<button class="btn" id="pexp">${esc(tr('صرف مصروف عام'))}</button>` : ''}</div></div>
-    ${tbl([{ t: 'الرقم', h: p => `<span class="num">${esc(p.no)}</span>` }, { t: 'النوع', h: p => p.direction === 'in' ? '<span class="badge ok">قبض</span>' : '<span class="badge info">صرف</span>' }, { t: 'التاريخ', h: p => fdate(p.date) }, { t: 'الطرف', h: p => esc(pm[p.party_id] || '') }, { t: 'الحساب', h: p => p.account_code === '1110' ? 'الصندوق' : p.account_code === '1120' ? 'البنك' : esc(p.account_code) }, { t: 'المبلغ', r: 1, h: p => money(p.amount) }, { t: 'مقابل', h: p => p.invoice_id || p.bill_id ? 'فاتورة' : '<span class="muted">دفعة على الحساب</span>' }], pays, { empty: 'لا توجد سندات' })}`;
+    ${tbl([{ t: 'الرقم', h: p => `<span class="num">${esc(p.no)}</span>` }, { t: 'النوع', h: p => p.direction === 'in' ? '<span class="badge ok">قبض</span>' : '<span class="badge info">صرف</span>' }, { t: 'التاريخ', h: p => fdate(p.date) }, { t: 'الطرف', h: p => esc(pm[p.party_id] || '') }, { t: 'الحساب', h: p => p.account_code === '1110' ? 'الصندوق' : p.account_code === '1120' ? 'البنك' : esc(p.account_code) }, { t: 'المبلغ', r: 1, h: p => money(p.amount) }, { t: 'مقابل', h: p => p.invoice_id ? `<a class="num" href="#/sales/${p.invoice_id}" data-st>${esc(nos[p.invoice_id] || tr('فاتورة'))}</a>` : p.bill_id ? `<a class="num" href="#/purchases/${p.bill_id}" data-st>${esc(nos[p.bill_id] || tr('فاتورة'))}</a>` : '<span class="muted">دفعة على الحساب</span>' }], pays, { empty: 'لا توجد سندات' })}`;
   page.querySelector('.head .row').insertAdjacentHTML('beforeend', (can('sales') ? `<button class="btn" id="pain">${esc(tr('قبض على عدة فواتير'))}</button>` : '') + (can('purch') ? `<button class="btn" id="paout">${esc(tr('صرف على عدة فواتير'))}</button>` : ''));
   if ($('#pain', page)) $('#pain', page).onclick = () => allocateForm('in');
   if ($('#paout', page)) $('#paout', page).onclick = () => allocateForm('out');
@@ -387,13 +391,24 @@ VIEWS['#/journal'] = async page => {
 /* ===== chart of accounts ===== */
 VIEWS['#/coa'] = async page => {
   cache.acc = null; const acc = await accounts();
+  const tb = can('reports') || can('ledger') ? await db.rpc('trial_balance', { p_company: S.cid, p_as_of: today() }).catch(() => null) : null;
+  const bal = {}; if (tb) { tb.forEach(r => bal[r.code] = n0(r.debit) - n0(r.credit));
+    const kids = {}; acc.forEach(a => { if (a.parent_code) (kids[a.parent_code] = kids[a.parent_code] || []).push(a.code); });
+    const sum = c => (bal[c] || 0) + (kids[c] || []).reduce((t, x) => t + sum(x), 0); acc.filter(a => a.is_header).forEach(a => bal[a.code] = sum(a.code)); }
+  // the natural side: assets and expenses debit, the rest credit
+  const balOf = a => bal[a.code] == null ? null : (['asset', 'exp'].includes(a.type) ? 1 : -1) * bal[a.code];
+  const under = {}; acc.forEach(a => { let p = a.parent_code; const up = []; while (p) { up.push(p); const x = acc.find(y => y.code === p); p = x && x.parent_code; } under[a.code] = up; });
   page.innerHTML = `<div class="head"><div><h1>دليل الحسابات</h1></div>${can('coa') ? '<button class="btn pri" id="na">حساب فرعي</button>' : ''}</div>
     <div class="row" style="gap:8px;margin-bottom:10px;flex-wrap:wrap"><input id="coaq" type="search" aria-label="${esc(tr('بحث'))}" placeholder="${esc(tr('ابحث برقم الحساب أو اسمه'))}" style="max-width:320px"><select id="coat" style="width:auto"><option value="">${esc(tr('كل الأنواع'))}</option>${[['asset', 'أصول'], ['liab', 'خصوم'], ['equity', 'حقوق ملكية'], ['rev', 'إيرادات'], ['exp', 'مصروفات']].map(([k, t]) => opt(k, tr(t))).join('')}</select></div>
-    ${tbl([{ t: 'الرمز', h: a => `<span class="num">${esc(a.code)}</span>` }, { t: 'الحساب', h: a => a.is_header ? '<b>' + esc(a.name) + '</b>' : '&nbsp;&nbsp;&nbsp;' + esc(a.name) }, { t: 'النوع', h: a => ({ asset: 'أصول', liab: 'خصوم', equity: 'حقوق ملكية', rev: 'إيرادات', exp: 'مصروفات' })[a.type] }], acc, { onRow: can('ledger') })}`;
+    ${tbl([{ t: 'الرمز', h: a => `<span class="num">${esc(a.code)}</span>` }, { t: 'الحساب', h: a => a.is_header ? `<button type="button" class="btn sm" data-tg="${esc(a.code)}" aria-expanded="true" aria-label="${esc(tr('طي الفرع'))}" style="padding:0 6px;min-height:22px">▾</button> <b>${esc(a.name)}</b>` : '&nbsp;&nbsp;&nbsp;' + esc(a.name) },
+      ...(tb ? [{ t: 'الرصيد الحالي', r: 1, h: a => balOf(a) == null ? '—' : a.is_header ? `<b>${money(balOf(a))}</b>` : money(balOf(a)) }] : []), { t: 'النوع', h: a => ({ asset: 'أصول', liab: 'خصوم', equity: 'حقوق ملكية', rev: 'إيرادات', exp: 'مصروفات' })[a.type] }], acc, { onRow: can('ledger') })}`;
   if (can('ledger')) bindRows(page, acc, a => { if (!a.is_header) location.hash = '#/reports?r=ledger&code=' + a.code; });
   const coaF = () => { const q = $('#coaq', page).value.trim().toLowerCase(), t = $('#coat', page).value;
     $$('tbody tr', page).forEach((tr, i) => { const a = acc[i]; if (!a) return; tr.style.display = (!q || (a.code + ' ' + a.name + ' ' + (a.name_en || '')).toLowerCase().includes(q)) && (!t || a.type === t) ? '' : 'none'; }); };
   $('#coaq', page).oninput = coaF; $('#coat', page).onchange = coaF;
+  const folded = new Set(); $$('[data-tg]', page).forEach(b => b.onclick = ev => { ev.stopPropagation(); const c = b.dataset.tg; folded.has(c) ? folded.delete(c) : folded.add(c);
+    b.textContent = folded.has(c) ? '◂' : '▾'; b.setAttribute('aria-expanded', !folded.has(c));
+    $$('tbody tr', page).forEach((tr, i) => { const x = acc[i]; if (x) tr.hidden = under[x.code].some(p => folded.has(p)); }); });
   if ($('#na', page)) $('#na', page).onclick = () => modal('حساب فرعي جديد', `<div class="fg">${field('الحساب الرئيسي', `<select name="p">${acc.filter(a => a.is_header).map(a => opt(a.code, a.code + ' — ' + a.name)).join('')}</select>`)}${field('الرمز (4 أرقام)', inp('code', '', 'dir="ltr" maxlength="4" inputmode="numeric"'))}${field('الاسم', inp('name'), 'wide')}${enF('name_en', '')}</div>`, {
     onOk: async f => { await db.rpc('add_account', { p_company: S.cid, p_code: f.code, p_name: f.name, p_parent: f.p }); if ((f.name_en || '').trim()) await db.rpc('account_set_name_en', { p_company: S.cid, p_code: f.code, p_name_en: f.name_en }); toast('أُضيف الحساب'); route(); }
   });

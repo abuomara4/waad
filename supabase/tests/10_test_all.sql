@@ -4355,5 +4355,19 @@ reset role;
 select set_config('request.jwt.claim.sub', '', false); set role anon;
 select t.err($$select public.api_get('$$ || (:'ak'::jsonb->>'key') || $$', 'customers')$$, 'غير صالح', 'api: a revoked key stops working at once');
 reset role;
+-- users activity and access-log details (0147)
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok((select count(*) from public.members_activity(:'cid')) = (select count(*) from public.members where company_id = :'cid'), 'users: the owner sees every member with the last sign-in');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((select count(*) = 0 from public.members_activity(:'cid')), 'users: an employee does not see the others'' sign-ins');
+reset role;
+select set_config('request.headers', '{"x-forwarded-for":"203.0.113.7, 10.0.0.1","user-agent":"Mozilla/5.0 (iPhone) Test"}', false);
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.access_note(:'cid', 'report', null, 'ip-test', 'تقرير الرواتب');
+reset role;
+select t.ok((select ip = '203.0.113.7' and ua like 'Mozilla/5.0 (iPhone)%' from public.access_log where company_id = :'cid' and ref = 'ip-test' order by at desc limit 1),
+  'access log: each entry keeps the IP address and device of the request, taken on the server');
+select set_config('request.headers', '', false);
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary

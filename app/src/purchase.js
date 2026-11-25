@@ -207,7 +207,7 @@ function poSheet({ kind, doc, lines, party, L, order }) {
     : `<table class="iv-lines"><thead><tr><th>${B('البند', 'Item')}</th><th class="r">${B('الكمية', 'Qty')}</th><th class="r">${B('سعر الوحدة', 'Unit price')}</th><th class="r">${B('المبلغ قبل الضريبة', 'Taxable amount')}</th><th class="r">${B('نسبة الضريبة', 'VAT rate')}</th><th class="r">${B('الإجمالي شامل الضريبة', 'Total incl. VAT')}</th></tr></thead>
       <tbody>${lines.map(l => `<tr><td>${itm(l)}</td><td class="num r">${qtyTxt(l.qty)}</td><td class="num r">${money(l.unit_price)}</td><td class="num r">${money(l.amount)}</td><td class="num r">${n0(l.vat_rate)}%</td><td class="num r">${money(n0(l.amount) + n0(l.vat))}</td></tr>`).join('')}</tbody></table>
     <table class="iv-tot"><tbody>${row('الإجمالي قبل الضريبة', 'Total excl. VAT', money(doc.subtotal))}${row('ضريبة القيمة المضافة', 'VAT', money(doc.vat))}
-      <tr class="iv-grand"><td>${B('الإجمالي', 'Total')}</td><td class="num r">${money(doc.total)} <span class="small">SAR</span></td></tr></tbody></table>
+      <tr class="iv-grand"><td>${B('الإجمالي', 'Total')}</td><td class="num r">${money(doc.total)}</td></tr></tbody></table>
     ${doc.terms ? `<p class="small"><b>${B('الشروط', 'Terms')}</b>${esc(doc.terms)}</p>` : ''}
     <table class="iv-meta"><tbody><tr><td>${B('اعتمده', 'Approved by')}</td><td></td><td>${B('التوقيع', 'Signature')}</td><td style="height:14mm"></td></tr></tbody></table>`;
   return `<div class="iv" dir="rtl" data-nt>${head}${meta}${body}${doc.note ? `<p class="small">${esc(doc.note)}</p>` : ''}

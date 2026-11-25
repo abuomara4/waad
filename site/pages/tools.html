@@ -107,7 +107,7 @@
 <script>
 (function () {
   var ar = function () { return document.documentElement.lang !== 'en'; };
-  var fmt = function (n) { return Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+  var fmt = function (n) { return '\u2066\u20C1\u00A0' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '\u2069'; };   // amounts with the Saudi riyal sign
   var row = function (a, e, v) { return '<div class="trow"><span>' + (ar() ? a : e) + '</span><b class="num">' + v + '</b></div>'; };
   var $ = function (id) { return document.getElementById(id); }, out = function (f, h) { f.querySelector('.tout').innerHTML = h; };
   var iso = function (d) { return d.toISOString().slice(0, 10); }, todayIso = iso(new Date());

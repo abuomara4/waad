@@ -70,7 +70,7 @@ function penNew(vt, em) {
   const prev = async () => {
     const f = $('#mform', m), box = $('#pprev', m); if (!f.emp.value || !f.code.value || !f.occ.value) { box.innerHTML = ''; return; }
     try { const [k] = await db.rpc('pen_preview', { p_emp: f.emp.value, p_code: f.code.value, p_on: f.occ.value }); const v = vt.find(x => x.code === f.code.value) || {};
-      box.innerHTML = `<div class="note">المرة ${PEN_ORD[k.step]} لهذه المخالفة خلال 180 يوما: <b>${esc(penLabel(k.action))}</b>${n0(k.fine) ? ` = <b class="num">${money(k.fine)}</b> ريال (أجر اليوم ${money(k.daily_wage)})` : ''}${v.extra ? '<br><span class="small">' + esc(PEN_EXTRA[v.extra]) + '</span>' : ''}${v.note ? '<br><span class="small">' + esc(v.note) + '</span>' : ''}</div>`; } catch (e) { box.innerHTML = ''; }
+      box.innerHTML = `<div class="note">المرة ${PEN_ORD[k.step]} لهذه المخالفة خلال 180 يوما: <b>${esc(penLabel(k.action))}</b>${n0(k.fine) ? ` = <b class="num">${money(k.fine)}</b> (أجر اليوم ${money(k.daily_wage)})` : ''}${v.extra ? '<br><span class="small">' + esc(PEN_EXTRA[v.extra]) + '</span>' : ''}${v.note ? '<br><span class="small">' + esc(v.note) + '</span>' : ''}</div>`; } catch (e) { box.innerHTML = ''; }
   };
   ['emp', 'code', 'occ'].forEach(n => $('#mform', m)[n].addEventListener('change', prev));
 }
@@ -86,7 +86,7 @@ async function penDetail(page, id) {
   const psig = hr ? await db.get('signature_requests', { employee_id: 'eq.' + p.employee_id, kind: 'eq.penalty', ref_id: 'eq.' + id }).catch(() => []) : [];
   page.classList.add('wrapcells');
   const r = (t, x) => `<tr><td class="muted">${esc(t)}</td><td>${x}</td></tr>`;
-  const penTxt = `المرة ${PEN_ORD[p.step]}: ${penLabel(p.action)}${n0(p.fine) ? ' — ' + money(p.fine) + ' ريال' : ''}`;
+  const penTxt = `المرة ${PEN_ORD[p.step]}: ${penLabel(p.action)}${n0(p.fine) ? ' — ' + money(p.fine) : ''}`;
   page.innerHTML = `<div class="head"><div><a href="#/penalties" class="small back">المخالفات والجزاءات</a><h1>${esc(e.full_name || '')} ${penBadge(p.status)}</h1><div class="muted"><span class="num">${esc(e.emp_no || '')}</span>${e.job_title ? ' · ' + esc(e.job_title) : ''}</div></div>
       <div class="row">${hr ? signState(psig, 'penalty', id, e, tr('استلام إشعار') + ' — ' + (v.title || p.code), tr('أقر باستلامي الإشعار الخاص بالمخالفة') + ' «' + (v.title || p.code) + '» ' + tr('بتاريخ') + ' ' + p.occurred_on + (p.status === 'applied' ? ' ' + tr('وبالجزاء') + ': ' + penTxt : '') + '، ' + tr('وأعلم بحقي في التظلم خلال 30 يوما (م72).')) : ''}<button class="btn sm" id="prn">طباعة الإشعار</button>${p.inv_on ? '<button class="btn sm" id="prm">طباعة محضر التحقيق</button>' : ''}${p.status === 'applied' || p.status === 'overturned' ? '<button class="btn sm" id="prd">طباعة القرار</button>' : ''}</div></div>
     <div class="card"><h2>الواقعة</h2><div class="tw"><table><tbody>
@@ -125,7 +125,7 @@ async function penDetail(page, id) {
   if ($('#papl', page)) $('#papl', page).onclick = async () => { if (!await confirmBox('توقيع الجزاء', 'سيصدر القرار: ' + penTxt + '. تأكد من إبلاغ العامل كتابة.', 'توقيع الجزاء')) return;
     try { await db.rpc('pen_decide', { p_id: id, p_apply: true, p_notified: $('#pnot', page).value, p_note: null }); toast('صدر الجزاء'); route(); refreshCounts(); } catch (er) { toast(er.message); } };
   if ($('#pdrop', page)) $('#pdrop', page).onclick = () => modal('حفظ المخالفة', field('سبب الحفظ', '<textarea name="n" rows="2"></textarea>'), { ok: 'حفظ المخالفة', onOk: async f => { await db.rpc('pen_decide', { p_id: id, p_apply: false, p_notified: null, p_note: f.n }); toast('حُفظت المخالفة'); route(); } });
-  const gd = async ov => { try { const back = await db.rpc('pen_grievance_decide', { p_id: id, p_overturn: ov, p_note: $('#gnote', page).value }); toast(ov && n0(back) ? 'أُلغي الجزاء — أعد للموظف ' + money(back) + ' ريال حُسمت في مسيرات معتمدة' : 'تم'); route(); refreshCounts(); } catch (er) { toast(er.message); } };
+  const gd = async ov => { try { const back = await db.rpc('pen_grievance_decide', { p_id: id, p_overturn: ov, p_note: $('#gnote', page).value }); toast(ov && n0(back) ? 'أُلغي الجزاء — أعد للموظف ' + money(back) + ' حُسمت في مسيرات معتمدة' : 'تم'); route(); refreshCounts(); } catch (er) { toast(er.message); } };
   if ($('#gup', page)) $('#gup', page).onclick = () => gd(false);
   if ($('#gov', page)) $('#gov', page).onclick = () => gd(true);
 }

@@ -161,6 +161,7 @@ class H(BaseHTTPRequestHandler):
                 okpw = u and psql(f"select '@@' || (encrypted_password = crypt({lit(b.get('password') or '')}, encrypted_password))::text from auth.users where id = {lit(u['id'])};") == 'true'
                 if not okpw: return self.send(400, {'code': 400, 'error_code': 'invalid_credentials', 'msg': 'Invalid login credentials'})
                 if not u['confirmed']: return self.send(400, {'code': 400, 'error_code': 'email_not_confirmed', 'msg': 'Email not confirmed'})
+                psql(f"update auth.users set last_sign_in_at = now() where id = {lit(u['id'])}; select '@@ok';")   # as GoTrue does
                 return self.send(200, self.session(em))
             if gt == 'refresh_token':
                 ent = REFRESH.pop(b.get('refresh_token'), None)

@@ -871,6 +871,10 @@ VIEWS['#/users'] = async page => {
   if (!has('owner', 'admin', 'hr')) { page.innerHTML = `<div class="note">${esc(tr('هذه الصفحة للمالك والموارد البشرية.'))}</div>`; return; }
   const [mem, inv, em] = await Promise.all([db.get('members', { company_id: 'eq.' + S.cid, order: 'created_at' }), db.get('invites', { company_id: 'eq.' + S.cid, order: 'created_at.desc' }), employeesMap()]);
   const mail = {}; inv.forEach(i => { if (i.accepted_by) mail[i.accepted_by] = i.email; }); mail[S.session.user.id] = S.session.user.email;
+  const act = {}; (await db.rpc('members_activity', { p_company: S.cid }).catch(() => [])).forEach(x => { act[x.user_id] = x; if (x.email && !/@staff\.|@admin\.waad\.app$/.test(x.email)) mail[x.user_id] = x.email; });
+  const ended = m => m.employee_id && em[m.employee_id] && em[m.employee_id].end_date && em[m.employee_id].end_date < today();
+  const stOf = m => ended(m) ? `<span class="badge">${esc(tr('انتهت خدمته'))}</span>` : m.must_change_password ? `<span class="badge wait">${esc(tr('لم يغيّر كلمة المرور المؤقتة'))}</span>`
+    : act[m.user_id] && act[m.user_id].last_sign_in_at ? `<span class="badge ok">${esc(tr('نشط'))}</span>` : `<span class="badge wait">${esc(tr('لم يدخل بعد'))}</span>`;
   const pending = inv.filter(i => !i.accepted_at);
   const admin = has('owner', 'admin');
   const mpr = isHR() ? await db.get('member_perms', { company_id: 'eq.' + S.cid }).catch(() => []) : [], mp = {}; mpr.forEach(x => (mp[x.user_id] = mp[x.user_id] || []).push(x.perm));
@@ -881,6 +885,7 @@ VIEWS['#/users'] = async page => {
     <div style="height:18px"></div><h2>المستخدمون</h2>${tbl([{ t: 'البريد / الدخول', h: m => mail[m.user_id] ? `<span class="num">${esc(mail[m.user_id])}</span>` : m.employee_id && em[m.employee_id] ? `<span class="muted small">${esc('بالرقم الوظيفي')}</span> <span class="num">${esc(em[m.employee_id].emp_no)}</span>` : '—' },
       { t: 'الصلاحيات', h: m => { const job = jobOf(m, mp[m.user_id] || []); return job ? `<span class="badge info">${esc(tr(ACCESS_TPL_NAME[job]))}</span>` : rolesOf(m).map(r => `<span class="badge${r === 'owner' ? ' info' : ''}">${esc(ROLES[r] || r)}</span>`).join(' ') + (mp[m.user_id] ? ` <span class="small muted">${mp[m.user_id].length} ${esc('صلاحية مخصصة')}</span>` : ''); } },
       { t: 'سجل الموظف', h: m => esc(m.employee_id && em[m.employee_id] ? em[m.employee_id].full_name : '—') },
+      { t: 'الحالة', h: m => stOf(m) }, { t: 'آخر دخول', h: m => act[m.user_id] && act[m.user_id].last_sign_in_at ? `<span class="num">${esc(String(act[m.user_id].last_sign_in_at).slice(0, 16).replace('T', ' '))}</span>` : '—' },
       ...(brs.length ? [{ t: 'الفرع', h: m => `<select data-mbr="${m.user_id}" style="width:auto"><option value="">—</option>${brs.map(b => opt(b.id, b.code + ' — ' + brName(b), m.branch_id)).join('')}</select>`
         + `<div class="small" style="margin-top:4px"><a href="#" data-mbrs="${m.user_id}">${esc(['owner', 'admin', 'hr', 'finance'].includes(m.role) ? tr('يرى كل الفروع') : m.branches && m.branches.length ? tr('مقيّد بـ') + ' ' + m.branches.map(id => (brs.find(b => b.id === id) || {}).code || '?').join('، ') : tr('كل الفروع'))}</a></div>` }] : []),
       { t: '', h: m => (canAcc(m) ? `<button class="btn sm pri" data-acc="${m.user_id}">${esc('الصلاحيات')}</button> ` : '') + (admin && (m.role !== 'owner' || has('owner')) ? `<button class="btn sm" data-ed="${m.user_id}">تعديل</button>` : '') }], mem)}`;
