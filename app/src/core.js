@@ -237,7 +237,11 @@ function tbl(cols, rows, { empty = 'لا توجد بيانات', onRow, foot } =
 }
 function bindRows(root, rows, fn) { $$('tr[data-row]', root).forEach(tr => tr.onclick = () => fn(rows[+tr.dataset.row])); }
 const opt = (v, t, sel) => `<option value="${esc(v)}"${String(sel) === String(v) ? ' selected' : ''}>${esc(t)}</option>`;
-const field = (label, input, cls = '') => `<div class="${cls}"><label>${esc(label)}${/\srequired(?=[\s>="])/.test(input) ? ' <span class="req" aria-hidden="true">*</span>' : ''}</label>${input}</div>`;
+// a field: its label is tied to its control (for / id), so screen readers announce what each input is (WCAG 1.3.1, 4.1.2)
+let FIELD_N = 0;
+const field = (label, input, cls = '') => { input = String(input); let id = (input.match(/<(?:input|select|textarea)\b[^>]*\sid="([^"]+)"/) || [])[1];
+  if (!id && /<(?:input|select|textarea)\b/.test(input)) { id = 'fld' + (++FIELD_N); input = input.replace(/<(input|select|textarea)\b/, m => m + ` id="${id}"`); }
+  return `<div class="${cls}"><label${id ? ` for="${id}"` : ''}>${esc(label)}${/\srequired(?=[\s>="])/.test(input) ? ' <span class="req" aria-hidden="true">*</span>' : ''}</label>${input}</div>`; };
 const inp = (name, v = '', extra = '') => `<input name="${name}" value="${esc(v == null ? '' : v)}" ${extra}>`;
 // password field with a show/hide eye toggle (used on login and wherever a password is typed)
 const pwInput = (name, ac = 'current-password', extra = 'required') => `<div class="pwrap"><input name="${name}" type="password" autocomplete="${ac}" dir="ltr" ${extra}><button type="button" class="peye" tabindex="-1" aria-label="إظهار كلمة المرور" title="إظهار كلمة المرور"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/><line class="pe-slash" x1="4" y1="20" x2="20" y2="4"/></svg></button></div>`;

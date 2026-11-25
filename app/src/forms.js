@@ -111,7 +111,7 @@ async function formFill(t) {
       const run = no => formPrint(t, { en, no, who, vals, deps });
       FORM_PREVIEW = (w, css) => { FORM_PREVIEW = null; setTimeout(() => {
         const pv = modal(tr('معاينة النموذج'), `<p class="muted small" style="margin-top:0">${esc(tr('هكذا يُطبع النموذج. يُعطى رقمه ويُسجّل عند الطباعة.'))}</p>
-          <iframe id="fpv" title="${esc(tr('معاينة النموذج'))}" style="width:100%;height:70vh;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>`, {
+          <iframe id="fpv" sandbox title="${esc(tr('معاينة النموذج'))}" style="width:100%;height:70vh;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe>`, {
           wide: true, ok: 'طباعة', onOk: async () => {
             const no = await db.rpc('form_issue', { p_company: S.cid, p_template: t.key, p_title: title, p_subject: whoName || null, p_lang: en ? 'en' : 'ar' });
             setTimeout(() => { window.addEventListener('afterprint', () => route(), { once: true }); run(no); }, 120); } });

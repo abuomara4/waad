@@ -2058,6 +2058,18 @@ with sync_playwright() as pw:
     try: o.wait_for_function("document.querySelector('#app') && document.querySelector('#app').innerText.includes('انتهت صلاحية الرابط')", timeout=8000)
     except Exception: pass
     ok('انتهت صلاحية الرابط' in o.inner_text('#app'), 'an expired link shows a clear message instead of a blank page')
+    # optional accessibility scan (AXE=<path to axe.min.js>): WCAG 2 A/AA violations of the main screens, written to AXE_OUT
+    if os.environ.get('AXE'):
+        found = {}
+        for h in ['#/home', '#/employees', '#/payroll', '#/att', '#/requests', '#/sales', '#/orders', '#/parties/customer', '#/journal', '#/reports', '#/coa', '#/payments', '#/items', '#/pos', '#/settings', '#/users', '#/forms', '#/dash/exec', '#/mfg', '#/reps']:
+            try:
+                go(o, h); o.wait_for_timeout(1200); o.add_script_tag(path=os.environ['AXE'])
+                found[h] = o.evaluate("axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21aa'] }).then(r => r.violations.map(v => ({ id: v.id, impact: v.impact, n: v.nodes.length, help: v.help, t: v.nodes.slice(0, 3).map(x => x.target.join(' ')), d: v.nodes.slice(0, 3).map(x => ((x.any || [])[0] || {}).data || null) })))")
+            except Exception as ex: found[h] = [{'id': 'scan-error', 'help': str(ex)[:200]}]
+        for pg, h in [(e, '#/home'), (e, '#/requests')]:
+            go(pg, h); pg.wait_for_timeout(1000); pg.add_script_tag(path=os.environ['AXE'])
+            found['employee ' + h] = pg.evaluate("axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21aa'] }).then(r => r.violations.map(v => ({ id: v.id, impact: v.impact, n: v.nodes.length, help: v.help, t: v.nodes.slice(0, 3).map(x => x.target.join(' ')), d: v.nodes.slice(0, 3).map(x => ((x.any || [])[0] || {}).data || null) })))")
+        json.dump(found, open(os.environ.get('AXE_OUT', '/tmp/axe.json'), 'w'), ensure_ascii=False, indent=1)
     b.close()
 
 f = [n for c, n in results if not c]

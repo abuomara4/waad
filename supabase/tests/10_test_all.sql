@@ -4407,5 +4407,8 @@ reset role;
 select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
 select t.err($$select public.employee_360('$$ || :'cid' || $$', '$$ || :'e_emp' || $$')$$, 'غير موجود|42501', 'employee 360: another company cannot open it');
 reset role;
+-- RLS performance (0150): auth.uid() is computed once per statement in every policy
+select t.ok((select count(*) = 0 from pg_policies where schemaname = 'public' and (coalesce(qual, '') || coalesce(with_check, '')) ~ '(?<!SELECT )auth\.uid\(\)'),
+  'rls: no policy calls auth.uid() for every row (wrapped in a select)');
 select format('%s passed, %s failed', count(*) filter (where ok), count(*) filter (where not ok)) as summary from t.results \gset
 \warn :summary
