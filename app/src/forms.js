@@ -2,7 +2,10 @@
 /* «النماذج»: ready-made forms for every department (forms_lib.js) and the company's own templates (form_templates),
    filled from the employee / customer / supplier record plus a few typed fields, numbered (F-YYYY-0001) and printed on the
    company letterhead in Arabic or English. Custom templates use the same placeholders; any {f:label} becomes a field. */
-const formCanDept = d => d === 'hr' ? (isHR() || has('manager')) : isFin();
+// each department sees its own forms; the owner, the system admin, finance (CFO) and HR (HR manager) see every department
+const formCanDept = d => has('owner', 'admin', 'finance', 'hr') || ({
+  hr: has('manager'), finance: has('accountant') || can('je'), sales: can('sales') || can('mkt'), purch: can('purch'),
+  stock: has('storekeeper') || can('stock') || can('items') || can('stockadj'), proj: can('proj') || !!S.myPM }[d] || false);
 const formCanWrite = () => has('owner', 'admin', 'hr', 'finance');
 const fT = (ar, en) => LANG === 'en' && en ? en : ar;   // library texts carry both languages (not passed through the translator)
 const FORM_PH = [['{e.name}', 'اسم الموظف'], ['{e.no}', 'الرقم الوظيفي'], ['{e.job}', 'المسمى الوظيفي'], ['{e.dept}', 'القسم'], ['{e.id}', 'رقم الهوية/الإقامة'],

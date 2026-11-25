@@ -983,6 +983,7 @@ with sync_playwright() as pw:
     sqlx("insert into requests(company_id,employee_id,kind,sub,from_date,to_date,days,status,route) select company_id,id,'leave','annual','%s','%s',3,'approved','{m,p,g}' from employees where id='%s'" % (d1, d2, mate))
     sqlx("insert into requests(company_id,employee_id,kind,sub,from_date,to_date,days,status,route,step) select company_id,id,'leave','annual','%s','%s',3,'pending','{m,p,g}',0 from employees where emp_no='5000'" % (d1, d2))
     m.reload(); m.wait_for_selector('#nav'); ok(m.locator('#nav a[href="#/leavecal"]').count() == 1 or m.evaluate("(NAV_TABS['#/att'] || []).some(t => t[0] === '#/leavecal')"), 'manager has the team leave calendar')
+    ok(m.evaluate("formCanDept('hr') && !formCanDept('finance') && !formCanDept('sales') && !formCanDept('purch')"), 'forms: a department manager sees his own forms only (HR forms for his team)')
     go(m, '#/approvals'); m.wait_for_selector('#page tbody tr'); m.locator('#page tbody tr', has_text='محمد العتيبي').last.click(); m.wait_for_selector('#dlg[open]')
     ok('في إجازة خلال نفس الفترة من الفريق' in m.inner_text('#dlg'), 'approver sees who else in the team is off in the same period'); m.click('#mx')
     go(m, '#/leavecal?m=' + d1[:7]); m.wait_for_selector('.lcal')
@@ -1674,6 +1675,7 @@ with sync_playwright() as pw:
 
     # ---------- forms library: a numbered form filled from the employee record ----------
     go(o, '#/forms'); o.wait_for_selector('.fcard'); ok(o.locator('.fcard').count() >= 10, 'forms: the HR library is listed')
+    ok(o.evaluate("Object.keys(FORM_DEPTS).every(d => formCanDept(d))"), 'forms: the owner sees the forms of every department')
     fl_chk = o.evaluate("""(() => { const bad = [], per = {}; FORM_LIB.forEach(x => { per[x.dept] = (per[x.dept] || 0) + 1; const t = libAsTpl(x);
       for (const en of [false, true]) { const V = formVals(t, { en, no: 'F-1', who: {}, deps: [] }), html = formFillText(en ? t.body_en : t.body_ar, V, {}, null, en);
         if (/\{[^}]*\}/.test(html.replace(/<[^>]*>/g, ''))) bad.push(x.k + (en ? ' en' : ' ar')); }
