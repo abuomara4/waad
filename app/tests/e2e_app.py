@@ -905,7 +905,7 @@ with sync_playwright() as pw:
     go(o, '#/payequity'); o.wait_for_selector('#page table'); ok('فجوة الجنس' in o.inner_text('#page'), 'pay equity: the averages and gaps by grade or job')
     go(o, '#/tickets'); o.wait_for_selector('#tkn'); o.click('#tkn'); o.wait_for_selector('#dlg input[name=s]'); o.fill('#dlg input[name=s]', 'الجهاز لا يعمل'); o.select_option('#dlg select[name=k]', 'repair'); modal_ok(o); o.wait_for_timeout(600)
     ok(sql("select kind || ':' || status from service_tickets where subject = 'الجهاز لا يعمل'") == 'repair:new', 'tickets: a repair ticket is opened')
-    go(o, '#/settings'); o.wait_for_selector('#whn'); o.click('#whn'); o.wait_for_selector('#dlg input[name=u]'); o.fill('#dlg input[name=u]', 'https://hooks.example.com/w'); modal_ok(o); o.wait_for_selector('#dlg input[readonly]')
+    go(o, '#/settings'); o.wait_for_selector('#whn'); o.click('#whn'); o.wait_for_selector('#dlg input[name=u]'); o.fill('#dlg input[name=u]', 'https://hooks.example.com/w'); o.click('#mok'); o.wait_for_selector('#dlg[open] input[readonly]')
     ok(len(o.input_value('#dlg input[readonly]')) == 48 and sql("select count(*) from webhook_endpoints") == '1', 'webhooks: an endpoint is added and its secret shown once'); o.click('#mx')
     sqlx("insert into cost_centers(company_id, code, name, name_en) select %s, 'E2A', 'مركز أ', 'Centre A' union all select %s, 'E2B', 'مركز ب', 'Centre B'" % (CQ, CQ))
     go(o, '#/allocation'); o.wait_for_selector('#aln'); o.click('#aln'); o.wait_for_selector('#dlg input[name=n]'); o.fill('#dlg input[name=n]', 'توزيع الإيجار')
