@@ -89,12 +89,14 @@
     <div class="en"><video class="tourv" id="tv-en" controls playsinline preload="none" poster="img/tour-en.webp" width="1280" height="720"><source src="img/tour-en.mp4" type="video/mp4"></video>
       <div class="tourch"><button type="button" data-tv="tv-en" data-t="12.5">HR</button><button type="button" data-tv="tv-en" data-t="16.5">Payroll</button><button type="button" data-tv="tv-en" data-t="20.6">Compliance</button><button type="button" data-tv="tv-en" data-t="24.7">E-invoices</button><button type="button" data-tv="tv-en" data-t="28.7">Financial statements</button><button type="button" data-tv="tv-en" data-t="32.8">Inventory and projects</button></div></div>
   </div>
-  <style>.tourv.tall{aspect-ratio:1080/1920;width:auto;height:82vh;max-width:100%;max-height:none;margin-inline:auto;object-fit:contain}</style>
-  <script>(function(){var mq=window.matchMedia('(max-width:640px)');function pick(){var tall=mq.matches;['ar','en'].forEach(function(l){var v=document.getElementById('tv-'+l);if(!v)return;
-    var want='img/tour-'+l+(tall?'-m':'')+'.mp4';if(v.getAttribute('data-src')===want)return;var at=v.currentTime||0,was=!v.paused;v.setAttribute('data-src',want);
-    v.innerHTML='';v.src=want;v.poster='img/tour-'+l+(tall?'-m':'')+'.webp';v.width=tall?1080:1280;v.height=tall?1920:720;v.classList.toggle('tall',tall);
+  <style>.tourv.tall{aspect-ratio:1080/1920;width:auto;height:82vh;max-width:100%;max-height:none;margin-inline:auto;object-fit:contain}.tourv.tab{aspect-ratio:4/3;width:auto;height:min(82vh,calc(100vw * .75));max-width:100%;margin-inline:auto;object-fit:contain}</style>
+  <script>(function(){var ph=window.matchMedia('(max-width:640px)'),tb=window.matchMedia('(min-width:641px) and (max-width:1366px) and (pointer:coarse)');
+    // phones get the portrait tour, tablets and iPads the 4:3 one, computers the wide one
+    function pick(){var k=ph.matches?'-m':tb.matches?'-t':'';['ar','en'].forEach(function(l){var v=document.getElementById('tv-'+l);if(!v)return;
+    var want='img/tour-'+l+k+'.mp4';if(v.getAttribute('data-src')===want)return;var at=v.currentTime||0,was=!v.paused;v.setAttribute('data-src',want);
+    v.innerHTML='';v.src=want;v.poster='img/tour-'+l+k+'.webp';v.width=k==='-m'?1080:k==='-t'?1440:1280;v.height=k==='-m'?1920:k==='-t'?1080:720;v.classList.toggle('tall',k==='-m');v.classList.toggle('tab',k==='-t');
     if(at){v.currentTime=at;}if(was)v.play().catch(function(){});});}
-    pick();if(mq.addEventListener)mq.addEventListener('change',pick);else if(mq.addListener)mq.addListener(pick);})();</script>
+    pick();[ph,tb].forEach(function(m){if(m.addEventListener)m.addEventListener('change',pick);else if(m.addListener)m.addListener(pick);});})();</script>
 </section>
 
 <section id="overview">

@@ -3,7 +3,7 @@ import {AbsoluteFill, Easing, interpolate, staticFile, useCurrentFrame, useVideo
 import {Video} from '@remotion/media';
 import {GOLD, body, dir, head} from './brand';
 import {COPY, type Feature, type Lang} from './copy';
-import {Backdrop, Chip, Device, Logo, useTall, Words} from './parts';
+import {Backdrop, Chip, Device, Logo, useTab, useTall, Words} from './parts';
 
 const CL = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const EASE = Easing.bezier(0.16, 1, 0.3, 1);
@@ -11,9 +11,10 @@ const EASE = Easing.bezier(0.16, 1, 0.3, 1);
 // the owner's brand intro (landscape for computers, portrait for phones)
 export const IntroScene: React.FC = () => {
   const tall = useTall();
+  const tab = useTab();
   return (
     <AbsoluteFill style={{backgroundColor: '#031214'}}>
-      <Video src={staticFile(tall ? 'intro-tall.mp4' : 'intro-wide.mp4')} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+      <Video src={staticFile(tall ? 'intro-tall.mp4' : tab ? 'intro-tablet.mp4' : 'intro-wide.mp4')} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
     </AbsoluteFill>
   );
 };
@@ -45,6 +46,7 @@ export const HookScene: React.FC<{lang: Lang}> = ({lang}) => {
 
 export const FeatureScene: React.FC<{lang: Lang; f: Feature; i: number}> = ({lang, f, i}) => {
   const tall = useTall();
+  const tab = useTab();
   const frame = useCurrentFrame();
   const kick = (
     <div dir={dir(lang)} style={{display: 'flex', alignItems: 'center', gap: 18, fontFamily: body(lang), fontWeight: 600, fontSize: tall ? 38 : 32, color: GOLD, letterSpacing: lang === 'en' ? '0.08em' : 0, textTransform: lang === 'en' ? 'uppercase' : 'none', opacity: interpolate(frame, [0, 12], [0, 1], CL)}}>
@@ -55,11 +57,11 @@ export const FeatureScene: React.FC<{lang: Lang; f: Feature; i: number}> = ({lan
   );
   const title = (
     <Words lang={lang} text={f.title} delay={4} gold={f.gold}
-      style={{fontFamily: head(lang), fontWeight: 700, fontSize: tall ? (lang === 'en' ? 74 : 70) : (lang === 'en' ? 66 : 72), color: '#fff', lineHeight: lang === 'ar' ? 1.35 : 1.12, letterSpacing: lang === 'en' ? '-0.02em' : 0}} />
+      style={{fontFamily: head(lang), fontWeight: 700, fontSize: tall ? (lang === 'en' ? 74 : 70) : tab ? (lang === 'en' ? 54 : 58) : (lang === 'en' ? 66 : 72), color: '#fff', lineHeight: lang === 'ar' ? 1.35 : 1.12, letterSpacing: lang === 'en' ? '-0.02em' : 0}} />
   );
   const list = (
     <div style={{display: 'flex', flexDirection: 'column', gap: tall ? 24 : 24, marginTop: tall ? 10 : 26}}>
-      {f.points.map((p, k) => <Chip key={p} lang={lang} text={p} delay={20 + k * 9} size={tall ? 40 : 36} />)}
+      {f.points.map((p, k) => <Chip key={p} lang={lang} text={p} delay={20 + k * 9} size={tall ? 40 : tab ? 30 : 36} />)}
     </div>
   );
   if (tall) {
@@ -80,14 +82,14 @@ export const FeatureScene: React.FC<{lang: Lang; f: Feature; i: number}> = ({lan
   return (
     <AbsoluteFill>
       <Backdrop />
-      <AbsoluteFill dir={dir(lang)} style={{flexDirection: 'row', alignItems: 'center', padding: '0 100px', gap: 70}}>
-        <div style={{flex: 'none', width: 660, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 16}}>
+      <AbsoluteFill dir={dir(lang)} style={{flexDirection: 'row', alignItems: 'center', padding: tab ? '0 60px' : '0 100px', gap: tab ? 44 : 70}}>
+        <div style={{flex: 'none', width: tab ? 500 : 660, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 16}}>
           {kick}
           {title}
           {list}
         </div>
         <div style={{flex: 1, display: 'flex', justifyContent: 'center'}}>
-          <Device lang={lang} shot={f.shot} kind="desk" w={1040} />
+          <Device lang={lang} shot={f.shot} kind="desk" w={tab ? 780 : 1040} />
         </div>
       </AbsoluteFill>
     </AbsoluteFill>
@@ -109,11 +111,12 @@ const Counter: React.FC<{lang: Lang; to: number; label: string; delay: number; s
 
 export const NumbersScene: React.FC<{lang: Lang}> = ({lang}) => {
   const tall = useTall();
-  const size = tall ? 160 : 140;
+  const tab = useTab();
+  const size = tall ? 160 : tab ? 130 : 140;
   return (
     <AbsoluteFill>
       <Backdrop />
-      <AbsoluteFill dir={dir(lang)} style={{display: 'grid', gridTemplateColumns: tall ? '1fr 1fr' : 'repeat(4, 1fr)', gap: tall ? '120px 40px' : 40, padding: tall ? '0 60px' : '0 110px', alignContent: 'center', justifyItems: 'center'}}>
+      <AbsoluteFill dir={dir(lang)} style={{display: 'grid', gridTemplateColumns: tall || tab ? '1fr 1fr' : 'repeat(4, 1fr)', gap: tall ? '120px 40px' : tab ? '80px 40px' : 40, padding: tall ? '0 60px' : '0 110px', alignContent: 'center', justifyItems: 'center'}}>
         {COPY[lang].numbers.map((x, k) => <Counter key={k} lang={lang} to={x.to} label={x.label} delay={COUNTER_DELAYS[k]} size={size} />)}
       </AbsoluteFill>
     </AbsoluteFill>

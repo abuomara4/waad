@@ -12,6 +12,11 @@ export const useTall = () => {
   const {width, height} = useVideoConfig();
   return height > width;
 };
+// a tablet / iPad frame (4:3): the computer layout, a little tighter
+export const useTab = () => {
+  const {width, height} = useVideoConfig();
+  return width > height && width / height < 1.5;
+};
 
 // the navy backdrop: a soft glow and slowly drifting dots (echoes the owner's intro)
 export const Backdrop: React.FC<{glow?: string}> = ({glow = BLUE}) => {
