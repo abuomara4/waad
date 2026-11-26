@@ -35,7 +35,7 @@ with sync_playwright() as p:
     sqlx(f"update companies set att_enabled = true where id = '{cid}'")
     emp, mgr = sql(f"(select e.emp_no || '|' || m.emp_no from employees e join employees m on m.id = e.manager_id where e.company_id = '{cid}' and e.end_date is null and m.end_date is null order by e.emp_no limit 1)").split('|')
     def mklogin(no, role):
-        go(o, '#/employees'); o.locator('tbody tr', has_text=no).first.click(); o.wait_for_selector('#mklogin'); o.click('#mklogin')
+        go(o, '#/employees'); o.locator('tbody tr', has_text=no).first.locator('td').first.click(); o.wait_for_selector('#mklogin'); o.click('#mklogin')
         o.wait_for_selector('#dlg[open] select[name=role]'); o.select_option('#dlg select[name=role]', role); o.click('#mok'); o.wait_for_selector('#dlg[open] #cpm')
         pw = o.inner_text('#dlg table').strip().split('\n')[-1].split('\t')[-1].strip(); o.click('#mx'); return pw
     def staff(no, pw):
@@ -60,7 +60,7 @@ with sync_playwright() as p:
     m = staff(mgr, mklogin(mgr, 'manager'))
     for l in ('ar', 'en'): lang(m, l); go(m, '#/approvals'); shot(m, 'approvals', l)
     for l in ('ar', 'en'):
-        lang(o, l); go(o, '#/employees'); o.locator('tbody tr', has_text=emp).first.click(); o.wait_for_selector('#rspw'); o.click('#rspw'); o.click('#mok'); o.wait_for_selector('#dlg[open] #cpm'); shot(o, 'mklogin', l); o.click('#mx')
+        lang(o, l); go(o, '#/employees'); o.locator('tbody tr', has_text=emp).first.locator('td').first.click(); o.wait_for_selector('#rspw'); o.click('#rspw'); o.click('#mok'); o.wait_for_selector('#dlg[open] #cpm'); shot(o, 'mklogin', l); o.click('#mx')
     print('errors:', (o.errs + e.errs + m.errs)[:3]); b.close()
 for n in names:
     for l in ('ar', 'en'):

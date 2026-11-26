@@ -2882,8 +2882,8 @@ update public.employees set end_date = '2020-01-01' where id = :'e_old';
 
 -- ================= USER GUIDE QUIZ (0084) =================
 select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
-select public.guide_quiz_submit(:'cid', 'emp', '{"e1":1,"e2":0,"e3":2,"e4":0,"e5":1,"e6":2,"e7":0}') as gq1 \gset
-select t.ok((:'gq1'::jsonb->>'score')::int = 7 and (:'gq1'::jsonb->>'passed')::boolean, 'guide quiz: all right answers pass (marked by the database)');
+select public.guide_quiz_submit(:'cid', 'emp', '{"e1":1,"e2":0,"e3":2,"e4":0,"e5":1,"e6":2,"e7":0,"e8":0,"e9":1,"e10":2}') as gq1 \gset
+select t.ok((:'gq1'::jsonb->>'score')::int = 10 and (:'gq1'::jsonb->>'passed')::boolean, 'guide quiz: all right answers pass (marked by the database)');
 select public.guide_quiz_submit(:'cid', 'emp', '{"e1":0,"e2":0,"e3":2,"e4":0,"e5":0}') as gq2 \gset
 select t.ok((:'gq2'::jsonb->>'score')::int = 3 and not (:'gq2'::jsonb->>'passed')::boolean and (:'gq2'::jsonb->'wrong') ? 'e6' and (:'gq2'::jsonb->'wrong') ? 'e1', 'guide quiz: wrong or missing answers are listed and fail under 80%');
 select t.ok((select count(*) from public.guide_quiz_results where company_id = :'cid') = 2, 'guide quiz: the employee sees their own attempts');
