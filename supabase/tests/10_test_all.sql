@@ -4812,6 +4812,24 @@ select t.err($$select public.welcome_set('$$ || :'cid' || $$', '{"note":"x"}')$$
 select t.err($$select public.welcome_emp_set('$$ || :'cid' || $$', '$$ || :'e_emp' || $$', null, '{}')$$, '42501|مصرح', 'welcome: an employee cannot pick his own companion');
 select t.ok((select buddy_id is not null from public.employees where id = :'e_emp') and (select wel_note is not null from public.companies where id = :'cid'), 'welcome: the employee reads his companion and the message');
 reset role;
+-- 29. invoice reading (0160): the invoice's key stays with the document; the same invoice twice is spotted inside the company only
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select public.submit_request(:'cid', 'expense', null, null, null, 115, '{"receipt":{"key":"300000000000003|2026-11-26T10:15:00Z|115.00","seller":"مطعم","total":115,"tax":15}}') as rq160 \gset
+select t.ok(public.receipt_seen(:'cid', '300000000000003|2026-11-26T10:15:00Z|115.00') = 1, 'invoice reading: the claimed invoice is known in the company');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+insert into public.supplier_inbox(company_id, supplier_name, inv_date, amount, receipt_key, vat_no, vat) values (:'cid', 'مطعم', current_date, 115, '300000000000003|2026-11-26T10:15:00Z|115.00', '300000000000003', 15);
+select t.ok(public.receipt_seen(:'cid', '300000000000003|2026-11-26T10:15:00Z|115.00') = 2, 'invoice reading: the same invoice in the supplier inbox counts as a second claim');
+select t.ok(public.receipt_seen(:'cid', 'another') = 0 and public.receipt_seen(:'cid', '') = 0, 'invoice reading: an unknown or empty key is never a duplicate');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.err($$select public.receipt_seen('$$ || :'cid' || $$', '300000000000003|2026-11-26T10:15:00Z|115.00')$$, '42501|مصرح', 'invoice reading: another company cannot ask about this company''s invoices');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select coalesce((select id::text from public.petty_funds where company_id = :'cid' and employee_id = :'e_mgr' and status = 'active' limit 1), (select public.petty_open(:'cid', :'e_mgr', 500, '1120', 1000)::text)) as pf160 \gset
+select public.petty_claim_submit(:'pf160', current_date, '[{"a":"5500","desc":"مطعم","amount":100,"vat":15,"vat_no":"300000000000003","rkey":"K-160"}]') as pc160 \gset
+reset role;
+select t.ok((select lines->0->>'rkey' = 'K-160' from public.petty_claims where id = :'pc160'), 'invoice reading: a petty cash line keeps the invoice key');
 -- RLS performance (0150): auth.uid() is computed once per statement in every policy
 select t.ok((select count(*) = 0 from pg_policies where schemaname = 'public' and (coalesce(qual, '') || coalesce(with_check, '')) ~ '(?<!SELECT )auth\.uid\(\)'),
   'rls: no policy calls auth.uid() for every row (wrapped in a select)');

@@ -452,6 +452,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 أو استوردهم من	or import them from
 أو افتح المنشأة لتختار اشتراك ومدة	or open the company to choose a subscription and length
 أو اقترب من نافذة ثم أعد المحاولة	or move near a window and try again
+أو اكتب البيانات بنفسك	or type the details yourself
 أو البنك	or the bank
 أو انسخ الرسالة	or copy the message
 أو بدون موافقة المنشأة	or without the company's approval
@@ -1635,7 +1636,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الإجمالي	Total
 الإجمالي التقديري	Estimated total
 الإجمالي المستحق للتأمينات	Total due to GOSI
-الإجمالي شامل الضريبة	Total incl. VAT
+الإجمالي شامل الضريبة	Total including VAT
 الإجمالي قبل الخصم	Total before discount
 الإجمالي قبل الضريبة	Total before VAT
 الإحالات	Referrals
@@ -2416,6 +2417,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الصنف موقوف	The item is inactive
 الصورة كبيرة جدا	The image is too large
 الصورة كبيرة جداً	The image is too large
+الصورة مرفقة	the photo is attached
 الصيانة القادمة	Next service
 الصيانة القادمة بتاريخ	Next service on
 الصيانة كل	Service every
@@ -3611,6 +3613,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تأكد أن المالك نزّل نسخة من بياناته قبل الحذف	Make sure the owner downloaded a copy of their data before deleting
 تأكد أن فيه رقم الموظف والتاريخ والوقت	make sure it has the employee number, date and time
 تأكد أن هذا سجلك أنت	Make sure this is your own record
+تأكد أنها ليست مكررة	Make sure it is not a duplicate
 تأكد من إبلاغ العامل كتابة	Make sure the worker is notified in writing
 تأكد من إبلاغ العامل كتابةً	Make sure the worker is notified in writing
 تأكد من توافر شروط المادة وإنذار العامل كتابة في حالات الغياب	make sure the Article's conditions are met and the worker was warned in writing for absence
@@ -3970,6 +3973,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تصل كل موظف جديد باسمه ومسماه وقسمه من الموارد البشرية	Every new employee gets it from HR with their name, title and department
 تصل كل موظف جديد باسمه ومسماه وقسمه من الموارد البشرية. تُكتب مرة واحدة، والجزء الفارغ لا يظهر في الرسالة.	Every new employee gets it from HR with their name, title and department. Write it once; an empty part is left out of the message.
 تصميم الواجهات	UI design
+تصوير الفاتورة	Photograph the invoice
+تصوير الفاتورة وقراءتها	Photograph and read the invoice
 تصوير بالكاميرا	Take a photo
 تصير خانة تُعبّأ وقت الطباعة	becomes a field filled in when printing
 تضاف في حدود الأصول المحسومة فقط	added only up to the deducted assets
@@ -4063,6 +4068,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تعذّر قراءة المرفق	Could not read the attachment
 تعذّر قراءة الملف	Could not read the file
 تعذّر قراءة الورقة الأولى في الملف	Could not read the first sheet of the file
+تعذّرت قراءة الفاتورة	The invoice could not be read
+تعذّرت قراءة الفاتورة. صوّرها مرة ثانية بإضاءة جيدة، أو اكتب البيانات بنفسك (الصورة مرفقة).	The invoice could not be read. Take it again in good light, or type the details yourself (the photo is attached).
 تعريف بالراتب	Salary certificate
 تعزيز	Top up
 تعزيز العهدة	Top up fund
@@ -4417,6 +4424,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 جارٍ	Active
 جارٍ الإرسال إلى زاتكا	Sending to ZATCA
 جارٍ التحميل	Loading
+جارٍ تجهيز القارئ أول مرة	Preparing the reader (first time)
+جارٍ قراءة الفاتورة	Reading the invoice
+جارٍ قراءة الفاتورة…	Reading the invoice…
+جارٍ قراءة نص الفاتورة	Reading the invoice text
+جارٍ قراءة نص الفاتورة…	reading the invoice text…
 جازان	Jazan
 جاهز الآن	Ready now
 جاهز للاستيراد	ready to import
@@ -4938,6 +4950,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 راتب	pay
 راج كومار	Raj Kumar
 راجع إجراءات الغياب وإبلاغ الجهات	Follow the absence procedures and notify the authorities
+راجع الأرقام وعدّلها في النموذج قبل الإرسال	check the figures and correct them in the form before sending
 راجع الحالات الخاصة مع مختص	review special cases with a specialist
 راجع السبب	see the reason
 راجع الملف قبل رفعه في بوابة البنك	Review the file before uploading it to the bank portal
@@ -5082,7 +5095,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 رقم الطوارئ	Emergency number
 رقم العضوية	Member no.
 رقم العقد	Contract no.
-رقم الفاتورة	Invoice no.
+رقم الفاتورة	Invoice number
 رقم القيد	Entry no.
 رقم اللوحة	Plate number
 رقم المبنى	Building No.
@@ -5648,6 +5661,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 صورة أو	Image or
 صومالي	Somali
 صوّرها بصيغة	take it as
+صوّرها مرة ثانية بإضاءة جيدة	Take it again in good light
 صيانة	maintenance
 صيانة دورية	Scheduled service
 صيني	Chinese
@@ -6275,6 +6289,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قدّم الطلب قبل	Submit the request
 قدّم تسوية بما صرفته من العهدة مع أرقام الفواتير	Submit a settlement of what you spent from the fund with the invoice numbers
 قراءة العداد	Odometer reading
+قراءة الفاتورة	and read it
+قراءة النص تقريبية	Reading text is approximate
+قراءة النص تقريبية: راجع الأرقام وعدّلها في النموذج قبل الإرسال.	Reading text is approximate: check the figures and correct them in the form before sending.
 قرار الإنهاء يُسجَّل هنا	An end decision is recorded here
 قرار التظلم	Grievance decision
 قرار الحذف	Deletion decision
@@ -6283,6 +6300,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قرض	Loan
 قرض جديد	New loan
 قروض وتسهيلات بنكية	Bank loans and facilities
+قرّب الكاميرا من الرمز وصوّره مرة ثانية	Bring the camera closer to the code and take it again
 قرّر التثبيت أو الإنهاء قبل نهايتها	decide on confirmation or termination before it ends
 قسائم الراتب	Payslips
 قسط السلفة لا يتجاوز	An advance installment cannot exceed
@@ -6342,6 +6360,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 قُبل التظلم وأُلغي الجزاء	Grievance accepted and penalty cancelled
 قُدّم التظلم	Grievance submitted
 قُدّم تظلم على هذا الجزاء	A grievance was already filed against this penalty
+قُرئ نص الفاتورة	Invoice text read
+قُرئت الفاتورة	Invoice read
 كأرقام حسابات	as account figures
 كافيهات الركن	Al-Rukn Cafes
 كامل	Full pay
@@ -6748,6 +6768,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لا يوجد رابط للمقابلة	No interview link
 لا يوجد رقم جوال صالح للمرشح	The candidate has no valid mobile number
 لا يوجد رقم ضريبي مسجّل	No VAT number registered
+لا يوجد رمز	No
+لا يوجد رمز QR، جارٍ قراءة نص الفاتورة…	No QR code: reading the invoice text…
 لا يوجد سجل	No history
 لا يوجد شرح لهذه الصفحة بعد	No guide for this page yet
 لا يوجد شعار	No logo
@@ -6941,6 +6963,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لم تُضف موظفين بعد	No employees added yet
 لم تُفوتر بعد	Not yet invoiced
 لم نجد بصمات في الملف	No punches found in the file
+لم نجد رمز	No clear
+لم نجد رمز QR واضحا. قرّب الكاميرا من الرمز وصوّره مرة ثانية، أو اكتب البيانات بنفسك (الصورة مرفقة).	No clear QR code found. Bring the camera closer to the code and take it again, or type the details yourself (the photo is attached).
 لم نجد عمود التاريخ والمبلغ	No date and amount columns found
 لم يؤدِّ الامتحان	Exam not sat
 لم يبدأ	Not started
@@ -8076,6 +8100,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 هذه الصفحة للموارد البشرية ومن ينوب عنها	This page is for HR and its deputy
 هذه الصفحة للموظفين المرتبطين بملف موظف	This page is for users linked to an employee record
 هذه الصفحة لمالك المنشأة ومدير النظام	This page is for the company owner and administrators
+هذه الفاتورة مقدّمة من قبل في المنشأة	This invoice was already submitted in the company
+هذه الفاتورة مقدّمة من قبل في المنشأة. تأكد أنها ليست مكررة.	This invoice was already submitted in the company. Make sure it is not a duplicate.
 هذي السنة	This year
 هـ	AH
 هكذا يُطبع النموذج	This is how the form prints
@@ -8122,6 +8148,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 واتساب	WhatsApp
 واختر القالب المناسب	and choose the matching template
 وارد	Received
+واضحا	code found
 واضغط	and press
 واطبع الإيصال	and print the receipt
 واطلب رمز	and request an

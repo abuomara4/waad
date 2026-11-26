@@ -198,13 +198,19 @@ async function pettyClaimForm(fund) {
   const row = () => `<tr><td><input data-k="desc" placeholder="${esc(tr('الوصف'))}" style="min-width:140px"></td><td><select data-k="a">${ao}</select></td><td><input data-k="amount" type="number" step="0.01" min="0" style="width:100px"></td>
     <td><input data-k="vat" type="number" step="0.01" min="0" style="width:80px"></td><td><input data-k="vat_no" dir="ltr" maxlength="15" placeholder="3…3" style="width:140px"></td><td><input data-k="ref" dir="ltr" style="width:90px"></td></tr>`;
   const d = modal('تسوية عهدة', `${field('التاريخ', `<input type="date" name="date" value="${today()}" max="${today()}">`)}<div class="tw"><table class="lines"><thead><tr><th>الوصف</th><th>الحساب</th><th>المبلغ قبل الضريبة</th><th>الضريبة</th><th>الرقم الضريبي للمورد</th><th>رقم الفاتورة</th></tr></thead><tbody id="pcl">${row()}${row()}</tbody></table></div>
-    <button type="button" class="btn sm" id="pca2" style="margin-top:8px">+ بند</button><p class="muted small">${esc(tr('الضريبة تُسترد فقط إذا كانت الفاتورة ضريبية وفيها الرقم الضريبي للمورد. احتفظ بأصول الفواتير لتسليمها للمالية.'))}</p>`, {
+    <button type="button" class="btn sm" id="pca2" style="margin-top:8px">+ بند</button><input type="file" id="pcf" accept="image/*" hidden><p class="muted small">${esc(tr('الضريبة تُسترد فقط إذا كانت الفاتورة ضريبية وفيها الرقم الضريبي للمورد. احتفظ بأصول الفواتير لتسليمها للمالية.'))}</p>`, {
     wide: true, ok: 'إرسال التسوية', onOk: async f => {
-      const lines = $$('#pcl tr', d).map(tr0 => { const o = {}; $$('[data-k]', tr0).forEach(x => o[x.dataset.k] = x.value.trim()); return o; }).filter(l => l.desc || +l.amount)
-        .map(l => ({ desc: l.desc, a: l.a, amount: +l.amount, vat: +l.vat || 0, vat_no: l.vat_no || null, ref: l.ref || null }));
+      const lines = $$('#pcl tr', d).map(tr0 => { const o = { rkey: tr0.dataset.rkey || null }; $$('[data-k]', tr0).forEach(x => o[x.dataset.k] = x.value.trim()); return o; }).filter(l => l.desc || +l.amount)
+        .map(l => ({ desc: l.desc, a: l.a, amount: +l.amount, vat: +l.vat || 0, vat_no: l.vat_no || null, ref: l.ref || null, rkey: l.rkey }));
       if (!lines.length) throw new Error('أضف بندا واحدا على الأقل');
       await db.rpc('petty_claim_submit', { p_fund: fund, p_date: f.date, p_lines: lines }); toast(tr('أُرسلت التسوية')); route(); } });
   $('#pca2', d).onclick = () => $('#pcl', d).insertAdjacentHTML('beforeend', row());
+  // a photographed invoice becomes a line: seller, amount before VAT, VAT and the seller's VAT number (0160)
+  if (typeof receiptReader === 'function') receiptReader($('#pcf', d), z => {
+    let tr0 = $$('#pcl tr', d).find(t => !$('[data-k=desc]', t).value && !$('[data-k=amount]', t).value);
+    if (!tr0) { $('#pcl', d).insertAdjacentHTML('beforeend', row()); tr0 = $$('#pcl tr', d).pop(); }
+    const tax = z.tax == null ? 0 : +z.tax, tot = z.total == null ? 0 : +z.total, set = (k, v) => { const x = $(`[data-k=${k}]`, tr0); x.value = v; if (k === 'vat') x.dataset.touched = '1'; };
+    set('desc', z.seller || tr('فاتورة')); set('amount', tot ? (tot - tax).toFixed(2) : ''); set('vat', tax ? tax.toFixed(2) : ''); set('vat_no', z.vat_no || ''); if (z.ref) set('ref', z.ref); tr0.dataset.rkey = z.key; });
   $('#pcl', d).addEventListener('input', e => { if (e.target.dataset.k === 'amount') { const v = $('[data-k=vat]', e.target.closest('tr')); if (!v.dataset.touched) v.value = ''; } if (e.target.dataset.k === 'vat') e.target.dataset.touched = '1'; });
 }
 

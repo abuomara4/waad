@@ -280,6 +280,27 @@ with sync_playwright() as pw:
     st.wait_for_function("document.querySelector('#wv .wv-scene.on').innerText.includes('مديرك') || document.querySelector('#wv .wv-scene.on').innerText.includes('تاريخ مباشرتك')", timeout=9000); ok(True, 'welcome: the employee\'s card shows her department, manager or start date')
     ok(st.evaluate("wvGuideTopics().map(t => t.id).includes('leave')"), 'welcome: the guide topics follow her job (an employee gets leave requests)')
     st.keyboard.press('Escape'); ok(st.locator('#wv').count() == 0, 'welcome: Escape closes the message')
+    # invoice reading (0160): a photographed invoice — here a ZATCA QR drawn turned on a white page — fills the expense request
+    go(st, '#/requests'); st.click('#nr'); st.select_option('#rk', 'expense'); st.wait_for_selector('#dlg .rcptbox')
+    st.evaluate("""async () => { const svg = QR.svg(QR.zatca({ seller: 'مطعم الريادة', vat: '300000000000003', time: '2026-11-20T09:30:00Z', total: 230, tax: 30 }), 300);
+      const im = new Image(); im.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg))); await im.decode();
+      const c = document.createElement('canvas'); c.width = 700; c.height = 900; const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, 700, 900); g.translate(350, 450); g.rotate(0.35); g.drawImage(im, -150, -150, 300, 300);
+      const b = await new Promise(r => c.toBlob(r, 'image/png')), f = new File([b], 'receipt.png', { type: 'image/png' });
+      const inp = document.querySelector('#dlg .rcptbox input'), dt = new DataTransfer(); dt.items.add(f); inp.files = dt.files; inp.dispatchEvent(new Event('change')); }""")
+    st.wait_for_selector('#dlg .rcpt', timeout=20000)
+    ok(st.input_value('#dlg input[name=amount]') == '230' and 'مطعم الريادة' in st.inner_text('#dlg .rcpt') and '300000000000003' in st.inner_text('#dlg .rcpt'), 'invoice reading: a turned invoice photo is read on the device and fills the expense (230, seller, VAT number) — ' + st.input_value('#dlg input[name=amount]') + ' / ' + st.inner_text('#dlg .rcpt')[:160].replace('\n', ' '))
+    modal_ok(st); st.wait_for_timeout(500)
+    ok(sql("select (payload->'receipt'->>'seller') || '|' || (select count(*) from request_attachments a where a.request_id = r.id) from requests r where kind = 'expense' order by created_at desc limit 1") == 'مطعم الريادة|1', 'invoice reading: the request keeps what the invoice said, with the photo attached')
+    # an invoice without a QR (no VAT): its printed text is read on the device (site/app/ocr), the employee checks and sends
+    go(st, '#/requests'); st.click('#nr'); st.select_option('#rk', 'expense'); st.wait_for_selector('#dlg .rcptbox')
+    st.evaluate("""async () => { const c = document.createElement('canvas'); c.width = 900; c.height = 700; const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, 900, 700); g.fillStyle = '#111';
+      g.font = 'bold 46px Arial, sans-serif'; g.fillText('CORNER GROCERY', 60, 90); g.font = '38px Arial, sans-serif';
+      [['Receipt No: 5521', 180], ['Date 2026-11-25', 250], ['Bread 5.00', 330], ['Milk 12.50', 400], ['Eggs 70.00', 470], ['TOTAL 87.50', 570]].forEach(([t, y]) => g.fillText(t, 60, y));
+      const b = await new Promise(r => c.toBlob(r, 'image/png')), f = new File([b], 'receipt.png', { type: 'image/png' });
+      const inp = document.querySelector('#dlg .rcptbox input'), dt = new DataTransfer(); dt.items.add(f); inp.files = dt.files; inp.dispatchEvent(new Event('change')); }""")
+    st.wait_for_selector('#dlg .rcpt', timeout=120000)
+    ok(st.input_value('#dlg input[name=amount]') == '87.5' and 'CORNER GROCERY' in st.inner_text('#dlg .rcpt').upper() and '5521' in st.inner_text('#dlg .rcpt'), 'invoice reading: an invoice with no QR is read from its printed text on the device (total 87.50, shop, number) — ' + st.inner_text('#dlg .rcpt')[:120].replace('\n', ' '))
+    st.click('#mx')
     go(st, '#/guide'); st.wait_for_selector('.gsec'); t = st.inner_text('#page')
     ok('طلب إجازة' in t and 'قسيمة الراتب' in t and st.locator('[data-sec=admin]').count() == 0 and st.locator('#gprint').count() == 0, 'guide: an employee sees the employee topics, not the admin ones')
     st.fill('#gq', 'تظلم'); st.wait_for_timeout(200); ok(st.locator('.gitem:visible').count() == 1 and st.locator('.gitem[data-g=profile]').is_visible(), 'guide: search finds the topic (penalties and appeal)')

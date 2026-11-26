@@ -175,11 +175,14 @@ function newRequest(lt) {
       if (k === 'remote') { if (!(f.rmwhy || '').trim()) throw new Error(tr('اكتب سبب العمل عن بعد')); Object.assign(a, { p_from: f.rmfrom, p_to: f.rmto, p_payload: { reason: f.rmwhy.trim(), place: (f.rmplace || '').trim() } }); }
       if (k === 'advance' || k === 'expense') { if (!(+f.amount > 0)) throw new Error('أدخل المبلغ'); a.p_amount = +f.amount; if (k === 'advance') a.p_payload = { inst: +f.inst || 1 }; if (k === 'expense' && f.ecat) a.p_payload = { cat: f.ecat }; }
       if (k === 'swap') { if (!f.swwith) throw new Error(tr('اختر الزميل')); await db.rpc('swap_ask', { p_company: S.cid, p_with: f.swwith, p_day: f.swday, p_note: blank(f.note) }); toast(tr('أُرسل الطلب إلى زميلك')); route(); return; }
-      if (['expense', 'trip', 'purchase', 'ticket'].includes(k)) { const fl = [...($('#rqr').files || [])]; if (fl.length) a.p_payload = Object.assign({}, a.p_payload, { files: await Promise.all(fl.slice(0, 5).map(readAttachment)) }); }
+      if (['expense', 'trip', 'purchase', 'ticket'].includes(k)) { const fl = [...($('#rqr').files || [])]; if (fl.length) a.p_payload = Object.assign({}, a.p_payload, { files: await Promise.all(fl.slice(0, 5).map(readAttachment)) });
+        if (rcpt) a.p_payload = Object.assign({}, a.p_payload, { receipt: rcpt }); }
       await db.rpc('submit_request', a); toast('أُرسل الطلب'); route();
     }
   });
   const D = $('#dlg'), gross = S.myEmp ? n0(S.myEmp.basic) + n0(S.myEmp.housing) + n0(S.myEmp.transport) : 0;
+  // a photographed invoice fills the expense amount; what it said goes with the request for the approvers (0160)
+  let rcpt = null; if (typeof receiptReader === 'function') receiptReader($('#rqr', D), z => { rcpt = z; if ($('#rk', D).value === 'expense' && z.total != null) D.querySelector('[name=amount]').value = z.total; });
   const sync = () => {
     if (!$('#rk', D)) return;   // the dialog now shows another form
     const k = $('#rk').value, rawSub = D.querySelector('[name=sub]').value, sub = rawSub === 'annual_out' ? 'annual' : rawSub, ev = k === 'leave' && EVENT_LEAVES[sub];
@@ -244,7 +247,7 @@ async function requestDetail(r, { decide } = {}) {
     ${['overtime', 'remote'].includes(r.kind) && r.payload ? `<div class="card" style="margin:10px 0;padding:10px 12px"><b class="small">${esc(tr(KIND[r.kind]))}</b>${r.payload.place ? `<div class="small">${esc(tr('مكان العمل'))}: <b data-nt>${esc(r.payload.place)}</b></div>` : ''}<div class="small">${esc(tr('السبب'))}: <span data-nt>${esc(r.payload.reason || '')}</span></div></div>` : ''}
     ${r.kind === 'move' ? moveBox(r) : ''}
     ${['expense', 'purchase', 'trip', 'ticket'].includes(r.kind) ? await budgetBox(r) : ''}
-    ${r.note ? `<p>${esc(r.note)}</p>` : ''}${r.kind === 'expense' && typeof expenseInfo === 'function' ? await expenseInfo(r, decide) : ''}${decide && r.kind === 'expense' && !atts.length ? `<div class="note">⚠️ ${esc(tr('لا يوجد إيصال مرفق بالمطالبة'))}</div>` : ''}
+    ${r.note ? `<p>${esc(r.note)}</p>` : ''}${r.kind === 'expense' && typeof expenseInfo === 'function' ? await expenseInfo(r, decide) : ''}${r.payload && r.payload.receipt && typeof receiptInfo === 'function' ? await receiptInfo(r) : ''}${decide && r.kind === 'expense' && !atts.length ? `<div class="note">⚠️ ${esc(tr('لا يوجد إيصال مرفق بالمطالبة'))}</div>` : ''}
     ${!atts.length && !canAttach && lt.find(l => l.code === r.sub && l.doc_label) ? `<p class="muted small">${esc(tr('المرفق المطلوب') + ': ' + docLabel(lt.find(l => l.code === r.sub)))} — ${esc('تراه الموارد البشرية فقط')}</p>` : ''}
     ${r.payload && r.payload.abroad ? `<p class="small">${esc(tr('بلد الوجهة'))}: <b data-nt>${esc(r.payload.dest || '')}</b></p>` : ''}${skb}
     ${atts.length || canAttach || (r.payload && r.payload.doc_ref) ? `<div class="card" style="margin:10px 0;padding:10px 12px"><b class="small">${esc('المرفقات')}</b>${r.payload && r.payload.doc_ref ? `<div class="small" style="margin-top:4px">${esc(refLabel(lt.find(l => l.code === r.sub) || {}) || tr('رقم المستند'))}: <b class="num" data-nt>${esc(r.payload.doc_ref)}</b></div>` : ''}${atts.length ? atts.map(x => `<div class="row small" style="justify-content:space-between;margin-top:6px"><span><span class="badge">${x.mime === 'application/pdf' ? 'PDF' : esc('صورة')}</span> ${esc(x.file_name)} <span class="muted num">${Math.ceil(x.size / 1024)} KB</span></span><button type="button" class="btn sm" data-att="${x.id}">${esc('عرض')}</button></div>`).join('') : `<p class="muted small" style="margin:6px 0 0">${esc('لا توجد مرفقات ظاهرة لك')}</p>`}

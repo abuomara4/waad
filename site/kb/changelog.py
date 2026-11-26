@@ -2,6 +2,9 @@
 Add a new block at the top with each release. (date ar, date en, [(item ar, item en)])"""
 
 RELEASES = [
+ ('27 نوفمبر 2026', '27 November 2026', [
+  ('قراءة الفاتورة بالكاميرا: صوّر الفاتورة في طلب المصروف أو تسوية العهدة أو فواتير الموردين، فيقرأ وعد رمز QR الضريبي على جهازك ويعبّي المبلغ والمورد والرقم الضريبي والتاريخ، وينبّه إذا قُدّمت الفاتورة نفسها من قبل', 'Read an invoice with the camera: photograph it in an expense claim, a petty cash settlement or the supplier inbox, and Waad reads its ZATCA QR on your device and fills in the amount, supplier, VAT number and date, and warns when the same invoice was already submitted'),
+ ]),
  ('26 نوفمبر 2026', '26 November 2026', [
   ('رسالة ترحيب متحركة باسمك واسم منشأتك: لمالك المنشأة الجديدة بخطوات البداية، ولكل موظف جديد بوظيفته وقسمه ومديره وما يقدر يسويه من جواله', 'An animated welcome message with your name and your company: for a new company owner with the first steps, and for every new employee with their job, department, manager and what they can do from their phone'),
   ('إعادة تقييم العملات الأجنبية آخر الشهر، وتوزيع المصروفات المشتركة على مراكز التكلفة، ولوحة النسب المالية', 'Month-end foreign currency revaluation, shared cost allocation to cost centres, and a financial ratios page'),

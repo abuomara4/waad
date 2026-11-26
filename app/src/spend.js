@@ -23,19 +23,25 @@ VIEWS['#/supinbox'] = async page => {
         : `<p class="muted small">${esc(tr('سجّل فاتورة الشراء لهذا المورد من «فواتير المشتريات» ثم اربطها هنا.'))} <a href="#/purchases/new">${esc(tr('فاتورة شراء جديدة'))}</a></p>`) : ''}
       ${x.bill_id ? `<p><a href="#/purchases/${x.bill_id}">${esc(tr('فتح فاتورة الشراء'))}</a></p>` : ''}`);
     fileBox($('#sifb', d), 'supplier_inbox_files', 'inbox_id', x.id).catch(() => {});
+    if (x.receipt_key) db.rpc('receipt_seen', { p_company: S.cid, p_key: x.receipt_key }).then(n => { if (n > 1) $('#sifb', d).insertAdjacentHTML('beforebegin', `<div class="note">⚠️ ${esc(tr('هذه الفاتورة مقدّمة من قبل في المنشأة. تأكد أنها ليست مكررة.'))}</div>`); }).catch(() => {});
     const go = async (ok) => { try { await db.rpc('supplier_inbox_review', { p_id: x.id, p_ok: ok, p_note: d.querySelector('[name=rn]').value }); d.close(); toast(tr('تم الحفظ')); route(); } catch (e) { toast(e.message); } };
     if ($('#siok', d)) $('#siok', d).onclick = () => go(true);
     if ($('#sino', d)) $('#sino', d).onclick = () => go(false);
     if ($('#silk', d)) $('#silk', d).onclick = async () => { try { await db.rpc('supplier_inbox_link', { p_id: x.id, p_bill: d.querySelector('[name=bill]').value }); d.close(); toast(tr('تم الربط')); route(); } catch (e) { toast(e.message); } };
   });
-  $('#sinew', page).onclick = () => modal(tr('فاتورة مورد واردة'), `<div class="fg">${field('المورد', `<select name="p"><option value="">${esc(tr('مورد غير مسجّل'))}</option>${sup.map(p => opt(p.id, p.name)).join('')}</select>`)}
+  $('#sinew', page).onclick = () => { let rz = null; const d = modal(tr('فاتورة مورد واردة'), `<div class="fg">${field('المورد', `<select name="p"><option value="">${esc(tr('مورد غير مسجّل'))}</option>${sup.map(p => opt(p.id, p.name)).join('')}</select>`)}
       ${field('اسم المورد (إن لم يكن مسجّلا)', inp('pn', '', 'maxlength="120"'))}${field('رقم فاتورة المورد', inp('ref', '', 'maxlength="60"'))}${field('تاريخ الفاتورة', `<input type="date" name="d" value="${today()}">`)}
       ${field('المبلغ شامل الضريبة', inp('a', '', 'type="number" min="0" step="0.01"'))}${field('ملاحظة', inp('n', '', 'maxlength="500"'), 'wide')}
       <div class="wide"><label>${esc(tr('ملف الفاتورة (PDF أو صورة)'))}</label><input type="file" name="files" id="sif" accept="application/pdf,image/*"></div></div>`, {
     onOk: async f => { if (!f.p && !(f.pn || '').trim()) throw new Error(tr('اختر المورد أو اكتب اسمه'));
-      const [row] = await db.ins('supplier_inbox', { company_id: S.cid, party_id: f.p || null, supplier_name: f.p ? null : f.pn.trim(), supplier_ref: blank(f.ref), inv_date: f.d || null, amount: f.a === '' ? null : +f.a, note: blank(f.n) });
+      const [row] = await db.ins('supplier_inbox', Object.assign({ company_id: S.cid, party_id: f.p || null, supplier_name: f.p ? null : f.pn.trim(), supplier_ref: blank(f.ref), inv_date: f.d || null, amount: f.a === '' ? null : +f.a, note: blank(f.n) },
+        rz ? { receipt_key: rz.key, vat_no: /^3[0-9]{13}3$/.test(rz.vat_no || '') ? rz.vat_no : null, vat: rz.tax == null ? null : rz.tax } : {}));
       const fl = $('#sif').files; if (fl && fl.length) await attachFiles('supplier_inbox_files', 'inbox_id', row.id, fl);
       toast(tr('سُجّلت الفاتورة وتنتظر مراجعة المالية')); route(); } });
+    // a photographed invoice picks the supplier by its VAT number (or writes its name), the date and the total (0160)
+    if (typeof receiptReader === 'function') receiptReader($('#sif', d), z => { rz = z; const sp = sup.find(p => p.vat_no && p.vat_no === z.vat_no);
+      if (sp) d.querySelector('[name=p]').value = sp.id; else { d.querySelector('[name=p]').value = ''; d.querySelector('[name=pn]').value = z.seller || ''; }
+      if (z.date) d.querySelector('[name=d]').value = z.date; if (z.total != null) d.querySelector('[name=a]').value = z.total; if (z.ref) d.querySelector('[name=ref]').value = z.ref; }); };
 };
 
 /* ---------- «لوحة الإنفاق»: where the money goes ---------- */
