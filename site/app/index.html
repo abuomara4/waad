@@ -11553,6 +11553,25 @@ const GUIDE = {
       ['لتعديل بياناتك (الجوال، العنوان، ...) اضغط «طلب تعديل بياناتي»، وتعتمده الموارد البشرية.', 'To change your data (mobile, address, ...) press «Request a change to my data»; HR approves it.'],
       ['إذا نُسبت إليك مخالفة تظهر هنا: اطّلع عليها وأرسل ردك الكتابي.', 'If a violation is recorded against you it shows here: read it and send your written reply.'],
       ['إذا صدر بحقك جزاء فلك حق التظلم خلال 30 يوما من إبلاغك (م72).', 'If a penalty is issued you may appeal within 30 days of being notified (Art. 72).']] },
+    { id: 'dir', go: '#/directory', t: ['دليل الموظفين', 'Staff directory'], s: [
+      ['افتح «دليل الموظفين» لتجد أي زميل: اسمه وإدارته ومسماه ورقم تحويلته.', 'Open «Staff directory» to find any colleague: name, department, title and extension.'],
+      ['من «بياناتي في الدليل» اكتب رقم تحويلتك، واختر هل يظهر جوالك وبريدك لزملائك (مخفيان ما لم تختر إظهارهما).', 'In «My directory details» enter your extension and choose whether your mobile and e-mail show to colleagues (hidden unless you choose).']] },
+    { id: 'kudos', go: '#/kudos', t: ['الشكر والتقدير', 'Recognition'], s: [
+      ['افتح «الشكر والتقدير» واضغط «اشكر زميلا»، واختر الزميل والقيمة (روح الفريق، التميز، المساعدة…) واكتب رسالتك.', 'Open «Recognition», press «Thank a colleague», pick the colleague and the value (teamwork, excellence, help…) and write your message.'],
+      ['يرى الجميع الشكر في الصفحة وفي الرئيسية، ويظهر الأكثر شكرا في الشهر.', 'Everyone sees it on the page and on home, with the most thanked of the month.']] },
+    { id: 'grv', go: '#/grievance', t: ['البلاغ السري', 'Confidential report'], s: [
+      ['لرفع شكوى أو بلاغ بسرية افتح «بلاغ سري» ثم «بلاغ جديد»، واختر نوعه ولمن يصل: الموارد البشرية أو المالك فقط.', 'To raise a complaint or report confidentially open «Confidential report», then «New report»; choose its type and who gets it: HR or the owner only.'],
+      ['يمكنك إرساله «بدون اسمي» فلا يظهر اسمك لمن يعالجه، وتتابع الرد والحالة من الصفحة نفسها.', 'You can send it «without my name» so whoever handles it does not see it, and you follow the replies and status on the same page.'],
+      ['للاعتراض على جزاء صدر بحقك استخدم «ملفي» ← الجزاءات، وليس البلاغ السري.', 'To appeal a penalty use «My profile» → penalties, not the confidential report.']] },
+    { id: 'expr', go: '#/requests', t: ['مطالبة المصروفات مع الإيصال', 'Expense claims with the receipt'], s: [
+      ['في «طلب جديد» اختر «مطالبة مصروفات» واكتب المبلغ، ثم أرفق الإيصال أو الفاتورة (صورة أو PDF).', 'In «New request» choose «Expense claim», enter the amount and attach the receipt or invoice (photo or PDF).'],
+      ['في الجوال اضغط «تصوير بالكاميرا» لتصوّر الإيصال مباشرة. يراه مديرك والمالية قبل الاعتماد.', 'On a phone press «Take a photo» to snap the receipt directly; your manager and finance see it before approving.']] },
+    { id: 'swap', go: '#/requests', when: () => !!(S.company && S.company.att_enabled), t: ['تبديل الوردية مع زميل', 'Swapping a shift with a colleague'], s: [
+      ['في «طلب جديد» اختر «تبديل وردية مع زميل»، ثم الزميل واليوم.', 'In «New request» choose «Swap a shift with a colleague», then the colleague and the day.'],
+      ['يوافق زميلك من «طلباتي»، ثم يعتمد مديرك أو الموارد البشرية، فيتغيّر جدول الورديات لكما تلقائيا.', 'Your colleague accepts from «My requests», then your manager or HR approves, and the roster changes for both of you automatically.']] },
+    { id: 'exit', go: '#/exit', when: () => !!(S.myEmp && S.myEmp.end_date), t: ['مقابلة نهاية الخدمة', 'Exit interview'], s: [
+      ['عند انتهاء خدمتك تجد «مقابلة نهاية الخدمة» في القائمة: أسباب مغادرتك وتقييمك وملاحظاتك.', 'When your service ends you find «Exit interview» in the menu: your reasons for leaving, your ratings and comments.'],
+      ['تراها الموارد البشرية فقط، ولا تؤثر على مستحقاتك.', 'Only HR sees it, and it does not affect your dues.']] },
     { id: 'pol', go: '#/policies', t: ['السياسات واللوائح', 'Policies'], s: [
       ['اقرأ سياسات منشأتك ولائحة تنظيم العمل من «السياسات واللوائح».', 'Read your company\'s policies and work regulations under «Policies».'],
       ['بعد القراءة اضغط «اطلعت على هذه السياسة» ليُسجَّل اطلاعك.', 'After reading press «I have read this policy» to record it.']] },
@@ -11587,6 +11606,20 @@ const GUIDE = {
     { id: 'fb360', go: '#/reviews', t: ['تقييم 360 وآراء الزملاء', '360 feedback'], s: [
       ['من نافذة تقييم الموظف اضغط «طلب تقييم 360 من الزملاء» واختر الزملاء.', 'From an employee\'s review press «Request 360 feedback from colleagues» and pick colleagues.'],
       ['يظهر لك متوسط التقييم الذاتي وآراء الزملاء بدون أسماء، من رأيين فأكثر.', 'You see the self-rating and colleagues\' averages without names, from two answers.']] },
+    { id: 'bulk', img: 'approvals', go: '#/approvals', t: ['الاعتماد الجماعي وتذكير المتأخر', 'Bulk approval and late reminders'], s: [
+      ['في «الاعتمادات» حدد عدة طلبات (أو «تحديد الكل») ثم «اعتماد المحدد» لتعتمدها بضغطة.', 'In «Approvals» tick several requests (or «Select all») then «Approve selected» to approve them with one press.'],
+      ['الطلب الذي ينتظرك أكثر من 3 أيام (أو مهلة منشأتك) يصلك عنه تذكير على جوالك وبالإيميل.', 'A request waiting for you more than 3 days (or your company\'s deadline) brings a reminder on your phone and by e-mail.'],
+      ['طلبات تبديل الورديات التي وافق عليها الزميلان تظهر أسفل الصفحة لتعتمدها أو ترفضها.', 'Shift swaps both colleagues agreed to show at the bottom of the page for you to approve or reject.']] },
+    { id: 'prob', go: '#/probation', t: ['تقييم فترة التجربة', 'Probation evaluation'], s: [
+      ['افتح «تقييم فترة التجربة»: يظهر من تنتهي فترة تجربته خلال 30 يوما.', 'Open «Probation evaluation»: it lists who finishes probation within 30 days.'],
+      ['اضغط «تقييم» وقيّم خمسة بنود من 1 إلى 5، واكتب نقاط القوة وما يحتاج تحسينا، ثم التوصية: تثبيت أو تمديد أو إنهاء.', 'Press «Evaluate», rate five items from 1 to 5, write strengths and what needs improving, then recommend: confirm, extend or end.'],
+      ['تصدر الموارد البشرية القرار، والتمديد لا تزيد معه فترة التجربة كلها على 180 يوما (م53).', 'HR issues the decision; with an extension the whole probation stays within 180 days (Art. 53).']] },
+    { id: 'move', go: '#/employees', t: ['طلب نقل أو ترقية لموظفك', 'Transfer or promotion for your employee'], s: [
+      ['افتح ملف الموظف واضغط «طلب نقل أو ترقية»: الإدارة أو المسمى أو المدير أو الأجر الجديد وتاريخ السريان والسبب.', 'Open the employee\'s file and press «Transfer or promotion request»: the new department, title, manager or pay, the effective date and the reason.'],
+      ['يمر على الموارد البشرية ثم الاعتماد حسب مسار منشأتك، ويُطبَّق على ملف الموظف عند الاعتماد النهائي.', 'It passes HR and then the company\'s approvals, and is applied to the employee file on the final approval.']] },
+    { id: 'cmp', go: '#/competencies', t: ['جدارات فريقك', 'Your team\'s competencies'], s: [
+      ['في «جدارات فريقي» قيّم كل موظف على الجدارات من 1 إلى 5.', 'In «My team\'s competencies» rate each employee on the competencies from 1 to 5.'],
+      ['الرقم الأحمر يعني أقل من المطلوب في وصفه الوظيفي: فجوة تحتاج تطويرا أو تدريبا.', 'A red number is below what their job description requires: a gap that needs development or training.']] },
     { id: 'hc', go: '#/workforce', t: ['طلب وظيفة جديدة لفريقك', 'Requesting a new position for your team'], s: [
       ['من «خطة القوى العاملة» اضغط «طلب وظيفة» واكتب المسمى والعدد والتكلفة الشهرية.', 'In «Workforce plan» press «Position request» and enter the title, headcount and monthly cost.'],
       ['تعتمدها الموارد البشرية ثم المالية، وبعدها تصبح وظيفة شاغرة.', 'HR then finance approve it, and it becomes a job opening.']] },
@@ -11630,6 +11663,24 @@ const GUIDE = {
       ['حدد موعد المقابلة ثم أرسل الدعوة الجاهزة بالواتساب أو البريد.', 'Set the interview time, then send the ready invitation by WhatsApp or e-mail.']] },
     { id: 'exp', go: '#/expensepolicy', t: ['سياسات المصروفات', 'Expense policies'], s: [
       ['حدد فئات المصروفات وحد كل فئة، واختر المنع أو التنبيه عند التجاوز.', 'Set expense categories and their limits, and choose to block or warn when exceeded.']] },
+    { id: 'grvhr', go: '#/grievances', t: ['البلاغات السرية ومقابلات نهاية الخدمة', 'Confidential reports and exit interviews'], s: [
+      ['«البلاغات السرية» تعرض بلاغات الموظفين إليك؛ البلاغ بدون اسم لا يظهر فيه اسم مقدمه. ردّك يصله في صفحته، وغيّر الحالة واكتب ما تم.', '«Confidential reports» lists employees\' reports to you; an anonymous one shows no name. Your reply reaches them; update the status and write what was done.'],
+      ['«مقابلات نهاية الخدمة» تجمع إجابات المغادرين: أسباب المغادرة ومتوسط التقييم ومن يعود للعمل معكم.', '«Exit interviews» gathers leavers\' answers: reasons for leaving, average ratings and who would return.']] },
+    { id: 'talent2', go: '#/jobdesc', t: ['الأوصاف الوظيفية والجدارات والإحلال', 'Job descriptions, competencies and succession'], s: [
+      ['«مكتبة الوصف الوظيفي»: مهام كل وظيفة ومؤهلاتها، تربطها بالوظيفة الشاغرة وتطبعها مع العرض الوظيفي.', '«Job descriptions library»: each job\'s duties and qualifications, linked to the opening and printed with the offer.'],
+      ['في ملف المرشح «بطاقة التقييم» لكل مقيّم، و«مقارنة المرشحين» ترتّبهم حسب متوسط التقييم.', 'In the candidate file each interviewer fills «Scorecard», and «Compare candidates» ranks them by average.'],
+      ['«مصفوفة الجدارات» و«تخطيط الإحلال» للمناصب المهمة وخلفائها، و«عدالة الأجور» تقارن المتوسطات حسب الجنس والجنسية داخل الدرجة.', '«Competency matrix» and «Succession planning» for key positions and successors; «Pay equity» compares averages by gender and nationality inside each grade.']] },
+    { id: 'sales2', go: '#/dunning', t: ['التحصيل والأسعار وخدمة العملاء', 'Collections, prices and customer service'], s: [
+      ['«تحصيل المتأخرات»: العملاء المتأخرون مع رسالة تذكير جاهزة بالواتساب أو الإيميل ورابط كشف الحساب.', '«Overdue collections»: late customers with a ready WhatsApp or e-mail reminder and their statement link.'],
+      ['«قوائم الأسعار»: سعر خاص لكل فئة عملاء وخصم الكمية، تُطبَّق تلقائيا في العروض والأوامر والفواتير.', '«Price lists»: a special price per customer group and quantity discounts, applied automatically in quotations, orders and invoices.'],
+      ['في عرض السعر «رابط للعميل»: يقبله العميل من الرابط فيتحول إلى أمر بيع. و«تذاكر الدعم والصيانة» تُظهر إن كان المنتج في الضمان.', 'On a quotation «Customer link»: the customer accepts it from the link and it becomes a sales order. «Support and service tickets» show whether the product is under warranty.']] },
+    { id: 'fin2', go: '#/payrun', t: ['السداد والضرائب والإيرادات المؤجلة', 'Payments, taxes and deferred revenue'], s: [
+      ['«دفعة سداد جماعية»: اختر فواتير الموردين المستحقة وادفعها مرة واحدة، ونزّل ملف البنك.', '«Supplier payment run»: pick the supplier bills due, pay them at once and download the bank file.'],
+      ['«سداد مع ضريبة الاستقطاع» في فاتورة المورد غير المقيم: تُحجز الضريبة حسب نوع الدفعة وتظهر في «ضريبة الاستقطاع» لسدادها للهيئة خلال أول 10 أيام من الشهر التالي.', '«Pay with withholding tax» on a non-resident\'s bill: the tax is held by payment type and listed in «Withholding tax» to pay ZATCA within the first 10 days of the next month.'],
+      ['«الإيرادات المؤجلة» و«التكاليف المحمّلة» و«إعادة تقييم العملات» و«توزيع المصروفات» و«النسب المالية» في قسم المالية.', '«Deferred revenue», «Landed costs», «Currency revaluation», «Cost allocation» and «Financial ratios» are in the finance section.']] },
+    { id: 'myrep', go: '#/myreports', t: ['التقارير المخصصة والربط مع الأنظمة', 'Custom reports and connecting systems'], s: [
+      ['«تقاريري المخصصة»: اختر البيانات والأعمدة والفلاتر، واحفظ التقرير ونزّله Excel، ويمكن أن يصلك رابطه بالإيميل أسبوعيا أو شهريا.', '«My custom reports»: choose the data, columns and filters, save it and download Excel; its link can reach you by e-mail weekly or monthly.'],
+      ['من «إعدادات المنشأة»: «الربط البرمجي (API)» للقراءة، و«إشعارات الأنظمة الأخرى (Webhooks)» تبلغ نظامك بالأحداث، و«نقاط الولاء» لنقطة البيع.', 'In «Company settings»: «API» for reading, «Webhooks» to tell your system about events, and «Loyalty points» for the point of sale.']] },
     { id: 'print', t: ['اطبع دليل الموظف', 'Print the employee guide'], s: [
       ['اضغط «اطبع دليل الموظف» أعلى هذه الصفحة: صفحة واحدة فيها رابط النظام ورمز منشأتك وأهم الخدمات.', 'Press «Print the employee guide» at the top of this page: one page with the system link, your company code and the main services.'],
       ['احفظها PDF وأرسلها لموظفيك يوم الإطلاق، أو علّقها في لوحة الإعلانات.', 'Save it as PDF and send it to your employees on launch day, or pin it on the notice board.']] },
