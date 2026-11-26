@@ -3,6 +3,7 @@ Add a new block at the top with each release. (date ar, date en, [(item ar, item
 
 RELEASES = [
  ('26 نوفمبر 2026', '26 November 2026', [
+  ('رسالة ترحيب متحركة باسمك واسم منشأتك: لمالك المنشأة الجديدة بخطوات البداية، ولكل موظف جديد بوظيفته وقسمه ومديره وما يقدر يسويه من جواله', 'An animated welcome message with your name and your company: for a new company owner with the first steps, and for every new employee with their job, department, manager and what they can do from their phone'),
   ('إعادة تقييم العملات الأجنبية آخر الشهر، وتوزيع المصروفات المشتركة على مراكز التكلفة، ولوحة النسب المالية', 'Month-end foreign currency revaluation, shared cost allocation to cost centres, and a financial ratios page'),
   ('منشئ تقارير مخصصة يُحفظ ويُرسل رابطه بالإيميل، وربط Webhooks موقّع يبلغ أنظمتك بالأحداث', 'A custom report builder you can save and get by e-mail link, and signed webhooks that tell your systems about events'),
   ('مصفوفة الجدارات وتخطيط الإحلال، وتحليل عدالة الأجور، ولوحة الشكر والتقدير', 'A competency matrix with succession planning, pay equity analysis, and a recognition wall'),

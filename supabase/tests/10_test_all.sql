@@ -4793,6 +4793,25 @@ select t.ok((:'lp2'::jsonb->'loyalty'->>'value')::numeric = 10 and (:'lp2'::json
   'loyalty: 200 points pay 10 riyals of the next sale, and the rest earns new points');
 select t.err($$select public.pos_sale_pts('$$ || :'cid' || $$', '$$ || :'osh' || $$', '{"party":"$$ || :'c1' || $$","points":99999,"lines":[{"item":"$$ || :'i3' || $$","qty":1,"price":200}]}', 0, 0)$$, 'رصيد', 'loyalty: not more than the balance');
 reset role;
+-- 28. welcome message (0159): HR writes it once; a companion and day-one details per new employee
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.welcome_set(:'cid', jsonb_build_object('note', 'يسعدنا انضمامك إلينا', 'from', 'عبدالله الراشد', 'title', 'المدير العام', 'vision', 'أن نكون الخيار الأول',
+  'values', jsonb_build_array(jsonb_build_object('ar', 'الأمانة', 'en', 'Integrity'), jsonb_build_object('ar', ' '), jsonb_build_object('ar', 'الإتقان')), 'time', '08:00', 'place', 'المقر الرئيسي — الدور الثاني',
+  'week', jsonb_build_array(jsonb_build_object('ar', 'أكمل بياناتك'))));
+select public.welcome_emp_set(:'cid', :'e_emp', :'e_mgr', '{"time":"09:30","meet":"خالد"}');
+reset role;
+select t.ok((select wel_note = 'يسعدنا انضمامك إلينا' and wel_time = '08:00' and jsonb_array_length(core_values) = 2 and core_values->0->>'en' = 'Integrity' and jsonb_array_length(wel_week) = 1 from public.companies where id = :'cid'),
+  'welcome: HR saves the manager''s words, values (empty lines dropped), day-one time and week tasks');
+select t.ok((select buddy_id = :'e_mgr'::uuid and first_day->>'time' = '09:30' and first_day->>'meet' = 'خالد' from public.employees where id = :'e_emp'), 'welcome: a companion and the employee''s own day-one time');
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.err($$select public.welcome_emp_set('$$ || :'cid' || $$', '$$ || :'e_emp' || $$', '$$ || :'e_emp' || $$', '{}')$$, 'المرافق', 'welcome: the companion is another employee');
+select t.err($$select public.welcome_set('$$ || :'cid' || $$', '{"time":"25:00"}')$$, 'وقت', 'welcome: the start time is checked');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.welcome_set('$$ || :'cid' || $$', '{"note":"x"}')$$, '42501|مصرح', 'welcome: an employee cannot change the message');
+select t.err($$select public.welcome_emp_set('$$ || :'cid' || $$', '$$ || :'e_emp' || $$', null, '{}')$$, '42501|مصرح', 'welcome: an employee cannot pick his own companion');
+select t.ok((select buddy_id is not null from public.employees where id = :'e_emp') and (select wel_note is not null from public.companies where id = :'cid'), 'welcome: the employee reads his companion and the message');
+reset role;
 -- RLS performance (0150): auth.uid() is computed once per statement in every policy
 select t.ok((select count(*) = 0 from pg_policies where schemaname = 'public' and (coalesce(qual, '') || coalesce(with_check, '')) ~ '(?<!SELECT )auth\.uid\(\)'),
   'rls: no policy calls auth.uid() for every row (wrapped in a select)');

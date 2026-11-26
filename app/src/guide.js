@@ -18,7 +18,7 @@ VIEWS['#/guide'] = async page => {
         ${it.img ? `<img class="gshot" src="${esc(guideImg(it.img))}" alt="${esc(hT(it.t))}" loading="lazy" onerror="this.remove()">` : ''}</div>
       ${it.go && open.has(it.go) ? `<a class="small" href="${esc(it.go)}">${esc(LANG === 'en' ? 'Try it now' : 'جرّبها الآن')}</a>` : ''}</details>`;
   page.innerHTML = `<div class="head"><div><h1>${esc(tr('دليل الاستخدام'))}</h1><div class="muted">${esc(tr('خطوات قصيرة لما تستخدمه في وعد، والصور من منشأة تجريبية.'))}</div></div>
-      ${has('owner', 'admin', 'hr') ? `<button class="btn pri" id="gprint">${esc(tr('اطبع دليل الموظف'))}</button>` : ''}</div>
+      <div class="row">${welcomeReplayKind() ? `<button class="btn" id="gwv">▶ ${esc(tr('رسالة الترحيب'))}</button>` : ''}${has('owner', 'admin', 'hr') ? `<button class="btn pri" id="gprint">${esc(tr('اطبع دليل الموظف'))}</button>` : ''}</div></div>
     <input id="gq" type="search" aria-label="${esc(tr('بحث في الدليل'))}" placeholder="${esc(tr('ابحث، مثل: إجازة، راتب، حضور'))}" style="max-width:420px;margin-bottom:12px">
     <div data-nt>${secs.map(k => `<section class="gsec" data-sec="${k}"><h2>${esc(hT(GUIDE[k].t))}</h2>
       ${GUIDE[k].items.filter(it => !it.when || it.when()).map(card).join('')}${quizCard(k, mineRes)}</section>`).join('')}</div>
@@ -26,6 +26,7 @@ VIEWS['#/guide'] = async page => {
   $('#gq', page).oninput = e => { const q = e.target.value.trim().toLowerCase();
     $$('.gitem', page).forEach(x => { const hit = !q || x.textContent.toLowerCase().includes(q); x.style.display = hit ? '' : 'none'; if (q && hit) x.open = true; }); };
   if ($('#gprint', page)) $('#gprint', page).onclick = guidePrint;
+  if ($('#gwv', page)) $('#gwv', page).onclick = () => welcomePlay(welcomeReplayKind());
   $$('[data-quiz]', page).forEach(b => b.onclick = () => quizForm(b.dataset.quiz));
   if (/[?&]t=results/.test(location.hash) && $('#gres', page)) $('#gres', page).scrollIntoView();
 };

@@ -737,6 +737,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 إريتري	Eritrean
 إزالة	Remove
 إزالة الشعار	Remove logo
+إزالة الصورة	Remove photo
 إزالة من الدورة	Remove from course
 إزالة من الفريق	Remove from the team
 إزالة من المنشأة	Remove from company
@@ -1128,6 +1129,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اختيار نموذج البنك	Choose the bank's sample file
 اختيار يدوي	Manual selection
 اختياري	optional
+اختيارية	optional
 اخر	other
 اخرى	other
 اخصم أجر الإجازة يدويا في المسير القادم	deduct the leave pay manually in the next payroll
@@ -2166,6 +2168,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الدولة	Country
 الديانة	Religion
 الذمم والمطالبات	balances and claims
+الرؤية	Vision
+الرؤية بالإنجليزية	Vision in English
 الرئيسي	Main
 الرئيسية	Home
 الرابط	Link
@@ -2266,6 +2270,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الزكاة التقديرية	Zakat estimate
 الزملاء	Peers
 الزميل	Colleague
+الزميل المرافق	Companion colleague
+الزميل المرافق يجب أن يكون موظفا آخر على رأس العمل في المنشأة	The companion must be another employee in service at the company
 الزواج	marriage
 الزوج	Husband
 الزوجة	Wife
@@ -2654,7 +2660,11 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 القيد معكوس مسبقاً	The entry is already reversed
 القيد مُرحّل	The entry is posted
 القيد يحتاج سطرين على الأقل	An entry needs at least two lines
+القيم	Values
+القيم (سطر لكل قيمة)	Values (one per line)
 القيم المسجلة سابقا تبقى في السجلات ولا تظهر	values already recorded stay in the records and are not shown
+القيم بالإنجليزية	Values in English
+القيم بالإنجليزية (بنفس الترتيب)	Values in English (same order)
 القيم لا تكون سالبة	Values cannot be negative
 القيمة	Value
 القيمة التقديرية	Estimated value
@@ -2675,6 +2685,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الكشف كبير أو غير صحيح	The statement is too large or not valid
 الكل	All
 الكل أقر	Everyone has acknowledged
+الكلمة	The words
+الكلمة بالإنجليزية	The words in English
 الكميات الافتتاحية تُدخل من	Opening quantities are entered from
 الكمية	Quantity
 الكمية أكبر من الرصيد المتوفر في المستودع	The quantity is more than the warehouse balance
@@ -3020,6 +3032,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المكافأة الكاملة	Full award
 المكافأة المستحقة	Award due
 المكان	Location
+المكان بالإنجليزية	Place in English
 المكتسب	Earned
 المكتوب على الشيك	written on the cheque
 المكلّف	Assignee
@@ -3069,6 +3082,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المنشأة موقوفة أو لم تُقبل بعد	The company is suspended or not yet accepted
 المنشأة موقوفة أو لم تُقبل بعد، فيمكن حذفها عند طلب المالك.	The company is suspended or not yet accepted, so it can be deleted when the owner asks.
 المنصب	Position
+المنصب بالإنجليزية	Position in English
 المنطقة	region
 المنفذ	Done
 المنفذ المعتمد	Certified to date
@@ -3077,6 +3091,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المهارات والجدارات	Skills and competencies
 المهام	Tasks
 المهام المنجزة أو النسبة المدخلة	tasks done or the entered %
+المهام بالإنجليزية	Tasks in English
+المهام بالإنجليزية (بنفس الترتيب)	Tasks in English (same order)
 المهام والمسؤوليات	Duties and responsibilities
 المهمة	Task
 المهمة غير موجودة	Task not found
@@ -3136,6 +3152,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 المُسلَّم	Delivered
 المُفوتر	Invoiced
 المُنهاة	Terminated
+النبذة بالإنجليزية	About in English
 النتائج الرئيسية	Key results
 النتيجة	Result
 النتيجة غير موجودة	Key result not found
@@ -3248,6 +3265,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 اليابان	Japan
 اليوم	Today
 اليوم آخر يوم	today is the last day
+اليوم الأول والأسبوع الأول	First day and first week
 اليوم التالي لنهاية العقد الحالي	the day after the current contract ends
 اليوم الوطني	National Day
 اليوم الوطني ويوم التأسيس	National Day and Founding Day
@@ -3545,6 +3563,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 بندا في الطلب	lines per request
 بنداً في الطلب	lines per request
 بنغلاديشي	Bangladeshi
+بنفس الترتيب	same order
 بنك	Bank
 بنك البلاد	Bank Albilad
 بنك الجزيرة	Bank AlJazira
@@ -3948,6 +3967,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تصدير سلع	Export of goods
 تصريح الحج	Hajj permit
 تصفية	Filter
+تصل كل موظف جديد باسمه ومسماه وقسمه من الموارد البشرية	Every new employee gets it from HR with their name, title and department
+تصل كل موظف جديد باسمه ومسماه وقسمه من الموارد البشرية. تُكتب مرة واحدة، والجزء الفارغ لا يظهر في الرسالة.	Every new employee gets it from HR with their name, title and department. Write it once; an empty part is left out of the message.
 تصميم الواجهات	UI design
 تصوير بالكاميرا	Take a photo
 تصير خانة تُعبّأ وقت الطباعة	becomes a field filled in when printing
@@ -4336,6 +4357,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تُقصَّر الوردية تلقائياً بين التاريخين لمن يطبق عليه دوام رمضان في ملفه	The shift is shortened automatically between the dates for employees with Ramadan hours on their file
 تُقيد الفروقات على المخزون ولا يمكن التعديل بعدها	Differences are booked to stock and cannot be edited afterwards
 تُقيَّد الغرامات في سجل خاص	Fines are entered in a special register
+تُكتب مرة واحدة	Write it once
 تُكسب النقاط على ما يدفعه العميل نقدا أو بالشبكة أو بالشيك	Points are earned on what the customer pays in cash, by card or by cheque
 تُلغى الاعتمادات السابقة ويعود المسير لمدير الموارد البشرية	Earlier approvals are cleared and the payroll goes back to the HR manager
 تُلغى التأشيرة قبل تسجيل إصدارها فقط	A visa can be cancelled only before it is recorded as issued
@@ -4972,6 +4994,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 ردّك يظهر لهم في النظام ويوصلهم على الإيميل	Your reply shows in their system and reaches them by e-mail
 رسائل شكر في اليوم	thank-you messages a day
 رسائل نصية	SMS
+رسالة الترحيب	Welcome message
+رسالة الترحيب للموظف	Welcome message for the employee
 رسالة دعوة المقابلة	Interview invitation message
 رسالة عامة	General message
 رسالة قصيرة تظهر أعلى النظام لجميع المستخدمين في كل المنشآت	A short message shown at the top of the system to all users in every company
@@ -5322,6 +5346,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 سطر لكل بند	one step per line
 سطر لكل حساب أو عميل أو مورد أو صنف	one line per account, customer, supplier or item
 سطر لكل خيار	one per line
+سطر لكل قيمة	one per line
+سطر لكل مهمة	one per line
 سعر الأمر	Order price
 سعر البند	The rate of item
 سعر البيع	Sale price
@@ -5618,6 +5644,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 صنف جديد	New item
 صنف غير موجود	Item not found
 صورة	Image
+صورة (اختيارية)	Photo (optional)
 صورة أو	Image or
 صومالي	Somali
 صوّرها بصيغة	take it as
@@ -6400,6 +6427,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 كلمة المرور المؤقتة	Temporary password
 كلمة مرور مؤقتة	Temporary password
 كلمة مرور مؤقتة جديدة	New temporary password
+كلمة من المدير	Words from the manager
 كلمتا المرور غير متطابقتين	The passwords do not match
 كلٌّ يرى بصلاحياته	each sees by their access
 كم	How many
@@ -7455,6 +7483,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 معالجة	Fix
 معاينة	Preview
 معاينة النموذج	Form preview
+معاينة رسالة الترحيب	Preview the welcome message
 معاينة وطباعة	Preview and print
 معتمد	Approved
 معتمدة	Active
@@ -7530,6 +7559,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مكافأة نهاية الخدمة	End-of-service award
 مكافأة نهاية الخدمة والمخالصة	End-of-service award and settlement
 مكان العمل	Work location
+مكان المباشرة	Start place
 مكان المقابلة	Interview place
 مكان المقابلة (حضورية)	Interview place (in person)
 مكان الموظف في الهيكل	Position in the chart
@@ -7697,6 +7727,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 منع الاعتماد النهائي لطلبات الصرف	Block the final approval of spend requests
 منفّذ	Done
 منهم تابعون	of them dependants
+مهام الأسبوع الأول	First-week tasks
+مهام الأسبوع الأول (سطر لكل مهمة)	First-week tasks (one per line)
 مهام كل وظيفة ومؤهلاتها	The duties and qualifications of each job
 مهام مقترحة	Suggested tasks
 مهلة الإشعار	Notice period
@@ -7775,6 +7807,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 نأمل تجهيز متطلبات التجديد والتواصل مع الموارد البشرية	Please prepare the renewal requirements and contact HR
 ناجح	Passed
 ناقص	Incomplete
+نبذة عن المنشأة	About the company
 نبذة عنك	About you
 نتائج اختبار الدليل	User-guide quiz results
 نتائج جديدة لاختبار دليل الاستخدام	new user-guide quiz results
@@ -8054,6 +8087,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 هل يتضمن شرط تجديد تلقائي	Does it include an automatic renewal clause
 هندي	Indian
 هوية	ID
+هوية المنشأة	Company identity
 هوية مقيم	resident ID
 هوية وطنية	national ID
 هيئة الزكاة والضريبة والجمارك	Zakat, Tax and Customs Authority
@@ -8113,6 +8147,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 والتظلم كتابةً خلال	and to file a written grievance within
 والتكلفة متوسط واحد للمنشأة	cost is one average for the company
 والجديد يُضاف	and a new one is added
+والجزء الفارغ لا يظهر في الرسالة	and an empty part is left out of the message
 والجوال	and mobile
 والحد	and the limit is
 والحكم عليها يكون حسب نشاطك	and judging them depends on your business
@@ -8311,6 +8346,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 وقت التوقيع	Signed at
 وقت الحضور	Check-in time
 وقت الحضور غير صحيح	Invalid check-in time
+وقت المباشرة	Start time
+وقت المباشرة غير صحيح	The start time is not valid
 وقت رمضان	Ramadan time
 وقت رمضان يبدأ مع الوردية بست ساعات عمل للمسلمين	The Ramadan time starts with the shift, with six working hours for Muslims
 وقد اكتُشفت بتاريخ	and discovered on
@@ -8542,6 +8579,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يساوي المبلغ إن تُرك فارغاً	equals the amount if left empty
 يستخدم	Uses
 يستعيد كلمة المرور من	and recovers the password from
+يستقبله	Who meets them
 يسجل ما يُفتح من شاشات النظام وعمليات التصدير	Records what is opened from system screens and data exports
 يسجّل بنفس البريد ثم يُدخل الرمز	They sign up with the same email, then enter the code
 يسجّل حضوره فيه فقط	checks in there only
@@ -8765,6 +8803,9 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 يومياً أو	a day or
 يومين	two days
 يُبنى الهيكل من	The chart is built from
+يُترك فارغا لاستخدام المهام المقترحة	Leave empty to use the suggested tasks
+يُترك فارغا لاستخدام مكان المنشأة	Leave empty to use the company place
+يُترك فارغا ليكون مديره المباشر	Leave empty for their direct manager
 يُجدد العقد الساري المحدد المدة فقط	Only the active fixed-term contract can be renewed
 يُحتسب	Counts as
 يُحذف الحقل من النماذج	The field is removed from the forms

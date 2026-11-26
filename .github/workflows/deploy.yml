@@ -35,7 +35,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then echo "app=1" >> "$GITHUB_OUTPUT"; exit 0; fi
           app=0
           for f in $(git diff --name-only "$base" "${{ github.sha }}"); do
-            case "$f" in site/app/*|site/admin/*) app=1;; site/*|docs/*|*.md) ;; *) app=1;; esac
+            case "$f" in site/app/*|site/admin/*) app=1;; site/*|docs/*|video/*|*.md) ;; *) app=1;; esac
           done
           echo "app=$app" >> "$GITHUB_OUTPUT"; echo "full system tests: $app"
 
