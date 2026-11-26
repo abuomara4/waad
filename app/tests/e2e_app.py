@@ -2,6 +2,8 @@
 import datetime, re, sys, os, json, urllib.request, urllib.parse, tempfile
 import openpyxl
 from playwright.sync_api import sync_playwright, expect
+# the app and the database count days in Riyadh time (0087); a runner in UTC must too, or tests fail after 21:00 UTC
+def ksa_today(): return (datetime.datetime.utcnow() + datetime.timedelta(hours=3)).date()
 
 BASE = 'http://127.0.0.1:54321'
 CHROME = os.environ.get('CHROME_PATH', '/opt/pw-browsers/chromium-1194/chrome-linux/chrome')
@@ -831,15 +833,15 @@ with sync_playwright() as pw:
     go(o, '#/grades'); o.wait_for_selector('#pdf'); o.fill('#pdf input[name=i]', '300'); o.fill('#pdf input[name=o]', '600'); o.click('#pds'); o.wait_for_timeout(500)
     ok(sql("select per_diem_in || '/' || per_diem_out from companies where name = 'شركة وعد التجريبية'") == '300.00/600.00', 'grades page: the company default per diem inside / outside the Kingdom')
     go(e, '#/requests'); e.wait_for_selector('#nr'); e.click('#nr'); e.select_option('#rk', 'trip'); e.fill('#dlg input[name=tdest]', 'جدة'); e.fill('#dlg input[name=tpurp]', 'زيارة عميل')
-    e.fill('#dlg input[name=trfrom]', (datetime.date.today() + datetime.timedelta(days=5)).isoformat()); e.fill('#dlg input[name=trto]', (datetime.date.today() + datetime.timedelta(days=6)).isoformat()); e.wait_for_timeout(700)
+    e.fill('#dlg input[name=trfrom]', (ksa_today() + datetime.timedelta(days=5)).isoformat()); e.fill('#dlg input[name=trto]', (ksa_today() + datetime.timedelta(days=6)).isoformat()); e.wait_for_timeout(700)
     ok('600.00' in e.inner_text('#trph'), 'business trip form: per diem 300 × 2 days shown before sending')
     modal_ok(e); e.wait_for_timeout(500); ok(sql("select amount::text || ':' || days from requests where kind = 'trip' order by created_at desc limit 1") == '600.00:2', 'business trip request sent with its per diem')
     # ---------- overtime in advance, remote work, transfer / promotion (0151) ----------
     go(e, '#/requests'); e.wait_for_selector('#nr'); e.click('#nr'); e.select_option('#rk', 'overtime'); e.fill('#dlg input[name=othours]', '3'); e.fill('#dlg input[name=otwhy]', 'جرد المستودع')
-    e.fill('#dlg input[name=otday]', (datetime.date.today() + datetime.timedelta(days=2)).isoformat()); modal_ok(e); e.wait_for_timeout(500)
+    e.fill('#dlg input[name=otday]', (ksa_today() + datetime.timedelta(days=2)).isoformat()); modal_ok(e); e.wait_for_timeout(500)
     ok(sql("select (payload->>'hours')::numeric::text || ':' || array_to_string(route, '') from requests where kind = 'overtime' order by created_at desc limit 1") in ('3:mp', '3:p'), 'overtime request: the employee asks for the hours in advance')
     e.click('#nr'); e.select_option('#rk', 'remote'); e.fill('#dlg input[name=rmwhy]', 'ظرف عائلي'); e.fill('#dlg input[name=rmplace]', 'المنزل')
-    e.fill('#dlg input[name=rmto]', (datetime.date.today() + datetime.timedelta(days=1)).isoformat()); modal_ok(e); e.wait_for_timeout(500)
+    e.fill('#dlg input[name=rmto]', (ksa_today() + datetime.timedelta(days=1)).isoformat()); modal_ok(e); e.wait_for_timeout(500)
     ok(sql("select (to_date - from_date)::text || ':' || (payload->>'place') from requests where kind = 'remote' order by created_at desc limit 1") == '1:المنزل', 'remote work request: two days from home')
     ok(e.locator('tbody tr', has_text='عمل عن بعد').count() >= 1, 'my requests list shows the remote work request')
     mv_emp = sql("select employee_id from requests where kind = 'remote' order by created_at desc limit 1")
@@ -952,7 +954,7 @@ with sync_playwright() as pw:
     ok(sql("select count(*) from okr_objectives o join okr_key_results k on k.objective_id = o.id where o.title = 'زيادة المبيعات'") == '1', 'OKRs: the company adds an objective with a key result')
     o.locator('[data-kp]').first.click(); o.wait_for_selector('#dlg input[name=v]'); o.fill('#dlg input[name=v]', '5'); modal_ok(o); o.wait_for_timeout(500)
     ok('25%' in o.inner_text('#page'), 'OKRs: progress 5 of 20 shows 25%')
-    yday = (datetime.date.today() - datetime.timedelta(days=1)).isoformat(); devf = os.path.join(tempfile.gettempdir(), 'attlog.csv')
+    yday = (ksa_today() - datetime.timedelta(days=1)).isoformat(); devf = os.path.join(tempfile.gettempdir(), 'attlog.csv')
     open(devf, 'w', encoding='utf-8').write('AC-No.,Name,Date/Time,State\n5000,x,%s 08:03,C/In\n5000,x,%s 12:30,C/Out\n5000,x,%s 17:01,C/Out\n7777,y,%s 08:00,C/In\n' % (yday, yday, yday, yday))
     go(o, '#/att/device'); o.wait_for_selector('#devi'); o.click('#devi'); o.set_input_files('#devf', devf); o.wait_for_selector('#devgo'); ok('4' in o.inner_text('#devp'), 'fingerprint device: the punch log is read and summarised before importing')
     o.click('#devgo'); o.wait_for_selector('text=استُورد'); ok('7777' in o.inner_text('#devp'), 'fingerprint device: an unknown device number is reported')
@@ -973,7 +975,7 @@ with sync_playwright() as pw:
     else:
         o.click('#mx'); ok(True, 'one receipt over several invoices: the customer had nothing open')
     go(o, '#/prepaid'); o.wait_for_selector('#ppn'); o.click('#ppn'); o.wait_for_selector('#dlg input[name=n]'); o.fill('#dlg input[name=n]', 'إيجار سنوي'); o.fill('#dlg input[name=a]', '12000')
-    o.fill('#dlg input[name=s]', (datetime.date.today().replace(day=1) - datetime.timedelta(days=1)).strftime('%Y-%m')); modal_ok(o); o.wait_for_timeout(500); o.click('#ppr'); o.wait_for_timeout(800)
+    o.fill('#dlg input[name=s]', (ksa_today().replace(day=1) - datetime.timedelta(days=1)).strftime('%Y-%m')); modal_ok(o); o.wait_for_timeout(500); o.click('#ppr'); o.wait_for_timeout(800)
     ok(sql("select count(*) || '/' || sum(amount) from prepaid_postings") == '2/2000.00', 'prepaid: a year of rent from last month posts 1,000 for each of the two months so far')
     go(o, '#/journal'); o.wait_for_selector('#jdn'); o.click('#jdn'); o.wait_for_selector('#jdl'); o.fill('#dlg input[name=m]', 'تسوية مصروف'); rows_ = o.locator('#jdl tr')
     rows_.nth(0).locator('[data-l=a]').select_option('5500'); rows_.nth(0).locator('[data-l=d]').fill('40'); rows_.nth(1).locator('[data-l=a]').select_option('1110'); rows_.nth(1).locator('[data-l=c]').fill('40')
@@ -994,7 +996,7 @@ with sync_playwright() as pw:
     o.locator('#fl tbody tr').first.click(); o.wait_for_selector('[data-pay]'); o.click('[data-pay]'); o.wait_for_selector('#dlg input[name=d]'); modal_ok(o); o.wait_for_timeout(600)
     ok(sql("select count(*) from facility_instalments where paid_on is not null") == '1', 'loans: the first instalment is paid and posted')
     o.click('#fnl'); o.wait_for_selector('#dlg input[name=beneficiary]'); o.fill('#dlg input[name=bank]', 'البنك الأهلي'); o.fill('#dlg input[name=beneficiary]', 'أمانة المنطقة')
-    o.fill('#dlg input[name=amount]', '50000'); o.fill('#dlg input[name=expiry]', (datetime.date.today() + datetime.timedelta(days=20)).isoformat()); modal_ok(o); o.wait_for_timeout(600)
+    o.fill('#dlg input[name=amount]', '50000'); o.fill('#dlg input[name=expiry]', (ksa_today() + datetime.timedelta(days=20)).isoformat()); modal_ok(o); o.wait_for_timeout(600)
     ok('أمانة المنطقة' in o.inner_text('.note.warn'), 'guarantees: one expiring within 30 days shows an alert')
     go(o, '#/reports?r=vat'); o.wait_for_selector('[data-vb]'); o.locator('[data-vb]').first.click(); o.wait_for_selector('#dlg table')
     ok(o.locator('#dlg tbody tr').count() >= 1, 'VAT return: a figure opens the invoices behind it'); o.click('#mx')
@@ -1604,7 +1606,7 @@ with sync_playwright() as pw:
     ok(int(sql("select count(*) from sales_invoices")) == n0inv + 1 and sql("select issued_count from recurring_invoices where title='صيانة شهرية'") == '1', 'recurring invoice: issued with one click when due, as a normal invoice')
     # company documents archive
     go(o, '#/companydocs'); o.wait_for_selector('#cdnew'); o.click('#cdnew'); o.wait_for_selector('#dlg[open] select[name=t]'); o.fill('#dlg input[name=no]', '1010999999')
-    o.fill('#dlg input[name=ex]', (datetime.date.today() + datetime.timedelta(days=20)).isoformat()); modal_ok(o); o.wait_for_timeout(600)
+    o.fill('#dlg input[name=ex]', (ksa_today() + datetime.timedelta(days=20)).isoformat()); modal_ok(o); o.wait_for_timeout(600)
     ok('السجل التجاري' in o.inner_text('#cdl') and 'متبقي' in o.inner_text('#cdl'), 'company documents: the commercial registration is recorded with a countdown to expiry')
     # fleet (0119): a vehicle with a service plan and a fuel / service log
     ok(o.locator('#nav a[href="#/companydocs?t=vehicles"]').count() >= 1, 'fleet: in the HR and finance menus')
@@ -1667,14 +1669,14 @@ with sync_playwright() as pw:
     # ---------- Projects (0058 + phase one 0123): file, cost center, milestones, Kanban, Gantt, hours, invoice, labor cost ----------
     go(o, '#/projects'); o.wait_for_selector('#nprj'); o.click('#nprj'); o.wait_for_selector('#dlg input[name=name]')
     o.fill('#dlg input[name=name]', 'تطوير متجر إلكتروني'); o.select_option('#dlg select[name=billing]', 'hourly'); o.fill('#dlg input[name=hourly_rate]', '150')
-    o.select_option('#dlg select[name=party_id]', index=1); o.fill('#dlg input[name=cost_budget]', '5000'); o.fill('#dlg input[name=start_date]', (datetime.date.today() - datetime.timedelta(days=10)).isoformat())
-    o.fill('#dlg input[name=due_date]', (datetime.date.today() + datetime.timedelta(days=50)).isoformat()); modal_ok(o); o.wait_for_url(re.compile(r'#/projects/'))
+    o.select_option('#dlg select[name=party_id]', index=1); o.fill('#dlg input[name=cost_budget]', '5000'); o.fill('#dlg input[name=start_date]', (ksa_today() - datetime.timedelta(days=10)).isoformat())
+    o.fill('#dlg input[name=due_date]', (ksa_today() + datetime.timedelta(days=50)).isoformat()); modal_ok(o); o.wait_for_url(re.compile(r'#/projects/'))
     ok(sql("select p.no like 'PRJ-%' and p.billing='hourly' and c.code = p.no from projects p join cost_centers c on c.id = p.cost_center_id where p.name='تطوير متجر إلكتروني'") == 'true', 'project saved with a PRJ number, hourly billing and its own cost center')
     prj_id = sql("select id from projects where name='تطوير متجر إلكتروني'")
     go(o, '#/projects/' + prj_id + '?t=plan'); o.wait_for_selector('#nms'); o.click('#nms'); o.wait_for_selector('#dlg input[name=weight]'); o.fill('#dlg input[name=name]', 'التصميم'); o.fill('#dlg input[name=weight]', '100')
-    o.fill('#dlg input[name=start_date]', (datetime.date.today() - datetime.timedelta(days=10)).isoformat()); o.fill('#dlg input[name=end_date]', (datetime.date.today() + datetime.timedelta(days=20)).isoformat()); modal_ok(o); o.wait_for_timeout(500)
+    o.fill('#dlg input[name=start_date]', (ksa_today() - datetime.timedelta(days=10)).isoformat()); o.fill('#dlg input[name=end_date]', (ksa_today() + datetime.timedelta(days=20)).isoformat()); modal_ok(o); o.wait_for_timeout(500)
     o.click('#ntask'); o.wait_for_selector('#dlg input[name=title]'); o.fill('#dlg input[name=title]', 'تصميم الواجهة'); o.select_option('#dlg select[name=milestone_id]', index=1)
-    o.fill('#dlg input[name=due_date]', (datetime.date.today() + datetime.timedelta(days=5)).isoformat()); modal_ok(o); o.wait_for_timeout(500)
+    o.fill('#dlg input[name=due_date]', (ksa_today() + datetime.timedelta(days=5)).isoformat()); modal_ok(o); o.wait_for_timeout(500)
     o.locator('[data-mv][data-to=doing]').first.click(); o.wait_for_timeout(500); o.locator('[data-mv][data-to=done]').first.click(); o.wait_for_timeout(500)
     ok(sql("select status from project_tasks where title='تصميم الواجهة'") == 'done', 'Kanban: the task moves to doing then done')
     go(o, '#/projects/' + prj_id + '?t=gantt'); o.wait_for_selector('#pbody .card'); ok('تصميم الواجهة' in o.inner_text('#pbody'), 'timeline (Gantt) shows the milestone and its task')
@@ -1733,7 +1735,7 @@ with sync_playwright() as pw:
     bp.goto(bb + '/waad-app.html'); bp.click('[data-go=in]'); bp.fill('input[name=email]', 'gm@waad.test'); bp.fill('input[name=password]', PW); bp.click('#ab'); bp.wait_for_selector('#nav'); bp.wait_for_selector('#dlg[open]', timeout=6000); bp.click('#mok'); bp.wait_for_selector('#dlg', state='hidden'); ok(bp.evaluate("!!JSON.parse(localStorage.getItem('waad.bio'))"), 'fingerprint or face: turned on for this device')
     bp.evaluate("sessionStorage.clear()"); bp.reload(); bp.wait_for_selector('#bgo'); ok(bp.locator('#nav').count() == 0, 'fingerprint or face: a saved sign-in opens the lock screen'); bp.click('#bgo'); bp.wait_for_selector('#nav'); ok(True, 'fingerprint or face: verification opens the system'); bc.close()
     # ---------- completion batch (0125): the project manager, «My hours», week sheet, Kanban drag, project and milestone on documents, mobile ----------
-    today_s = datetime.date.today().isoformat()
+    today_s = ksa_today().isoformat()
     sqlx("update projects set manager_id = (select id from employees where emp_no = '5001') where id = '" + prj_id + "'")
     sqlx("insert into project_members(company_id, project_id, employee_id, alloc) select company_id, id, (select id from employees where emp_no = '5000'), 60 from projects where id = '" + prj_id + "'")
     sqlx("insert into project_tasks(company_id, project_id, title) select company_id, id, 'مهمة السحب' from projects where id = '" + prj_id + "'")
