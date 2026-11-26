@@ -1,7 +1,9 @@
 """The website's short tour video (site/img/tour-ar.mp4, tour-en.mp4 + posters) recorded from the real system with sample data only.
 Run:  bash devserver/start.sh app   (fresh DB)  then  python3 site/tour.py
 Needs playwright + pillow + imageio-ffmpeg (bundles ffmpeg). Signs up a throwaway owner on the local mock, loads the demo seed,
-then walks through the main screens with a caption on each, in Arabic and in English. Chapters (seconds) are printed for home.html."""
+then walks through the main screens with a caption on each, in Arabic and in English, at computer size (1280x720) and at phone size
+(390x844, files *-m.mp4). The brand intro (site/img/intro-wide.mp4 / intro-tall.mp4, from the owner's video) opens each one.
+Chapters (seconds, intro included) are printed for home.html."""
 import json, os, re, shutil, subprocess, tempfile
 from playwright.sync_api import sync_playwright
 import imageio_ffmpeg
@@ -42,27 +44,36 @@ with sync_playwright() as p:
       const d = new Date(); const run = await db.rpc('payroll_prepare', { p_company: c, p_year: d.getFullYear(), p_month: d.getMonth() + 1 }); await db.rpc('payroll_sign', { p_run: run }); return run; }""")
     state = ctx.storage_state(); ctx.close()
     chapters = {}
-    for lang in ('ar', 'en'):
-        vctx = b.new_context(viewport={'width': 1280, 'height': 720}, locale='ar-SA', color_scheme='light', storage_state=state, record_video_dir=OUT, record_video_size={'width': 1280, 'height': 720})
+    INTRO_S = 10.0
+    for lang, sfx, vw, vh, dsf, intro in [(l, s_, w, h, d, i) for l in ('ar', 'en') for (s_, w, h, d, i) in (('', 1280, 720, 1, 'intro-wide.mp4'), ('-m', 390, 844, 2, 'intro-tall.mp4'))]:
+        RW, RH = vw * dsf, vh * dsf
+        vctx = b.new_context(viewport={'width': vw, 'height': vh}, is_mobile=dsf > 1, has_touch=dsf > 1, locale='ar-SA', color_scheme='light', storage_state=state, record_video_dir=OUT, record_video_size={'width': vw, 'height': vh})   # recorded at CSS size, enlarged ×dsf below
         vctx.add_init_script(INIT); vctx.add_init_script("localStorage.setItem('waad.lang', JSON.stringify('%s'))" % lang)
         vctx.route(re.compile(r'https://fonts\.(googleapis|gstatic)\.com/.*'), lambda r: r.abort())
         v = vctx.new_page(); v.goto(BASE + '/waad-app.html#/home'); v.wait_for_selector('#nav')
         en = lang == 'en'
         v.evaluate(CARD, ['Waad' if en else 'وعد', 'HR and finance for Saudi companies, in one system' if en else 'الموارد البشرية والمالية للمنشآت السعودية في نظام واحد']); v.wait_for_timeout(3000)
-        v.evaluate(CARD, [None, None]); t = 3.0; chapters[lang] = []
+        v.evaluate(CARD, [None, None]); t = 3.0 + INTRO_S; chapters[lang + sfx] = []
         for route, ar, en_t in STEPS:
-            v.evaluate("h => location.hash = h", route.format(run=run)); v.mouse.move(1279, 719); v.wait_for_timeout(700)
-            v.evaluate(CAP, en_t if en else ar); chapters[lang].append([round(t, 1), en_t if en else ar])
+            v.evaluate("h => location.hash = h", route.format(run=run)); v.mouse.move(vw - 1, vh - 1); v.wait_for_timeout(700)
+            v.evaluate(CAP, en_t if en else ar); chapters[lang + sfx].append([round(t, 1), en_t if en else ar])
             v.mouse.wheel(0, 260); v.wait_for_timeout(HOLD // 2); v.mouse.wheel(0, -260); v.wait_for_timeout(HOLD // 2); t += (700 + HOLD) / 1000
         v.evaluate("() => { const c = document.getElementById('tourcap'); if (c) c.remove(); }")
         v.evaluate(CARD, ['Try Waad free for 14 days' if en else 'جرّب وعد 14 يوما مجانا', 'abuomara4.github.io/waad/site']); v.wait_for_timeout(3500)
         path = v.video.path(); vctx.close()
-        ff = imageio_ffmpeg.get_ffmpeg_exe(); mp4 = os.path.join(SITE, 'img', f'tour-{lang}.mp4')
-        subprocess.run([ff, '-y', '-loglevel', 'error', '-i', path, '-ss', '0.6', '-c:v', 'libx264', '-preset', 'slow', '-crf', '30', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-an', mp4], check=True)
-        subprocess.run([ff, '-y', '-loglevel', 'error', '-ss', '6', '-i', mp4, '-frames:v', '1', '-q:v', '4', os.path.join(OUT, f'poster-{lang}.png')], check=True)
+        ff = imageio_ffmpeg.get_ffmpeg_exe(); mp4 = os.path.join(SITE, 'img', f'tour-{lang}{sfx}.mp4')
+        dur = subprocess.run([ff, '-i', path], capture_output=True, text=True).stderr
+        h_, m_, s_ = re.search(r'Duration: (\d+):(\d+):([\d.]+)', dur).groups(); dur = int(h_) * 3600 + int(m_) * 60 + float(s_) - 0.6
+        # the intro (scaled to cover the frame) + the recording, one file; the tour part has a silent track so the intro keeps its sound
+        fc = (f'[0:v]scale={RW}:{RH}:force_original_aspect_ratio=increase,crop={RW}:{RH},fps=25,setsar=1,format=yuv420p[iv];'
+              f'[1:v]trim=start=0.6,setpts=PTS-STARTPTS,scale={RW}:{RH}:flags=lanczos,fps=25,setsar=1,format=yuv420p[tv];'
+              '[0:a]aresample=44100,aformat=channel_layouts=stereo[ia];[2:a]aformat=channel_layouts=stereo[ta];[iv][ia][tv][ta]concat=n=2:v=1:a=1[v][a]')
+        subprocess.run([ff, '-y', '-loglevel', 'error', '-i', os.path.join(SITE, 'img', intro), '-i', path, '-f', 'lavfi', '-t', f'{dur:.2f}', '-i', 'anullsrc=r=44100:cl=stereo',
+                        '-filter_complex', fc, '-map', '[v]', '-map', '[a]', '-c:v', 'libx264', '-preset', 'slow', '-crf', '30', '-c:a', 'aac', '-b:a', '64k', '-movflags', '+faststart', mp4], check=True)
+        subprocess.run([ff, '-y', '-loglevel', 'error', '-ss', str(INTRO_S - 0.4), '-i', mp4, '-frames:v', '1', '-q:v', '4', os.path.join(OUT, f'poster-{lang}{sfx}.png')], check=True)
         from PIL import Image
-        Image.open(os.path.join(OUT, f'poster-{lang}.png')).convert('RGB').save(os.path.join(SITE, 'img', f'tour-{lang}.webp'), 'WEBP', quality=78, method=6)
-        print(lang, os.path.getsize(mp4) // 1024, 'KB')
+        Image.open(os.path.join(OUT, f'poster-{lang}{sfx}.png')).convert('RGB').save(os.path.join(SITE, 'img', f'tour-{lang}{sfx}.webp'), 'WEBP', quality=78, method=6)
+        print(lang + sfx, os.path.getsize(mp4) // 1024, 'KB')
     b.close()
 print(json.dumps(chapters, ensure_ascii=False))
 shutil.rmtree(OUT, ignore_errors=True)

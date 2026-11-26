@@ -322,25 +322,20 @@ main{animation:wfade .25s cubic-bezier(.22,1,.36,1)}@keyframes wfade{from{opacit
   </div>
 </section>
 
-<section id="intro" style="padding:28px 0 0" aria-label="وعد · Waad">
-  <style>.introv{max-width:880px;margin:0 auto;border-radius:12px;overflow:hidden;background:#031214;box-shadow:0 10px 30px rgba(20,32,57,.18)}.introv video{display:block;width:100%;height:auto}@media(max-width:640px){.introv{max-width:340px}}</style>
-  <div class="wrap"><div class="introv"><video id="introv" muted playsinline controls preload="none" width="1280" height="720" poster="img/intro-wide.webp"></video></div></div>
-  <script>(function(){var v=document.getElementById('introv');if(!v)return;var mq=window.matchMedia('(max-width:640px)'),cur=null,done=false;
-    function pick(){var t=mq.matches?'tall':'wide';if(t===cur)return;var at=v.currentTime||0,was=!v.paused;cur=t;v.src='img/intro-'+t+'.mp4';v.poster='img/intro-'+t+'.webp';
-      v.width=t==='tall'?576:1280;v.height=t==='tall'?1024:720;if(was){v.currentTime=at;v.play().catch(function(){});}}
-    pick();if(mq.addEventListener)mq.addEventListener('change',pick);else if(mq.addListener)mq.addListener(pick);
-    function go(){if(done)return;done=true;var p=v.play();if(p&&p.catch)p.catch(function(){});}
-    if('IntersectionObserver' in window){var o=new IntersectionObserver(function(e){if(e[0].isIntersecting){go();o.disconnect();}},{threshold:.3});o.observe(v);}else go();})();</script>
-</section>
-
 <section id="tour" style="padding-top:10px">
   <div class="wrap">
     <div class="sh"><h2><span class="ar">جولة في وعد خلال دقيقة</span><span class="en">A one-minute tour of Waad</span></h2><p><span class="ar">من منشأة تجريبية ببيانات وهمية: اضغط أي قسم لتنتقل إليه في الفيديو.</span><span class="en">From a sample company with made-up data: click any section to jump to it.</span></p></div>
     <div class="ar"><video class="tourv" id="tv-ar" controls playsinline preload="none" poster="img/tour-ar.webp" width="1280" height="720"><source src="img/tour-ar.mp4" type="video/mp4"></video>
-      <div class="tourch"><button type="button" data-tv="tv-ar" data-t="3.0">الرئيسية</button><button type="button" data-tv="tv-ar" data-t="7.9">الموظفون</button><button type="button" data-tv="tv-ar" data-t="12.8">الحضور</button><button type="button" data-tv="tv-ar" data-t="17.7">مسير الرواتب</button><button type="button" data-tv="tv-ar" data-t="22.6">الامتثال</button><button type="button" data-tv="tv-ar" data-t="27.5">الفواتير الإلكترونية</button><button type="button" data-tv="tv-ar" data-t="32.4">القوائم المالية</button><button type="button" data-tv="tv-ar" data-t="37.3">المخزون</button><button type="button" data-tv="tv-ar" data-t="42.2">النماذج</button></div></div>
+      <div class="tourch"><button type="button" data-tv="tv-ar" data-t="13.0">الرئيسية</button><button type="button" data-tv="tv-ar" data-t="17.9">الموظفون</button><button type="button" data-tv="tv-ar" data-t="22.8">الحضور</button><button type="button" data-tv="tv-ar" data-t="27.7">مسير الرواتب</button><button type="button" data-tv="tv-ar" data-t="32.6">الامتثال</button><button type="button" data-tv="tv-ar" data-t="37.5">الفواتير الإلكترونية</button><button type="button" data-tv="tv-ar" data-t="42.4">القوائم المالية</button><button type="button" data-tv="tv-ar" data-t="47.3">المخزون</button><button type="button" data-tv="tv-ar" data-t="52.2">النماذج</button></div></div>
     <div class="en"><video class="tourv" id="tv-en" controls playsinline preload="none" poster="img/tour-en.webp" width="1280" height="720"><source src="img/tour-en.mp4" type="video/mp4"></video>
-      <div class="tourch"><button type="button" data-tv="tv-en" data-t="3.0">Home</button><button type="button" data-tv="tv-en" data-t="7.9">Employees</button><button type="button" data-tv="tv-en" data-t="12.8">Attendance</button><button type="button" data-tv="tv-en" data-t="17.7">Payroll</button><button type="button" data-tv="tv-en" data-t="22.6">Compliance</button><button type="button" data-tv="tv-en" data-t="27.5">E-invoices</button><button type="button" data-tv="tv-en" data-t="32.4">Financial statements</button><button type="button" data-tv="tv-en" data-t="37.3">Stock</button><button type="button" data-tv="tv-en" data-t="42.2">Forms</button></div></div>
+      <div class="tourch"><button type="button" data-tv="tv-en" data-t="13.0">Home</button><button type="button" data-tv="tv-en" data-t="17.9">Employees</button><button type="button" data-tv="tv-en" data-t="22.8">Attendance</button><button type="button" data-tv="tv-en" data-t="27.7">Payroll</button><button type="button" data-tv="tv-en" data-t="32.6">Compliance</button><button type="button" data-tv="tv-en" data-t="37.5">E-invoices</button><button type="button" data-tv="tv-en" data-t="42.4">Financial statements</button><button type="button" data-tv="tv-en" data-t="47.3">Stock</button><button type="button" data-tv="tv-en" data-t="52.2">Forms</button></div></div>
   </div>
+  <style>.tourv.tall{aspect-ratio:780/1688;width:auto;height:82vh;max-width:100%;max-height:none;margin-inline:auto;object-fit:contain}</style>
+  <script>(function(){var mq=window.matchMedia('(max-width:640px)');function pick(){var tall=mq.matches;['ar','en'].forEach(function(l){var v=document.getElementById('tv-'+l);if(!v)return;
+    var want='img/tour-'+l+(tall?'-m':'')+'.mp4';if(v.getAttribute('data-src')===want)return;var at=v.currentTime||0,was=!v.paused;v.setAttribute('data-src',want);
+    v.innerHTML='';v.src=want;v.poster='img/tour-'+l+(tall?'-m':'')+'.webp';v.width=tall?780:1280;v.height=tall?1688:720;v.classList.toggle('tall',tall);
+    if(at){v.currentTime=at;}if(was)v.play().catch(function(){});});}
+    pick();if(mq.addEventListener)mq.addEventListener('change',pick);else if(mq.addListener)mq.addListener(pick);})();</script>
 </section>
 
 <section id="overview">
