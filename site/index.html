@@ -322,6 +322,17 @@ main{animation:wfade .25s cubic-bezier(.22,1,.36,1)}@keyframes wfade{from{opacit
   </div>
 </section>
 
+<section id="intro" style="padding:28px 0 0" aria-label="وعد · Waad">
+  <style>.introv{max-width:880px;margin:0 auto;border-radius:12px;overflow:hidden;background:#031214;box-shadow:0 10px 30px rgba(20,32,57,.18)}.introv video{display:block;width:100%;height:auto}@media(max-width:640px){.introv{max-width:340px}}</style>
+  <div class="wrap"><div class="introv"><video id="introv" muted playsinline controls preload="none" width="1280" height="720" poster="img/intro-wide.webp"></video></div></div>
+  <script>(function(){var v=document.getElementById('introv');if(!v)return;var mq=window.matchMedia('(max-width:640px)'),cur=null,done=false;
+    function pick(){var t=mq.matches?'tall':'wide';if(t===cur)return;var at=v.currentTime||0,was=!v.paused;cur=t;v.src='img/intro-'+t+'.mp4';v.poster='img/intro-'+t+'.webp';
+      v.width=t==='tall'?576:1280;v.height=t==='tall'?1024:720;if(was){v.currentTime=at;v.play().catch(function(){});}}
+    pick();if(mq.addEventListener)mq.addEventListener('change',pick);else if(mq.addListener)mq.addListener(pick);
+    function go(){if(done)return;done=true;var p=v.play();if(p&&p.catch)p.catch(function(){});}
+    if('IntersectionObserver' in window){var o=new IntersectionObserver(function(e){if(e[0].isIntersecting){go();o.disconnect();}},{threshold:.3});o.observe(v);}else go();})();</script>
+</section>
+
 <section id="tour" style="padding-top:10px">
   <div class="wrap">
     <div class="sh"><h2><span class="ar">جولة في وعد خلال دقيقة</span><span class="en">A one-minute tour of Waad</span></h2><p><span class="ar">من منشأة تجريبية ببيانات وهمية: اضغط أي قسم لتنتقل إليه في الفيديو.</span><span class="en">From a sample company with made-up data: click any section to jump to it.</span></p></div>
