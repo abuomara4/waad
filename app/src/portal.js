@@ -18,6 +18,7 @@ async function portalView(token) {
       { t: 'الإجمالي', r: 1, h: i => money(i.total) }, { t: 'المتبقي', r: 1, h: i => rem(i) > 0.001 ? `<b class="bad">${money(rem(i))}</b>` : `<span class="badge ok">${esc(tr('مسددة'))}</span>` }], inv, { empty: 'لا توجد فواتير', onRow: true })}</div>
     <p class="small muted" style="text-align:center">${esc(tr('هذه الصفحة خاصة بكم؛ لا تشاركوا رابطها.'))} · ${esc(tr('نظام وعد'))}</p>`;
   $('#plg').onclick = () => { setLang(LANG === 'en' ? 'ar' : 'en'); portalView(token); };
+  if (typeof portalTicketsBox === 'function') portalTicketsBox(box, token);
   bindRows(box, inv, i => {
     const lines = i.lines || [];
     const m = modal(tr('فاتورة') + ' ' + i.no, `<p class="small muted">${fdate(i.date)} · ${esc(tr('الاستحقاق'))} ${fdate(i.due_date)}</p>

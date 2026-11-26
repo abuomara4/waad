@@ -86,6 +86,9 @@ html = f'''<!doctype html>
 {r('permissions.js')}
 {r('spend.js')}
 {r('okr.js')}
+{r('extras.js')}
+{r('extras2.js')}
+{r('extras3.js')}
 {r('finance2.js')}
 {r('finance3.js')}
 {r('bio.js')}

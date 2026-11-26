@@ -2,6 +2,20 @@
 Add a new block at the top with each release. (date ar, date en, [(item ar, item en)])"""
 
 RELEASES = [
+ ('26 نوفمبر 2026', '26 November 2026', [
+  ('إعادة تقييم العملات الأجنبية آخر الشهر، وتوزيع المصروفات المشتركة على مراكز التكلفة، ولوحة النسب المالية', 'Month-end foreign currency revaluation, shared cost allocation to cost centres, and a financial ratios page'),
+  ('منشئ تقارير مخصصة يُحفظ ويُرسل رابطه بالإيميل، وربط Webhooks موقّع يبلغ أنظمتك بالأحداث', 'A custom report builder you can save and get by e-mail link, and signed webhooks that tell your systems about events'),
+  ('مصفوفة الجدارات وتخطيط الإحلال، وتحليل عدالة الأجور، ولوحة الشكر والتقدير', 'A competency matrix with succession planning, pay equity analysis, and a recognition wall'),
+  ('ضمان المنتجات وتذاكر الدعم والصيانة (ومن بوابة العميل)، ونقاط الولاء في نقطة البيع', 'Product warranty and support / service tickets (also from the customer portal), and loyalty points at the point of sale'),
+  ('دليل الموظفين بالتحويلات، وقناة بلاغات سرية إلى الموارد البشرية أو المالك، ومقابلة نهاية الخدمة بنتائج مجمعة', 'A staff directory with extensions, a confidential reporting channel to HR or the owner, and exit interviews with combined results'),
+  ('بطاقة تقييم المقابلة ومقارنة المرشحين، ومكتبة الوصف الوظيفي تُطبع مع العرض الوظيفي', 'Interview scorecards with candidate comparison, and a job description library printed with the offer'),
+  ('العميل يقبل عرض السعر من رابط فيتحول إلى أمر بيع، والتكاليف المحمّلة على البضاعة المستوردة، والإيرادات المؤجلة', 'Customers accept a quotation from a link and it becomes a sales order, landed costs on imported goods, and deferred revenue'),
+  ('دفعة سداد جماعية للموردين مع ملف البنك، وضريبة الاستقطاع على مدفوعات غير المقيمين بنسب دليل هيئة الزكاة والضريبة والجمارك', 'A supplier payment run with a bank file, and withholding tax on payments to non-residents at the rates of the ZATCA guideline'),
+  ('إرفاق إيصال المصروف بالتصوير من الجوال، واعتماد عدة طلبات بضغطة واحدة، وتذكير المعتمد تلقائيا بعد 3 أيام', 'Attach an expense receipt by taking a photo on the phone, approve several requests with one press, and approvers reminded automatically after 3 days'),
+  ('تحصيل المتأخرات: قائمة العملاء المتأخرين مع رسالة تذكير جاهزة بالواتساب أو الإيميل ورابط كشف الحساب', 'Overdue collections: the list of late customers with a ready WhatsApp or e-mail reminder and a link to their statement'),
+  ('قوائم الأسعار وخصم الكمية: سعر خاص لكل فئة عملاء يُطبَّق تلقائيا في عروض الأسعار والأوامر والفواتير', 'Price lists and quantity discounts: a special price per customer group, applied automatically in quotations, orders and invoices'),
+  ('تقييم فترة التجربة قبل نهايتها، وتبديل الوردية بين زميلين بموافقة المدير، والإضافي المعتمد مسبقا في المسير', 'Probation evaluation before it ends, shift swaps between two colleagues approved by the manager, and advance-approved overtime in the payroll'),
+ ]),
  ('25 نوفمبر 2026', '25 November 2026', [
   ('طلبات جديدة: عمل إضافي بموافقة مسبقة يُحتسب تلقائيا من الحضور، وعمل عن بعد لأيام محددة، وطلب نقل أو ترقية يرفعه المدير ويُطبَّق على ملف الموظف عند اعتماده', 'New requests: overtime approved in advance and counted automatically from attendance, remote work for chosen days, and a transfer or promotion raised by the manager and applied to the employee file on approval'),
   ('ملف شامل لكل عميل وكل موظف، ومعاينة النماذج قبل طباعتها، وقائمة جانبية أبسط تجمع الشاشات المتقاربة في تبويبات', 'A 360 file for every customer and employee, form preview before printing, and a simpler menu that groups related screens into tabs'),

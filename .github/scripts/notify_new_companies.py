@@ -7,13 +7,14 @@
  7. a company that ended and was not renewed: e-mail its owner 30 and 7 days before the deletion decision (day 60);
  8. the Waad team exported a company's data at its owner's request: e-mail the owner at once;
  9. notifications on users' devices (Web Push): approvals waiting, decisions, signatures, mentions, payslips.
+10. approvers reminded of late requests; companies' webhooks delivered (signed); scheduled custom reports (a link only).
 Channels (each optional, set as repository secrets):
   e-mail   : NOTIFY_GMAIL_USER + NOTIFY_GMAIL_APP_PASSWORD (a Google «App password»); team mail goes to NOTIFY_EMAIL_TO or to itself
   WhatsApp : CALLMEBOT_PHONE + CALLMEBOT_APIKEY (free CallMeBot key for your own number) — team notices only
   WhatsApp (official, Meta Cloud API): WA_TOKEN + WA_PHONE_ID + WA_TO (+ WA_TEMPLATE) — see wa_cloud.py
   Telegram : TELEGRAM_BOT_TOKEN (from @BotFather) + TELEGRAM_CHAT_ID (your id, e.g. from @userinfobot; send /start to the bot first) — team notices only
 Something is marked as done only after it was delivered; with no channel set nothing is marked."""
-import json, os, re, smtplib, subprocess, sys, urllib.parse, urllib.request
+import hashlib, hmac, json, os, re, smtplib, subprocess, sys, time, urllib.error, urllib.parse, urllib.request
 from email.mime.text import MIMEText
 
 ADMIN = 'https://abuomara4.github.io/waad/site/admin/'
@@ -336,6 +337,38 @@ def weekly():
             n += body is not None; skip += body is None
     print('weekly: sent %d, nothing to report %d, of %d due' % (n, skip, len(rows)))
 
+def webhooks():
+    # companies' webhooks (0156): each queued event is POSTed as JSON, signed with the endpoint's secret (HMAC-SHA256)
+    rows = json.loads(psql("select coalesce(json_agg(x), '[]') from (select * from public.webhooks_due()) x"))
+    ok = bad = 0
+    for r in rows:
+        body = json.dumps(r['payload'], ensure_ascii=False, separators=(',', ':')).encode('utf-8')
+        ts = str(int(time.time()))
+        sig = hmac.new(r['secret'].encode(), (ts + '.').encode() + body, hashlib.sha256).hexdigest()
+        req = urllib.request.Request(r['url'], data=body, method='POST', headers={'Content-Type': 'application/json', 'User-Agent': 'Waad-Webhooks/1',
+              'X-Waad-Event': r['event'], 'X-Waad-Timestamp': ts, 'X-Waad-Signature': 'sha256=' + sig, 'X-Waad-Delivery': str(r['id'])})
+        try:
+            with urllib.request.urlopen(req, timeout=10) as resp: st = resp.status
+        except urllib.error.HTTPError as e: st = e.code
+        except Exception: st = 0
+        good = 200 <= st < 300
+        psql("select public.webhook_mark(%d, %d, %s)" % (int(r['id']), st, 'true' if good else 'false'))
+        ok += good; bad += not good
+    print('webhooks: %d delivered, %d failed of %d' % (ok, bad, len(rows)))
+
+def report_schedules():
+    # scheduled custom reports (0156): a link to the report, never its data
+    rows = json.loads(psql("select coalesce(json_agg(x), '[]') from (select * from public.report_schedules_due()) x"))
+    n = 0
+    for r in rows:
+        if not r.get('email'): continue
+        link = '%sapp/#/myreports/%s' % (SITE, r['id'])
+        body = ('السلام عليكم،\n\nتقريرك «%s» في «%s» جاهز للاطلاع (يُفتح بعد تسجيل الدخول):\n%s\n\nلإيقاف هذا الإيميل: افتح التقرير ← تعديل ← الإرسال بالإيميل: بدون.\n\nفريق وعد\n\n— — —\n'
+                'Your report «%s» at «%s» is ready (opens after you sign in):\n%s') % (r['name'], r['company'], link, r['name'], r['company'], link)
+        if mail(r['email'], 'وعد: تقرير «%s»' % r['name'], body):
+            psql("select public.report_schedule_sent('%s')" % r['id']); n += 1
+    print('scheduled reports: %d e-mails of %d due' % (n, len(rows)))
+
 def approval_reminders():
     # requests waiting at an approver's step longer than the company's deadline (3 days by default): one e-mail per approver and company
     rows = json.loads(psql("select coalesce(json_agg(x), '[]') from (select * from public.approval_reminders_due() limit 500) x"))
@@ -353,4 +386,4 @@ def approval_reminders():
 
 team()
 if not TEST:
-    remind(); support_team(); support_replies(); welcome(); monthly(); weekly(); purge_notices(); export_notices(); push_notices(); approval_reminders()
+    remind(); support_team(); support_replies(); welcome(); monthly(); weekly(); purge_notices(); export_notices(); push_notices(); approval_reminders(); webhooks(); report_schedules()

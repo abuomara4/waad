@@ -2159,7 +2159,7 @@ select t.err($$select * from public.code_lookups$$, 'permission denied', 'anon c
 select t.err($$select public.riyadh_today()$$, 'permission denied', 'anon cannot call helper functions');
 reset role;
 select t.ok((select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public'
-  and has_function_privilege('anon', p.oid, 'execute') and p.proname not in ('company_by_code', 'ping', 'site_hit', 'site_content', 'portal_view', 'careers_view', 'careers_apply', 'co_view', 'co_decide', 'staff_password_help', 'api_get')) = 0, 'anon can call only company_by_code, the health check, the website counter/texts, the customer portal, the careers page, change-order links and the API (with a key)');
+  and has_function_privilege('anon', p.oid, 'execute') and p.proname not in ('company_by_code', 'ping', 'site_hit', 'site_content', 'portal_view', 'careers_view', 'careers_apply', 'co_view', 'co_decide', 'quote_view', 'quote_respond', 'portal_tickets', 'portal_ticket_open', 'staff_password_help', 'api_get')) = 0, 'anon can call only company_by_code, the health check, the website counter/texts, the customer portal, the careers page, change-order links and the API (with a key)');
 select t.ok(has_function_privilege('authenticated', 'public.riyadh_today()', 'execute'), 'signed-in users keep helper functions');
 delete from public.code_lookups;
 select set_config('request.headers', '{"cf-connecting-ip":"203.0.113.7"}', false);
@@ -4477,6 +4477,321 @@ select t.ok(exists(select 1 from public.approval_reminders_due() d, unnest(d.key
 update public.requests set status = 'cancelled' where id = :'remreq';
 select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
 select t.err($$select * from public.approval_reminders_due()$$, 'permission|42501', 'reminders: not callable by company users');
+reset role;
+-- priority-one batch (0153)
+-- 1. receipts: finance and the direct manager see the files of a spend request; leave documents stay with HR
+update public.employees set manager_id = :'e_mgr' where id = :'e_emp';
+insert into public.requests(company_id, employee_id, kind, amount, payload, route, step, status) values (:'cid', :'e_emp', 'expense', 120, '{}', array['m','f'], 0, 'pending') returning id as rcx \gset
+insert into public.request_attachments(company_id, request_id, file_name, mime, size, data) values (:'cid', :'rcx', 'receipt.jpg', 'image/jpeg', 3, '/9j/');
+insert into public.requests(company_id, employee_id, kind, sub, from_date, to_date, payload, route, step, status) values (:'cid', :'e_emp', 'leave', 'sick', current_date + 40, current_date + 40, '{}', array['m','p'], 0, 'pending') returning id as rcl \gset
+insert into public.request_attachments(company_id, request_id, file_name, mime, size, data) values (:'cid', :'rcl', 'medical.pdf', 'application/pdf', 4, 'JVBE');
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.ok((select count(*) from public.request_attachments where request_id = :'rcx') = 1 and (select count(*) from public.request_attachments where request_id = :'rcl') = 0,
+  'receipts: the manager sees the expense receipt, never the medical report');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.ok((select count(*) from public.request_attachments where request_id = :'rcx') = 1, 'receipts: finance sees the expense receipt');
+reset role;
+delete from public.requests where id in (:'rcx', :'rcl');
+
+-- 3. overdue customers
+update public.sales_invoices set due_date = current_date - 10 where id = (select id from public.sales_invoices where company_id = :'cid' and party_id = :'c1' and status = 'posted' and total - public.paid_on(id) > 1 order by date limit 1) returning id as odinv \gset
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok(exists(select 1 from public.overdue_customers(:'cid') o where o.party_id = :'c1' and o.max_days >= 10 and o.invoices @> jsonb_build_array(jsonb_build_object('id', :'odinv'))),
+  'overdue customers: the customer with an invoice 10 days late is listed with it');
+select public.dunning_note(:'cid', :'c1', 'whatsapp', 100, 1);
+select t.ok((select last_channel = 'whatsapp' and times >= 1 from public.overdue_customers(:'cid') where party_id = :'c1'), 'overdue customers: the reminder is recorded with its channel');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select * from public.overdue_customers('$$ || :'cid' || $$')$$, '42501|مصرح|صلاحية', 'overdue customers: not for an ordinary employee');
+reset role;
+
+-- 4. price lists and quantity discounts
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.price_list_save(:'cid', null, 'التجزئة', null, 10, true, true, jsonb_build_array(jsonb_build_object('item', :'i1', 'min_qty', 5, 'price', 1000))) as pl1 \gset
+select t.ok(public.list_price(:'c1', :'i1', 1) = 1080 and public.list_price(:'c1', :'i1', 5) = 1000 and public.list_price(:'c1', :'i1', 12) = 1000,
+  'price lists: the default list takes 10% off, and from 5 pieces the quantity price applies');
+select public.price_list_save(:'cid', null, 'كبار العملاء', null, 20, false, true, '[]') as pl2 \gset
+update public.parties set price_list_id = :'pl2' where id = :'c1';
+select t.ok(public.list_price(:'c1', :'i1', 5) = 960, 'price lists: a customer''s own list replaces the default one');
+select t.err($$select public.price_list_save('$$ || :'cid' || $$', null, 'خطأ', null, 0, false, true, '[{"item":"$$ || :'i1' || $$","min_qty":1}]')$$, 'سعر أو نسبة', 'price lists: each rule has a price or a discount');
+update public.parties set price_list_id = null where id = :'c1';
+select public.price_list_delete(:'pl1'); select public.price_list_delete(:'pl2');
+reset role;
+
+-- 5. overtime asked in advance in the payroll
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.ok((select count(*) >= 0 from public.payroll_ot_requests(:'run')), 'payroll: HR lists the overtime approved in advance for a run');
+reset role;
+select att_enabled as att_was from public.companies where id = :'cid' \gset
+update public.companies set att_enabled = true where id = :'cid';
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.err($$select public.payroll_ot_fill('$$ || :'run' || $$')$$, 'الحضور مفعّل|معتمد', 'payroll: with attendance on, advance overtime already counts through attendance');
+reset role;
+update public.companies set att_enabled = :'att_was'::boolean where id = :'cid';
+
+-- 6. probation evaluation
+insert into public.employees(company_id, emp_no, full_name, is_saudi, gender, job_title, hire_date, probation_end, basic, housing, transport, manager_id)
+values (:'cid', '77019', 'موظف تحت التجربة', true, 'm', 'مساعد', current_date - 80, current_date + 9, 5000, 1250, 0, :'e_mgr') returning id as pe1 \gset
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.ok(exists(select 1 from public.probation_due(:'cid') where employee_id = :'pe1'), 'probation: the manager sees his employee whose probation ends soon');
+select t.err($$select public.probation_review_save('$$ || :'cid' || $$', '$$ || :'pe1' || $$', '{"quality":4}', '', '', 'extend', 200)$$, '180', 'probation: an extension cannot pass 180 days in all (Art. 53)');
+select public.probation_review_save(:'cid', :'pe1', '{"quality":4,"commitment":5,"teamwork":3}', 'منضبط', 'سرعة الإنجاز', 'extend', 30);
+select t.err($$select public.probation_decide('$$ || :'cid' || $$', '$$ || :'pe1' || $$', 'extend', 30, null)$$, '42501|مصرح', 'probation: the manager recommends, HR decides');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.probation_review_save('$$ || :'cid' || $$', '$$ || :'pe1' || $$', '{"quality":4}', '', '', 'confirm', null)$$, '42501|يقيّم', 'probation: a colleague cannot evaluate');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.probation_decide(:'cid', :'pe1', 'extend', 30, 'بناء على التوصية');
+reset role;
+select t.ok((select probation_end = current_date + 39 from public.employees where id = :'pe1') and (select status = 'final' and decision = 'extend' and score = 4.0 from public.probation_reviews where employee_id = :'pe1'),
+  'probation: HR''s extension moves the end date and closes the review');
+delete from public.employees where id = :'pe1';
+
+-- 7. shift swap
+select (select d from generate_series(current_date + 1, current_date + 14, interval '1 day') g(x) cross join lateral (select x::date d) y
+         where public.day_shift(:'e_emp', d) is not null order by d limit 1) as swd \gset
+delete from public.shift_roster where employee_id in (:'e_emp', :'e_mgr') and day = :'swd';
+insert into public.shift_roster(company_id, employee_id, day, off) values (:'cid', :'e_mgr', :'swd', true);
+select public.day_shift(:'e_emp', :'swd') as sw_shift \gset
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select public.swap_ask(:'cid', :'e_mgr', :'swd', 'موعد طبي') as sw1 \gset
+select t.err($$select public.swap_ask('$$ || :'cid' || $$', '$$ || :'e_mgr' || $$', '$$ || :'swd' || $$', null)$$, 'مفتوح', 'shift swap: one open request per day');
+select t.err($$select public.swap_decide('$$ || :'sw1' || $$', true, null)$$, '42501|يعتمد', 'shift swap: the asker cannot approve it');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.err($$select public.swap_decide('$$ || :'sw1' || $$', true, null)$$, 'لم يوافق', 'shift swap: waits for the colleague first');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.ok((select (x->>'asked_me')::boolean from jsonb_array_elements(public.swaps_list(:'cid')) x where x->>'id' = :'sw1'), 'shift swap: the colleague sees the request waiting for him');
+select public.swap_answer(:'sw1', true);
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.swap_decide(:'sw1', true, null);
+reset role;
+select t.ok((select off from public.shift_roster where employee_id = :'e_emp' and day = :'swd') and (select shift_id = :'sw_shift' from public.shift_roster where employee_id = :'e_mgr' and day = :'swd'),
+  'shift swap: on approval the two employees'' shifts of that day are exchanged in the roster');
+delete from public.shift_roster where employee_id in (:'e_emp', :'e_mgr') and day = :'swd';
+-- HR batch two (0154)
+-- 8. directory
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select public.directory_me_set(:'cid', '123', true, false);
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.ok((select ext = '123' and phone is not distinct from (select phone from public.employees where id = :'e_emp') and email is null from public.staff_directory(:'cid') where id = :'e_emp'),
+  'directory: the extension shows, the mobile only because he chose it, the e-mail stays hidden');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_other', false); set role authenticated;
+select t.err($$select * from public.staff_directory('$$ || :'cid' || $$')$$, '42501|مصرح', 'directory: not for another company');
+reset role;
+-- 9. grievances
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select public.grievance_submit(:'cid', 'conduct', 'تعامل غير لائق', 'تفاصيل البلاغ هنا بشكل كافٍ', true, 'hr') as gr1 \gset
+select public.grievance_submit(:'cid', 'pay', 'تأخر صرف البدل', 'تفاصيل البلاغ الثاني بشكل كافٍ', false, 'owner') as gr2 \gset
+reset role;
+select id as gr1id from public.grievances where no = :'gr1' and company_id = :'cid' \gset
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.ok((select x->'reporter' = 'null'::jsonb from jsonb_array_elements(public.grievance_inbox(:'cid')) x where x->>'no' = :'gr1'), 'grievances: an anonymous reporter shows no name to HR');
+select t.ok(not exists(select 1 from jsonb_array_elements(public.grievance_inbox(:'cid')) x where x->>'no' = :'gr2'), 'grievances: one sent to the owner is not seen by HR');
+select public.grievance_reply(:'gr1id', 'نتابع البلاغ');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok(exists(select 1 from jsonb_array_elements(public.grievance_inbox(:'cid')) x where x->>'no' = :'gr2' and x->'reporter'->>'name' is not null), 'grievances: the owner sees the one sent to him, with the name');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((select jsonb_array_length(x->'messages') = 1 and x->>'status' = 'review' from jsonb_array_elements(public.grievance_mine(:'cid')) x where x->>'no' = :'gr1'), 'grievances: the reporter reads HR''s answer');
+select t.err($$select * from public.grievances$$, 'permission|42501', 'grievances: no direct reads of the table');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.err($$select public.grievance_inbox('$$ || :'cid' || $$')$$, '42501|مصرح', 'grievances: a manager has no inbox');
+reset role;
+-- 10. exit interview
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.exit_interview_submit('$$ || :'cid' || $$', '{"reasons":["pay"]}')$$, 'المغادر', 'exit interview: only for a leaving employee');
+reset role;
+update public.employees set end_date = current_date + 10 where id = :'e_emp';
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select public.exit_interview_submit(:'cid', '{"reasons":["pay","growth"],"ratings":{"manager":4,"pay":2},"would_return":true,"recommend":9,"improve":"الرواتب"}');
+select t.err($$select public.exit_interview_submit('$$ || :'cid' || $$', '{"reasons":["pay"]}')$$, 'مرة واحدة', 'exit interview: once');
+reset role;
+update public.employees set end_date = null where id = :'e_emp';
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select t.ok((select (r->>'n')::int >= 1 and (r->'reasons'->>'pay')::int >= 1 and (r->>'would_return')::int = 100 from (select public.exit_results(:'cid', current_date - 1, current_date) r) z),
+  'exit interview: HR sees the totals (reasons, would return)');
+-- 11. scorecards
+select public.candidate_score_save(:'cand', '{"technical":5,"communication":4,"culture":3}', 'hire', 'مناسب');
+select t.ok((select score = 4.0 and recommendation = 'hire' from public.candidate_scores where candidate_id = :'cand'), 'scorecard: the interviewer''s average and recommendation are kept');
+-- 12. job descriptions
+insert into public.job_descriptions(company_id, title, purpose, duties, qualifications) values (:'cid', 'محاسب عام', 'تسجيل القيود', 'إعداد القيود اليومية', 'بكالوريوس محاسبة') returning id as jd1 \gset
+update public.job_openings set jd_id = :'jd1' where id = :'jo';
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((select count(*) = 1 from public.job_descriptions where id = :'jd1'), 'job descriptions: every employee can read them');
+select t.err($$insert into public.job_descriptions(company_id, title) values ('$$ || :'cid' || $$', 'وظيفة')$$, 'row-level|policy|42501', 'job descriptions: only HR writes them');
+reset role;
+
+-- finance batch two (0155)
+select public.post_journal(:'cid', current_date - 1, 'تمويل اختبار', 'manual', null, jsonb_build_array(jsonb_build_object('a','1120','d',200000), jsonb_build_object('a','3100','c',200000))) \g /dev/null
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+-- 17. withholding tax
+select public.post_purchase_bill(:'cid', jsonb_build_object('party', :'sfx', 'ref', 'GT-9', 'date', current_date, 'lines', jsonb_build_array(jsonb_build_object('account','5500','qty',1,'price',10000,'vat',0)))) as wb \gset
+select t.ok(public.wht_rate('management') = 20 and public.wht_rate('royalty') = 15 and public.wht_rate('technical') = 5 and public.wht_rate('land_transport') = 15 and public.wht_rate('other') = 15,
+  'withholding tax: the rates of the ZATCA guideline (management 20, royalties 15, technical 5, land transport 15, other 15)');
+select public.wht_pay(:'cid', jsonb_build_object('bill', :'wb', 'type', 'technical', 'gross', 10000, 'account', '1120', 'remember', true)) as wr \gset
+reset role;
+select t.ok((select tax = 500 from public.wht_records where id = :'wr') and public.paid_on(:'wb') = 10000
+  and exists(select 1 from public.payments where bill_id = :'wb' and amount = 9500 and account_code = '1120') and (select wht_type from public.parties where id = :'sfx') = 'technical',
+  'withholding tax: 5% kept from a technical service; the supplier gets 9,500 and the bill is settled');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok((select (m->>'tax')::numeric = 500 and (m->>'due')::date = (date_trunc('month', current_date) + interval '1 month')::date + 9 from (select public.wht_month(:'cid', current_date) m) z),
+  'withholding tax: the month''s statement, due by the 10th of the next month');
+reset role;
+select public.wht_remit(:'cid', current_date, '1120', current_date) as wrm \gset
+select t.ok(:'wrm'::numeric = 500 and public.account_balance(:'cid', '2360', current_date) = 0, 'withholding tax: paying ZATCA clears 2360');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+-- 16. supplier payment run
+select public.post_purchase_bill(:'cid', jsonb_build_object('party', :'s1', 'ref', 'PB-1', 'date', current_date, 'lines', jsonb_build_array(jsonb_build_object('account','5300','qty',1,'price',100)))) as pb1 \gset
+select public.post_purchase_bill(:'cid', jsonb_build_object('party', :'s1', 'ref', 'PB-2', 'date', current_date, 'lines', jsonb_build_array(jsonb_build_object('account','5300','qty',1,'price',200)))) as pb2 \gset
+select public.payment_batch(:'cid', jsonb_build_object('account', '1120', 'items', jsonb_build_array(jsonb_build_object('bill', :'pb1', 'amount', 115), jsonb_build_object('bill', :'pb2', 'amount', 230)))) as pbatch \gset
+reset role;
+select t.ok((select n = 2 and total = 345 from public.payment_batches where id = :'pbatch') and public.paid_on(:'pb1') = 115 and public.paid_on(:'pb2') = 230, 'payment run: two bills paid in one batch');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.err($$select public.payment_batch('$$ || :'cid' || $$', jsonb_build_object('account', '1120', 'items', jsonb_build_array(jsonb_build_object('bill', '$$ || :'pb1' || $$', 'amount', 5))))$$, 'المتبقي', 'payment run: a settled bill cannot be paid again');
+-- 14. landed costs
+reset role;
+select (public.stock_state(:'i1')).value as v_before \gset
+select public.post_purchase_bill(:'cid', jsonb_build_object('party', :'s1', 'ref', 'IMP-1', 'date', current_date, 'lines', jsonb_build_array(jsonb_build_object('item', :'i1','qty',2,'price',700)))) as lb1 \gset
+reset role;
+select (public.stock_state(:'i1')).value as v_mid \gset
+select public.landed_post(:'cid', jsonb_build_object('bills', jsonb_build_array(:'lb1'), 'method', 'value', 'account', '1120', 'costs', jsonb_build_array(jsonb_build_object('type','freight','amount',150), jsonb_build_object('type','customs','amount',50)))) as lc \gset
+reset role;
+select t.ok((select total = 200 and to_stock = 200 and to_cogs = 0 from public.landed_costs where id = :'lc') and (public.stock_state(:'i1')).value = :'v_mid'::numeric + 200,
+  'landed costs: freight and customs raise the value of the imported item still in stock');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok(exists(select 1 from public.journal_entries e join public.journal_lines l on l.entry_id = e.id where e.source = 'landed' and e.source_id = :'lc' and l.account_code = '1300' and l.debit = 200), 'landed costs: posted Dr inventory / Cr bank');
+-- 15. deferred revenue
+select public.deferred_create(:'cid', jsonb_build_object('name', 'عقد صيانة سنوي', 'revenue', '4200', 'amount', 1200, 'start', current_date, 'months', 12)) as dfs \gset
+reset role;
+select public.deferred_run(:'cid', current_date) as dfn \gset
+select t.ok(:'dfn'::int = 1 and (select amount = 100 from public.deferred_postings where schedule_id = :'dfs') and public.account_balance(:'cid', '2180', (date_trunc('month', current_date) + interval '1 month - 1 day')::date) = -1100,
+  'deferred revenue: 1,200 moved to 2180 and 100 recognised this month');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+-- 13. quotation accepted from the link
+select public.sales_doc_save(:'cid', jsonb_build_object('kind','quote','party', :'c1','valid_until', current_date + 10,'lines', jsonb_build_array(jsonb_build_object('item', :'i1','qty',1,'price',1500)))) as qlink \gset
+select public.quote_link_get(:'qlink') as qtok \gset
+reset role;
+set role anon;
+select t.ok((public.quote_view(:'qtok')->>'status') = 'open' and jsonb_array_length(public.quote_view(:'qtok')->'lines') = 1, 'quote link: the customer sees the quotation without signing in');
+select t.err($$select public.quote_respond('$$ || :'qtok' || $$', false, 'أحمد', '')$$, 'سبب الرفض', 'quote link: a rejection needs a reason');
+select public.quote_respond(:'qtok', true, 'أحمد العميل', 'نرجو التوريد خلال أسبوع') as qso \gset
+select t.err($$select public.quote_respond('$$ || :'qtok' || $$', true, 'أحمد العميل', null)$$, 'تم الرد', 'quote link: answered once');
+reset role;
+select t.ok((select status = 'converted' and decided_online and decided_by_name = 'أحمد العميل' from public.sales_orders where id = :'qlink')
+  and exists(select 1 from public.sales_orders where kind = 'order' and quote_id = :'qlink' and no = :'qso'), 'quote link: an accepted quotation becomes a sales order');
+-- third batch (0156 finance, 0157 people)
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+-- 18. FX revaluation: a USD invoice booked at 3.75, the month-end rate 3.80
+select public.post_sales_invoice_wh(:'cid', jsonb_build_object('party', :'c1', 'currency', 'USD', 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 1, 'price', 100)))) as fxi2 \gset
+select t.ok((select (x->>'diff')::numeric = 5.75 from jsonb_array_elements(public.fx_reval_preview(:'cid', current_date, '{"USD":3.80}')) x where x->>'id' = :'fxi2'),
+  'fx revaluation: 115 USD booked at 431.25 is worth 437.00 at 3.80 (gain 5.75)');
+select public.fx_revalue(:'cid', current_date, '{"USD":3.80}') as fxr \gset
+reset role;
+select t.ok((select gain >= 5.75 and entry_id is not null and reversal_id is not null from public.fx_revaluations where id = :'fxr')
+  and (select e.date = current_date + 1 and e.reverses = (select entry_id from public.fx_revaluations where id = :'fxr') from public.journal_entries e where e.id = (select reversal_id from public.fx_revaluations where id = :'fxr')),
+  'fx revaluation: the unrealised gain is posted and reversed the next day');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.err($$select public.fx_revalue('$$ || :'cid' || $$', current_date, '{"USD":3.80}')$$, 'أُعيد', 'fx revaluation: once per date');
+-- 19. cost allocation
+reset role;
+select public.post_journal(:'cid', current_date, 'إيجار المقر', 'manual', null, jsonb_build_array(jsonb_build_object('a','5300','d',1000,'cc', :'cc_pay'), jsonb_build_object('a','1120','c',1000))) \g /dev/null
+insert into public.cost_centers(company_id, code, name) values (:'cid','ALC1','المبيعات') returning id as alc1 \gset
+insert into public.cost_centers(company_id, code, name) values (:'cid','ALC2','المستودع') returning id as alc2 \gset
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.err($$select public.alloc_rule_save('$$ || :'cid' || $$', null, 'خطأ', '5300', '$$ || :'cc_pay' || $$', '[{"cc":"$$ || :'alc1' || $$","pct":50}]', true)$$, '100', 'allocation: the percents add up to 100');
+select public.alloc_rule_save(:'cid', null, 'توزيع الإيجار', '5300', :'cc_pay', jsonb_build_array(jsonb_build_object('cc', :'alc1', 'pct', 60), jsonb_build_object('cc', :'alc2', 'pct', 40)), true) as alr \gset
+select public.alloc_run(:'cid', :'alr', current_date) as ala \gset
+reset role;
+select t.ok(:'ala'::numeric >= 1000 and (select sum(l.debit) from public.journal_lines l join public.journal_entries e on e.id = l.entry_id where e.source = 'allocation' and l.cost_center_id = :'alc1') = round(:'ala'::numeric * 0.6, 2),
+  'allocation: the month''s rent moves 60% / 40% to the sales and warehouse centres');
+-- 23. ratios
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select t.ok((select (r->'inputs'->>'current_assets')::numeric > 0 and r ? 'current' and r ? 'gross_margin' from (select public.fin_ratios(:'cid', date_trunc('year', current_date)::date, current_date) r) z), 'ratios: computed from the books');
+-- 22. webhooks
+select (public.webhook_save(:'cid', 'https://hooks.example.com/waad', array['invoice.posted','payment.recorded'], 'اختبار'))->>'id' as whk \gset
+select t.err($$select public.webhook_save('$$ || :'cid' || $$', 'http://x.example.com', array['invoice.posted'], null)$$, 'https', 'webhooks: https only');
+select public.post_sales_invoice(:'cid', jsonb_build_object('party', :'c1', 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 1, 'price', 200)))) as whinv \gset
+select t.ok((select (x->>'pending')::int >= 1 from jsonb_array_elements(public.webhook_list(:'cid')) x where x->>'id' = :'whk') and not (public.webhook_list(:'cid')::text like '%"secret"%'), 'webhooks: an invoice is queued for the endpoint, and the secret is never listed');
+reset role;
+select t.ok((select count(*) >= 1 from public.webhooks_due() where event = 'invoice.posted' and payload->'data'->>'id' = :'whinv'), 'webhooks: the notify job sees the delivery with its signing secret');
+select public.webhook_mark((select id from public.webhooks_due() where payload->'data'->>'id' = :'whinv' limit 1), 200, true);
+select t.ok(not exists(select 1 from public.webhooks_due() where payload->'data'->>'id' = :'whinv'), 'webhooks: a delivered event is not sent again');
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.webhook_list('$$ || :'cid' || $$')$$, '42501|مصرح', 'webhooks: only the owner or admin');
+select t.err($$select * from public.webhook_endpoints$$, 'permission|42501', 'webhooks: no direct reads of the endpoints (secrets)');
+-- 21. custom reports
+insert into public.report_defs(company_id, name, dataset, fields, schedule) values (:'cid', 'طلباتي', 'requests', array['kind','status'], 'weekly') returning id as rdef \gset
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select t.ok((select count(*) = 0 from public.report_defs where id = :'rdef'), 'reports: a private report is not seen by colleagues');
+reset role;
+
+-- 20. competencies and succession
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.competency_save(:'cid', null, 'التفاوض', 'core', null) as cmp1 \gset
+select public.jd_competencies_set(:'jd1', jsonb_build_object(:'cmp1', 4));
+reset role;
+select set_config('request.jwt.claim.sub', :'u_mgr', false); set role authenticated;
+select public.employee_competencies_set(:'e_emp', jsonb_build_object(:'cmp1', 3));
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.ok((select level = 3 from public.employee_competencies where employee_id = :'e_emp' and competency_id = :'cmp1'), 'competencies: the manager rates his employee, who sees his own level');
+select t.err($$select public.employee_competencies_set('$$ || :'e_fin' || $$', '{}')$$, '42501|يقيّم', 'competencies: an employee cannot rate a colleague');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_hr', false); set role authenticated;
+select public.succession_save(:'cid', null, jsonb_build_object('position', 'مدير المالية', 'incumbent', :'e_fin', 'risk', 'high', 'successors', jsonb_build_array(jsonb_build_object('emp', :'e_emp', 'readiness', '1y')))) as scp \gset
+select t.ok((select risk = 'high' and jsonb_array_length(successors) = 1 from public.succession_plans where id = :'scp'), 'succession: a key position with a successor ready in a year');
+-- 24. pay equity
+select t.ok(jsonb_array_length(public.pay_equity(:'cid')) >= 1, 'pay equity: averages by gender and nationality per grade or job');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_emp', false); set role authenticated;
+select t.err($$select public.pay_equity('$$ || :'cid' || $$')$$, '42501|مصرح', 'pay equity: HR and management only');
+-- 25. recognition
+select public.kudos_send(:'cid', :'e_mgr', 'help', 'شكرا على مساعدتك في الجرد');
+select t.err($$select public.kudos_send('$$ || :'cid' || $$', '$$ || :'e_emp' || $$', 'help', 'شكرا لنفسي')$$, 'لزميل', 'recognition: not to oneself');
+reset role;
+select set_config('request.jwt.claim.sub', :'u_fin', false); set role authenticated;
+select t.ok(exists(select 1 from jsonb_array_elements(public.kudos_wall(:'cid')->'items') x where x->>'message' = 'شكرا على مساعدتك في الجرد'), 'recognition: the whole company sees the thanks');
+reset role;
+-- 26. warranty and tickets
+update public.items set warranty_months = 12 where id = :'i3';
+select t.ok(public.warranty_end('2026-01-15', 12) = '2027-01-14', 'warranty: 12 months from the sale date');
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.ticket_save(:'cid', null, jsonb_build_object('party', :'c1', 'kind', 'repair', 'subject', 'عطل في الجهاز', 'item', :'i3', 'invoice', :'whinv')) as tk1 \gset
+select t.ok((select warranty_until = current_date + interval '12 months' - interval '1 day' from public.service_tickets where id = :'tk1'), 'tickets: a repair knows the item is under warranty');
+select t.err($$select public.ticket_save('$$ || :'cid' || $$', '$$ || :'tk1' || $$', '{"status":"closed"}')$$, 'الحل', 'tickets: closing needs the resolution');
+select public.ticket_note(:'tk1', 'سنرسل فنيا غدا', false);
+select public.ticket_note(:'tk1', 'ملاحظة داخلية', true);
+select public.portal_link_get(:'c1') as ptok \gset
+reset role;
+set role anon;
+select public.portal_ticket_open(:'ptok', 'استفسار عن الفاتورة', 'أرجو توضيح بند الشحن') as tk2 \gset
+select t.ok((select count(*) >= 2 from jsonb_array_elements(public.portal_tickets(:'ptok'))) and not (public.portal_tickets(:'ptok')::text like '%ملاحظة داخلية%'), 'tickets: the customer opens one from the portal and never sees internal notes');
+reset role;
+-- 27. loyalty
+select set_config('request.jwt.claim.sub', :'u_owner', false); set role authenticated;
+select public.loyalty_set(:'cid', true, 1, 0.05, 100);
+select coalesce((select id::text from public.pos_shifts where company_id = :'cid' and opened_by = :'u_owner' and status = 'open' limit 1), '') as osh \gset
+select coalesce(nullif(:'osh', ''), (select public.pos_shift_open(:'cid', 0)::text)) as osh \gset
+select public.pos_sale_pts(:'cid', :'osh'::uuid, jsonb_build_object('party', :'c1', 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 1, 'price', 200))), 230, 0) as lp1 \gset
+select t.ok(public.loyalty_balance(:'c1') >= 230, 'loyalty: a sale of 230 earns 230 points');
+select (:'lp1'::jsonb->'loyalty'->>'balance')::int as lbal \gset
+select public.pos_sale_pts(:'cid', :'osh'::uuid, jsonb_build_object('party', :'c1', 'points', 200, 'lines', jsonb_build_array(jsonb_build_object('item', :'i3', 'qty', 1, 'price', 200))), 220, 0) as lp2 \gset
+select t.ok((:'lp2'::jsonb->'loyalty'->>'value')::numeric = 10 and (:'lp2'::jsonb->'loyalty'->>'earned')::int = 220 and public.loyalty_balance(:'c1') = :'lbal'::int - 200 + 220,
+  'loyalty: 200 points pay 10 riyals of the next sale, and the rest earns new points');
+select t.err($$select public.pos_sale_pts('$$ || :'cid' || $$', '$$ || :'osh' || $$', '{"party":"$$ || :'c1' || $$","points":99999,"lines":[{"item":"$$ || :'i3' || $$","qty":1,"price":200}]}', 0, 0)$$, 'رصيد', 'loyalty: not more than the balance');
 reset role;
 -- RLS performance (0150): auth.uid() is computed once per statement in every policy
 select t.ok((select count(*) = 0 from pg_policies where schemaname = 'public' and (coalesce(qual, '') || coalesce(with_check, '')) ~ '(?<!SELECT )auth\.uid\(\)'),

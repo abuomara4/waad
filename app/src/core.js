@@ -115,7 +115,7 @@ const qs = o => Object.entries(o).filter(([, v]) => v !== undefined && v !== nul
    place that shows an Arabic name (tables, selects, letters, printouts) shows the English one — no per-screen code */
 const BILINGUAL = { employees: [['full_name', 'full_name_en'], ['job_title', 'job_title_en']], departments: [['name', 'name_en']], companies: [['name', 'name_en']],
   accounts: [['name', 'name_en']], parties: [['name', 'name_en']], items: [['name', 'name_en']], work_sites: [['name', 'name_en']], shifts: [['name', 'name_en']], holidays: [['name', 'name_en']],
-  review_cycles: [['name', 'name_en']], job_openings: [['title', 'title_en']], candidates: [['full_name', 'full_name_en']], trainings: [['title', 'title_en']], employee_documents: [['title', 'title_en']], employee_allowances: [['name', 'name_en']], policies: [['title', 'title_en']], custody_items: [['name', 'name_en']] };
+  review_cycles: [['name', 'name_en']], job_openings: [['title', 'title_en']], candidates: [['full_name', 'full_name_en']], trainings: [['title', 'title_en']], employee_documents: [['title', 'title_en']], employee_allowances: [['name', 'name_en']], policies: [['title', 'title_en']], custody_items: [['name', 'name_en']], cost_centers: [['name', 'name_en']] };
 // in English mode, learn every stored English name up front so lists and reports built from functions show them too
 async function preloadNames() {
   if (LANG !== 'en' || !S.cid) return;
@@ -563,6 +563,7 @@ async function boot() {
   if (link && link.type === 'recovery') return changePasswordView('recovery');
   if (typeof portalToken === 'function' && portalToken()) return portalView(portalToken());   // a customer's private link: no sign-in
   if (typeof careersToken === 'function' && careersToken()) return careersView(careersToken());
+  if (typeof quoteToken === 'function' && quoteToken()) return quotePublicView(quoteToken());   // a customer answers a quotation: no sign-in
   if (typeof coToken === 'function' && coToken()) return coPublicView(coToken());   // a customer approves a change order: no sign-in   // the company's public careers page: no sign-in
   if (!S.session) return legalHash() ? legalView(legalHash()) : authView(startTab());
   if (!ADMIN && typeof bioGate === 'function' && bioGate()) return;
@@ -611,11 +612,11 @@ const profileRow = f => Object.assign({ owner_phone: (f.owner_phone || '').repla
   'city' in f ? { city: (f.city || '').trim() || null } : {});
 const MODULES = { hr: 'الموارد البشرية', finance: 'المالية والمحاسبة', sales: 'المبيعات', purch: 'المشتريات', stock: 'المخزون', proj: 'المشاريع' };
 const MOD_ROUTES = {
-  hr: ['hrdash', 'compliance', 'onboarding', 'announcements', 'surveys', 'workforce', 'employees', 'grades', 'insurance', 'trainplan', 'docs', 'att', 'attendance', 'roster', 'policies', 'leavecal', 'penalties', 'payroll', 'payslips', 'eos', 'nitaqat', 'travel', 'workflows', 'clearance', 'reviews', 'recruit', 'training', 'hrreports', 'org', 'letter', 'path', 'profile', 'requests'],
-  sales: ['customer', 'quotes', 'orders', 'deliveries', 'sales', 'crm', 'marketing', 'pos', 'recurring', 'agreements'],
-  purch: ['purchreq', 'porders', 'receipts', 'purchases', 'rfq', 'supinbox'],
+  hr: ['hrdash', 'compliance', 'onboarding', 'announcements', 'surveys', 'workforce', 'employees', 'grades', 'insurance', 'trainplan', 'docs', 'att', 'attendance', 'roster', 'policies', 'leavecal', 'penalties', 'payroll', 'payslips', 'eos', 'nitaqat', 'travel', 'workflows', 'clearance', 'probation', 'grievances', 'exitresults', 'jobdesc', 'competencies', 'succession', 'payequity', 'reviews', 'recruit', 'training', 'hrreports', 'org', 'letter', 'path', 'profile', 'requests'],
+  sales: ['customer', 'quotes', 'orders', 'deliveries', 'sales', 'crm', 'marketing', 'pos', 'recurring', 'agreements', 'dunning', 'pricelists', 'tickets'],
+  purch: ['purchreq', 'porders', 'receipts', 'purchases', 'rfq', 'supinbox', 'landed', 'payrun'],
   stock: ['items', 'warehouses', 'transfers', 'counts', 'expiry', 'reorder', 'serials', 'mfg'],
-  finance: ['expensepolicy', 'payments', 'journal', 'reports', 'coa', 'bankrec', 'cheques', 'petty', 'mypetty', 'currencies', 'opening', 'assets', 'costcenters', 'budgets', 'periods', 'bankmatch', 'prepaid', 'monthclose', 'facilities', 'zakat', 'spend'],
+  finance: ['expensepolicy', 'payments', 'journal', 'reports', 'coa', 'bankrec', 'cheques', 'petty', 'mypetty', 'currencies', 'opening', 'assets', 'costcenters', 'budgets', 'periods', 'bankmatch', 'prepaid', 'monthclose', 'facilities', 'zakat', 'spend', 'deferred', 'wht', 'fxreval', 'allocation', 'ratios'],
   proj: ['projects', 'mytime', 'resources'] };
 const VIEW_ONLY = { employees: 'hr_emp', docs: 'hr_emp', att: 'hr_att', leavecal: 'hr_att', payroll: 'hr_pay', penalties: 'hr_disc', reviews: 'hr_disc' };
 function viewOnlyPage(path) { const r = String(path || '').split('/')[1]; return !!VIEW_ONLY[r] && !isHR() && !has('owner', 'admin', 'finance') && hrCan(VIEW_ONLY[r]); }
@@ -653,13 +654,14 @@ function navItems() {
   it.push({ h: '#/home', t: 'الرئيسية' });
   if (typeof GUIDE !== 'undefined') it.push({ h: '#/guide', t: 'دليل الاستخدام' });
   if (S.emp) { g('خدماتي'); if (S.company && S.company.att_enabled && !(S.myEmp && S.myEmp.att_exempt)) it.push({ h: '#/attendance', t: 'حضوري' });
-    it.push({ h: '#/emp', t: 'ملفي' }, { h: '#/requests', t: 'طلباتي' }, { h: '#/sign', t: 'توقيعاتي', pill: NAVC.sign }, { h: '#/payslips', t: 'قسائم الراتب' }, ...(S.myTime ? [{ h: '#/mytime', t: 'ساعات عملي', pill: NAVC.time }] : []), { h: '#/reviews', t: 'تقييم الأداء' }, ...(isHR() ? [] : [{ h: '#/okrs', t: 'أهدافي (OKRs)' }]), { h: '#/surveys', t: 'الاستبيانات' }, { h: '#/profile', t: 'ملفي' });
+    it.push({ h: '#/emp', t: 'ملفي' }, { h: '#/requests', t: 'طلباتي' }, { h: '#/directory', t: 'دليل الموظفين' }, { h: '#/kudos', t: 'الشكر والتقدير' }, { h: '#/grievance', t: 'بلاغ سري' }, ...(S.myEmp && S.myEmp.end_date ? [{ h: '#/exit', t: 'مقابلة نهاية الخدمة' }] : []), { h: '#/sign', t: 'توقيعاتي', pill: NAVC.sign }, { h: '#/payslips', t: 'قسائم الراتب' }, ...(S.myTime ? [{ h: '#/mytime', t: 'ساعات عملي', pill: NAVC.time }] : []), { h: '#/reviews', t: 'تقييم الأداء' }, ...(isHR() ? [] : [{ h: '#/okrs', t: 'أهدافي (OKRs)' }]), { h: '#/surveys', t: 'الاستبيانات' }, { h: '#/profile', t: 'ملفي' });
     if (S.hasPetty) it.push({ h: '#/mypetty', t: 'عهدتي النقدية' });
     if (!isHR()) it.push({ h: '#/policies', t: 'السياسات واللوائح' });
     const ov = (S.company && S.company.org_visibility) || 'all';
     // an employee sees only self and own team on the chart: with nobody under them it would show just them
     if (!(isHR() || has('finance')) && (!plainEmp() || S.hasTeam) && (ov === 'all' || (ov === 'managers' && has('manager')))) it.push({ h: '#/org', t: 'الهيكل التنظيمي' }); }
   if ((!['accountant', 'storekeeper'].includes(S.role) || S.emp) && (!plainEmp() || S.hasTeam || NAVC.approvals)) it.push({ h: '#/approvals', t: 'الاعتمادات', pill: NAVC.approvals });
+  if (!plainEmp() || S.hasTeam) it.push({ h: '#/myreports', t: 'تقاريري المخصصة' });
   const fm = d => { if (typeof FORM_DEPTS !== 'undefined' && modOn(d) && formCanDept(d)) it.push({ h: '#/forms?d=' + d, t: 'النماذج' }); };   // each section's own forms
   if (has('manager') && !(isHR() || has('finance'))) it.push({ h: '#/clearance', t: 'إخلاء الطرف' });
   { const ds = dashKeys().map(k => [k, DASH_T[k]]);   // each manager sees the dashboard of their own section; the owner sees them all
@@ -667,7 +669,7 @@ function navItems() {
     else if (isHR() || isFin() || has('manager')) it.push({ h: '#/analytics', t: 'التحليلات' }); }
   if (isHR() || has('finance')) {
     g('الموارد البشرية');
-    if (isHR()) it.push({ h: '#/hrdash', t: 'لوحة الموارد البشرية' }, { h: '#/compliance', t: 'الامتثال' }, { h: '#/onboarding', t: 'التهيئة والترحيب' }, { h: '#/announcements', t: 'الإعلانات الداخلية' }, { h: '#/permissions', t: 'الصلاحيات' }, { h: '#/okrs', t: 'الأهداف (OKRs)' });
+    if (isHR()) it.push({ h: '#/hrdash', t: 'لوحة الموارد البشرية' }, { h: '#/compliance', t: 'الامتثال' }, { h: '#/onboarding', t: 'التهيئة والترحيب' }, { h: '#/probation', t: 'تقييم فترة التجربة' }, { h: '#/announcements', t: 'الإعلانات الداخلية' }, { h: '#/permissions', t: 'الصلاحيات' }, { h: '#/okrs', t: 'الأهداف (OKRs)' });
     if (isHR()) it.push({ h: '#/companydocs?t=vehicles', t: 'الأسطول والسيارات' });   // and with HR (drivers, documents)
     if (isHR() && !S.emp) it.push({ h: '#/surveys', t: 'الاستبيانات' });
     if (isHR() || has('finance')) it.push({ h: '#/workforce', t: 'خطة القوى العاملة' });
@@ -683,6 +685,8 @@ function navItems() {
     if (isHR()) it.push({ h: '#/workflows', t: 'مسارات الاعتماد' });
     it.push({ h: '#/clearance', t: 'إخلاء الطرف' });
     if (isHR() && !S.emp) it.push({ h: '#/reviews', t: 'تقييم الأداء' });
+    if (isHR()) it.push({ h: '#/competencies', t: 'مصفوفة الجدارات' }, { h: '#/succession', t: 'تخطيط الإحلال' }, { h: '#/payequity', t: 'عدالة الأجور' });
+    if (isHR()) it.push({ h: '#/grievances', t: 'البلاغات السرية' }, { h: '#/exitresults', t: 'مقابلات نهاية الخدمة' }, { h: '#/jobdesc', t: 'مكتبة الوصف الوظيفي' });
     if (isHR()) it.push({ h: '#/recruit', t: 'التوظيف' }, { h: '#/training', t: 'التدريب' }, { h: '#/trainplan', t: 'خطة التدريب السنوية' }, { h: '#/grades', t: 'الدرجات الوظيفية' }, { h: '#/insurance', t: 'التأمين الطبي' });
     it.push({ h: '#/hrreports', t: 'تقارير الموارد البشرية' }); fm('hr');
   }
@@ -700,7 +704,10 @@ function navItems() {
     if (can('je')) it.push({ h: '#/petty', t: 'العُهد النقدية' });
     if (has('owner', 'admin', 'finance')) it.push({ h: '#/companydocs?t=vehicles', t: 'الأسطول والسيارات' });   // fleet costs live with finance too (0119)
     if (can('coa') || can('sales') || can('purch')) it.push({ h: '#/currencies', t: 'العملات' });
-    if (can('je')) it.push({ h: '#/bankmatch', t: 'مطابقة كشف البنك' }, { h: '#/prepaid', t: 'المصروفات المقدمة' });
+    if (can('je')) it.push({ h: '#/bankmatch', t: 'مطابقة كشف البنك' }, { h: '#/prepaid', t: 'المصروفات المقدمة' }, { h: '#/deferred', t: 'الإيرادات المؤجلة' });
+    if (can('purch') || can('je')) it.push({ h: '#/wht', t: 'ضريبة الاستقطاع' });
+    if (can('je')) it.push({ h: '#/fxreval', t: 'إعادة تقييم العملات' }, { h: '#/allocation', t: 'توزيع المصروفات' });
+    if (can('reports')) it.push({ h: '#/ratios', t: 'النسب المالية' });
     if (can('reports')) it.push({ h: '#/monthclose', t: 'إقفال الشهر' });
     if (can('je') || can('reports')) it.push({ h: '#/facilities', t: 'القروض وخطابات الضمان' });
     if (can('reports')) it.push({ h: '#/zakat', t: 'الزكاة التقديرية' });
@@ -715,21 +722,21 @@ function navItems() {
     add('hr_recruit', { h: '#/recruit', t: 'التوظيف' }, { h: '#/workforce', t: 'خطة القوى العاملة' }); add('hr_train', { h: '#/training', t: 'التدريب' }, { h: '#/trainplan', t: 'خطة التدريب السنوية' });
     add('hr_ann', { h: '#/announcements', t: 'الإعلانات الداخلية' }, { h: '#/surveys', t: 'الاستبيانات' }); add('hr_cdocs', { h: '#/companydocs', t: 'مستندات المنشأة والسيارات' });
   }
-  if (has('manager') && !isHR()) { g('فريقي'); [{ h: '#/att', t: 'حضور الفريق' }, { h: '#/leavecal', t: 'تقويم الإجازات' }].concat(has('finance') ? [] : [{ h: '#/workforce', t: 'خطة القوى العاملة' }]).forEach(x => { if (!it.some(y => y.h === x.h)) it.push(x); }); }
+  if (has('manager') && !isHR()) { g('فريقي'); [{ h: '#/att', t: 'حضور الفريق' }, { h: '#/leavecal', t: 'تقويم الإجازات' }, { h: '#/probation', t: 'تقييم فترة التجربة' }, { h: '#/competencies', t: 'جدارات فريقي' }].concat(has('finance') ? [] : [{ h: '#/workforce', t: 'خطة القوى العاملة' }]).forEach(x => { if (!it.some(y => y.h === x.h)) it.push(x); }); }
   if (isFin() && (can('sales') || can('stock') || can('mkt'))) {
     g('المبيعات');
     if (can('sales') || can('mkt')) it.push({ h: '#/crm', t: 'الفرص والعملاء المحتملون' }, { h: '#/marketing', t: 'التسويق والحملات' });
     if (can('sales')) it.push({ h: '#/reps', t: 'أداء المندوبين' });
     if (can('sales')) it.push({ h: '#/quotes', t: 'عروض الأسعار' });
     if (can('sales') || can('stock')) it.push({ h: '#/orders', t: 'أوامر البيع' }, { h: '#/deliveries', t: 'إشعارات التسليم' });
-    if (can('sales')) it.push({ h: '#/pos', t: 'نقطة البيع' }, { h: '#/sales', t: 'فواتير المبيعات' }, { h: '#/recurring', t: 'الفواتير المتكررة' }, { h: '#/agreements', t: 'العقود والاتفاقيات' }, { h: '#/parties/customer', t: 'العملاء' });
+    if (can('sales')) it.push({ h: '#/pos', t: 'نقطة البيع' }, { h: '#/sales', t: 'فواتير المبيعات' }, { h: '#/recurring', t: 'الفواتير المتكررة' }, { h: '#/agreements', t: 'العقود والاتفاقيات' }, { h: '#/dunning', t: 'تحصيل المتأخرات' }, { h: '#/pricelists', t: 'قوائم الأسعار' }, { h: '#/tickets', t: 'تذاكر الدعم والصيانة' }, { h: '#/parties/customer', t: 'العملاء' });
     fm('sales');
   }
   if (isFin() && (can('purch') || can('stock'))) {
     g('المشتريات');
     if (can('purch')) it.push({ h: '#/purchreq', t: 'طلبات الشراء' }, { h: '#/rfq', t: 'طلبات عروض الأسعار' });
     it.push({ h: '#/porders', t: 'أوامر الشراء' }, { h: '#/receipts', t: 'استلام البضاعة' });
-    if (can('purch')) it.push({ h: '#/supinbox', t: 'فواتير الموردين الواردة' }, { h: '#/purchases', t: 'فواتير المشتريات' }, { h: '#/parties/supplier', t: 'الموردون' });
+    if (can('purch')) it.push({ h: '#/supinbox', t: 'فواتير الموردين الواردة' }, { h: '#/purchases', t: 'فواتير المشتريات' }, { h: '#/payrun', t: 'دفعة سداد جماعية' }, { h: '#/landed', t: 'التكاليف المحمّلة' }, { h: '#/parties/supplier', t: 'الموردون' });
     fm('purch');
   }
   if (isFin() && (can('stock') || can('items') || can('stockadj'))) {

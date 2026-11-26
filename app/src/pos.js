@@ -49,7 +49,7 @@ VIEWS['#/pos'] = async page => {
         <div id="pgrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:8px"></div></div>
       <div class="card" style="align-self:start"><div id="pcart"></div>
         <div class="fg" style="margin-top:10px">${field('خصم على كل الأصناف %', inp('dall', '', `id="pdall" type="number" min="0" max="${mgr ? 100 : lim}" step="0.5" placeholder="0"`), 'wide')}
-          ${field('العميل', `<select id="pcu"><option value="">${esc(tr(POS_CASH))}</option>${custs.filter(c => c.name !== POS_CASH).map(c => opt(c.id, c.name)).join('')}</select>`, 'wide')}
+          ${field('العميل', `<select id="pcu"><option value="">${esc(tr(POS_CASH))}</option>${custs.filter(c => c.name !== POS_CASH).map(c => opt(c.id, c.name)).join('')}</select>`, 'wide')}<div class="wide" id="ploy"></div>
           ${field('طريقة الدفع', `<select id="ppm">${opt('cash', tr('نقدا'))}${opt('card', tr('شبكة / بطاقة'))}${opt('cheque', tr('شيك'))}${opt('credit', tr('آجل — بدون قبض'))}${opt('mix', tr('أكثر من طريقة'))}</select>`, 'wide')}
           <div class="wide" id="ppx"></div></div>
         <div id="perr"></div><button class="btn pri" id="pok" style="width:100%;margin-top:8px;min-height:48px">${esc(tr('إتمام البيع'))}</button></div></div>
@@ -116,22 +116,25 @@ VIEWS['#/pos'] = async page => {
     try { await busy($('#pok', page), async () => {
       const t = tot(), m = $('#ppm', page).value, v = x => $(x, page) ? r2(n0($(x, page).value)) : 0;
       let party = $('#pcu', page).value;
-      const card = m === 'card' ? t.total : m === 'mix' ? v('#pmd') : 0, chq = m === 'cheque' ? t.total : m === 'mix' ? v('#pmq') : 0;
-      const cash = m === 'cash' ? t.total : m === 'mix' ? v('#pmc') : 0, rest = r2(t.total - cash - card - chq);
+      const pts = S.company && S.company.loyalty_on && party && $('#ppts', page) ? Math.floor(n0($('#ppts', page).value)) : 0, ptsVal = r2(pts * n0((S.company || {}).loyalty_value)), due = r2(t.total - ptsVal);
+      const card = m === 'card' ? due : m === 'mix' ? v('#pmd') : 0, chq = m === 'cheque' ? due : m === 'mix' ? v('#pmq') : 0;
+      const cash = m === 'cash' ? due : m === 'mix' ? v('#pmc') : 0, rest = r2(due - cash - card - chq);
       if (rest < -0.004) throw new Error(tr('المدفوع أكبر من الإجمالي'));
       if ((rest > 0.004 || chq > 0) && !party) throw new Error(tr(chq > 0 ? 'الدفع بشيك لعميل مسجّل — اختر العميل' : 'البيع الآجل لعميل مسجّل — اختر العميل'));
-      if (m === 'cash' && $('#prc', page) && $('#prc', page).value !== '' && n0($('#prc', page).value) < t.total) throw new Error(tr('المستلم أقل من الإجمالي'));
+      if (m === 'cash' && $('#prc', page) && $('#prc', page).value !== '' && n0($('#prc', page).value) < due) throw new Error(tr('المستلم أقل من الإجمالي'));
       const cheque = chq > 0 ? { amount: chq, cheque_no: ($('#pqn', page) || {}).value || '', bank: ($('#pqb', page) || {}).value || '', due_date: ($('#pqd', page) || {}).value || today() } : null;
       if (cheque && !cheque.cheque_no.trim()) throw new Error(tr('أدخل رقم الشيك'));
       if (!party) { const [w] = await db.get('parties', { company_id: 'eq.' + S.cid, kind: 'eq.customer', name: 'eq.' + POS_CASH, select: 'id' });
         party = w ? w.id : (await db.ins('parties', { company_id: S.cid, kind: 'customer', name: POS_CASH }))[0].id; }
-      const id = await db.rpc('pos_sale', { p_company: S.cid, p_shift: shift.id, p_doc: { party, lines: cart.map(l => ({ item: l.it.id, qty: l.qty, price: priceOf(l) })) }, p_cash: cash, p_card: card, p_cheque: cheque });
+      const res = await db.rpc('pos_sale_pts', { p_company: S.cid, p_shift: shift.id, p_doc: { party, points: pts, lines: cart.map(l => ({ item: l.it.id, qty: l.qty, price: priceOf(l) })) }, p_cash: cash, p_card: card, p_cheque: cheque }), id = res.invoice;
+      if (res.loyalty && res.loyalty.earned) toast(tr('نقاط مكتسبة') + ': ' + res.loyalty.earned + ' · ' + tr('الرصيد') + ' ' + res.loyalty.balance);
       const got = m === 'cash' && $('#prc', page) ? n0($('#prc', page).value) : 0;
       const lines = cart.map(l => ({ ...l, price: priceOf(l) })); cart.length = 0; $('#pdall', page).value = ''; draw();
       toast(tr('تم البيع')); await posReceipt(id, lines, { cash, card, chq, got, disc: t.disc });
     }); } catch (er) { showErr($('#perr', page), er); }
   };
   showItems(''); draw(); setTimeout(() => $('#psc', page).focus(), 50);
+  if (typeof posLoyalty === 'function') posLoyalty(page).catch(() => {});
 };
 // close the shift: the figures, the cash counted, then the Z report
 async function posClose(id) {

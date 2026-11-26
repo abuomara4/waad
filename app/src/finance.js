@@ -25,6 +25,7 @@ VIEWS['#/parties'] = async (page, kind) => {
   const scm = {}; if (!cust) (await db.rpc('supplier_scorecard', { p_company: S.cid }).catch(() => [])).forEach(x => scm[x.party_id] = x);
   const reps = cust ? Object.values(await employeesMap()).filter(e => !e.end_date || e.end_date >= today()) : [];   // the customer's sales rep (0143)
   const sis = S.company && S.company.group_id ? await db.rpc('group_sisters', { p_company: S.cid }).catch(() => []) : [];   // sister companies of the group (0142)
+  const PLISTS = cust ? await db.get('price_lists', { company_id: 'eq.' + S.cid, active: 'eq.true', order: 'name', select: 'id,name' }).catch(() => []) : [];   // price lists (0153)
   const T = cust ? ['العملاء', 'عميل'] : ['الموردون', 'مورد'];
   page.innerHTML = `<div class="head"><div><h1>${T[0]}</h1></div><div class="row"><button class="btn" id="pim">استيراد من Excel</button><button class="btn pri" id="np">إضافة ${T[1]}</button></div></div>
     ${tbl([{ t: 'الاسم', h: p => esc(p.name) + (p.group_company_id ? ` <span class="badge info">${esc(tr('شركة شقيقة'))}</span>` : '') + (p.active === false ? ` <span class="badge">${esc(tr('موقوف'))}</span>` : '') }, { t: 'الرقم الضريبي', h: p => `<span class="num">${esc(p.vat_no || '—')}</span>` }, { t: 'الجوال', h: p => `<span class="num">${esc(p.phone || '—')}</span>` },
@@ -42,6 +43,7 @@ VIEWS['#/parties'] = async (page, kind) => {
       <h3 class="wide" style="margin:8px 0 0">${esc(tr('العنوان الوطني'))}</h3><p class="wide muted small" style="margin:0">${esc(tr(cust ? 'مطلوب في الفاتورة الضريبية للعميل المسجل في ضريبة القيمة المضافة.' : 'يظهر في أوامر الشراء.'))}</p>${addrFields(p, saudi)}
       <h3 class="wide" style="margin:8px 0 0">${esc(tr('الدفع'))}</h3>${field('مدة السداد (يوم)', inp('terms_days', p && p.terms_days, 'type="number" min="0" max="365" step="1"'))}
       ${cust ? field('حد الائتمان (ريال)', inp('credit_limit', p && p.credit_limit, 'type="number" min="0" step="0.01" placeholder="' + esc(tr('بدون حد')) + '"')) : ''}
+      ${cust && PLISTS.length ? field('قائمة الأسعار', `<select name="price_list_id"><option value="">${esc(tr('الافتراضية'))}</option>${PLISTS.map(l => opt(l.id, l.name, (p && p.price_list_id) || '')).join('')}</select>`) : ''}
       ${field('الآيبان', inp('iban', p && p.iban, 'dir="ltr" maxlength="34" id="piban"') + '<div class="small muted" id="pibk"></div>')}
       ${cust ? field('مندوب المبيعات المسؤول', `<select name="sales_rep_id"><option value="">—</option>${reps.map(e => opt(e.id, e.emp_no + ' — ' + e.full_name, p && p.sales_rep_id)).join('')}</select>`) : ''}
       ${sis.length ? field('شركة شقيقة في المجموعة', `<select name="group_company_id"><option value="">${esc(tr('لا — طرف خارجي'))}</option>${sis.map(x => opt(x.id, x.name, p && p.group_company_id)).join('')}</select>`, 'wide') : ''}
@@ -55,6 +57,7 @@ VIEWS['#/parties'] = async (page, kind) => {
           iban: blank(f.iban), note: blank(f.note), terms_days: f.terms_days === '' ? null : +f.terms_days };
         SA_ADDR.forEach(([k]) => row[k] = blank(f[k]));
         if (cust) row.credit_limit = f.credit_limit === '' ? null : +f.credit_limit;
+        if (cust && 'price_list_id' in f) row.price_list_id = blank(f.price_list_id);
         if (sis.length) row.group_company_id = f.group_company_id || null;
         if (cust) row.sales_rep_id = f.sales_rep_id || null;
         if (p) row.active = !!f.active;
@@ -189,8 +192,13 @@ async function docForm(page, key) {
     calc();
   };
   const calc = () => { let s = 0, v = 0; $$('tr', $('#lb', page)).forEach(tr => { const l = lines[+tr.dataset.i]; const a = r2(n0(l.qty == null ? 1 : l.qty) * n0(l.u || 1) * n0(l.price)); const t = r2(a * n0(l.vat == null ? 15 : l.vat) / 100); s += a; v += t; $('[data-amt]', tr).textContent = money(a); }); $('#ts', page).textContent = money(s); $('#tv', page).textContent = money(v); $('#tt', page).textContent = money(s + v); const cu = $('#dcur', page) && $('#dcur', page).value; if ($('#tsr', page)) { $('#tsr', page).hidden = !cu; if (cu) $('#tsar', page).textContent = money((s + v) * n0($('#dfx', page).value)); } };
+  const plQty = l => n0(l.qty == null ? 1 : l.qty) * n0(l.u || 1);
+  const plLine = (l, done) => { if (key === 'sales' && l.what && l.what.startsWith('i:') && typeof plApply === 'function') plApply(l, $('#dpt', page).value, l.what.slice(2), plQty(l), done); };
   $('#lb', page).addEventListener('input', e => { const tr = e.target.closest('tr'); if (!tr) return; const l = lines[+tr.dataset.i]; const f = e.target.dataset.f; l[f] = e.target.value;
-    if (f === 'what') { l.u = 1; l.sn = ''; if (l.what.startsWith('i:')) { const it = items.find(x => x.id === l.what.slice(2)); if (it) itemDefaults(l, it); } return draw(); } calc(); });
+    if (f === 'price') l.pman = true;
+    if (f === 'what') { l.u = 1; l.sn = ''; l.pman = false; if (l.what.startsWith('i:')) { const it = items.find(x => x.id === l.what.slice(2)); if (it) itemDefaults(l, it); } plLine(l, draw); return draw(); }
+    if (f === 'qty') plLine(l, () => { const pi = $('[data-f=price]', tr); if (pi) pi.value = l.price; calc(); });
+    calc(); });
   $('#lb', page).addEventListener('change', e => { if (e.target.dataset.f === 'u') { lines[+e.target.closest('tr').dataset.i].u = +e.target.value; calc(); } });
   $('#lb', page).addEventListener('click', e => { if (e.target.matches('[data-rm]')) { lines.splice(+e.target.closest('tr').dataset.i, 1); if (!lines.length) lines.push({}); draw(); } });
   $('#al', page).onclick = () => { lines.push({}); draw(); };
@@ -215,7 +223,7 @@ async function docForm(page, key) {
       if (credit && partyNow().id === p.id) bits.push(tr('الرصيد') + ' ' + money(credit.balance) + ' · ' + tr('حد الائتمان') + ' ' + money(credit.credit_limit)); }
     $('#pcr', page).textContent = bits.join(' · ');
   };
-  $('#dpt', page).onchange = syncParty; $('#ddt', page).onchange = () => { if (!dueTouched) syncParty(); }; $('#ddu', page).oninput = () => { dueTouched = true; };
+  $('#dpt', page).onchange = () => { syncParty(); lines.forEach(l => plLine(l, draw)); }; $('#ddt', page).onchange = () => { if (!dueTouched) syncParty(); }; $('#ddu', page).oninput = () => { dueTouched = true; };
   draw(); syncParty();
   $('#df', page).onsubmit = async e => {
     e.preventDefault(); const f = formData(e.target);
@@ -250,7 +258,7 @@ async function docView(page, key, id) {
   const ccTxt = doc.cost_center_id ? ' · ' + esc(ccName((await ccList()).find(c => c.id === doc.cost_center_id))) : '';
   const co = S.company, [so] = doc.order_id ? await db.get(key === 'sales' ? 'sales_orders' : 'purchase_orders', { id: 'eq.' + doc.order_id, select: 'id,no' }) : [];
   page.innerHTML = `<div class="head"><div><a href="#/${key}" class="small back">${D.t}</a><h1>${isDn ? esc(tr('إشعار مدين')) : D.one} <span class="num">${esc(doc.no)}</span> ${badge(doc.status)}</h1><div class="muted">${esc(party ? party.name : '')} · ${fdate(doc.date)}${ref ? ` · ${esc(tr('على الفاتورة'))} <a href="#/sales/${ref.id}" class="num">${esc(ref.no)}</a>` : ''}${doc.reason ? ' · ' + esc(doc.reason) : ''}${doc.supplier_ref ? ' · رقم المورد ' + esc(doc.supplier_ref) : ''}${whTxt}${ccTxt}${so ? ` · ${key === 'sales' ? 'أمر البيع' : 'أمر الشراء'} <a href="#/${key === 'sales' ? 'orders' : 'porders'}/${so.id}" class="num">${esc(so.no)}</a>` : ''}</div></div>
-    <div class="row">${doc.status === 'posted' && rem > 0.001 ? `<button class="btn pri" id="pay">${key === 'sales' ? 'تسجيل قبض' : 'تسجيل صرف'}</button>` : ''}${doc.status === 'posted' && rem > 0.001 && !doc.currency ? '<button class="btn" id="chq">شيك</button>' : ''}${doc.status === 'posted' && can('void') && !doc.is_opening ? `<button class="btn" id="cn">${key === 'sales' ? 'إشعار دائن' : 'مرتجع'}</button>` : ''}${key === 'sales' && doc.status === 'posted' && !doc.is_opening && !isDn && can('sales') ? `<button class="btn" id="dn">${esc(tr('إشعار مدين'))}</button>` : ''}${doc.status === 'posted' && can('void') && paid === 0 && !doc.is_opening && !zm[id] ? '<button class="btn danger" id="vd">إلغاء الفاتورة</button>' : ''}${key === 'sales' && doc.status === 'posted' && !doc.is_opening ? `<button class="btn" id="dsend">${esc(tr('إرسال للعميل'))}</button>` : ''}${doc.is_opening ? '' : '<button class="btn" id="dprint">طباعة</button>'}</div></div>
+    <div class="row">${doc.status === 'posted' && rem > 0.001 ? `<button class="btn pri" id="pay">${key === 'sales' ? 'تسجيل قبض' : 'تسجيل صرف'}</button>` : ''}${doc.status === 'posted' && rem > 0.001 && !doc.currency ? '<button class="btn" id="chq">شيك</button>' : ''}${key === 'purchases' && doc.status === 'posted' && rem > 0.001 && !doc.currency && can('purch') ? `<button class="btn" id="whtp">${esc(tr('سداد مع ضريبة الاستقطاع'))}</button>` : ''}${doc.status === 'posted' && can('void') && !doc.is_opening ? `<button class="btn" id="cn">${key === 'sales' ? 'إشعار دائن' : 'مرتجع'}</button>` : ''}${key === 'sales' && doc.status === 'posted' && !doc.is_opening && !isDn && can('sales') ? `<button class="btn" id="dn">${esc(tr('إشعار مدين'))}</button>` : ''}${doc.status === 'posted' && can('void') && paid === 0 && !doc.is_opening && !zm[id] ? '<button class="btn danger" id="vd">إلغاء الفاتورة</button>' : ''}${key === 'sales' && doc.status === 'posted' && !doc.is_opening ? `<button class="btn" id="dsend">${esc(tr('إرسال للعميل'))}</button>` : ''}${doc.is_opening ? '' : '<button class="btn" id="dprint">طباعة</button>'}</div></div>
     ${zm[id] ? zatcaBox(zm[id]) : ''}
     <div class="card" id="dcard">${doc.is_opening ? `<p><span class="badge info">${esc(tr('رصيد افتتاحي'))}</span></p>` : ''}${key === 'sales' && !doc.is_opening ? `<div class="row" style="justify-content:space-between;align-items:flex-start"><div class="ph-dup"><b>${esc(co.name)}</b><div class="small muted">${co.vat_no ? 'الرقم الضريبي ' + esc(co.vat_no) : 'لا يوجد رقم ضريبي مسجّل'}</div></div><div style="text-align:end"><b>فاتورة ضريبية${party && party.vat_no ? '' : ' مبسطة'}</b><div class="small muted">${esc(party ? party.name : '')}${party && party.vat_no ? ' · ' + esc(party.vat_no) : ''}</div></div>${co.vat_no ? `<div class="dqr" title="رمز الفاتورة الإلكترونية (زاتكا)">${zatcaQr(doc, 96)}</div>` : ''}</div>${co.vat_no ? '' : '<p class="small" style="color:var(--gold)">لن يظهر رمز QR للفاتورة الإلكترونية حتى يُسجّل الرقم الضريبي للمنشأة في الإعدادات.</p>'}<div style="height:12px"></div>` : ''}
     ${tbl([{ t: 'البند', h: l => esc(l.item_id ? (im[l.item_id] || {}).name : l.account_code + ' — ' + (am[l.account_code] || '')) }, { t: 'الكمية', r: 1, h: l => +l.qty }, { t: 'السعر', r: 1, h: l => money(l.unit_price) }, { t: 'الضريبة', r: 1, h: l => l.vat_rate + '%' }, { t: 'المبلغ', r: 1, h: l => money(l.amount) }], lines,
@@ -260,6 +268,7 @@ async function docView(page, key, id) {
     ${cns.length ? '<div style="height:12px"></div><h2>الإشعارات</h2>' + tbl([{ t: 'الرقم', h: c => `<span class="num">${esc(c.no)}</span>` }, { t: 'التاريخ', h: c => fdate(c.date) }, { t: 'السبب', k: 'reason' }, { t: 'المبلغ', r: 1, h: c => money(c.total) }, ...(Object.keys(zm).length ? [{ t: 'زاتكا', h: c => zm[c.id] ? zatcaBadge(zm[c.id].status) : '—' }] : []), ...(key === 'sales' ? [{ t: '', h: c => `<button class="btn sm" data-cnp="${c.id}">طباعة</button>` }] : [])], cns) : ''}`;
   notesBox(page, key === 'sales' ? 'sales' : 'purchase', id);
   if ($('#dsend', page)) $('#dsend', page).onclick = () => sendDocDialog({ title: tr(isDn ? 'إشعار مدين' : 'فاتورة'), no: doc.no, party, total: n0(doc.total), rem, due: doc.due_date, printBtn: $('#dprint', page) });
+  if ($('#whtp', page)) $('#whtp', page).onclick = () => whtDialog(doc, party || {}, r2(rem), acc);
   if ($('#dprint', page)) $('#dprint', page).onclick = () => { const w = document.createElement('div'); w.innerHTML = invoiceSheet({ key, doc, lines, party, im, am, paid, ref }); printWith(w.firstElementChild, '@page{size:A4 portrait;margin:12mm}'); };
   page.querySelectorAll('[data-cnp]').forEach(bt => bt.onclick = async e => { e.stopPropagation(); const cn = cns.find(c => c.id === bt.dataset.cnp), cl = await db.get('credit_note_lines', { note_id: 'eq.' + cn.id, order: 'id' }); const w = document.createElement('div'); w.innerHTML = invoiceSheet({ key, doc, lines: cl, party, im, am, cn }); printWith(w.firstElementChild, '@page{size:A4 portrait;margin:12mm}'); });
   if ($('#zrs', page)) $('#zrs', page).onclick = () => { zatcaKick(); toast(tr('جاري الإرسال إلى زاتكا…')); setTimeout(route, 6000); };

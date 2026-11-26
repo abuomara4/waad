@@ -125,14 +125,15 @@ VIEWS['#/recruit'] = async (page, arg) => {
   $('#no', page).onclick = () => openingForm(null, deps);
   $('#crl', page).onclick = () => careersLinkDialog();
 };
+let JDS = [];
 function openingForm(o, deps) {
   const v = o || { positions: 1, status: 'open' };
   modal(o ? 'تعديل الوظيفة' : 'وظيفة شاغرة جديدة', `<div class="fg">${field('المسمى الوظيفي', inp('title', v.title, 'required'))}${enF('title_en', v.title_en, 'المسمى الوظيفي بالإنجليزية')}${field('القسم', `<select name="dep"><option value="">—</option>${deps.map(d => opt(d.id, d.name, v.department_id)).join('')}</select>`)}
-    ${field('عدد الشواغر', inp('pos', v.positions, 'type="number" min="1" max="100"'))}${field('الحالة', `<select name="st">${Object.entries(OPEN_ST).map(([k, [t]]) => opt(k, t, v.status)).join('')}</select>`)}
+    ${(JDS || []).length ? field('الوصف الوظيفي', `<select name="jd"><option value="">—</option>${JDS.map(j => opt(j.id, j.title, v.jd_id || '')).join('')}</select>`) : ''}${field('عدد الشواغر', inp('pos', v.positions, 'type="number" min="1" max="100"'))}${field('الحالة', `<select name="st">${Object.entries(OPEN_ST).map(([k, [t]]) => opt(k, t, v.status)).join('')}</select>`)}
     ${field('الوصف', `<textarea name="desc" rows="4">${esc(v.description || '')}</textarea>`, 'wide')}${field('المتطلبات', `<textarea name="req" rows="3" maxlength="3000">${esc(v.requirements || '')}</textarea>`, 'wide')}
     <label class="row wide" style="gap:8px"><input type="checkbox" name="pub"${v.public ? ' checked' : ''}> ${esc(tr('تظهر في صفحة الوظائف العامة ويمكن التقديم عليها'))}</label></div>`, {
     onOk: async f => { if (f.title.length < 2) throw new Error('أدخل المسمى الوظيفي');
-      const row = { title: f.title, title_en: blank((f.title_en || '').trim()), department_id: blank(f.dep), positions: +f.pos || 1, status: f.st, description: blank(f.desc), requirements: blank(f.req), public: !!f.pub };
+      const row = { title: f.title, title_en: blank((f.title_en || '').trim()), department_id: blank(f.dep), positions: +f.pos || 1, status: f.st, description: blank(f.desc), requirements: blank(f.req), public: !!f.pub }; if ('jd' in f) row.jd_id = blank(f.jd);
       if (o) await db.upd('job_openings', { id: 'eq.' + o.id }, row); else { const [x] = await db.ins('job_openings', Object.assign(row, { company_id: S.cid })); location.hash = '#/recruit/' + x.id; return; }
       route(); } });
 }
@@ -141,13 +142,16 @@ async function opening(page, id) {
   if (!o) throw new Error('الوظيفة غير موجودة');
   const by = s => cands.filter(c => c.stage === s).length;
   page.innerHTML = `<div class="head"><div><a href="#/recruit" class="small back">التوظيف</a><h1>${esc(o.title)} <span class="badge ${OPEN_ST[o.status][1]}">${esc(OPEN_ST[o.status][0])}</span></h1><div class="muted">${o.positions} شاغر · ${by('hired')} عُيّن</div></div>
-    <div class="row"><button class="btn" id="eo">تعديل الوظيفة</button><button class="btn pri" id="nc">إضافة مرشح</button></div></div>
+    <div class="row">${o.jd_id ? `<button class="btn" id="jdp">${esc(tr('طباعة الوصف الوظيفي'))}</button>` : ''}${cands.length > 1 ? `<button class="btn" id="cmp">${esc(tr('مقارنة المرشحين'))}</button>` : ''}<button class="btn" id="eo">تعديل الوظيفة</button><button class="btn pri" id="nc">إضافة مرشح</button></div></div>
     ${o.description ? `<div class="card" style="white-space:pre-wrap">${esc(o.description)}</div>` : ''}
     <div class="grid" style="margin-bottom:16px">${Object.keys(STAGES).map(s => `<div class="card kpi"><div class="muted small">${esc(STAGES[s])}</div><div class="v num">${by(s)}</div></div>`).join('')}</div>
     ${tbl([{ t: 'المرشح', k: 'full_name' }, { t: 'الجوال', h: c => `<span class="num">${esc(c.phone || '—')}</span>` }, { t: 'الجنسية', h: c => c.is_saudi ? 'سعودي' : 'غير سعودي' }, { t: 'الراتب المتوقع', r: 1, h: c => money(c.expected_salary) }, { t: 'التقييم', h: c => c.rating ? '★'.repeat(c.rating) : '—' }, { t: 'المقابلة', h: c => c.interview_at ? `<span class="num">${esc(String(c.interview_at).slice(0, 16).replace('T', ' '))}</span>` : '—' }, { t: 'المرحلة', h: c => stBadge(c.stage) }], cands, { empty: 'لا يوجد مرشحون بعد', onRow: true })}`;
   bindRows(page, cands, c => candidateForm(c, o, deps));
   $('#nc', page).onclick = () => candidateForm(null, o, deps);
+  JDS = await db.get('job_descriptions', { company_id: 'eq.' + S.cid, order: 'title', select: 'id,title' }).catch(() => []);
   $('#eo', page).onclick = () => openingForm(o, deps);
+  if ($('#cmp', page)) $('#cmp', page).onclick = () => scoreCompare(o, cands);
+  if ($('#jdp', page)) $('#jdp', page).onclick = async () => { const [j] = await db.get('job_descriptions', { id: 'eq.' + o.jd_id }); jdPrint(j); };
 }
 function candidateForm(c, o, deps) {
   const v = c || { is_saudi: true, gender: 'm', stage: 'applied' };
@@ -168,6 +172,7 @@ function candidateForm(c, o, deps) {
     ${field('ملاحظات', `<textarea name="notes" rows="3">${esc(v.notes || '')}</textarea>`, 'wide')}
     ${c ? `<div class="wide"><label>${esc(tr('السيرة الذاتية والمرفقات'))}</label><div id="cvl" class="small muted">${esc(tr('جارٍ التحميل…'))}</div>
       <label class="btn sm" style="margin-top:6px">${esc(tr('إرفاق ملف'))}<input type="file" id="cvf" accept=".pdf,.doc,.docx,image/*" hidden></label> <span class="small muted">${esc(tr('PDF أو Word أو صورة — حتى 3 ميجابايت'))}</span><div id="cverr"></div></div>` : ''}
+    ${c ? `<div class="wide row" style="gap:6px"><button type="button" class="btn" id="cscore">${esc(tr('بطاقة التقييم'))}</button>${o.jd_id ? `<button type="button" class="btn" id="cjd">${esc(tr('طباعة الوصف الوظيفي مع العرض'))}</button>` : ''}</div>` : ''}
     ${c && !['hired', 'rejected'].includes(c.stage) ? '<div class="wide"><button type="button" class="btn pri" id="hire">تعيين وإنشاء سجل موظف</button></div>' : ''}
     ${locked ? '<div class="wide note">عُيّن هذا المرشح وأُنشئ سجله في «الموظفون».</div>' : ''}</div>`, {
     wide: true, onOk: async f => { await save(f); toast('تم الحفظ'); route(); } });
@@ -183,6 +188,8 @@ function candidateForm(c, o, deps) {
       const [n] = await db.ins('candidates', Object.assign(row, { company_id: S.cid, opening_id: o.id })); return n;
   };
   if ($('#hire', d)) $('#hire', d).onclick = () => hireForm(c, o, deps);
+  if ($('#cscore', d)) $('#cscore', d).onclick = () => scorecardDialog(c);
+  if ($('#cjd', d)) $('#cjd', d).onclick = async () => { const [j] = await db.get('job_descriptions', { id: 'eq.' + o.jd_id }); jdPrint(j, null, null, c); };
   if (!locked) { const ib = document.createElement('button'); ib.type = 'button'; ib.className = 'btn'; ib.id = 'cmsg'; ib.textContent = tr('مراسلة المرشح'); $('.df', d).insertBefore(ib, $('#mok', d));
     ib.onclick = () => busy(ib, async () => { try { candidateMessage(await save(formData($('#mform', d))), o); $('#dlg').addEventListener('close', () => route(), { once: true }); } catch (e) { showErr($('#merr', d), e); } }); }
   if (c) candFiles(c, d);

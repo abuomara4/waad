@@ -78,7 +78,11 @@ async function soForm(page, kind, id, q) {
     g += r2(q * n0(l.price)); s += a; v += t; $('[data-amt]', tr).textContent = money(a); });
     $('#tg', page).textContent = money(g); $('#td', page).textContent = money(g - s); $('#ts', page).textContent = money(s); $('#tv', page).textContent = money(v); $('#tt', page).textContent = money(s + v); };
   $('#lb', page).addEventListener('input', e => { const tr = e.target.closest('tr'); if (!tr) return; const l = lines[+tr.dataset.i], f = e.target.dataset.f; l[f] = e.target.value;
-    if (f === 'item') { const it = L.im[l.item]; if (it && !l.price) { l.price = it.sale_price; $('[data-f=price]', tr).value = it.sale_price; } if (it) { l.vat = n0(it.vat_rate == null ? 15 : it.vat_rate); $('[data-f=vat]', tr).value = String(l.vat); } } calc(); });
+    if (f === 'price') l.pman = true;
+    if (f === 'item') { l.pman = false; const it = L.im[l.item]; if (it) { l.price = it.sale_price; $('[data-f=price]', tr).value = it.sale_price; } if (it) { l.vat = n0(it.vat_rate == null ? 15 : it.vat_rate); $('[data-f=vat]', tr).value = String(l.vat); } }
+    if ((f === 'item' || f === 'qty') && l.item && typeof plApply === 'function') plApply(l, $('[name=party]', page).value, l.item, n0(l.qty == null ? 1 : l.qty), () => { $('[data-f=price]', tr).value = l.price; calc(); });
+    calc(); });
+  if ($('[name=party]', page)) $('[name=party]', page).addEventListener('change', () => $$('tr', $('#lb', page)).forEach(tr => { const l = lines[+tr.dataset.i]; if (l && l.item && typeof plApply === 'function') plApply(l, $('[name=party]', page).value, l.item, n0(l.qty == null ? 1 : l.qty), () => { $('[data-f=price]', tr).value = l.price; calc(); }); }));
   $('#lb', page).addEventListener('click', e => { if (e.target.matches('[data-rm]')) { lines.splice(+e.target.closest('tr').dataset.i, 1); if (!lines.length) lines.push({}); draw(); } });
   $('#al', page).onclick = () => { lines.push({}); draw(); };
   draw();
@@ -107,7 +111,7 @@ async function soView(page, kind, id) {
   const leftDel = lines.some(l => n0(l.qty) > n0(l.delivered)), leftInv = lines.some(l => n0(l.qty) > n0(l.invoiced));
   const btns = [];
   if (kind === 'quote' && can('sales')) {
-    if (open) btns.push('<a class="btn" id="qed">تعديل</a>', '<button class="btn" id="qac">قبول العميل</button>', '<button class="btn" id="qrj">رفض</button>');
+    if (open) btns.push('<a class="btn" id="qed">تعديل</a>', `<button class="btn" id="qln">${esc(tr('رابط للعميل'))}</button>`, '<button class="btn" id="qac">قبول العميل</button>', '<button class="btn" id="qrj">رفض</button>');
     if ((open || doc.status === 'accepted') && !soExpired(doc)) btns.push('<button class="btn pri" id="qcv">تحويل إلى أمر بيع</button>');
   }
   if (kind === 'order' && leftDel && (open || (doc.status === 'closed' && !doc.reason)) && (can('sales') || can('stock'))) btns.push('<button class="btn" id="odl">إشعار تسليم</button>');
@@ -136,6 +140,7 @@ async function soView(page, kind, id) {
   if ($('#ssend', page)) $('#ssend', page).onclick = () => sendDocDialog({ title: tr(kind === 'quote' ? 'عرض سعر' : 'أمر بيع'), no: doc.no, party, total: n0(doc.total), due: kind === 'quote' ? doc.valid_until : null, printBtn: $('#sprint', page) });
   on('#sprint', () => { const w = document.createElement('div'); w.innerHTML = salesSheet({ kind, doc, lines, party, im: L.im }); printWith(w.firstElementChild, '@page{size:A4 portrait;margin:12mm}'); });
   on('#qed', () => location.hash = `${K.h}/${id}/edit`); on('#oed', () => location.hash = `${K.h}/${id}/edit`);
+  on('#qln', () => quoteLinkDialog(doc, party || {}).catch(e => toast(e.message)));
   on('#qac', async () => { await db.rpc('quote_decide', { p_id: id, p_accept: true, p_reason: null }); toast('سُجّل قبول العميل'); route(); });
   on('#qrj', () => modal('رفض العرض', field('السبب', '<textarea name="r" rows="2" required></textarea>'), { ok: 'رفض', onOk: async f => { await db.rpc('quote_decide', { p_id: id, p_accept: false, p_reason: f.r }); toast('سُجّل الرفض'); route(); } }));
   on('#qcv', async e => { await busy(e.target, async () => { const nid = await db.rpc('quote_to_order', { p_id: id }); toast('أُنشئ أمر البيع'); location.hash = '#/orders/' + nid; }); });
