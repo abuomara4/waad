@@ -216,6 +216,9 @@ h1,h2,h3,.kicker{font-family:WaadSAR,"Plus Jakarta Sans","Noto Kufi Arabic","IBM
 :focus-visible{outline:2px solid #217FE1;outline-offset:2px}
 main{animation:wfade .25s cubic-bezier(.22,1,.36,1)}@keyframes wfade{from{opacity:0}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){main{animation:none}.btn{transition:none}}
+/* the site's texts and videos are not for copying or saving (owner's decision): no selection outside form fields */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:text}
+video{-webkit-touch-callout:none}
 </style>
 </head>
 <body data-page="tools">
@@ -435,6 +438,11 @@ main{animation:wfade .25s cubic-bezier(.22,1,.36,1)}@keyframes wfade{from{opacit
   </div>
 </footer>
 
+<script>(function(){var ok=function(t){return t&&t.closest&&t.closest('input,textarea,select,[contenteditable]')};
+['copy','cut','contextmenu','dragstart','selectstart'].forEach(function(ev){document.addEventListener(ev,function(e){if(!ok(e.target))e.preventDefault()},true)});
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&/^[acsuxp]$/i.test(e.key)&&!ok(e.target)&&!(e.key.toLowerCase()==='p'))e.preventDefault()},true);
+function lock(){[].forEach.call(document.querySelectorAll('video'),function(v){v.setAttribute('controlsList','nodownload noplaybackrate noremoteplayback');v.setAttribute('disablePictureInPicture','');v.setAttribute('disableRemotePlayback','')})}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',lock);else lock();})();</script>
 <script>
 (function(){
   var d=document.documentElement;
