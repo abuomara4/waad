@@ -2417,15 +2417,21 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الصنف موقوف	The item is inactive
 الصورة كبيرة جدا	The image is too large
 الصورة كبيرة جداً	The image is too large
+الصورة لا تبدو فاتورة	The photo does not look like an invoice
+الصورة لا تبدو فاتورة: لم نجد فيها كلمة «فاتورة» أو «إيصال» مع مبلغ إجمالي وتاريخ أو رقم. صوّر الفاتورة نفسها بوضوح، أو اكتب البيانات بنفسك.	The photo does not look like an invoice: no «invoice» or «receipt» with a total and a date or number. Photograph the invoice itself clearly, or type the details yourself.
 الصورة مرفقة	the photo is attached
 الصيانة القادمة	Next service
 الصيانة القادمة بتاريخ	Next service on
 الصيانة كل	Service every
 الصيغة	Format
 الضريبة	VAT
+الضريبة أكبر من الإجمالي	The VAT is more than the total
+الضريبة أكبر من الإجمالي.	The VAT is more than the total.
 الضريبة المحجوزة	Tax withheld
 الضريبة المستقطعة	Tax withheld
 الضريبة تُسترد فقط إذا كانت الفاتورة ضريبية وفيها الرقم الضريبي للمورد	VAT is reclaimable only on a tax invoice showing the supplier VAT number
+الضريبة لا تساوي	The VAT is not
+الضريبة لا تساوي 15% من المبلغ قبل الضريبة، تأكد من الأرقام.	The VAT is not 15% of the amount before VAT: check the figures.
 الضمان	Warranty
 الطائف	Taif
 الطراز	Model
@@ -2555,6 +2561,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 الفئة	Category
 الفئة المستهدفة	Target group
 الفاتورة	Invoice
+الفاتورة أقدم من سنة	The invoice is more than a year old
+الفاتورة أقدم من سنة.	The invoice is more than a year old.
 الفاتورة الأصلية غير موجودة	The original invoice was not found
 الفاتورة الضريبية	The tax invoice
 الفاتورة المتكررة	Recurring invoice
@@ -3616,6 +3624,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تأكد أنها ليست مكررة	Make sure it is not a duplicate
 تأكد من إبلاغ العامل كتابة	Make sure the worker is notified in writing
 تأكد من إبلاغ العامل كتابةً	Make sure the worker is notified in writing
+تأكد من الأرقام	check the figures
 تأكد من توافر شروط المادة وإنذار العامل كتابة في حالات الغياب	make sure the Article's conditions are met and the worker was warned in writing for absence
 تأكد من توافر شروط المادة وإنذار العامل كتابةً في حالات الغياب	make sure the Article's conditions are met and the worker was warned in writing for absence
 تأكد من هوية الموظف قبل تسليمه كلمة المرور	Confirm the employee's identity before handing over the password
@@ -3712,6 +3721,8 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 تاريخ العودة	Return date
 تاريخ العودة قبل الذهاب	The return date is before departure
 تاريخ الفاتورة	Invoice date
+تاريخ الفاتورة في المستقبل	The invoice date is in the future
+تاريخ الفاتورة في المستقبل.	The invoice date is in the future.
 تاريخ الفاتورة لا يكون في المستقبل	The invoice date cannot be in the future
 تاريخ القرار	Decision date
 تاريخ الكشف	Statement date
@@ -5660,6 +5671,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 صورة (اختيارية)	Photo (optional)
 صورة أو	Image or
 صومالي	Somali
+صوّر الفاتورة نفسها بوضوح	Photograph the invoice itself clearly
 صوّرها بصيغة	take it as
 صوّرها مرة ثانية بإضاءة جيدة	Take it again in good light
 صيانة	maintenance
@@ -6081,6 +6093,10 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 فاتورة ضريبية	Tax invoice
 فاتورة ضريبية أو مبسطة فيها رمز	A tax or simplified invoice with a
 فاتورة ضريبية مبسطة	Simplified tax invoice
+فاتورة ضريبية موثّقة برمز هيئة الزكاة والضريبة والجمارك	A tax invoice verified by its ZATCA code
+فاتورة ضريبية موثّقة برمز هيئة الزكاة والضريبة والجمارك.	A tax invoice verified by its ZATCA code.
+فاتورة قُرئت من نصها	An invoice read from its text
+فاتورة قُرئت من نصها. قراءة النص تقريبية: راجع الأرقام وعدّلها في النموذج قبل الإرسال.	An invoice read from its text. Reading text is approximate: check the figures and correct them in the form before sending.
 فاتورة مبسطة سريعة	A quick simplified invoice
 فاتورة مبيعات	Sales invoice
 فاتورة مبيعات جديدة	New sales invoice
@@ -6966,6 +6982,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 لم نجد رمز	No clear
 لم نجد رمز QR واضحا. قرّب الكاميرا من الرمز وصوّره مرة ثانية، أو اكتب البيانات بنفسك (الصورة مرفقة).	No clear QR code found. Bring the camera closer to the code and take it again, or type the details yourself (the photo is attached).
 لم نجد عمود التاريخ والمبلغ	No date and amount columns found
+لم نجد فيها كلمة	no
 لم يؤدِّ الامتحان	Exam not sat
 لم يبدأ	Not started
 لم يبدأ الإهلاك	Depreciation not started
@@ -7502,6 +7519,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 مع ذكر السبب	with a reason
 مع رسالة تذكير جاهزة	with a ready reminder message
 مع عميل	with a customer
+مع مبلغ إجمالي وتاريخ أو رقم	with a total and a date or number
 مع مورد	with a supplier
 مع يوم الإقفال إن وُجد	with the cutoff day if set
 معالجة	Fix
@@ -7663,6 +7681,7 @@ PDF أو Word أو صورة — حتى 3 ميجابايت لكل ملف	PDF, Wor
 من الزملاء	from colleagues
 من القائمة بعد دخولك	from the menu after you sign in
 من اللائحة التنفيذية	of the Implementing Regulations
+من المبلغ قبل الضريبة	of the amount before VAT
 من الملف	from the file
 من الملف أو من الموظفين الحاليين	from the file or from current employees
 من المنشآت	of companies

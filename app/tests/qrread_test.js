@@ -4,8 +4,8 @@ const fs = require('fs'), vm = require('vm'), path = require('path');
 const ctx = { TextEncoder, TextDecoder, atob, btoa, Uint8Array, Uint8ClampedArray, Float32Array, Math, console };
 vm.createContext(ctx);
 for (const f of ['qr.js', 'qrread.js']) vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'src', f), 'utf8').replace(/^const (QR|QRREAD) =/m, 'this.$1 ='), ctx);
-vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'src', 'receipt_text.js'), 'utf8') + '\nthis.receiptFromText = receiptFromText;', ctx);
-const { QR, QRREAD, receiptFromText } = ctx;
+vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'src', 'receipt_text.js'), 'utf8') + '\nthis.receiptFromText = receiptFromText; this.receiptCheck = receiptCheck;', ctx);
+const { QR, QRREAD, receiptFromText, receiptCheck } = ctx;
 let pass = 0, fail = 0; const ok = (c, m) => { if (c) pass++; else { fail++; console.log('FAIL', m); } };
 // a pseudo-random generator so every run is the same
 let seed = 7; const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
@@ -59,10 +59,22 @@ const TX = [
   ['English receipt', `ALNUKHBA RESTAURANT\nTax Invoice\nVAT No 310122393500003\nInvoice No: 88341\nDate 2026-11-20 13:42\nSubtotal 1,000.00\nVAT 15% 150.00\nTOTAL 1,150.00`,
     { seller: 'ALNUKHBA RESTAURANT', vat: '310122393500003', total: 1150, tax: 150, date: '2026-11-20', ref: '88341' }],
   ['no VAT, Arabic-Indic digits', `بقالة الحي\nإيصال\nالتاريخ ٢٠٢٦/١١/٢٥\nخبز ٥٫٠٠\nحليب ١٢٫٥٠\nالمبلغ المستحق ١٧٫٥٠`, { seller: 'بقالة الحي', total: 17.5, date: '2026-11-25' }],
-  ['a total on the next line', `Market One\nGrand Total\nSAR 64.90`, { seller: 'Market One', total: 64.9 }],
+  ['a total on the next line', `Market One\nReceipt\nGrand Total\nSAR 64.90`, { seller: 'Market One', total: 64.9, invoice: true }],
 ];
 for (const [name, text, want] of TX) { const z = receiptFromText(text); const bad = Object.keys(want).filter(k => z[k] !== want[k]);
   ok(!bad.length, 'invoice text: ' + name + (bad.length ? ' — ' + bad.map(k => k + '=' + JSON.stringify(z[k])).join(', ') : '')); }
+// only invoices: these papers are not
+const NOT = [['a letter', 'السلام عليكم\nنفيدكم بأن الاجتماع يوم 2026-11-30 الساعة 10\nمع التحية'], ['a menu', 'MENU\nBurger 25\nPizza 40\nJuice 12'],
+  ['an ID card', 'المملكة العربية السعودية\nبطاقة الهوية الوطنية\n1021098767\nتاريخ الانتهاء 1450/05/20'], ['a payslip-like table', 'الاسم أحمد\nالراتب الأساسي 8000\nبدل السكن 2000'],
+  ['numbers only', '125.00\n300.50\n2026-11-02']];
+for (const [name, text] of NOT) ok(!receiptCheck(receiptFromText(text)).ok, 'not an invoice: ' + name);
+for (const [name, text] of TX) ok(receiptCheck(receiptFromText(text), '2026-11-27').ok, 'is an invoice: ' + name);
+// a ZATCA code is an invoice only with all its fields; and the sums are checked
+const zq = (o) => Object.assign({ seller: 'مؤسسة', vat: '300000000000003', time: '2026-11-20T10:00:00Z', date: '2026-11-20', total: 115, tax: 15 }, o);
+ok(receiptCheck(zq({}), '2026-11-27').ok && !receiptCheck(zq({}), '2026-11-27').warn.length, 'ZATCA invoice: complete and adds up');
+ok(!receiptCheck(zq({ vat: '12345' }), '2026-11-27').ok && !receiptCheck({ raw: 'https://example.com' }, '2026-11-27').ok, 'ZATCA invoice: a wrong VAT number or a plain link is not an invoice');
+ok(receiptCheck(zq({ tax: 40 }), '2026-11-27').warn.includes('rate'), 'warning: VAT is not 15% of the amount');
+ok(receiptCheck(zq({ date: '2026-12-05' }), '2026-11-27').warn.includes('future') && receiptCheck(zq({ date: '2025-01-01' }), '2026-11-27').warn.includes('old'), 'warning: a future or year-old date');
 // Reed–Solomon: errors up to half the correction codewords are fixed
 const m0 = QR.encode(Array.from(enc.encode(p1))).map(r => r.map(x => (x ? 1 : 0)));
 const dirty = m0.map(r => r.slice()); for (let k = 0; k < 25; k++) { const y = 9 + Math.floor(rnd() * (m0.length - 18)), x = 9 + Math.floor(rnd() * (m0.length - 18)); dirty[y][x] ^= 1; }

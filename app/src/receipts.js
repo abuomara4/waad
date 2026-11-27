@@ -3,7 +3,9 @@
    on the device by qrread.js (no outside service, the photo never leaves the company's records), and the invoice's key warns when
    the same invoice was already claimed in this company. Used in: expense / trip / purchase requests, petty cash claims, supplier inbox. */
 const receiptKey = z => [z.vat || '', z.time || z.date || '', z.total == null ? '' : (+z.total).toFixed(2), z.vat ? '' : (z.ref || z.seller || '')].join('|');
-const receiptRow = z => ({ seller: z.seller || '', vat_no: z.vat || '', time: z.time || '', date: z.date || '', total: z.total, tax: z.tax, ref: z.ref || '', src: z.src || 'qr', key: receiptKey(z) });
+const receiptRow = z => { const c = receiptCheck(z); return { seller: z.seller || '', vat_no: z.vat || '', time: z.time || '', date: z.date || '', total: z.total, tax: z.tax, ref: z.ref || '', src: z.src || 'qr',
+  verified: c.kind, warn: c.warn, key: receiptKey(z) }; };
+const RCPT_WARN = { rate: 'الضريبة لا تساوي 15% من المبلغ قبل الضريبة، تأكد من الأرقام.', tax_total: 'الضريبة أكبر من الإجمالي.', future: 'تاريخ الفاتورة في المستقبل.', old: 'الفاتورة أقدم من سنة.' };
 
 /* reading the printed text on the device: Tesseract (site/app/ocr, Apache-2.0) is loaded the first time it is needed */
 let ocrP = null, ocrTick = null;
@@ -30,7 +32,8 @@ async function ocrRead(file, tick) {
 }
 
 function receiptSummary(z, dup) {
-  return `<div class="card rcpt" style="margin:8px 0;padding:10px 12px"><b>✓ ${esc(tr(z.src === 'text' ? 'قُرئ نص الفاتورة' : 'قُرئت الفاتورة'))}</b>${z.src === 'text' ? `<div class="small muted">${esc(tr('قراءة النص تقريبية: راجع الأرقام وعدّلها في النموذج قبل الإرسال.'))}</div>` : ''}
+  return `<div class="card rcpt" style="margin:8px 0;padding:10px 12px"><b>✓ ${esc(tr(z.src === 'text' ? 'قُرئ نص الفاتورة' : 'قُرئت الفاتورة'))}</b><div class="small" style="margin-top:2px">${z.src === 'text' ? esc(tr('فاتورة قُرئت من نصها. قراءة النص تقريبية: راجع الأرقام وعدّلها في النموذج قبل الإرسال.')) : '🛡️ ' + esc(tr('فاتورة ضريبية موثّقة برمز هيئة الزكاة والضريبة والجمارك.'))}</div>
+    ${(z.warn || []).map(w => `<div class="note" style="margin-top:6px">⚠️ ${esc(tr(RCPT_WARN[w] || w))}</div>`).join('')}
     <div class="small" style="display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin-top:6px">
       <span class="muted">${esc(tr('المورد'))}</span><span>${esc(z.seller || '—')}</span>
       <span class="muted">${esc(tr('الرقم الضريبي'))}</span><span class="num" dir="ltr">${esc(z.vat_no || z.vat || '—')}</span>
@@ -52,19 +55,22 @@ function receiptReader(fileInput, onRead) {
     if (!file || !/^image\//.test(file.type)) return;
     msg.textContent = tr('جارٍ قراءة الفاتورة…'); out.innerHTML = '';
     let z = null; try { z = await QRREAD.fromFile(file); } catch (e) { z = null; }
-    // no QR (or an empty one): read the printed text on the device
-    if (!z || (!z.vat && z.total == null)) {
+    // no QR, or a QR that is not a ZATCA invoice code (a link, a menu…): read the printed text on the device
+    if (!z || !receiptCheck(z).ok) {
       msg.textContent = tr('لا يوجد رمز QR، جارٍ قراءة نص الفاتورة…');
       try { z = await ocrRead(file, m => { msg.textContent = (m.status === 'recognizing text' ? tr('جارٍ قراءة نص الفاتورة') : tr('جارٍ تجهيز القارئ أول مرة')) + ' ' + Math.round(m.progress * 100) + '%'; }); } catch (e) { z = null; }
     }
-    if (!z || (!z.vat && z.total == null && !z.seller)) { msg.textContent = tr('تعذّرت قراءة الفاتورة. صوّرها مرة ثانية بإضاءة جيدة، أو اكتب البيانات بنفسك (الصورة مرفقة).'); return; }
+    if (!z || !receiptCheck(z).ok) {   // not an invoice: nothing is filled and the photo is not kept
+      if (added) try { const dt = new DataTransfer(); [...(fileInput.files || [])].filter(x => x !== added).forEach(x => dt.items.add(x)); fileInput.files = dt.files; } catch (e) { /* keep */ }
+      msg.textContent = tr('الصورة لا تبدو فاتورة: لم نجد فيها كلمة «فاتورة» أو «إيصال» مع مبلغ إجمالي وتاريخ أو رقم. صوّر الفاتورة نفسها بوضوح، أو اكتب البيانات بنفسك.'); return; }
     const r = receiptRow(z), dup = await db.rpc('receipt_seen', { p_company: S.cid, p_key: r.key }).catch(() => 0);
     msg.textContent = ''; out.innerHTML = receiptSummary(r, dup > 0); onRead(r, dup);
   };
+  let added = null;
   $('input', box).onchange = ev => { const f = ev.target.files[0]; if (!f) return;
-    try { const dt = new DataTransfer(); [...(fileInput.files || [])].forEach(x => dt.items.add(x)); dt.items.add(f); fileInput.files = dt.files; } catch (e) { /* older browsers: the photo is still read */ }
+    try { const dt = new DataTransfer(); [...(fileInput.files || [])].forEach(x => dt.items.add(x)); dt.items.add(f); fileInput.files = dt.files; added = [...fileInput.files].pop(); } catch (e) { added = null; }
     read(f); };
-  fileInput.addEventListener('change', () => { const f = [...(fileInput.files || [])].reverse().find(x => /^image\//.test(x.type)); if (f) read(f); });
+  fileInput.addEventListener('change', () => { added = null; const f = [...(fileInput.files || [])].reverse().find(x => /^image\//.test(x.type)); if (f) read(f); });
 }
 
 // for approvers: what the photographed invoice said, and whether it was claimed elsewhere in the company too

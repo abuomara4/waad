@@ -303,6 +303,15 @@ with sync_playwright() as pw:
     st.wait_for_selector('#dlg .rcpt', timeout=120000)
     ok(st.input_value('#dlg input[name=amount]') == '87.5' and 'CORNER GROCERY' in st.inner_text('#dlg .rcpt').upper() and '5521' in st.inner_text('#dlg .rcpt'), 'invoice reading: an invoice with no QR is read from its printed text on the device (total 87.50, shop, number) — ' + st.inner_text('#dlg .rcpt')[:120].replace('\n', ' '))
     st.click('#mx')
+    # not an invoice (a menu): refused, nothing filled, the photo not kept
+    go(st, '#/requests'); st.click('#nr'); st.select_option('#rk', 'expense'); st.wait_for_selector('#dlg .rcptbox')
+    st.evaluate("""async () => { const c = document.createElement('canvas'); c.width = 900; c.height = 600; const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, 900, 600); g.fillStyle = '#111';
+      g.font = 'bold 50px Arial, sans-serif'; g.fillText('MENU', 60, 100); g.font = '40px Arial, sans-serif'; [['Burger 25', 200], ['Pizza 40', 290], ['Juice 12', 380]].forEach(([t, y]) => g.fillText(t, 60, y));
+      const b = await new Promise(r => c.toBlob(r, 'image/png')), f = new File([b], 'menu.png', { type: 'image/png' });
+      const inp = document.querySelector('#dlg .rcptbox input'), dt = new DataTransfer(); dt.items.add(f); inp.files = dt.files; inp.dispatchEvent(new Event('change')); }""")
+    st.wait_for_function("document.querySelector('#dlg .rcptbox [role=status]').textContent.includes('لا تبدو فاتورة')", timeout=120000)
+    ok(st.input_value('#dlg input[name=amount]') == '' and st.locator('#dlg .rcpt').count() == 0 and st.evaluate("document.getElementById('rqr').files.length") == 0, 'invoice reading: a photo that is not an invoice (a menu) is refused, nothing is filled and it is not attached')
+    st.click('#mx')
     go(st, '#/guide'); st.wait_for_selector('.gsec'); t = st.inner_text('#page')
     ok('طلب إجازة' in t and 'قسيمة الراتب' in t and st.locator('[data-sec=admin]').count() == 0 and st.locator('#gprint').count() == 0, 'guide: an employee sees the employee topics, not the admin ones')
     st.fill('#gq', 'تظلم'); st.wait_for_timeout(200); ok(st.locator('.gitem:visible').count() == 1 and st.locator('.gitem[data-g=profile]').is_visible(), 'guide: search finds the topic (penalties and appeal)')
