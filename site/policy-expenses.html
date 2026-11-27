@@ -68,8 +68,8 @@ h1 em{font-style:normal;color:var(--gold2)}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}}
 .kicker{margin:0 0 10px;color:var(--gold2);font-weight:600;font-size:clamp(15px,3.6vw,19px);letter-spacing:.2px}
 .fbrand{display:flex;flex-direction:column;gap:6px}.ftag{font-size:13px;color:var(--gold2);font-weight:500}
-html:not([lang=en]) .hero h1{white-space:nowrap;font-size:clamp(22px,8vw,46px)}
-@media(max-width:560px){html:not([lang=en]) .hero h1{white-space:normal}}   /* a phone: the heading wraps before «في نظام واحد» instead of running off the screen */
+html:not([lang=en]) .hero h1{font-size:clamp(22px,8vw,46px)}
+.hero h1 .nw{white-space:nowrap}   /* the heading may wrap, but only before «في نظام واحد» — it never runs under the picture beside it */
 .lead{font-size:clamp(16px,2vw,19px);color:#cbd5e1;max-width:620px;margin:0 0 30px}
 .cta{display:flex;gap:12px;flex-wrap:wrap}
 .note7{margin:12px 0 0;color:#e0b45e;font-size:14px;font-weight:600}
