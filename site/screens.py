@@ -54,7 +54,16 @@ with sync_playwright() as p:
       await db.upd('projects', { id: 'eq.' + id }, { billing: 'fixed', contract_value: 180000, cost_budget: 90000, start_date: d(-45), due_date: d(75) });
       for (const [name, weight, a, b, progress, sort] of [['التحليل والتصميم', 30, -45, -15, 100, 0], ['التطوير', 50, -15, 45, 40, 1], ['الاختبار والتسليم', 20, 45, 75, 0, 2]])
         await db.ins('project_milestones', { company_id: c, project_id: id, name, weight, start_date: d(a), end_date: d(b), progress, sort }); }""", res['projects'][0])
+    # contracts with customers and suppliers: one ending soon (the bell and the badge), one renewing itself, one supply contract
+    o.evaluate("""async () => { const c = S.cid, d = n => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
+      const cust = await db.get('parties', { company_id: 'eq.' + c, kind: 'eq.customer' }), sup = await db.get('parties', { company_id: 'eq.' + c, kind: 'eq.supplier' });
+      for (const [dir, p, kind, title, a, b, value, billing, auto, notice] of [['sale', cust[0], 'maintenance', 'عقد صيانة الأجهزة السنوي', -340, 25, 48000, 'monthly', false, 30],
+          ['sale', cust[1 % cust.length], 'subscription', 'اشتراك خدمات الدعم الفني', -120, 245, 18000, 'quarterly', true, 30], ['purchase', sup[0], 'supply', 'توريد مواد التغليف', -60, 305, 96000, 'monthly', false, 45],
+          ['purchase', sup[1 % sup.length], 'lease', 'إيجار المستودع الرئيسي', -200, 165, 120000, 'semiannual', true, 60]])
+        await db.ins('agreements', { company_id: c, direction: dir, party_id: p.id, kind, title, start_date: d(a), end_date: d(b), value, billing, auto_renew: auto, notice_days: notice }); }""")
     shots = [('compliance', '#/compliance'), ('hr', '#/hrdash'), ('finance', '#/reports'), ('marketing', '#/marketing'), ('purch', '#/purchases'), ('stock', '#/items'), ('project', '#/projects/' + (res['projects'] or [''])[0]), ('forms', '#/forms'), ('invoice', '#/sales/' + zinv)]
+    shots.append(('agreements', '#/agreements'))
+    if os.environ.get('ONLY'): shots = [x for x in shots if x[0] in os.environ['ONLY'].split(',')]   # ONLY=agreements regenerates just those
     for lang in ('ar', 'en'):
         o.evaluate("l => localStorage.setItem('waad.lang', JSON.stringify(l))", lang); o.reload(); o.wait_for_selector('#nav')
         for name, route in shots:
